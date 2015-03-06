@@ -1,0 +1,40 @@
+#+TITLE: Waf Tools
+
+This repository holds some simple waf tools which help build code.  They are nothing fancy.
+
+* Setting up for building
+
+Using these waf tools assume you are building your code with waf.  These tools simply need to be put into a sub directory of your package.
+
+#+BEGIN_EXAMPLE
+  $ git clone git@github.com:BNLIF/waf-tools.git tools
+#+END_EXAMPLE
+
+Or, if you code is a in a git repository you may wish to use git-submodules:
+
+#+BEGIN_EXAMPLE
+  $ git submodule add -- git@github.com:BNLIF/waf-tools.git tools
+#+END_EXAMPLE
+
+* Using the tools
+
+These tools are used in the usual waf-way.  In your =wscript= file you may have:
+
+#+BEGIN_SRC python
+  def configure(ctx):
+      ctx.load('find_root', tooldir='tools')
+#+END_SRC
+
+You can now use any functionality the tool provides.
+
+* Building
+
+This package provides a copy of =waf=.  If you want to use it, either copy it somewhere in your =$PATH= or alternatively alias is like
+
+#+BEGIN_EXAMPLE
+  $ alias waf=/path/to/these/tools/waf
+#+END_EXAMPLE
+
+* Examples
+
+t.b.d.
