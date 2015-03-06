@@ -10,11 +10,6 @@ Using these waf tools assume you are building your code with waf.  These tools s
   $ git clone git@github.com:BNLIF/waf-tools.git tools
 #+END_EXAMPLE
 
-Or, if you code is a in a git repository you may wish to use git-submodules:
-
-#+BEGIN_EXAMPLE
-  $ git submodule add -- git@github.com:BNLIF/waf-tools.git tools
-#+END_EXAMPLE
 
 * Using the tools
 
@@ -38,3 +33,6 @@ This package provides a copy of =waf=.  If you want to use it, either copy it so
 * Examples
 
 t.b.d.
+
+For now see [[https://github.com/BNLIF/wire-cell-data/][wire-cell-data]] on GitHub.
+
