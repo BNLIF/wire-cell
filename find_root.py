@@ -10,7 +10,6 @@ _tooldir = osp.dirname(osp.abspath(__file__))
 
 
 def options(opt):
-    opt.load('find_system', tooldir=_tooldir)
     opt.add_option('--with-root', default=None,
                    help="Look for CERN ROOT System at the given path")
     return
@@ -29,3 +28,19 @@ def configure(cfg):
     cfg.find_program('rootcint', var='ROOTCINT', path_list=path_list)
     return
 
+@conf
+def gen_rootcint_dict(bld, name, linkdef, headers = '', includes=''):
+    headers = waflib.Utils.to_list(headers)
+    incs = ['-I%s' % bld.path.find_dir(x).abspath() for x in waflib.Utils.to_list(includes)]
+    incs = ' '.join(incs)
+    
+    dict_src = name + '.cxx'
+
+    bld(source = headers + [linkdef],
+        target = dict_src,
+        rule='${ROOTCINT} -f ${TGT} -c %s ${SRC}' % incs)
+
+    bld.shlib(source = dict_src,
+              target = name,
+              includes = includes,
+              use = 'ROOTSYS')
