@@ -23,9 +23,11 @@ _tooldir = osp.dirname(osp.abspath(__file__))
 
 def options(opt):
     opt.load('compiler_cxx')
+    opt.load('waf_unit_test')
     opt.load('find_root', tooldir=_tooldir)
 def configure(cfg):
     cfg.load('compiler_cxx')
+    cfg.load('waf_unit_test')
     cfg.load('find_root', tooldir=_tooldir)
     pass
 
@@ -100,3 +102,23 @@ def rootcint_dictionary(bld, name=None, linkdef=None,
     bld.gen_rootcint_dict(name+"Dict", linkdef,
                           headers = _headers(bld, headers, name),
                           includes = _includes(bld, includes))
+
+
+@conf
+def test_program(bld, source = '', includes=''):
+    '''
+    Build and run a test program named <name>.
+
+    Using source tests/test_<name>.cxx or explicitly as given by <source>
+
+    '''
+
+    from waflib.Tools import waf_unit_test
+    bld.add_post_fun(waf_unit_test.summary)
+
+    source = to_list(source)
+    print source
+    target = osp.splitext(str(source[0]))[0]
+
+    bld.program(features='test', source=source, target=target,
+                includes = _includes(bld, includes))
