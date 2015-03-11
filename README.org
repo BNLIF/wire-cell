@@ -1,38 +1,74 @@
 #+TITLE: Waf Tools
 
-This repository holds some simple waf tools which help build code.  They are nothing fancy.
+This repository holds some simple waf tools which help build code.  
 
-* Setting up for building
+* How to use this package.
 
-Using these waf tools assume you are building your code with waf.  These tools simply need to be put into a sub directory of your package.
+To use =waf-tools= you write a simple file named =wscript= which defines a few Python functions.  You then use =waf=, included in this package, to configure, build and install your code.
+
+* Setting up
+
+Set up a development area like this:
 
 #+BEGIN_EXAMPLE
-  $ git clone git@github.com:BNLIF/waf-tools.git tools
+  $ mkdir -p /path/to/my/dev
+  $ cd /path/to/my/dev
+  $ git clone git@github.com:BNLIF/waf-tools.git 
+  $ alias waf=`pwd`/waf-tools/waf
+  $ waf --version
 #+END_EXAMPLE
 
+You may also want to bring your own packages in this development area:
+
+#+BEGIN_EXAMPLE
+  $ git clone <my-git-repository-url>
+  $ cd <my-git-repository>/
+#+END_EXAMPLE
 
 * Using the tools
 
-These tools are used in the usual waf-way.  In your =wscript= file you may have:
+The main tool will build and install your source package into API headers, shared libraries, ROOT dictionaries, main programs and tests.  To make the =wscript= file simpler you can follow some source directory layout conventions.  
+
+ - =APPNAME= :: your package has a name set by the =APPNAME= variable in the wscript file.  This may differ from your top-level package source directory
+
+ - =src/= :: holds library C++ source code and any private (non-API) headers
+
+ - =inc/= :: holds public API headers here in a subdirectory =<name>/=
+
+** Conventional =wscript=
+
+Following these conventions your =wscript= file is essentially boilerplate listing what types of things your package provides as shown in this example:
 
 #+BEGIN_SRC python
-  def configure(ctx):
-      ctx.load('find_root', tooldir='tools')
-#+END_SRC
+APPNAME = 'MyPackage'
 
-You can now use any functionality the tool provides.
+def options(ctx):
+    ctx.load('find_package')
+def configure(ctx):
+    ctx.load('find_package')
+
+def build(bld):
+    bld.shared_library()
+    bld.api_headers()
+    bld.rootcint_dictionary()
+#+END_SRC
 
 * Building
 
-This package provides a copy of =waf=.  If you want to use it, either copy it somewhere in your =$PATH= or alternatively alias is like
+Using =waf= as aliased above (it needs to be physically in the =waf-tools/= directory do:
 
 #+BEGIN_EXAMPLE
-  $ alias waf=/path/to/these/tools/waf
+  $ waf --prefix=/path/to/install configure build install
 #+END_EXAMPLE
+
+As you develop you can re-build by simply typing:
+
+#+BEGIN_EXAMPLE
+  $ waf
+#+END_EXAMPLE
+
 
 * Examples
 
-t.b.d.
-
-For now see [[https://github.com/BNLIF/wire-cell-data/][wire-cell-data]] on GitHub.
+See [[https://github.com/BNLIF/wire-cell-data/][wire-cell-data]] on GitHub.
 
