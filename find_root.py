@@ -26,6 +26,7 @@ def configure(cfg):
     cfg.check_cfg(path=cfg.env['ROOT-CONFIG'], uselib_store='ROOTSYS',
                   args = '--cflags --libs --ldflags', package='')
     cfg.find_program('rootcint', var='ROOTCINT', path_list=path_list)
+    cfg.find_program('rlibmap', var='RLIBMAP', path_list=path_list)
     return
 
 @conf
@@ -34,13 +35,20 @@ def gen_rootcint_dict(bld, name, linkdef, headers = '', includes=''):
     incs = ['-I%s' % bld.path.find_dir(x).abspath() for x in waflib.Utils.to_list(includes)]
     incs = ' '.join(incs)
     
-    dict_src = name + '.cxx'
+    dict_src = name + 'Dict.cxx'
 
     bld(source = headers + [linkdef],
         target = dict_src,
         rule='${ROOTCINT} -f ${TGT} -c %s ${SRC}' % incs)
 
     bld.shlib(source = dict_src,
-              target = name,
+              target = name+'Dict',
               includes = includes,
               use = 'ROOTSYS')
+
+    rootmap = 'lib%sDict.rootmap'%name
+    bld(source = [linkdef], target=rootmap,
+        rule='${RLIBMAP} -o ${TGT} -l lib%sDict.so -d lib%s.so -c ${SRC}' % (name, name))
+    
+    bld.install_files('${PREFIX}/lib/', rootmap)
+                      

@@ -99,7 +99,7 @@ def rootcint_dictionary(bld, name=None, linkdef=None,
     linkdef = linkdef or "dict/LinkDef.h"
 
     # generate rootcint dictionary and build a shared library
-    bld.gen_rootcint_dict(name+"Dict", linkdef,
+    bld.gen_rootcint_dict(name, linkdef,
                           headers = _headers(bld, headers, name),
                           includes = _includes(bld, includes))
 
