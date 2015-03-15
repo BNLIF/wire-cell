@@ -29,6 +29,7 @@ def configure(cfg):
     cfg.load('compiler_cxx')
     cfg.load('waf_unit_test')
     cfg.load('find_root', tooldir=_tooldir)
+
     pass
 
 
@@ -44,17 +45,20 @@ def _name(name=None):
 
 def _headers(bld, headers, name=None):
     name = _name(name)
+    print '_headers NAME',name
     if not headers:
         incdir = bld.path.find_dir('inc/%s' % name)
-        headers = incdir.ant_glob('*.h')
-    return to_list(headers)
+        return incdir.ant_glob('*.h')
+    if type(headers) == type(""):
+        return bld.path.ant_glob(headers)
+    return headers
 
 
     
 
 
 @conf
-def shared_library(bld, name=None, srcdir='src', source = '', includes =''):
+def shared_library(bld, name=None, srcdir='src', source = '', includes ='', use=''):
     '''
     Make a shared library named <name>
 
@@ -66,11 +70,12 @@ def shared_library(bld, name=None, srcdir='src', source = '', includes =''):
         srcdir = bld.path.find_dir(srcdir)
         source = srcdir.ant_glob('*.cxx')
     source = to_list(source)
+    use = to_list(use) + ['ROOTSYS']
 
     bld.shlib(source = source, 
               target = _name(name), 
               includes = _includes(bld, includes), 
-              use = 'ROOTSYS')
+              use = use)
 
 
 @conf
@@ -86,10 +91,10 @@ def api_headers(bld, name=None, headers = ''):
 
 
 @conf
-def rootcint_dictionary(bld, name=None, linkdef=None,
-                        headers = None, includes=None):
+def root_dictionary(bld, name=None, linkdef=None,
+                    headers = None, includes=None):
     '''
-    Build a rootcint dictionary library for package <name>.
+    Build a root dictionary library for package <name>.
     
     Make a dict/LinkDef.h or explicitly set <linkdef>.
 
@@ -98,10 +103,16 @@ def rootcint_dictionary(bld, name=None, linkdef=None,
     name = _name(name)
     linkdef = linkdef or "dict/LinkDef.h"
 
+    bld.gen_rootcling_dict(name, linkdef,
+                           headers = _headers(bld, headers, name),
+                           includes = _includes(bld, includes))
+
+### fixme: make this configurable via options
     # generate rootcint dictionary and build a shared library
-    bld.gen_rootcint_dict(name, linkdef,
-                          headers = _headers(bld, headers, name),
-                          includes = _includes(bld, includes))
+#    bld.gen_rootcint_dict(name, linkdef,
+#                          headers = _headers(bld, headers, name),
+#                          includes = _includes(bld, includes))
+
 
 
 @conf
