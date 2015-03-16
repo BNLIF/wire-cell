@@ -82,4 +82,4 @@ def make_package(bld, name, use=''):
                         source = [test_main], 
                         target = test_main.name.replace('.cxx',''),
                         includes = 'inc',
-                        use = use)
+                        use = use + [name])
