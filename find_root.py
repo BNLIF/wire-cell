@@ -36,16 +36,24 @@ def gen_rootcling_dict(bld, name, linkdef, headers = '', includes = ''):
 rootcling -f dictToto.cxx -rml libtoto.so -rmf libtoto.rootmap myHeader1.h myHeader2.h ... LinkDef.h
     '''
     headers = waflib.Utils.to_list(headers)
-    incs = ['-I%s' % bld.path.find_dir(x).abspath() for x in waflib.Utils.to_list(includes)]
+    incs = list()
+    for maybe in waflib.Utils.to_list(includes):
+        if maybe.startswith('/'):
+            incs.append('-I%s' % maybe)
+        else:
+            incs.append('-I%s' % bld.path.find_dir(maybe).abspath())
     incs = ' '.join(incs)
+    print 'INCS:',incs
     
     dict_src = name + 'Dict.cxx'
     dict_lib = 'lib' + name + 'Dict.so' # what for Mac OS X?
     dict_map = 'lib' + name + 'Dict.rootmap'
 
+    rule = '${ROOTCLING} -f ${TGT[0]} -rml %s -rmf ${TGT[1]} %s ${SRC}' % (dict_lib, incs)
+    print 'RULE:',rule
     bld(source = headers + [linkdef],
         target = [dict_src, dict_map],
-        rule='${ROOTCLING} -f ${TGT[0]} -rml %s -rmf ${TGT[1]} %s ${SRC}' % (dict_lib, incs))
+        rule=rule)
 
     bld.shlib(source = dict_src,
               target = name+'Dict',
