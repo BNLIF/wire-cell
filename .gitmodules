@@ -1,0 +1,9 @@
+[submodule "nav"]
+	path = nav
+	url = git@github.com:BNLIF/wire-cell-nav.git
+[submodule "data"]
+	path = data
+	url = git@github.com:BNLIF/wire-cell-data.git
+[submodule "waf-tools"]
+	path = waf-tools
+	url = git@github.com:BNLIF/waf-tools.git
