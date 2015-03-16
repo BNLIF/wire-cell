@@ -7,3 +7,6 @@
 [submodule "waf-tools"]
 	path = waf-tools
 	url = git@github.com:BNLIF/waf-tools.git
+[submodule "sst"]
+	path = sst
+	url = git@github.com:BNLIF/wire-cell-sst.git
