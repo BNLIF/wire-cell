@@ -1,0 +1,76 @@
+#+TITLE: Aggregation package for Wire Cell packages
+
+* Prerequisites
+
+** ROOT
+
+Install ROOT (v6) and then 
+
+#+BEGIN_EXAMPLE
+  $ source /path/to/root/bin/thisroot.sh
+#+END_EXAMPLE
+
+* Building
+
+** Preparation
+
+The wire cell source project uses =git-submodules= to bring all the source together:
+
+#+BEGIN_EXAMPLE
+  $ git clone git@github.com:BNLIF/wire-cell.git
+  $ cd wire-cell
+  $ git submodule init
+  $ git submodule update
+#+END_EXAMPLE
+
+The build is performed with =waf= which is provided in the =waf-tools= submodule.  For convenience it's recommended either copy it into your =$PATH= or make an alias:
+
+#+BEGIN_EXAMPLE
+  bash$ alias waf=`pwd`/waf-tools/waf
+  tcsh$ alias waf `pwd`/waf-tools/waf
+#+END_EXAMPLE
+
+** Build and Installation
+
+#+BEGIN_EXAMPLE
+  $ waf --prefix=/path/to/install configure build install
+#+END_EXAMPLE
+
+* Developing
+
+** Rebuilding
+
+To rebuild after hacking on the source just type:
+
+#+BEGIN_EXAMPLE
+  $ waf
+#+END_EXAMPLE
+
+When ready to install into the configured "prefix" installation area:
+
+#+BEGIN_EXAMPLE
+  $ waf install
+#+END_EXAMPLE
+
+** New packages
+
+To add new packages to Wire Cell follow these steps:
+
+*** Source Package Conventions.
+
+Wire Cell packages follow a layout convention to keep their build simple.  Each source package should be kept in it's own git.  The package naming convention is:
+
+#+BEGIN_EXAMPLE
+  wire-cell-NAME
+#+END_EXAMPLE
+
+This name convention is optional.  
+
+The source package must be organized following these sub-directory conventions:
+
+ - =src/= :: C++ source file for libraries with =.cxx= extensions or private headers 
+ - =inc/NAME/= :: public/API C++ header files with =.h= extensions
+ - =dict/LinkDef.h= :: ROOT linkdef header (for =rootcling= dictionaries)
+ - =tests/= :: Unit tests Python (nosetests) files like =test_*.py= or main C++ programs named like =test_*.cxx=.
+- =apps/= :: main application(s), one =appname.cxx= file for each app named appname (todo: not yet supported)
+- =python/NAME= :: python modules (todo: not yet supported)
