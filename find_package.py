@@ -18,6 +18,7 @@ import os.path as osp
 from waflib.Utils import to_list
 from waflib.Configure import conf
 import waflib.Context
+from waflib.Logs import debug, info, error
 
 _tooldir = osp.dirname(osp.abspath(__file__))
 
@@ -29,107 +30,56 @@ def configure(cfg):
     cfg.load('compiler_cxx')
     cfg.load('waf_unit_test')
     cfg.load('find_root', tooldir=_tooldir)
-
     pass
 
-
-
-
-def _includes(bld, includes):
-    if not includes:
-        includes = ['inc']
-    return to_list(includes)
-
-def _name(name=None):
-    return name or getattr(waflib.Context.g_module, 'APPNAME')
-
-def _headers(bld, headers, name=None):
-    name = _name(name)
-    print '_headers NAME',name
-    if not headers:
-        incdir = bld.path.find_dir('inc/%s' % name)
-        return incdir.ant_glob('*.h')
-    if type(headers) == type(""):
-        return bld.path.ant_glob(headers)
-    return headers
-
-
-    
-
-
 @conf
-def shared_library(bld, name=None, srcdir='src', source = '', includes ='', use=''):
-    '''
-    Make a shared library named <name>
-
-    Place source in src/ or set <srcdir> or explicitly give <source>.
-
-    Place public API headers in inc/ or explicitly give <includes>
-    '''
-    if not source:
-        srcdir = bld.path.find_dir(srcdir)
-        source = srcdir.ant_glob('*.cxx')
-    source = to_list(source)
+def make_package(bld, name, use=''):
     use = to_list(use) + ['ROOTSYS']
 
-    bld.shlib(source = source, 
-              target = _name(name), 
-              includes = _includes(bld, includes), 
-              use = use)
+    includes = []
+    headers = []
+    source = []
 
+    incdir = bld.path.find_dir('inc')
+    srcdir = bld.path.find_dir('src')
+    dictdir = bld.path.find_dir('dict')
+    testdir = bld.path.find_dir('test')
 
-@conf
-def api_headers(bld, name=None, headers = ''):
-    '''
-    Install headers for API <name>.
+    if incdir:
+        headers += incdir.ant_glob(name + '/*.h')
+        includes += ['inc']
+        bld.env['INCLUDES_'+name] = [incdir.abspath()]
 
-    Place headers in inc/<name>/*.h or explicitly set headers.
-    '''
-    name = _name(name)
-    bld.install_files('${PREFIX}/include/%s' % name, 
-                      _headers(bld, headers, name))
+    if headers:
+        bld.install_files('${PREFIX}/include/%s' % name, headers)
 
+    if srcdir:
+        source += srcdir.ant_glob('*.cxx')
 
-@conf
-def root_dictionary(bld, name=None, linkdef=None,
-                    headers = None, includes=None):
-    '''
-    Build a root dictionary library for package <name>.
-    
-    Make a dict/LinkDef.h or explicitly set <linkdef>.
+    if incdir and srcdir:
+        bld(features = 'cxx cxxshlib',
+            name = name,
+            source = source,
+            target = name,
+            includes = 'inc',
+            export_includes = 'inc',
+            use=use)
 
-    Use all API headers in inc/<name>/*.h or explicitly set headers
-    '''
-    name = _name(name)
-    linkdef = linkdef or "dict/LinkDef.h"
+    if dictdir:
+        if not headers:
+            error('No header files for ROOT dictionary "%s"' % name)
+        linkdef = dictdir.find_resource('LinkDef.h')
+        bld.gen_rootcling_dict(name, linkdef,
+                               headers = headers,
+                               includes = includes, 
+                               use = use)
+    if testdir:
+        from waflib.Tools import waf_unit_test
+        bld.add_post_fun(waf_unit_test.summary)
 
-    bld.gen_rootcling_dict(name, linkdef,
-                           headers = _headers(bld, headers, name),
-                           includes = _includes(bld, includes))
-
-### fixme: make this configurable via options
-    # generate rootcint dictionary and build a shared library
-#    bld.gen_rootcint_dict(name, linkdef,
-#                          headers = _headers(bld, headers, name),
-#                          includes = _includes(bld, includes))
-
-
-
-@conf
-def test_program(bld, source = '', includes=''):
-    '''
-    Build and run a test program named <name>.
-
-    Using source tests/test_<name>.cxx or explicitly as given by <source>
-
-    '''
-
-    from waflib.Tools import waf_unit_test
-    bld.add_post_fun(waf_unit_test.summary)
-
-    source = to_list(source)
-    print source
-    target = osp.splitext(str(source[0]))[0]
-
-    bld.program(features='test', source=source, target=target,
-                includes = _includes(bld, includes))
+        for test_main in testdir.ant_glob('test_*.cxx'):
+            bld.program(features = 'test', 
+                        source = [test_main], 
+                        target = test_main.name.replace('.cxx',''),
+                        includes = 'inc',
+                        use = use)

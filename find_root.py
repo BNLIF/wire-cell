@@ -2,9 +2,7 @@ import os
 import os.path as osp
 import waflib
 import waflib.Utils
-import waflib.Logs as msg
 from waflib.Configure import conf
-from waflib.TaskGen import feature, before_method, after_method, extension, after
 
 _tooldir = osp.dirname(osp.abspath(__file__))
 
@@ -31,34 +29,47 @@ def configure(cfg):
     return
 
 @conf
-def gen_rootcling_dict(bld, name, linkdef, headers = '', includes = ''):
+def gen_rootcling_dict(bld, name, linkdef, headers = '', includes = '', use=''):
     '''
-rootcling -f dictToto.cxx -rml libtoto.so -rmf libtoto.rootmap myHeader1.h myHeader2.h ... LinkDef.h
+    rootcling -f NAMEDict.cxx -rml libNAME.so -rmf libNAME.rootmap myHeader1.h myHeader2.h ... LinkDef.h
     '''
-    headers = waflib.Utils.to_list(headers)
+    use = waflib.Utils.to_list(use) + ['ROOTSYS']
+    includes = waflib.Utils.to_list(includes)
+    for u in use:
+        more = bld.env['INCLUDES_'+u]
+        #print 'USE(%s)=%s: %s' % (name, u, more)
+        includes += more
+
+    # make into -I...
     incs = list()
-    for maybe in waflib.Utils.to_list(includes):
-        if maybe.startswith('/'):
-            incs.append('-I%s' % maybe)
+    for inc in includes:
+        if inc.startswith('/'):
+            newinc = '-I%s' % inc
         else:
-            incs.append('-I%s' % bld.path.find_dir(maybe).abspath())
+            newinc = '-I%s' % bld.path.find_dir(inc).abspath()
+        if not newinc in incs:
+            incs.append(newinc)
     incs = ' '.join(incs)
-    print 'INCS:',incs
+    #print 'INCS(%s): %s' % (name, str(incs))
     
     dict_src = name + 'Dict.cxx'
     dict_lib = 'lib' + name + 'Dict.so' # what for Mac OS X?
     dict_map = 'lib' + name + 'Dict.rootmap'
 
-    rule = '${ROOTCLING} -f ${TGT[0]} -rml %s -rmf ${TGT[1]} %s ${SRC}' % (dict_lib, incs)
-    print 'RULE:',rule
-    bld(source = headers + [linkdef],
+    if type(linkdef) == type(""):
+        linkdef = bld.path.find_resource(linkdef)
+    source_nodes = headers + [linkdef]
+    sources = ' '.join([x.abspath() for x in source_nodes])
+    rule = '${ROOTCLING} -f ${TGT[0].abspath()} -rml %s -rmf ${TGT[1].abspath()} %s %s' % (dict_lib, incs, sources)
+    #print 'RULE:',rule
+    bld(source = source_nodes,
         target = [dict_src, dict_map],
-        rule=rule)
+        rule=rule, use = use)
 
     bld.shlib(source = dict_src,
               target = name+'Dict',
               includes = includes,
-              use = 'ROOTSYS')
+              use = use)
 
     bld.install_files('${PREFIX}/lib/', dict_map)
 
