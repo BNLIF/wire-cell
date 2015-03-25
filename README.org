@@ -6,7 +6,7 @@ Some external packages are required as described in this section.
 
 ** Automated installation
 
-For an automated installation method see [[https://github.com/BNLIF/wire-cell-externals][wire-cell-externals]].
+It is recommended to use the automated installation method to install a dedicated copy of the required externals into a "virtualenv".  Follow the directions in [[https://github.com/BNLIF/wire-cell-externals][wire-cell-externals]].
 
 ** Manual installation
 
