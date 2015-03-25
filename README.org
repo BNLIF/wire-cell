@@ -6,15 +6,25 @@ Some external packages are required as described in this section.
 
 ** Automated installation
 
-It is recommended to use the automated installation method to install a dedicated copy of the required externals into a "virtualenv".  Follow the directions in [[https://github.com/BNLIF/wire-cell-externals][wire-cell-externals]].
+It is recommended to use the automated installation method to install the required externals.  Follow the directions in [[https://github.com/BNLIF/wire-cell-externals][wire-cell-externals]] and come back here after setting up your user environment.
 
 ** Manual installation
 
-The definitive list of required packages, their versions and build details are kept in wire-cell-externals [[https://github.com/BNLIF/wire-cell-externals/blob/master/worch.cfg][worch.cfg]] file.  Refer to that for the most up-to-date information on what software is needed.  In summary you will need to install and arrange to set up your user environment for the following packages:
+You may provide the external packages yourself.  The definitive list of required packages, their versions and build details are kept in wire-cell-externals [[https://github.com/BNLIF/wire-cell-externals/blob/master/worch.cfg][worch.cfg]] file.  Refer to that for the most up-to-date information on what software is needed.  In summary you will need:
 
  - ROOT v6 
  - Python 2.7
 
+You will need to set up your run-time environment so that these commands do not fail and give the expected version:
+
+#+BEGIN_EXAMPLE
+  $ root -b -q
+  ...
+  | Welcome to ROOT 6.02/05                http://root.cern.ch |
+  ...
+  $ python -c 'import ROOT; print ROOT.gROOT.GetVersion()'
+  6.02/05
+#+END_EXAMPLE
 
 * Building
 
@@ -27,38 +37,21 @@ The wire cell source project uses =git-submodules= to bring all the source toget
   $ cd wire-cell
   $ git submodule init
   $ git submodule update
+
+  $ alias waf=`pwd`/waf-tools/waf
 #+END_EXAMPLE
 
-** Building against wire-cell-externals
+** Building 
 
-The simplest way to build the software is if you installed the necessary externals into a virtualenv as described [[https://github.com/BNLIF/wire-cell-externals#single-rooted-install][here]].  If you followed those steps then you need only do:
-
-#+BEGIN_EXAMPLE
-  $ waf --prefix=$VIRTUAL_ENV configure build install
-#+END_EXAMPLE
-
-** Building against your own externals
-
-If you provide your external packages yourself you need to do just a bit more setup.
-
-*** Getting waf
-
-First, you will need to get a copy of =waf=.  You can download it yourself or you can use the copy that is provided in the  =waf-tools= submodule.  For convenience it's recommended either copy it into your =$PATH= or make an alias:
-
-#+BEGIN_EXAMPLE
-  bash$ alias waf=`pwd`/waf-tools/waf
-  tcsh$ alias waf `pwd`/waf-tools/waf
-#+END_EXAMPLE
-
-*** Build and install
+To configure, build and install the wire cell code do:
 
 #+BEGIN_EXAMPLE
   $ waf --prefix=/path/to/install configure build install
 #+END_EXAMPLE
 
-*** User environment
+If you followed the [[https://github.com/BNLIF/wire-cell-externals#single-rooted-install][single rooted install]] pattern then the =/path/to/install= can be =/path/to/single-rooted= and no additional user environment will be needed for run-time.
 
-You will need to set the usual =$PATH=, =$LD_LIBRARY_PATH=, etc pointing at =/path/to/install= yourself.
+If you provided your own externals or used the name/version tree pattern (using environment modules) then you will need to set the usual =$PATH=, =$LD_LIBRARY_PATH=, etc pointing at =/path/to/install= yourself.
 
 * Developing
 
@@ -80,19 +73,36 @@ When ready to install into the configured "prefix" installation area:
 
 ** New packages
 
-To add new packages to Wire Cell follow these steps:
+New wire-cell packages can be added easily.
+
+*** Considerations
+
+Wire Cell packages are organized to be easy to create.  It's much better to create many small packages and maybe later merge them than it is to split apart ones which have grown too monolithic.  When thinking about writing some code consider:
+
+ - What other packages will I need?
+ - What future packages will need mine?
+
+You may have an idea for a package but in reality it is better split up into others.  Here are reasons to believe your ideas fit into multiple packages:
+
+ - When I describe my expected package functionality I use the word "and".
+
+ - Some other package should use part of my package but the other part is not needed.
+
+If in doubt, make more, smaller packages.
 
 *** Source Package Conventions.
 
-Wire Cell packages follow a layout convention to keep their build simple.  Each source package should be kept in it's own git.  The package naming convention is:
+To make them easy to build and aggregate they must follow a layout convention.  
+
+First, each source package should be kept in it's own git repository.  The recommended package naming convention is:
 
 #+BEGIN_EXAMPLE
   wire-cell-NAME
 #+END_EXAMPLE
 
-This name convention is optional.  
+where "=NAME=" is some short identifier of the package's primary purpose.
 
-The source package must be organized following these sub-directory conventions:
+The contents of the source package must be organized following these sub-directory conventions:
 
  - =src/= :: C++ source file for libraries with =.cxx= extensions or private headers 
  - =inc/NAME/= :: public/API C++ header files with =.h= extensions
@@ -100,3 +110,32 @@ The source package must be organized following these sub-directory conventions:
  - =tests/= :: Unit tests Python (nosetests) files like =test_*.py= or main C++ programs named like =test_*.cxx=.
 - =apps/= :: main application(s), one =appname.cxx= file for each app named appname (todo: not yet supported)
 - =python/NAME= :: python modules (todo: not yet supported)
+- =wscript_build= :: a brief waf file
+
+The =wscript_build= file specifies a name for the binary package (in general similar but not identical to the source package name) and a list of any other packages part of the wire-cell system on which it depends.  For example the =wire-cell-nav= source package builds to a =WireCellNav= binary package and it depends on the =WireCellData= package and so its [[https://github.com/BNLIF/wire-cell-nav/blob/master/wscript_build][=wscript_build=]] file is:
+
+#+BEGIN_SRC python
+  bld.make_package('WireCellNav', use='WireCellData')
+#+END_SRC
+
+This is Python and the =bld= object is a Waf build context.  It is provided automagically when waf interprets this file.
+
+*** Build packages
+
+The above is about code packages.  Code packages are built via a build package.  This build package, =wire-cell= is but one possible "view" into all the wire cell packages.  Other build packages may be created which only build some sub-set of all wire cell packages.
+
+To add a new code package to a build package one must do the following:
+
+- Create the build package repository
+- Create a top level Waf =wscript= file such as [[./wscript][this one]]
+- Add the code package(s) as a submodule:
+
+#+BEGIN_EXAMPLE
+  $ git submodule add -- git@github.com:BNLIF/wire-cell-<NAME>.git <NAME>
+#+END_EXAMPLE 
+
+Where =<NAME>= should be a short identifier for the package which is unique to the build package.
+
+- Add the =<NAME>= to the =subdirs= list in the [[./wscript]] file.
+
+- Commit and push.
