@@ -2,17 +2,23 @@
 
 * Prerequisites
 
-** ROOT
+Some external packages are required as described in this section.  
 
-Install ROOT (v6) and then 
+** Automated installation
 
-#+BEGIN_EXAMPLE
-  $ source /path/to/root/bin/thisroot.sh
-#+END_EXAMPLE
+For an automated installation method see [[https://github.com/BNLIF/wire-cell-externals][wire-cell-externals]].
+
+** Manual installation
+
+The definitive list of required packages, their versions and build details are kept in wire-cell-externals [[https://github.com/BNLIF/wire-cell-externals/blob/master/worch.cfg][worch.cfg]] file.  Refer to that for the most up-to-date information on what software is needed.  In summary you will need to install and arrange to set up your user environment for the following packages:
+
+ - ROOT v6 
+ - Python 2.7
+
 
 * Building
 
-** Preparation
+** Preparing the source
 
 The wire cell source project uses =git-submodules= to bring all the source together:
 
@@ -23,20 +29,40 @@ The wire cell source project uses =git-submodules= to bring all the source toget
   $ git submodule update
 #+END_EXAMPLE
 
-The build is performed with =waf= which is provided in the =waf-tools= submodule.  For convenience it's recommended either copy it into your =$PATH= or make an alias:
+** Building against wire-cell-externals
+
+The simplest way to build the software is if you installed the necessary externals into a virtualenv as described [[https://github.com/BNLIF/wire-cell-externals#single-rooted-install][here]].  If you followed those steps then you need only do:
+
+#+BEGIN_EXAMPLE
+  $ waf --prefix=$VIRTUAL_ENV configure build install
+#+END_EXAMPLE
+
+** Building against your own externals
+
+If you provide your external packages yourself you need to do just a bit more setup.
+
+*** Getting waf
+
+First, you will need to get a copy of =waf=.  You can download it yourself or you can use the copy that is provided in the  =waf-tools= submodule.  For convenience it's recommended either copy it into your =$PATH= or make an alias:
 
 #+BEGIN_EXAMPLE
   bash$ alias waf=`pwd`/waf-tools/waf
   tcsh$ alias waf `pwd`/waf-tools/waf
 #+END_EXAMPLE
 
-** Build and Installation
+*** Build and install
 
 #+BEGIN_EXAMPLE
   $ waf --prefix=/path/to/install configure build install
 #+END_EXAMPLE
 
+*** User environment
+
+You will need to set the usual =$PATH=, =$LD_LIBRARY_PATH=, etc pointing at =/path/to/install= yourself.
+
 * Developing
+
+Here is what you will do in the act of developing code.
 
 ** Rebuilding
 
