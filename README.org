@@ -49,9 +49,26 @@ To configure, build and install the wire cell code do:
   $ waf --prefix=/path/to/install configure build install
 #+END_EXAMPLE
 
-If you followed the [[https://github.com/BNLIF/wire-cell-externals#single-rooted-install][single rooted install]] pattern then the =/path/to/install= can be =/path/to/single-rooted= and no additional user environment will be needed for run-time.
+Note: this is not a Worch build - there is no =--orch-config= option.
 
-If you provided your own externals or used the name/version tree pattern (using environment modules) then you will need to set the usual =$PATH=, =$LD_LIBRARY_PATH=, etc pointing at =/path/to/install= yourself.
+If you followed the [[https://github.com/BNLIF/wire-cell-externals#single-rooted-install][single rooted install]] pattern then the =/path/to/install= can be =/path/to/single-rooted= and no additional user environment will be needed for run-time and the following command line should succeed:
+
+#+BEGIN_EXAMPLE
+  $ python -c 'import ROOT; print ROOT.WireCellData'
+  Warning in <TInterpreter::ReadRootmapFile>: class  pair<float,float> found in libCore.so  is already in libWireCellDataDict.so 
+  Warning in <TInterpreter::ReadRootmapFile>: class  pair<int,float> found in libCore.so  is already in libWireCellDataDict.so 
+  <class 'ROOT.WireCellData'>
+#+END_EXAMPLE
+
+If you provided your own externals or used the name/version tree pattern (using environment modules) then you will need to set your environment properly.  Besides the usual =$PATH=, =$LD_LIBRARY_PATH=, etc pointing at =/path/to/install= you may need to set =PYTHONPATH=.  
+
+Independent from how you installed the code, if you have the broken
+ROOT packages for Ubuntu installed you will have to set:
+
+#+BEGIN_EXAMPLE
+  $ export PYTHONNOUSERSITE=yes
+#+END_EXAMPLE
+
 
 * Developing
 
