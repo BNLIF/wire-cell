@@ -43,7 +43,8 @@ def make_package(bld, name, use=''):
     incdir = bld.path.find_dir('inc')
     srcdir = bld.path.find_dir('src')
     dictdir = bld.path.find_dir('dict')
-    testdir = bld.path.find_dir('test')
+    testsrc = bld.path.ant_glob('test/test_*.cxx') + bld.path.ant_glob('tests/test_*.cxx')
+    appsdir = bld.path.find_dir('apps')
 
     if incdir:
         headers += incdir.ant_glob(name + '/*.h')
@@ -73,13 +74,22 @@ def make_package(bld, name, use=''):
                                headers = headers,
                                includes = includes, 
                                use = use)
-    if testdir:
+    if testsrc:
         from waflib.Tools import waf_unit_test
         bld.add_post_fun(waf_unit_test.summary)
 
-        for test_main in testdir.ant_glob('test_*.cxx'):
+        for test_main in testsrc:
             bld.program(features = 'test', 
                         source = [test_main], 
                         target = test_main.name.replace('.cxx',''),
+                        install_path = None,
                         includes = 'inc',
                         use = use + [name])
+    if appsdir:
+        for app in appsdir.ant_glob('*.cxx'):
+            bld.program(source = [app], 
+                        target = app.name.replace('.cxx',''),
+                        includes = 'inc',
+                        use = use + [name])
+
+        
