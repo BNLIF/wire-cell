@@ -18,6 +18,7 @@ def configure(ctx):
     # ctx.env.INCLUDES_WireCell = ctx.options.prefix + '/include'
  
 def build(bld):
+    bld.load('find_package', tooldir='waf-tools')
     bld.recurse(subdirs)
 
 
