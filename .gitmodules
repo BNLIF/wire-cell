@@ -10,3 +10,6 @@
 [submodule "sst"]
 	path = sst
 	url = git@github.com:BNLIF/wire-cell-sst.git
+[submodule "tiling"]
+	path = tiling
+	url = git@github.com:BNLIF/wire-cell-tiling.git

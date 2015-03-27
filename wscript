@@ -6,7 +6,7 @@ APPNAME = 'WireCell'
 subdirs = ['data',
            'nav',
            'sst',
-#           'tiling',
+           'tiling',
 ]
 
 def options(ctx):
