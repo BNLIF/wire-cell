@@ -156,3 +156,9 @@ Where =<NAME>= should be a short identifier for the package which is unique to t
 - Add the =<NAME>= to the =subdirs= list in the [[./wscript]] file.
 
 - Commit and push.
+
+*** A word on namespaces
+
+The namespace =WireCell= is used for all "core" wire cell code.  Code that is used to glue this core functionality into other systems may use another namespace but should not use =WireCell=.  For example, the "simple simulation tree" uses =WireCellSst".
+
+It can be tedious to type explicit namespace qualifiers all the time.  You can use the =using namespace WireCell;=  directive where in implementation files (=*.cxx=) but you should *never* use it in (top-scope) of header files as it will then leak the contents of the namespace into any unsuspecting file that =#include='s it.

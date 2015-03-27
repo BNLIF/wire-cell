@@ -3,7 +3,11 @@
 TOP = '.'
 APPNAME = 'WireCell'
 
-subdirs = ['data','nav','sst']
+subdirs = ['data',
+           'nav',
+           'sst',
+#           'tiling',
+]
 
 def options(ctx):
     ctx.load('find_package', tooldir='waf-tools')
