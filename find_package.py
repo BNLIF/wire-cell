@@ -32,6 +32,11 @@ def configure(cfg):
     cfg.load('find_root', tooldir=_tooldir)
     pass
 
+def build(bld):
+    from waflib.Tools import waf_unit_test
+    bld.add_post_fun(waf_unit_test.summary)
+
+
 @conf
 def make_package(bld, name, use=''):
     use = to_list(use) + ['ROOTSYS']
@@ -75,8 +80,6 @@ def make_package(bld, name, use=''):
                                includes = includes, 
                                use = use)
     if testsrc:
-        from waflib.Tools import waf_unit_test
-        bld.add_post_fun(waf_unit_test.summary)
 
         for test_main in testsrc:
             bld.program(features = 'test', 
