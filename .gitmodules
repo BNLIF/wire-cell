@@ -13,3 +13,6 @@
 [submodule "tiling"]
 	path = tiling
 	url = git@github.com:BNLIF/wire-cell-tiling.git
+[submodule "examples"]
+	path = examples
+	url = git@github.com:BNLIF/wire-cell-examples.git

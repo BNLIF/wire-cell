@@ -7,6 +7,7 @@ subdirs = ['data',
            'nav',
            'sst',
            'tiling',
+           'examples',
 ]
 
 def options(ctx):
