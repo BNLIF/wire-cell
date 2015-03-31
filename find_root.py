@@ -13,6 +13,8 @@ def options(opt):
     return
 
 def configure(cfg):
+    cfg.env.CXXFLAGS += ['-fPIC']
+
     path_list = list()
     for topdir in [getattr(cfg.options, 'with_root', None), os.getenv('ROOTSYS', None)]:
         if topdir:
@@ -55,6 +57,7 @@ def gen_rootcling_dict(bld, name, linkdef, headers = '', includes = '', use=''):
     dict_src = name + 'Dict.cxx'
     dict_lib = 'lib' + name + 'Dict.so' # what for Mac OS X?
     dict_map = 'lib' + name + 'Dict.rootmap'
+    dict_pcm =         name + 'Dict_rdict.pcm'
 
     if type(linkdef) == type(""):
         linkdef = bld.path.find_resource(linkdef)
@@ -63,15 +66,16 @@ def gen_rootcling_dict(bld, name, linkdef, headers = '', includes = '', use=''):
     rule = '${ROOTCLING} -f ${TGT[0].abspath()} -rml %s -rmf ${TGT[1].abspath()} %s %s' % (dict_lib, incs, sources)
     #print 'RULE:',rule
     bld(source = source_nodes,
-        target = [dict_src, dict_map],
+        target = [dict_src, dict_map, dict_pcm],
         rule=rule, use = use)
 
     bld.shlib(source = dict_src,
               target = name+'Dict',
               includes = includes,
-              use = use)
+              use = use + [name])
 
     bld.install_files('${PREFIX}/lib/', dict_map)
+    bld.install_files('${PREFIX}/lib/', dict_pcm)
 
 
 @conf
