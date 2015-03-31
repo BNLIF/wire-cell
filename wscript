@@ -10,16 +10,18 @@ subdirs = ['data',
            'examples',
 ]
 
-def options(ctx):
-    ctx.load('find_package', tooldir='waf-tools')
+def options(opt):
+    opt.load('find_package', tooldir='waf-tools')
+    opt.add_option('--build-debug', default='-O2',
+                   help="Build with debug symbols")
 
-def configure(ctx):
-    ctx.load('find_package', tooldir='waf-tools')
-    # ctx.env.LIBPATH_WireCell = ctx.options.prefix + '/lib'
-    # ctx.env.INCLUDES_WireCell = ctx.options.prefix + '/include'
- 
+def configure(cfg):
+    cfg.load('find_package', tooldir='waf-tools')
+    
+    cfg.env.CXXFLAGS += [cfg.options.build_debug]
+
+
 def build(bld):
     bld.load('find_package', tooldir='waf-tools')
     bld.recurse(subdirs)
-
 

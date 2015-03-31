@@ -74,7 +74,7 @@ ROOT packages for Ubuntu installed you will have to set:
 
 Here is what you will do in the act of developing code.
 
-** Rebuilding
+** Build Dancing
 
 To rebuild after hacking on the source just type:
 
@@ -86,6 +86,40 @@ When ready to install into the configured "prefix" installation area:
 
 #+BEGIN_EXAMPLE
   $ waf install
+#+END_EXAMPLE
+
+To force a full rebuild:
+
+#+BEGIN_EXAMPLE
+  $ waf clean build
+#+END_EXAMPLE
+
+To limit building to just one submodule:
+
+#+BEGIN_EXAMPLE
+  $ cd <subdir>/
+  $ waf
+#+END_EXAMPLE
+
+** Debug
+
+To build for debugging one needs to reconfigure waf with a =--build-debug=<flags>= option and then the project must be cleaned and rebuilt.  This can be done all at once like:
+
+#+BEGIN_EXAMPLE
+  $ waf --prefix=/path/to/install --build-debug=-ggdb3 clean configure build install
+#+END_EXAMPLE
+
+You may also want to see what commands Waf is actually running to confirm this option is transmitted, just add a "=-v=" to the command line:
+
+#+BEGIN_EXAMPLE
+  $ waf -v
+#+END_EXAMPLE
+
+Finally, run GDB in your usual, preferred manner:
+
+#+BEGIN_EXAMPLE
+  $ gdb --args /home/bviren/projects/wire-cell/top/build/nav/test_geomdatasource
+  (gdb) run
 #+END_EXAMPLE
 
 ** New packages
