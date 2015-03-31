@@ -8,6 +8,7 @@ subdirs = ['data',
            'sst',
            'tiling',
            'examples',
+           'matrix', 
 ]
 
 def options(opt):
