@@ -1,0 +1,16 @@
+def options(opt):
+    opt.load('compiler_cxx')
+    opt.load('waf_unit_test')
+
+def configure(cfg):
+    cfg.load('compiler_cxx')
+    cfg.load('waf_unit_test')
+
+def build(bld):
+    from waflib.Tools import waf_unit_test
+    bld.add_post_fun(waf_unit_test.summary)
+    for app in bld.path.ant_glob('test_*.cxx'):
+        print app
+        bld.program(features = 'test', install_path=None,
+                    source=[app], target=app.name.replace('.cxx',''))
+

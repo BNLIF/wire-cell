@@ -4,3 +4,12 @@ build
 README.html
 *.pyc
 doxy
+*.aux
+*.fls
+*.log
+*.nav
+*.out
+*.snm
+*.otc
+*.toc
+*.vrb
