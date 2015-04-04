@@ -6,8 +6,6 @@
 \input{beamer/preamble}
 \usepackage[outline]{contour}
 
-
-
 \definecolor{bvtitlecolor}{rgb}{0.98, 0.92, 0.84}
 \definecolor{bvoutline}{rgb}{0.1, 0.1, 0.1}
 
@@ -90,7 +88,11 @@
   \item[\texttt{WireCell}] all ``core'' C++ \textbf{library} code
     should be in this namespace.
     Don't add redundant ``WireCell'' name to class/function names
-    themselves.
+    themselves.  Two very symmetric sub-namespaces bring geometry and charge together:
+    \begin{description}
+    \item[\texttt{Wire}] wire geom/charge at a given time bin
+    \item[\texttt{Cell}] cell geom/charge at a given time bin
+    \end{description}
   \item[\texttt{WireCellXxx}] hold any code which \textbf{bridges}
     ``WireCell'' and some external code base.
   \end{description}
@@ -450,24 +452,30 @@ $ firefox doxy/html/index.html
   \tableofcontents[currentsection,hideothersubsections]
 \end{frame}
 
-\begin{frame}
-  \frametitle{Basic Wire and Cell}
-  Wire
+\begin{frame}[fragile]
+  \frametitle{Much Symmetry between Wire and Cell}
+  \footnotesize
+  \texttt{WireCell/WireCharge.h}:
   \begin{description}
-  \item[Wire] geometry and numbering of one wire \textbf{segment}
-  \item[WireSet] an owning collection of wires
-  \item[WireSelection] a non-owning sub-set
+  \item[GeomWire] geometry and numbering of one wire \textbf{segment}
+  \item[GeomWireSet] an owning collection of wires
+  \item[GeomWireSelection] a non-owning sub-set
+  \item[Wire::Charge] geom+charge for wire
+  \item[Wire::Group] a grouping of charges on wires
+  \item[Wire::GroupCollection] collection of groups
   \end{description}
-  Cell
-  \begin{description}
-  \item[Cell] geometry and numbering of one cell.
-  \item[CellSet] an owning collection of cells
-  \item[CellSelection] and non-owning sub-set
-  \end{description}
+  \texttt{WireCell/CellCharge.h} has much the same for Cells.
 
-  \texttt{Wire} and \texttt{Cell} objects are \textbf{static}
-  information related to the detector and do not hold any dynamic
-  (DAQ) data.
+  \vspace{2mm}
+  For both there are operations on group via functions:
+  \begin{lstlisting}
+GroupCollection singlets(const Group& group);
+double charge(const Group& group);
+  \end{lstlisting}
+  Symmetry partly broken.  Eg, Cell's have:
+  \begin{lstlisting}
+double cross_section(const Group& group);
+  \end{lstlisting}
 \end{frame}
 
 \begin{frame}
@@ -476,10 +484,10 @@ $ firefox doxy/html/index.html
   \item[Trace] a starting \textbf{time} bin and a sequence of following \textbf{charges}
     from an electronics \textbf{channel}.
   \item[TraceCollection] A sequence of Trace objects
-  \item[Frame] a \textbf{TraceCollection} with an \textbf{index} into the external
+  \item[Frame] a \texttt{TraceCollection} with an \textbf{index} into the external
     ``frame data source'' (see nav below)
-  \item[Slice] \textbf{[wire ID, charge]} pairs in same time bin across a
-    \texttt{Frame} - this is what we reconstruction into Cells!
+  \item[Slice] \texttt{Wire::Group} (vector of \textbf{wire ID + charge pairs})
+    in same time bin across a \texttt{Frame}.
   \end{description}
 
   \footnotesize
@@ -526,15 +534,20 @@ $ firefox doxy/html/index.html
 
   \begin{lstlisting}
 /// Must return all wires associated with the given cell
-WireCell::WireSelection wires(const WireCell::Cell& cell) const;
-        
+GeomWireSelection wires(const GeomCell& cell) const;
+	
 /// Must return all cells associated with the given wire
-WireCell::CellSelection cells(const WireCell::Wire& wire) const;
+GeomCellSelection cells(const GeomWire& wire) const;
 
 /// Must the one cell associated with the collection of wires or 0.
-WireCell::Cell* cell(const WireCell::WireSelection& wires) const;
+GeomCell* cell(const GeomWireSelection& wires) const;
   \end{lstlisting}
 
+  \scriptsize 
+  \begin{itemize}
+  \item The interface exposes a purely geometrical collection.  
+  \item Can write tilings that take into account charge and use other tilings as input.
+  \end{itemize}
 \end{frame}
 
 \begin{frame}
@@ -593,6 +606,20 @@ WireCell::Cell* cell(const WireCell::WireSelection& wires) const;
 
   \lstinputlisting{test_list.cxx}
 \end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Set}
+
+  An collection keyed by its value (unique entries) and kept in order.
+  \begin{itemize}
+  \item Also comes in an unordered, faster version   
+  \end{itemize}
+
+  \lstinputlisting{test_set.cxx}
+
+  Prints: \texttt{3 5 7}
+\end{frame}
+
 
 \begin{frame}[fragile]
   \frametitle{Map}

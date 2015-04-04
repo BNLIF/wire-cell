@@ -5,12 +5,37 @@ def options(opt):
 def configure(cfg):
     cfg.load('compiler_cxx')
     cfg.load('waf_unit_test')
+    cfg.find_program("neato", var="NEATO")
+    cfg.find_program("dot", var="DOT")
+
 
 def build(bld):
     from waflib.Tools import waf_unit_test
     bld.add_post_fun(waf_unit_test.summary)
+
+    bld(source=bld.path.ant_glob('*.dot'))
+
     for app in bld.path.ant_glob('test_*.cxx'):
         print app
         bld.program(features = 'test', install_path=None,
                     source=[app], target=app.name.replace('.cxx',''))
 
+
+
+from waflib import TaskGen
+TaskGen.declare_chain(
+        name         = 'dot',
+        rule         = '${DOT} -Tpdf -o ${TGT} ${SRC}',
+        shell        = False,
+        ext_in       = '.dot',
+        ext_out      = '.pdf',
+        reentrant    = False,
+)
+TaskGen.declare_chain(
+        name         = 'neato',
+        rule         = '${NEATO} -Tpdf -o ${TGT} ${SRC}',
+        shell        = False,
+        ext_in       = '.neato',
+        ext_out      = '.pdf',
+        reentrant    = False,
+)
