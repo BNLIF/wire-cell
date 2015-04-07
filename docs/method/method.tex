@@ -1,0 +1,253 @@
+\documentclass[letter]{article}
+\usepackage{xspace}
+\usepackage{bbm}                %Debian/Ubuntu package texlive-fonts-extra
+
+\def\mQraw{Q^{\mathrm{raw}}_{t,i}}
+\def\Qraw{$\mQraw$\xspace}
+
+\def\mQdec{Q_{t,i}}
+\def\Qdec{$\mQdec$\xspace}
+
+\def\mQexp{Q^{\mathrm{exp}}_{t,i}}
+\def\Qexp{$\mQexp$\xspace}
+
+\def\mVcov{V_{t,ij}}
+\def\Vcov{$\mVcov$\xspace}
+
+\def\mAchc{A_{i,\alpha}}
+\def\Achc{$\mAchc$\xspace}
+
+\def\mAchw{A^{\mathrm{chw}}_{ia}}
+\def\Achw{$\mAchw$\xspace}
+
+\def\mAwc{A^{\mathrm{wc}}_{a\alpha}}
+\def\Awc{$\mAwc$\xspace}
+
+\def\mQcell{Q^{\mathrm{cell}}_\alpha}
+\def\Qcell{$\mQcell$\xspace}
+
+\title{Wire Cell Method for LArTPC Reconstruction}
+\author{Wire Cell Development Team\\Electronic Detector
+  Group\\Physics Department\\Brookhaven National Lab\\(DRAFT, NOT FOR DISTRIBUTION)}
+
+\begin{document}
+\maketitle
+
+\section{General Terms}
+
+These terms are used in the software.
+Their definitions are strictly adhered to.
+
+\begin{description}
+\item[conductor] one contiguous run of a long thin conducting cylinder  
+\item[wire] a single span of a \textit{conductor} strung across the drift
+  volume perpendicular to the drift direction.
+  AKA \textit{wire segment}.
+  Some detectors may have multiple wires for any given single
+  conductor due to wrapping the conductor around the wire frame.
+\item[wire plane] a hypothetical plane containing all \textit{wires} which run
+  parallel to each other.
+  All three \textit{wire planes} are parallel.
+\item[signal] voltage as a function of time on a \textit{conductor}
+\item[channel] a connection of a \textit{conductor} to electronics
+  which digitizes a voltage on the conductor as a function of time.
+\item[deconvolution] the process by which a digitized \textit{signal} is
+  transformed to remove the systematic effect of the
+  induction/collection response and which may impart residual
+  systematic smearing.
+  (Currently this is performed external to this package.)
+\item[charge] a measure of the \textit{signal} voltage integrated over
+  some time bin.
+\item[trace] representation of \textit{charge} and
+  time information about a \textit{signal} after deconvolution.
+  In general a \textit{trace} may represent part of an entire
+  \textit{signal}.
+  (Eg: zero-suppression or other thresholds can lead to multiple
+  \texttt{traces} being associated to one channel when before there
+  was but one.)
+\item[cell] a region of the plane parallel to the \textit{wire planes}
+  which is spatially associated with a number of \textit{wires} from
+  each \textit{wire plane}.
+\item[tiling] a collection of \textit{cells} which tile the plane.
+\item[slice] a selection of a portion of each \textit{trace} in a
+  collection of \textit{traces} which covers the same, contiguous
+  region of their time bins.
+\item[frame] a collection of \textit{traces} which are contiguous with
+  respect to data acquisition, deconvolution and formation of
+  \textit{slices} (aka a detector ``event'' or ``trigger'').
+\end{description}
+
+\section{Formal terms}
+
+These terms are used to formally describe the problem and have
+analogues in the software.
+Note, the vectors and matrices involved may very large ($10^4$ wires
+and $10^7$ cells in a MicroBooNE geometry) so naive vector/matrix
+representations are not used in the software.
+
+\noindent The indices are chosen to indicate as in:
+\begin{description}
+\item[$t$] a time bin.
+  This same indication is used be it a raw digitized time bin, a time
+  bin after deconvolution or a possibly aggregate time bin produced by
+  a slice.
+\item[$a,b,c$] Latin indices in this range are used to enumerate \textit{wires}.
+\item[$i,j,k$] Latin indices in this range are used to enumerate \textit{channels}.
+\item[$\alpha,\beta$] Greek indices are used to enumerate \textit{cells}.
+\end{description}
+
+\noindent The formal terms used in this problem are:
+\begin{description}
+\item[\Qraw] the digitized \textit{charge} on channel $i$ at
+  time bin $t$.
+\item[\Qdec] the \textit{measured channel-charge vector} which gives the measured \textit{charge} on channel $i$ at
+  time bin $t$ after deconvolution has been applied.
+\item[\Qexp] an estimator or expected value of the above.
+\item[\Vcov] a covariance matrix giving the 
+  uncertainty in the \Qdec measurements at time $t$ between channels
+  $i$ and $j$.
+  This matrix is $n_\mathrm{channels}$-rows by $n_\mathrm{channels}$-columns.
+\item[\Achc] the matrix representing the association between \textit{channels} and {cells}.
+  It is a product of the following two matrices.
+  This matrix is $n_\mathrm{channels}$-rows by $n_\mathrm{cells}$-columns.
+\item[\Achw] the matrix representing the association between
+  \textit{channels} and \textit{wires}.
+  This matrix is $n_\mathrm{channels}$-rows by $n_\mathrm{wires}$-columns.
+\item[\Awc] the matrix representing the association between
+  \textit{wires} and \textit{cells}.
+  This matrix is $n_\mathrm{wires}$-rows by $n_\mathrm{cells}$-columns.
+\item[\Qcell] the \textit{cell-charge} vector representing the charge passing
+  through a \texttt{cell} in a given time bin $t$.
+\end{description}
+
+\section{Method}
+
+The goal of this method is to reconstruct the two dimensional pattern
+of charge drifting through the wire planes at given time.
+This is done using these high-level steps:
+
+\begin{enumerate}
+\item Associate \textit{channels} with \textit{cells} (\Achc matrix)
+\item Use information in the \textit{slice} to reduce the size of
+  \Achc in a information-lossless manner.
+\item Attempt to solve for the cells in terms of the channels (described below)
+\item If initial solution fails, try a number of information-lossy
+  methods to further reduce the size of \Achc (described below)
+\end{enumerate}
+
+\subsection{Tiling}
+
+A hypothetical plane parallel to and approximately coplanar with the
+\textit{wire planes} is partitioned into \textit{cells} via a tiling
+process.
+Initially, this tiling associates exactly one \textit{wire} from each
+\textit{wire plane} with \textit{cell}.
+Each wire triplet is uniquely associated with exactly one cell and is
+chosen such that the wires cross one another (typically pair-wise but
+as a triplet in some geometries) nearer to each other than would any
+other triplet if it were formed by replacing one of the wires with
+another from the same plane.
+Any triplets which fail this criteria do not form a cell.
+This process fully tiles the plane without gaps or overlaps.
+
+It is noted that detectors which employ ``wire wrapping'' have an $N
+\to 1$ mapping from \textit{channel} to \textit{wires}.
+The solving for \textit{cells} described below require a ($N \to M$)
+mapping from \textit{channels} to \textit{cells} and the tiling is
+just one factor of that mapping.
+The full mapping is the channel-cell matrix.
+
+\begin{equation}
+  \label{eq:Achc}
+  \mAchc = \mAchw \mAwc
+\end{equation}
+
+For detectors with no wire wrapping $\mAchw \equiv \mathbbm{1}$.
+Given knowledge of the charge in a cell at a given time one can write
+the (deconvolved) charge expected to be measured in channel $i$ at
+time $t$ as
+
+\begin{equation}
+  \label{eq:Qexp}
+  \mQexp = \mAchc \mQcell.
+\end{equation}
+
+In the absence of uncertainties, the expected channel-charge vector
+can be identified with the measured channel-charge vector and the
+channel-cell matrix can be potentially inverted and thus one may solve
+for the cell-charge vector.
+However, there are two confounding problems to performing this
+inversion which are described in the following two sections.
+
+
+\subsection{Tiling Degeneracy}
+
+It is not possible to invert the full channel-cell matrix in
+actual practice because of its inherent degeneracy.
+It maps approximately $3N$ ``knowns'' (channel measurements) to $N^2$
+``unknowns'' (cells) where $N$ is on order of the number of wires
+($10^3-10^4$).
+
+To reduce the size of the channel-cell matrix several procedures are
+employed.
+An initial reduction can be done with no loss of information by
+removing all rows corresponding to channels which have either no
+charge information (at this stage) or have charge below some imposed
+threshold.
+After such a reduction there will be cells that no longer have a
+triplet of associated wires and the columns to which they correspond
+may also be removed.
+Note, as described above for detectors that have wrapped wires, the
+channel-cell matrix is a product of channel-wire and wire-cell matrices.
+When a cell is removed from consideration the associated wires must be
+checked to determine if they have any remaining cells and removed if
+they do not.
+Likewise, if wires are removed their channel must be checked to see if
+they have any remaining wires and if not they should also be removed.
+
+At this point, the resulting channel-cell matrix (or product of
+matrices) will contain only those entries which provide information.
+If required, further reduction can be attempted by merging neighboring
+wires or adjacent cells (using some criteria) but such operations will
+necessarily be information-lossy.
+
+\subsection{Measurement Uncertainty}
+
+The second problem that confounds inverting the channel-cell matrix,
+even after it is reduced as above, is that this matrix alone does not
+account for the uncertainty that exists in the measured charge.
+This uncertainty is potentially covariant among the channels and thus
+leads to an additional, effective mixing between channels and cells
+beyond the multiplexing which is inherent in the definition of the
+tiling.
+The sources of measurement uncertainty fall into categories including
+noise which may be correlated or uncorrelated between the channels and
+residual smearing in time from the deconvolution process.
+
+In order to incorporate this uncertainty the expected channel charge
+vector (eqn~\ref{eq:Qexp}) is compared against its measured equivalent and 
+a $\chi^2_t$ value is formed
+
+% copy from Xin's slides
+
+\begin{equation}
+  \label{eq:chi2}
+  \chi^2_t(\mQcell) = (\mQdec - \mQexp)^\mathsf{T}\mVcov^{-1}(Q_{t,j} - Q^{\mathrm{exp}}_{t,j})
+\end{equation}
+
+\noindent Minimizing with respect to \Qcell gives,
+
+\begin{equation}
+  \label{eq:cellsolution}
+  \mQcell = [(A^\mathsf{T}V_t^{-1}A)^{-1}]_{\alpha\beta}
+  (A^\mathsf{T}V_t^{-1})_{\beta i}\mQdec
+\end{equation}
+Where indices internal to some of the matrix products have been
+dropped for clarity.
+In order to obtain this result the inverse of the covariance matrix
+$V^{-1}_t$ must be symmetric.
+It should be noted that without attempts to reduce the size of the
+channel-cell matrix, the first product of eqn~eq:cellsolution has on
+order $10^{14}$ terms and the second has $10^{10}$.
+
+\end{document}
