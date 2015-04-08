@@ -25,7 +25,6 @@ def configure(cfg):
     
     cfg.env.CXXFLAGS += [cfg.options.build_debug]
 
-
 def build(bld):
     bld.load('find_package', tooldir='waf-tools')
     bld.recurse(subdirs)
