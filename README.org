@@ -175,21 +175,38 @@ This is Python and the =bld= object is a Waf build context.  It is provided auto
 
 The above is about code packages.  Code packages are built via a build package.  This build package, =wire-cell= is but one possible "view" into all the wire cell packages.  Other build packages may be created which only build some sub-set of all wire cell packages.
 
-To add a new code package to a build package one must do the following:
-
-- Create the build package repository
-- Create a top level Waf =wscript= file such as [[./wscript][this one]]
-- Add the code package(s) as a submodule:
+To add a new code package to a build package (such as this one) one must do a little, annoying dance:
 
 #+BEGIN_EXAMPLE
-  $ git submodule add -- git@github.com:BNLIF/wire-cell-<NAME>.git <NAME>
-#+END_EXAMPLE 
+  $ mkdir <name>
+  $ cd <name>/
+  $ echo "bld.make_package('WireCell<Name>', use='WireCellNav WireCellData')" > wscript_build
+  $ git init
+  $ git commit -a -m "Start code package <name>"
+#+END_EXAMPLE
 
-Where =<NAME>= should be a short identifier for the package which is unique to the build package.
+Replace "=<name>=" with your package name.  And, of course, you may want to put more code than just the =wscript_build= file. Also, that file should list what packages your package depends on.
 
-- Add the =<NAME>= to the =subdirs= list in the [[./wscript]] file.
+Now, make a new repository by going to the [[https://github.com/BNLIF][BNLIF GitHub]] and clicking "New repository" button.  Give it a name like =wire-cell-<name>=.  Copy-and-paste the two command it tells you to use:
 
-- Commit and push.
+#+BEGIN_EXAMPLE
+  $ git remote add origin git@github.com:BNLIF/wire-cell-<name>.git
+  $ git push -u origin master
+#+END_EXAMPLE
+
+Finally, move aside the local repository and add it right back as a submodule:
+
+#+BEGIN_EXAMPLE
+  $ cd ..  # back to top
+  $ mv <name> <name>.moved
+  $ git submodule add -- git@github.com:BNLIF/wire-cell-<name>.git <name>
+  $ git submodule update
+  $ git commit -a -m "Added <name> to top-level build package."
+  $ git push
+#+END_EXAMPLE
+
+Whew!
+
 
 *** Namespaces
 
