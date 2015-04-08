@@ -26,12 +26,14 @@ def options(opt):
     opt.load('compiler_cxx')
     opt.load('waf_unit_test')
     opt.load('find_root', tooldir=_tooldir)
+    opt.load('find_eigen3', tooldir=_tooldir)
     
 
 def configure(cfg):
     cfg.load('compiler_cxx')
     cfg.load('waf_unit_test')
     cfg.load('find_root', tooldir=_tooldir)
+    cfg.load('find_eigen3', tooldir=_tooldir)
     pass
 
 def build(bld):
