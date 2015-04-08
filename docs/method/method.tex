@@ -14,7 +14,7 @@
 \def\mVcov{V_{t,ij}}
 \def\Vcov{$\mVcov$\xspace}
 
-\def\mAchc{A_{i,\alpha}}
+\def\mAchc{A_{i\alpha}}
 \def\Achc{$\mAchc$\xspace}
 
 \def\mAchw{A^{\mathrm{chw}}_{ia}}
@@ -187,29 +187,9 @@ actual practice because of its inherent degeneracy.
 It maps approximately $3N$ ``knowns'' (channel measurements) to $N^2$
 ``unknowns'' (cells) where $N$ is on order of the number of wires
 ($10^3-10^4$).
+The size alone poses a practical problem due to system memory and CPU usage.
+Strategies to approach this problem are described in section~\ref{sec:reduction}.
 
-To reduce the size of the channel-cell matrix several procedures are
-employed.
-An initial reduction can be done with no loss of information by
-removing all rows corresponding to channels which have either no
-charge information (at this stage) or have charge below some imposed
-threshold.
-After such a reduction there will be cells that no longer have a
-triplet of associated wires and the columns to which they correspond
-may also be removed.
-Note, as described above for detectors that have wrapped wires, the
-channel-cell matrix is a product of channel-wire and wire-cell matrices.
-When a cell is removed from consideration the associated wires must be
-checked to determine if they have any remaining cells and removed if
-they do not.
-Likewise, if wires are removed their channel must be checked to see if
-they have any remaining wires and if not they should also be removed.
-
-At this point, the resulting channel-cell matrix (or product of
-matrices) will contain only those entries which provide information.
-If required, further reduction can be attempted by merging neighboring
-wires or adjacent cells (using some criteria) but such operations will
-necessarily be information-lossy.
 
 \subsection{Measurement Uncertainty}
 
@@ -244,16 +224,68 @@ a $\chi^2_t$ value is formed
 \end{equation}
 Where indices internal to some of the matrix products have been
 dropped for clarity.
-It should be noted that without attempts to reduce the size of the
-channel-cell matrix, the first product of eqn~\ref{eq:cellsolution}
-has on order $10^{14}$ terms and the second has $10^{10}$.
 
 \section{Channel-Cell Matrix Reduction}
+\label{sec:reduction}
+
+Again, in eqn~\ref{eq:cellsolution}, the Latin indices run over
+channels and the Greek over cells.
+One rough estimate of the number of cells to be defined in any given
+detector is,
+\begin{equation}
+  \label{eq:ncellsestimate}
+  N_\mathrm{cells} \approx N_\mathrm{wires}^2/9
+\end{equation}
+
+This ignores wire wrapping (increases number of cells per channel) and
+assumes the same number of wires per plane and that the number of
+cells can be estimated assuming every wire from one plane crosses
+every wire from another plane and further that there is one cell per
+crossing.
+Table~\ref{tab:detectorcounts} gives channel counts and estimates for the
+number of cells and the size of the full channel-cell matrix.
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}[h]{|r|r|l|l|}
+    \hline
+    Detector & \#channels & \#cells & $size(\mAchc)$ \\
+    \hline
+    \hline
+    DUNE 35t APA & 512 & $3\times 10^4$ & $1\times 10^7$\\
+    DUNE 10kt APA & 2560 & $7\times 10^5$ & $2\times 10^9$ \\
+    MicroBooNE & 8256 & $7\times 10^6$ & $6\times 10^{10}$\\
+    \hline
+  \end{tabular}
+  \caption{Channel counts and estimated number of cells of some LAr
+    TPC detectors.
+    In the case of DUNE detectors only one APA is considered.
+    Activity that cross APA boundaries is left for future investigations.}
+  \label{tab:detectorcounts}
+\end{table}
+
+
+To reduce the size of the channel-cell matrix several procedures are
+employed.
+They fall into two categories: information-lossless and
+information-lossy reductions.
+These are described in the next two sections.
+
+
 
 \subsection{Lossless Reduction}
 
-This is referenced above but add description of the trivial reduction
-by removal of zero-charge wires.
+Some channels may not provide any contribution to the charge in a
+given slice.
+This may come about due to the time bin for that channel failing to
+satisfy zero-suppression (ZS) threshold applied during DAQ readout or
+an analysis threshold applied offline.
+To exploit the reduction this allows, with not loss of information,
+one considers a \textit{reduced} channel-cell matrix
+$A^\mathrm{red}_{i\alpha}$ which is made of only those associations
+between the channels above threshold and only those cells which can be
+formed with valid triplets of wires associated with this reduced set of
+channels.
 
 \subsection{Lossy Reduction}
 
