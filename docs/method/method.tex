@@ -277,18 +277,41 @@ These are described in the next two sections.
 
 Some channels may not provide any contribution to the charge in a
 given slice.
-This may come about due to the time bin for that channel failing to
+These channels may be removed in order to reduce the size of the
+matrices in an information-lossless manner.
+Such channels may come about due to the time bin for that channel failing to
 satisfy zero-suppression (ZS) threshold applied during DAQ readout or
 an analysis threshold applied offline.
 To exploit the reduction this allows, with not loss of information,
 one considers a \textit{reduced} channel-cell matrix
-$A^\mathrm{red}_{i\alpha}$ which is made of only those associations
+$A'_{i\alpha}$ which is made of only those associations
 between the channels above threshold and only those cells which can be
 formed with valid triplets of wires associated with this reduced set of
 channels.
 
 \subsection{Lossy Reduction}
 
-Describe the removal of potential cells and merging of wires.
+If the slice can not be solved after lossless reduction, further
+reduction can be attempted which is information-lossy in nature.
+
+
+\subsubsection{Merging}
+
+One lossy reduction takes the form of merging channels or cells based on
+some desiderata.
+When two neighboring cells are merged, one or two of their wires may be in common.
+This leads to a reduction in both the number of rows and columns in
+producing a further reduced channel-cell matrix $A''_{i\alpha}$.
+
+\subsubsection{Inter-slice Interpolation}
+
+Another approach is to delay solving a slice until solutions are
+achieved for the two slices which
+bracket in time the unsolved one.
+With the pair of solved slices in hand one may apply some inter-slice
+interpolation for cells found problematic, remove their contribution
+from the associated wires and attempt to re-solve.
+Or, one may perform a $\chi^2$ fit using eqn~\ref{eq:chi2} using the
+bracketing slices to direct the search space. 
 
 \end{document}
