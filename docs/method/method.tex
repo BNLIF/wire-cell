@@ -270,7 +270,7 @@ a $\chi^2_t$ value is formed
 \noindent Minimizing with respect to \Qcell gives,
 
 \begin{equation}
-  \label{eq:cellsolution}
+  \label{eq:Qcell}
   \mQcell = [(A^\mathsf{T}V_t^{-1}A)^{-1}]_{\alpha\beta}
   (A^\mathsf{T}V_t^{-1})_{\beta i}\mQdec
 \end{equation}
@@ -280,7 +280,7 @@ dropped for clarity.
 \section{Channel-Cell Matrix Reduction}
 \label{sec:reduction}
 
-Again, in eqn~\ref{eq:cellsolution}, the Latin indices run over
+Again, in eqn~\ref{eq:Qcell}, the Latin indices run over
 channels and the Greek over cells.
 One rough estimate of the number of cells to be defined in any given
 detector is,
@@ -316,13 +316,32 @@ number of cells and the size of the full channel-cell matrix.
   \label{tab:detectorcounts}
 \end{table}
 
-In general, a reducing procedure maps an initial channel (cell) matrix
-basis to another channel (cell) basis.
-As described in the following two sections, reductions either preserve a subset of the
-original basis (information-lossless or ``removal'') or produce a new basis which is some
-linear combination of the original (information-lossy or ``merging'').
-For both cases we represent the operation as a \textit{contraction} with
-a matrix $R$ of the matrices or vectors in the original basis.
+\subsection{Reduction Matrix}
+
+The size of the matrices given in Table~\ref{tab:detectorcounts} as
+well as the inherent tiling degeneracy requires some procedures to
+reduce the size of the problem.
+One way to represent such procedures is to introduce the idea of
+\textit{reduction matrices}.
+
+
+As described in the following sections, the nature of the reduction
+procedures include things such as removing or merging some channels
+and cells.
+The effect of such procedures can be treated as a simultaneous
+coordinate transform in both the channel and cell space.
+% fixme: should introduce the idea of a state vector in these spaces earlier.
+These rotations can be constructed such that any uninteresting
+subspaces are represented at the end of the bases and then truncated
+away leaving an overall smaller space.
+In the case of simple removal, the rotated basis is merely a
+reordering of the basis vectors.
+In the case of merging, the rotated basis will be a linear combination
+of the original basis with one ``$+$'' term representing the merging
+of two channels (cells) and the ``$-$'' term being truncated away.
+
+In any case, we represent a reducing operation as the application of a
+reduction matrix $R$ to the full problem equations (eg. eqns~\ref{eq:Qexp} or~\ref{eq:Qcell}).
 As an example, applying a cell reduction and inserting a wire
 reduction to eqn~\ref{eq:Qexp} gives:
 
@@ -335,7 +354,7 @@ R^\mathrm{cell}
 Q^\mathrm{cell}
 \end{equation}
 
-It is then clear that the same formula is retained with the
+\noindent It is then clear that the same formula is retained with the
 substitution:
 
 \begin{equation}
@@ -397,5 +416,8 @@ interpolation for cells found problematic, remove their contribution
 from the associated wires and attempt to re-solve.
 Or, one may perform a $\chi^2$ fit using eqn~\ref{eq:chi2} using the
 bracketing slices to direct the search space. 
+
+\subsubsection{Kinematic Fitting}
+t.b.d.
 
 \end{document}
