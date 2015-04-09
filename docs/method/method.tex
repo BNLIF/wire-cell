@@ -1,7 +1,17 @@
 \documentclass[letter]{article}
+
+% Try to edit this document such that each sentence starts on its own
+% line in order to help with git merge/diff/etc.
+%  If you use Emacs, this will help:
+% http://stackoverflow.com/questions/539984/
+
+
 \usepackage{xspace}
 \usepackage{bbm}                %Debian/Ubuntu package texlive-fonts-extra
 
+\newcommand\fixme[1]{\textbf{FIXME:} \textit{#1}\xspace}
+
+%% define some of the formal terms
 \def\mQraw{Q^{\mathrm{raw}}_{t,i}}
 \def\Qraw{$\mQraw$\xspace}
 
@@ -33,10 +43,36 @@
 \begin{document}
 \maketitle
 
-\section{General Terms}
+\section{Overview}
 
-These terms are used in the software.
-Their definitions are strictly adhered to.
+\fixme{Section to be written to cover the following:}
+
+\begin{itemize}
+\item Brief description of the physics relevant to LAr TPC detectors
+  with wire readout (ionization, drift, field, induction/collection,
+  optical system to measure event time).
+\item Brief description of the confounding aspects of LAr TPC
+  (degeneracy of three 1D readouts of a 2D space, confounding
+  ambiguity due to wire wrapping, the convoluted signal and detector
+  response, what eles?)
+\item Traditional approach.
+\item Name this method: ``Wire Cell''
+\item Briefly describe how it differs from traditional, reference
+  section~\ref{sec:method} for details.
+\end{itemize}
+
+\section{Terms}
+
+\fixme{This section should be removed for a real paper and the terms
+  should be defined on first use.}
+
+This section defines general and formal terms used in the document and
+the software.
+In conversation, please try to all use the same general terms.
+
+\subsection{General Terms}
+
+Specific terms used in this document and the software.
 
 \begin{description}
 \item[conductor] one contiguous run of a long thin conducting cylinder  
@@ -77,7 +113,7 @@ Their definitions are strictly adhered to.
   \textit{slices} (aka a detector ``event'' or ``trigger'').
 \end{description}
 
-\section{Formal terms}
+\subsection{Formal Terms}
 
 These terms are used to formally describe the problem and have
 analogues in the software.
@@ -124,10 +160,16 @@ representations are not used in the software.
 
 The goal of this method is to reconstruct the two dimensional pattern
 of charge drifting through the wire planes at given time.
-This is done using these high-level steps:
+This section describes the general method employed to reach
+this goal and some formalism describing its procedures.
+Subsequent sections describe implementation and optimization details
+which exploit an understanding of expected classes of LAr TPC event topology.
+
+At a high level, the wire-cell method follows these broad steps:
 
 \begin{enumerate}
-\item Associate \textit{channels} with \textit{cells} (\Achc matrix)
+\item Form a \textit{tiling} of \textit{cells} that associate \textit{channels} with a 2D
+  region of nearly-crossing \textit{wires} (\Achc matrix)
 \item Use information in the \textit{slice} to reduce the size of
   \Achc in a information-lossless manner.
 \item Attempt to solve for the cells in terms of the channels (described below)
@@ -135,20 +177,21 @@ This is done using these high-level steps:
   methods to further reduce the size of \Achc (described below)
 \end{enumerate}
 
-\subsection{Tiling}
+\section{Tiling}
 
 A hypothetical plane parallel to and approximately coplanar with the
 \textit{wire planes} is partitioned into \textit{cells} via a tiling
 process.
 Initially, this tiling associates exactly one \textit{wire} from each
 \textit{wire plane} with \textit{cell}.
-Each wire triplet is uniquely associated with exactly one cell and is
+Each wire-triplet is uniquely associated with exactly one cell and is
 chosen such that the wires cross one another (typically pair-wise but
 as a triplet in some geometries) nearer to each other than would any
 other triplet if it were formed by replacing one of the wires with
 another from the same plane.
 Any triplets which fail this criteria do not form a cell.
 This process fully tiles the plane without gaps or overlaps.
+Algorithms for producing a tiling are described in section~\ref{subsec:tilingalg}.
 
 It is noted that detectors which employ ``wire wrapping'' have an $N
 \to 1$ mapping from \textit{channel} to \textit{wires}.
@@ -177,21 +220,32 @@ can be identified with the measured channel-charge vector and the
 channel-cell matrix can be potentially inverted and thus one may solve
 for the cell-charge vector.
 However, there are two confounding problems to performing this
-inversion which are described in the following two sections.
+inversion which are described in
+sections~\ref{subsec:tilingdegeneracy} and~\ref{subsec:chargeunc}.
 
+\subsection{Tiling Algorithms}
+\label{subsec:tilingalg}
+
+\fixme{Michael, fill this in.}
 
 \subsection{Tiling Degeneracy}
+\label{subsec:tilingdegeneracy}
 
-It is not possible to invert the full channel-cell matrix in
-actual practice because of its inherent degeneracy.
+For realistic cases, it is not possible to invert the full
+channel-cell matrix in because of its inherent degeneracy.
 It maps approximately $3N$ ``knowns'' (channel measurements) to $N^2$
-``unknowns'' (cells) where $N$ is on order of the number of wires
-($10^3-10^4$).
-The size alone poses a practical problem due to system memory and CPU usage.
-Strategies to approach this problem are described in section~\ref{sec:reduction}.
-
+``unknowns'' (cells) where $N$ here is a number of order the number of
+wires in one plane ($\sim 10^3$).
+The size alone poses a practical problem due to system memory and CPU
+usage.
+Strategies to approach reducing the size of the channel-cell matrix
+are described in section~\ref{sec:reduction}.
+These procedures will either identify certain channels or cells which
+may be removed from consideration or which may be effectively joined
+or merged.
 
 \subsection{Measurement Uncertainty}
+\label{subsec:chargeunc}
 
 The second problem that confounds inverting the channel-cell matrix,
 even after it is reduced as above, is that this matrix alone does not
@@ -207,8 +261,6 @@ residual smearing in time from the deconvolution process.
 In order to incorporate this uncertainty the expected channel charge
 vector (eqn~\ref{eq:Qexp}) is compared against its measured equivalent and 
 a $\chi^2_t$ value is formed
-
-% copy from Xin's slides
 
 \begin{equation}
   \label{eq:chi2}
@@ -264,14 +316,46 @@ number of cells and the size of the full channel-cell matrix.
   \label{tab:detectorcounts}
 \end{table}
 
+In general, a reducing procedure maps an initial channel (cell) matrix
+basis to another channel (cell) basis.
+As described in the following two sections, reductions either preserve a subset of the
+original basis (information-lossless or ``removal'') or produce a new basis which is some
+linear combination of the original (information-lossy or ``merging'').
+For both cases we represent the operation as a \textit{contraction} with
+a matrix $R$ of the matrices or vectors in the original basis.
+As an example, applying a cell reduction and inserting a wire
+reduction to eqn~\ref{eq:Qexp} gives:
 
-To reduce the size of the channel-cell matrix several procedures are
-employed.
-They fall into two categories: information-lossless and
-information-lossy reductions.
-These are described in the next two sections.
+\begin{equation}
+  \label{eq:contraction}
+  R^\mathrm{ch} Q^\mathrm{exp}_t = 
+R^\mathrm{ch} 
+A (R^\mathrm{cell})^{-1} 
+R^\mathrm{cell}  
+Q^\mathrm{cell}
+\end{equation}
+
+It is then clear that the same formula is retained with the
+substitution:
+
+\begin{equation}
+  \label{eq:subst}
+  R^\mathrm{ch} A (R^\mathrm{cell})^{-1} \to A\\
+\end{equation}
+\begin{equation}
+  \label{eq:subst2}
+  R^\mathrm{x} Q^\mathrm{x} \to Q^\mathrm{x}
+\end{equation}
+Multiple reduction stages are represented by subsequent application of
+a series of reduction matrices, each operating on the basis of the
+previous producing a new, smaller basis.
 
 
+
+\begin{equation}
+  \label{eq:multipleR}
+  R = R_1 R_2 R_3 ...
+\end{equation}
 
 \subsection{Lossless Reduction}
 
