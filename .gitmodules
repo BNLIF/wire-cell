@@ -19,3 +19,6 @@
 [submodule "matrix"]
 	path = matrix
 	url = git@github.com:BNLIF/wire-cell-matrix.git
+[submodule "2dtoy"]
+	path = 2dtoy
+	url = git@github.com:BNLIF/wire-cell-2dtoy.git
