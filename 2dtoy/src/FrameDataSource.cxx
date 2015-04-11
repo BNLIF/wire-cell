@@ -23,6 +23,7 @@ int WireCell2dToy::FrameDataSource::jump(int frame_number)
 
   gRandom->SetSeed(frame_number);
   frame.clear();
+  mctruth.clear();
   
   //main code to construct a frame
   // first create many traces and initialize the channel number
@@ -37,8 +38,8 @@ int WireCell2dToy::FrameDataSource::jump(int frame_number)
   float charge;
 
   //generate point inside a 1m by 1m region
-  Double_t y_low = -1, y_high = 1;
-  Double_t z_low = 5, z_high = 6;
+  Double_t y_low = -1 * units::m, y_high = 1 * units::m;
+  Double_t z_low = 5 * units::m, z_high = 6 * units::m;
 
 
   const WireCell::GeomWire * wire_closest;
@@ -49,8 +50,16 @@ int WireCell2dToy::FrameDataSource::jump(int frame_number)
     p.x = -1;
     p.y = gRandom->Uniform(y_low, y_high);
     p.z = gRandom->Uniform(z_low, z_high);
-    charge = gRandom->Uniform(5,30);
     
+    charge = gRandom->Uniform(5,30);
+    WireCell::PointC pc;
+    pc.x = p.x;
+    pc.y = p.y;
+    pc.z = p.z;
+    pc.charge = charge;
+    mctruth.push_back(pc);
+    
+
     for (int j=0;j!=2;j++){
       plane = static_cast<WireCell::WirePlaneType_t>(j);
       wire_closest = gds->closest(p,plane);

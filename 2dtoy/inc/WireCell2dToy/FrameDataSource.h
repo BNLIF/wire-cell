@@ -9,11 +9,13 @@ namespace WireCell2dToy {
   class FrameDataSource : public WireCell::FrameDataSource {
     int Nevent;
     WireCellSst::GeomDataSource *gds;
+    
 
   public:
     FrameDataSource(int nevents, WireCellSst::GeomDataSource *gds1);
     virtual ~FrameDataSource(); 
     
+    WireCell::PointCVector mctruth;
     
     virtual int size() const;
     virtual int jump(int frame_number); 

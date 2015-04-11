@@ -20,6 +20,12 @@ int main(int argc, char* argv[])
 
   cout << fds.size() << endl;
   
+  fds.jump(1);
+  WireCell::Frame frame = fds.get();
+  cout << frame.traces.size() << endl;
+  
+  cout << fds.mctruth.size() << endl;
+
   return 0;
   
 } // main()
