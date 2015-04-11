@@ -23,8 +23,7 @@ namespace WireCell2dToy {
     
     virtual int draw_mc(int flag, WireCell::PointCVector mctruth, TString option);
     
-    /* virtual int draw_wires(); */
-
+    
   };
 
 }
