@@ -1,6 +1,7 @@
 #include "WireCellSst/GeomDataSource.h"
 #include "WireCell2dToy/FrameDataSource.h"
 #include "WireCell2dToy/ToyEventDisplay.h"
+#include "WireCellNav/SliceDataSource.h"
 #include "TApplication.h"
 #include "TStyle.h"
 #include "TH1F.h"
@@ -33,19 +34,22 @@ int main(int argc, char* argv[])
   cout << frame.traces.size() << endl;
   cout << fds.mctruth.size() << endl;
 
-  
-  TApplication theApp("theApp",&argc,argv);
-  theApp.SetReturnFromRun(true);
-  WireCell2dToy::ToyEventDisplay display;
-  
-  gStyle->SetOptStat(0);
+  WireCell::SliceDataSource sds(fds);
+  cout << sds.size() << endl;
 
-  display.init();
-  display.draw_mc(1,fds.mctruth,"");
-  display.draw_mc(2,fds.mctruth,"TEXT");
-  display.draw_mc(3,fds.mctruth,"*same");
   
-  theApp.Run();
+  // TApplication theApp("theApp",&argc,argv);
+  // theApp.SetReturnFromRun(true);
+  // WireCell2dToy::ToyEventDisplay display;
+  
+  // gStyle->SetOptStat(0);
+
+  // display.init();
+  // display.draw_mc(1,fds.mctruth,"");
+  // display.draw_mc(2,fds.mctruth,"TEXT");
+  // display.draw_mc(3,fds.mctruth,"*same");
+  
+  // theApp.Run();
   
 
   return 0;
