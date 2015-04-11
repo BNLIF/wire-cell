@@ -1,10 +1,12 @@
 #include "WireCell2dToy/FrameDataSource.h"
 #include "TRandom.h"
 
-WireCell2dToy::FrameDataSource::FrameDataSource(int nevents)
+WireCell2dToy::FrameDataSource::FrameDataSource(int nevents,
+		WireCellSst::GeomDataSource *gds1   )
     : WireCell::FrameDataSource()
 {
   Nevent = nevents;
+  gds = gds1;
 }
 WireCell2dToy::FrameDataSource::~FrameDataSource()
 {
@@ -17,7 +19,7 @@ int WireCell2dToy::FrameDataSource::size() const
 
 int WireCell2dToy::FrameDataSource::jump(int frame_number)
 {
-  if (frame_number >= nevents) frame_number = nevents;
+  if (frame_number >= Nevent) frame_number = Nevent;
 
   gRandom->SetSeed(frame_number);
   frame.clear();

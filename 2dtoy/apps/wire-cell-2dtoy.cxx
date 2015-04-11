@@ -9,7 +9,7 @@ using namespace std;
 int main(int argc, char* argv[])
 {
   WireCellSst::GeomDataSource gds(argv[1]);
-  WireCell2dToy::FrameDataSource fds(10);
+  WireCell2dToy::FrameDataSource fds(10,&gds);
 
   std::vector<float> ex = gds.extent();
   cerr << "Extent: "
