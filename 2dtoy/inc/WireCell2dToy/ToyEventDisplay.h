@@ -1,6 +1,8 @@
 #ifndef WIRECELL2DTOY_TOYEVENTDISPLAY_H
 #define WIRECELL2DTOY_TOYEVENTDISPLAY_H
 #include "WireCellData/Point.h"
+#include "WireCellNav/SliceDataSource.h"
+#include "WireCellSst/GeomDataSource.h"
 #include "TCanvas.h"
 #include "TH2F.h"
 #include "TString.h"
@@ -23,7 +25,7 @@ namespace WireCell2dToy {
     
     virtual int draw_mc(int flag, WireCell::PointCVector mctruth, TString option);
     
-    
+    virtual int draw_slice(WireCell::Slice slice, WireCellSst::GeomDataSource gds,TString option);
   };
 
 }

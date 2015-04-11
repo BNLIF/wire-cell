@@ -60,7 +60,7 @@ int WireCell2dToy::FrameDataSource::jump(int frame_number)
     mctruth.push_back(pc);
     
 
-    for (int j=0;j!=2;j++){
+    for (int j=0;j!=3;j++){
       plane = static_cast<WireCell::WirePlaneType_t>(j);
       wire_closest = gds->closest(p,plane);
       traces[wire_closest->channel()].charge[0] += charge;

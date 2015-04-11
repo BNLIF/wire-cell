@@ -1,6 +1,7 @@
 #include "WireCellData/Units.h"
 #include "WireCell2dToy/ToyEventDisplay.h"
 #include "TGraph.h"
+#include "TLine.h"
 #include <iostream>
 
 using namespace WireCell2dToy;
@@ -17,7 +18,7 @@ ToyEventDisplay::~ToyEventDisplay(){
 }
 
 int ToyEventDisplay::init(){
-  h1 = new TH2F("h1","h1",100,4.9,6.1,100,-1.1,1.1);
+  h1 = new TH2F("h1","h1",1000,4.9,6.1,1000,-1.1,1.1);
   h1->SetTitle("Wires and True Hits");
   h1->GetYaxis()->SetNdivisions(506);
   h1->GetXaxis()->SetNdivisions(506);
@@ -50,4 +51,19 @@ int ToyEventDisplay::draw_mc(int flag, WireCell::PointCVector mctruth, TString o
   return 0;
 }
 
+int ToyEventDisplay::draw_slice(WireCell::Slice slice, WireCellSst::GeomDataSource gds, TString option){
+  
+  WireCell::Channel::Group group = slice.group();
+  //std::cout << group.size() << std::endl;
+  
+  for (int i=0;i!=group.size();i++){
+    //std::cout << group.at(i).first << std::endl;
+    const WireCell::GeomWire *wire = gds.by_channel_segment(group.at(i).first,0);
+    //std::cout << wire->point1().y << " " << wire->point1().z << std::endl;
+    TLine *l1 = new TLine(wire->point1().z/units::m,wire->point1().y/units::m,
+			  wire->point2().z/units::m,wire->point2().y/units::m);
+    l1->Draw(option);
+  }
+  return 0;
+}
 
