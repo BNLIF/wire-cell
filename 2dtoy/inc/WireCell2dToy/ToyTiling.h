@@ -20,6 +20,8 @@ namespace WireCell {
 	GeomCellSelection cells(const GeomWire& wire) const;
 	virtual GeomCell* cell(const GeomWireSelection& wires) const;
 
+	GeomCellSelection get_allcell(){ return cell_all;}
+
 	GeomWireSelection wire_u;
 	GeomWireSelection wire_v;
 	GeomWireSelection wire_w;

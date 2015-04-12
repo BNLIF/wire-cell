@@ -15,6 +15,7 @@ ToyEventDisplay::~ToyEventDisplay(){
   delete c1;
   delete h1;
   delete g1;
+  delete g2;
 }
 
 int ToyEventDisplay::init(){
@@ -67,3 +68,16 @@ int ToyEventDisplay::draw_slice(WireCell::Slice slice, WireCellSst::GeomDataSour
   return 0;
 }
 
+
+int ToyEventDisplay::draw_cells(WireCell::GeomCellSelection cellall ,TString option){
+  g2 = new TGraph();
+  for (int i=0;i!=cellall.size();i++){
+    g2->SetPoint(i,cellall[i]->center().z/units::m,cellall[i]->center().y/units::m);
+  }
+  g2->SetMarkerColor(4);
+  g2->SetMarkerSize(0.8);
+  g2->Draw(option);
+  g2->SetMarkerStyle(21);
+  
+  return 0;
+}

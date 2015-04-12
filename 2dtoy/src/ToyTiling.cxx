@@ -1,6 +1,7 @@
 #include "WireCell2dToy/ToyTiling.h"
 #include "WireCellData/GeomCell.h"
 #include "WireCellData/GeomWire.h"
+#include <cmath>
 
 using namespace WireCell;
 
@@ -38,6 +39,7 @@ ToyTiling::ToyTiling(WireCell::Slice slice,WireCellSst::GeomDataSource gds){
       PointVector pwv;
       
       PointVector pcell;
+      int ncell = 1;
 
       puv.push_back(gds.crossing_point(dis_u[0],dis_v[0],static_cast<WireCell::WirePlaneType_t>(0),static_cast<WireCell::WirePlaneType_t>(1)));
       puv.push_back(gds.crossing_point(dis_u[0],dis_v[1],static_cast<WireCell::WirePlaneType_t>(0),static_cast<WireCell::WirePlaneType_t>(1)));
@@ -93,9 +95,20 @@ ToyTiling::ToyTiling(WireCell::Slice slice,WireCellSst::GeomDataSource gds){
 	}
 	
 	//order all the points by phi angle
+	GeomCell *cell = new GeomCell(ncell,pcell);
+	
+	// check order 
+	//	pcell = cell->boundary();
+	// std::cout << "Cell Count: " << pcell.size() << " " << cell->cross_section() << std::endl;
+	// for (int k=0;k!=pcell.size();k++){
+	//   std::cout << pcell[k].y << " " << pcell[k].z << " " << std::atan2(pcell[k].z - cell->center().z, pcell[k].y-cell->center().y) << std::endl;
+	// }
+
+	cell_all.push_back(cell);
+	ncell++;
 	
 	
-	//std::cout << "Cell Count: " << pcell.size() << std::endl;
+
       }
     }
   }
