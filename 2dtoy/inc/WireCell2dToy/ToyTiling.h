@@ -21,12 +21,14 @@ namespace WireCell {
 	virtual GeomCell* cell(const GeomWireSelection& wires) const;
 
 	GeomCellSelection get_allcell(){ return cell_all;}
+	GeomWireSelection get_allwire(){ return wire_all;}
 
 	GeomWireSelection wire_u;
 	GeomWireSelection wire_v;
 	GeomWireSelection wire_w;
 
 	GeomCellSelection cell_all;
+	GeomWireSelection wire_all;
 	
 	GeomCellMap cellmap;
 	GeomWireMap wiremap;

@@ -13,6 +13,7 @@ ToyTiling::ToyTiling(WireCell::Slice slice,WireCellSst::GeomDataSource gds){
   WireCell::Channel::Group group = slice.group();
   for (int i=0;i!=group.size();i++){
     const WireCell::GeomWire *wire = gds.by_channel_segment(group.at(i).first,0);
+    wire_all.push_back(wire);
     if (wire->plane() == static_cast<WireCell::WirePlaneType_t>(0)){
       wire_u.push_back(wire);
     }else if (wire->plane() == static_cast<WireCell::WirePlaneType_t>(1)){
@@ -54,6 +55,7 @@ ToyTiling::ToyTiling(WireCell::Slice slice,WireCellSst::GeomDataSource gds){
       //std::cout << std::endl;
 
       int flag = 0;
+      int k_save;
 
       for (int k=0;k!=wire_w.size();k++){
   	dis_w[0] = gds.wire_dist(*wire_w[k])-gds.pitch(static_cast<WireCell::WirePlaneType_t>(2))/2.;
@@ -67,7 +69,10 @@ ToyTiling::ToyTiling(WireCell::Slice slice,WireCellSst::GeomDataSource gds){
 	    pcell.push_back(puv[m]);
 	  }
 	}
-	if (flag==1) break;
+	if (flag==1) {
+	  k_save = k;
+	  break;
+	}
       }
 
       // initialize uw and vw points
@@ -96,6 +101,45 @@ ToyTiling::ToyTiling(WireCell::Slice slice,WireCellSst::GeomDataSource gds){
 	
 	//order all the points by phi angle
 	GeomCell *cell = new GeomCell(ncell,pcell);
+	
+	// fill cellmap
+	GeomWireSelection wiresel;
+	wiresel.push_back(wire_u[i]);
+	wiresel.push_back(wire_v[j]);
+	wiresel.push_back(wire_w[k_save]);	
+	cellmap[cell]=wiresel;
+
+	//fillwiremap
+
+	if (wiremap.find(wire_u[i]) == wiremap.end()){
+	  //not found
+	  GeomCellSelection cellsel;
+	  cellsel.push_back(cell);
+	  wiremap[wire_u[i]]=cellsel;
+	}else{
+	  //found
+	  wiremap[wire_u[i]].push_back(cell);
+	}
+	
+	if (wiremap.find(wire_v[j]) == wiremap.end()){
+	  //not found
+	  GeomCellSelection cellsel;
+	  cellsel.push_back(cell);
+	  wiremap[wire_v[j]]=cellsel;
+	}else{
+	  //found
+	  wiremap[wire_v[j]].push_back(cell);
+	}
+
+	if (wiremap.find(wire_w[k_save]) == wiremap.end()){
+	  //not found
+	  GeomCellSelection cellsel;
+	  cellsel.push_back(cell);
+	  wiremap[wire_w[k_save]]=cellsel;
+	}else{
+	  //found
+	  wiremap[wire_w[k_save]].push_back(cell);
+	}
 	
 	// check order 
 	//	pcell = cell->boundary();
@@ -128,15 +172,28 @@ ToyTiling::~ToyTiling()
 
 GeomWireSelection ToyTiling::wires(const GeomCell& cell) const
 {
+  if (cellmap.find(&cell) == cellmap.end()){
+    //not found 
     return GeomWireSelection();
+  }else{
+    //found
+    return cellmap.find(&cell)->second;
+  }
+    
 }
 	
 GeomCellSelection ToyTiling::cells(const GeomWire& wire) const
 {
+  if (wiremap.find(&wire) == wiremap.end()){
     return GeomCellSelection();
+  }else{
+    return wiremap.find(&wire)->second;
+  }
 }
 
 GeomCell* ToyTiling::cell(const GeomWireSelection& wires) const
 {
+  
+  
     return 0;
 }
