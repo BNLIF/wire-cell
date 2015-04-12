@@ -71,6 +71,8 @@ int WireCell2dToy::FrameDataSource::jump(int frame_number)
   // only save the ones with non-zero charge into a frame
   for (int i=0;i!=8400;i++){
     if (traces[i].charge[0] >0){
+      // add 5% uncertainties 
+      traces[i].charge[0] = gRandom->Gaus(traces[i].charge[0],0.05*traces[i].charge[0]);
       frame.traces.push_back(traces[i]);
     }
   }

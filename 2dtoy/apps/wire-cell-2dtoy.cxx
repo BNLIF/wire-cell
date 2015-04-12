@@ -49,23 +49,24 @@ int main(int argc, char* argv[])
   //  cout << sds.size() << endl;
 
   
-  // TApplication theApp("theApp",&argc,argv);
-  // theApp.SetReturnFromRun(true);
-  // WireCell2dToy::ToyEventDisplay display;
+  TApplication theApp("theApp",&argc,argv);
+  theApp.SetReturnFromRun(true);
+  WireCell2dToy::ToyEventDisplay display;
   
-  // gStyle->SetOptStat(0);
+  gStyle->SetOptStat(0);
 
-  // display.init();
-  // display.draw_mc(1,fds.mctruth,"");
-  // display.draw_mc(2,fds.mctruth,"TEXT");
+  // display.init(0,10.3698,-2.33/2.,2.33/2.);
+  display.init();
+  display.draw_mc(1,fds.mctruth,"");
+  display.draw_mc(2,fds.mctruth,"TEXT");
   
   
-  // display.draw_slice(slice,gds,"same");
+  display.draw_slice(slice,gds,"same");
  
-  // display.draw_cells(toytiling.get_allcell(),"*same");
-  // display.draw_mc(3,fds.mctruth,"*same");
+  display.draw_cells(toytiling.get_allcell(),"*same");
+  display.draw_mc(3,fds.mctruth,"*same");
 
-  // theApp.Run();
+  theApp.Run();
   
 
   return 0;

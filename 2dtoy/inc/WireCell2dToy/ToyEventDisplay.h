@@ -24,7 +24,10 @@ namespace WireCell2dToy {
     ToyEventDisplay();
     virtual ~ToyEventDisplay();
     
-    virtual int init();
+    virtual int init(){ init(4.9,6.1,-1.1,1.1);
+      return 0;}
+
+    virtual int init(float x_min, float x_max, float y_min, float y_max);
     
     virtual int draw_mc(int flag, WireCell::PointCVector mctruth, TString option);
     

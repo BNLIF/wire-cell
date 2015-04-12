@@ -18,8 +18,8 @@ ToyEventDisplay::~ToyEventDisplay(){
   delete g2;
 }
 
-int ToyEventDisplay::init(){
-  h1 = new TH2F("h1","h1",1000,4.9,6.1,1000,-1.1,1.1);
+int ToyEventDisplay::init(float x_min=4.9, float x_max=6.1, float y_min=-1.1, float y_max=1.1){
+  h1 = new TH2F("h1","h1",1000,x_min,x_max,1000,y_min,y_max);
   h1->SetTitle("Wires and True Hits");
   h1->GetYaxis()->SetNdivisions(506);
   h1->GetXaxis()->SetNdivisions(506);
