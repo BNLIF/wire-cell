@@ -68,6 +68,7 @@ int main(int argc, char* argv[])
   gStyle->SetOptStat(0);
 
   display.init(0,10.3698,-2.33/2.,2.33/2.);
+  //display.init(0.6,0.7,0.07,0.12);
   //display.init();
   display.draw_mc(1,WireCell::PointCVector(),"");
   //display.draw_mc(1,fds.mctruth,"");

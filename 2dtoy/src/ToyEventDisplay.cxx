@@ -60,10 +60,26 @@ int ToyEventDisplay::draw_slice(WireCell::Slice slice, WireCellSst::GeomDataSour
   for (int i=0;i!=group.size();i++){
     //std::cout << group.at(i).first << std::endl;
     const WireCell::GeomWire *wire = gds.by_channel_segment(group.at(i).first,0);
-    //std::cout << wire->point1().y << " " << wire->point1().z << std::endl;
-    TLine *l1 = new TLine(wire->point1().z/units::m,wire->point1().y/units::m,
-			  wire->point2().z/units::m,wire->point2().y/units::m);
+    float pitch = gds.pitch(wire->plane());
+    float angle = gds.angle(wire->plane());
+    
+    //std::cout << pitch << " " << angle << std::endl;
+
+    // std::cout << wire->point1().y << " " << wire->point1().z << std::endl;
+    TLine *l1 = new TLine(wire->point1().z/units::m - pitch/2./units::m/std::cos(angle/units::radian) ,wire->point1().y/units::m,
+    			  wire->point2().z/units::m - pitch/2./units::m/std::cos(angle/units::radian) ,wire->point2().y/units::m);
     l1->Draw(option);
+
+    TLine *l2 = new TLine(wire->point1().z/units::m + pitch/2./units::m/std::cos(angle/units::radian) ,wire->point1().y/units::m,
+    			  wire->point2().z/units::m + pitch/2./units::m/std::cos(angle/units::radian) ,wire->point2().y/units::m);
+    l2->Draw(option);
+
+    TLine *l3 = new TLine(wire->point1().z/units::m  ,wire->point1().y/units::m,
+    			  wire->point2().z/units::m  ,wire->point2().y/units::m);
+    l3->SetLineColor(2);
+    l3->Draw(option);
+  
+  
   }
   return 0;
 }
