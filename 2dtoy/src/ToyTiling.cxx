@@ -193,7 +193,36 @@ GeomCellSelection ToyTiling::cells(const GeomWire& wire) const
 
 GeomCell* ToyTiling::cell(const GeomWireSelection& wires) const
 {
+  if (wires.size()!=3) return 0;
+  const GeomWire *wire1 = wires[0];
+  const GeomWire *wire2 = wires[1];
+  const GeomWire *wire3 = wires[2];
+
+  if (wire1->plane() == wire2->plane() ||
+      wire1->plane() == wire3->plane() || 
+      wire2->plane() == wire3->plane()) return 0;
+
+  GeomCellSelection cells1 = cells(*wire1);
+  GeomCellSelection cells2 = cells(*wire2);
+  GeomCellSelection cells3 = cells(*wire3);
   
-  
-    return 0;
+  for (int i = 0; i!=cells1.size(); i++){
+    const GeomCell *cell1 = cells1[i];
+    for (int j =0; j!=cells2.size(); j++){
+      const GeomCell *cell2 = cells2[j];
+      if (*cell1==*cell2){
+	for (int k=0;k!=cells3.size();k++){
+	  const GeomCell *cell3 = cells3[k];
+	  if (*cell1 == *cell3){
+	    //there is a problem here, not sure what to do 
+	    //return cell1;
+	    return 0;
+	  }
+	}
+      }
+    }
+  }
+
+  return 0;
+
 }
