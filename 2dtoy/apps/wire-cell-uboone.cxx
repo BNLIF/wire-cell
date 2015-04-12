@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
   
   WireCellSst::ToyuBooNESliceDataSource sds(fds,1);
   
-  int i=1141;
+  int i=1137;
   //int i=1146;
   // for (int i=0;i!=sds.size();i++){
     sds.jump(i);
@@ -67,7 +67,8 @@ int main(int argc, char* argv[])
   
   gStyle->SetOptStat(0);
 
-  display.init(0,10.3698,-2.33/2.,2.33/2.);
+  //display.init(0,10.3698,-2.33/2.,2.33/2.);
+  display.init(0.6,1.0,0.0,0.3);
   //display.init(0.6,0.7,0.07,0.12);
   //display.init();
   display.draw_mc(1,WireCell::PointCVector(),"");
