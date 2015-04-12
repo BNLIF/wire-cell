@@ -1,6 +1,8 @@
 #include "WireCellSst/GeomDataSource.h"
 #include "WireCell2dToy/FrameDataSource.h"
 #include "WireCell2dToy/ToyEventDisplay.h"
+#include "WireCell2dToy/ToyTiling.h"
+
 #include "WireCellNav/SliceDataSource.h"
 #include "TApplication.h"
 #include "TStyle.h"
@@ -38,23 +40,25 @@ int main(int argc, char* argv[])
   sds.jump(0);
   WireCell::Slice slice = sds.get();
 
+  WireCell::ToyTiling toytiling(slice,gds);
+
   //  cout << sds.size() << endl;
 
   
-  TApplication theApp("theApp",&argc,argv);
-  theApp.SetReturnFromRun(true);
-  WireCell2dToy::ToyEventDisplay display;
+  // TApplication theApp("theApp",&argc,argv);
+  // theApp.SetReturnFromRun(true);
+  // WireCell2dToy::ToyEventDisplay display;
   
-  gStyle->SetOptStat(0);
+  // gStyle->SetOptStat(0);
 
-  display.init();
-  display.draw_mc(1,fds.mctruth,"");
-  display.draw_mc(2,fds.mctruth,"TEXT");
-  display.draw_mc(3,fds.mctruth,"*same");
+  // display.init();
+  // display.draw_mc(1,fds.mctruth,"");
+  // display.draw_mc(2,fds.mctruth,"TEXT");
+  // display.draw_mc(3,fds.mctruth,"*same");
   
-  display.draw_slice(slice,gds,"same");
+  // display.draw_slice(slice,gds,"same");
 
-  theApp.Run();
+  // theApp.Run();
   
 
   return 0;
