@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
   
   WireCellSst::ToyuBooNESliceDataSource sds(fds,1);
   
-  int i=1191;
+  int i=1140;
   //int i=1146;
   // for (int i=0;i!=sds.size();i++){
     sds.jump(i);
