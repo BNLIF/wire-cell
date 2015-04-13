@@ -55,10 +55,10 @@ int main(int argc, char* argv[])
   
   gStyle->SetOptStat(0);
 
-  // display.init(0,10.3698,-2.33/2.,2.33/2.);
+  // // display.init(0,10.3698,-2.33/2.,2.33/2.);
   display.init();
   display.draw_mc(1,fds.mctruth,"");
-  display.draw_mc(2,fds.mctruth,"TEXT");
+  display.draw_mc(2,fds.mctruth,"TEXTsame");
   
   
   display.draw_slice(slice,gds,"same");

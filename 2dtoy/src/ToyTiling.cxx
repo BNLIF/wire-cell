@@ -27,7 +27,7 @@ ToyTiling::ToyTiling(WireCell::Slice slice,WireCellSst::GeomDataSource gds){
     dis_puv[4],dis_puw[4],dis_pwv[4];
   int ncell = 1;
 
-  std::cout << "Wire Counts: " << wire_u.size() << " " << wire_v.size() << " " << wire_w.size() << std::endl;
+  //std::cout << "Wire Counts: " << wire_u.size() << " " << wire_v.size() << " " << wire_w.size() << std::endl;
 
 
   for (int i=0;i!=wire_u.size();i++){
@@ -40,11 +40,6 @@ ToyTiling::ToyTiling(WireCell::Slice slice,WireCellSst::GeomDataSource gds){
       //four vertices around
       PointVector puv;
       
-      
-      
-      
-      
-
       puv.push_back(gds.crossing_point(dis_u[0],dis_v[0],static_cast<WireCell::WirePlaneType_t>(0),static_cast<WireCell::WirePlaneType_t>(1)));
       puv.push_back(gds.crossing_point(dis_u[0],dis_v[1],static_cast<WireCell::WirePlaneType_t>(0),static_cast<WireCell::WirePlaneType_t>(1)));
       puv.push_back(gds.crossing_point(dis_u[1],dis_v[1],static_cast<WireCell::WirePlaneType_t>(0),static_cast<WireCell::WirePlaneType_t>(1)));
