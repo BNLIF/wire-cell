@@ -22,3 +22,6 @@
 [submodule "2dtoy"]
 	path = 2dtoy
 	url = git@github.com:BNLIF/wire-cell-2dtoy.git
+[submodule "rootvis"]
+	path = rootvis
+	url = git@github.com:BNLIF/wire-cell-rootvis.git
