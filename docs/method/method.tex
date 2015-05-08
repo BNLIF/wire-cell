@@ -1,4 +1,7 @@
 \documentclass[letter]{article}
+\usepackage{graphicx}
+\usepackage[margin=2cm]{geometry}
+\usepackage{siunitx}
 
 % Try to edit this document such that each sentence starts on its own
 % line in order to help with git merge/diff/etc.
@@ -21,6 +24,9 @@
 \def\mQexp{Q^{\mathrm{exp}}_{t,i}}
 \def\Qexp{$\mQexp$\xspace}
 
+\def\mQmeas{Q^{\mathrm{meas}}_{t,i}}
+\def\Qmeas{$\mQmeas$\xspace}
+
 \def\mVcov{V_{t,ij}}
 \def\Vcov{$\mVcov$\xspace}
 
@@ -38,7 +44,7 @@
 
 \title{Wire Cell Method for LArTPC Reconstruction}
 \author{Wire Cell Development Team\\Electronic Detector
-  Group\\Physics Department\\Brookhaven National Lab\\(DRAFT, NOT FOR DISTRIBUTION)}
+  Group\\Physics Department\\Brookhaven National Lab\\(DRAFT, NOT (yet) FOR DISTRIBUTION)}
 
 \begin{document}
 \maketitle
@@ -180,25 +186,45 @@ At a high level, the wire-cell method follows these broad steps:
 \section{Tiling}
 
 A hypothetical plane parallel to and approximately coplanar with the
-\textit{wire planes} is partitioned into \textit{cells} via a tiling
-process.
-Initially, this tiling associates exactly one \textit{wire} from each
-\textit{wire plane} with \textit{cell}.
-Each wire-triplet is uniquely associated with exactly one cell and is
-chosen such that the wires cross one another (typically pair-wise but
-as a triplet in some geometries) nearer to each other than would any
-other triplet if it were formed by replacing one of the wires with
-another from the same plane.
-Any triplets which fail this criteria do not form a cell.
-This process fully tiles the plane without gaps or overlaps.
-Algorithms for producing a tiling are described in section~\ref{subsec:tilingalg}.
+\textit{wire planes} is partitioned into \textit{cells} via a
+\textit{tiling} process.
+In general, a tiling produces an associative mapping from localized
+regions of the plane to the wires which pass through the region or, by
+some metric, near by.
+Multiple tiling methods are conceivable and result in different
+associations.
+These different methods are described later in this section.
 
-It is noted that detectors which employ ``wire wrapping'' have an $N
-\to 1$ mapping from \textit{channel} to \textit{wires}.
-The solving for \textit{cells} described below require a ($N \to M$)
-mapping from \textit{channels} to \textit{cells} and the tiling is
-just one factor of that mapping.
-The full mapping is the channel-cell matrix.
+A potential tiling must satisfy some general criteria:
+
+\begin{enumerate}
+\item It must produce ``small'' cells with sizes comparable to wire pitch
+   (in order to not lose spatial resolution).
+ \item It associates a cell with at least one wire from each plane.
+ \item It supports the various queries needed (eg, cell-wire and
+    wire-cell look-ups)
+\end{enumerate}
+
+The wire-cell association of an arbitrary tiling can be represented
+as a rectangular matrix with $N_{wires}$ wires rows and $N_{cells}$
+columns.
+It can equally well be represented as a block-off-diagonal square
+matrix of size $N_{wires} + N_{cells}$ although the former
+representation is used in this note.
+Elements in this \textit{association matrix} \Awc are zero if a wire
+and a cell are not associated.
+A non-zero element may be unity or may be some number $<1$ if the
+association is weighted.
+
+It is noted that DUNE detectors employ ``wire wrapping'' such that
+they have an $N \to 1$ mapping from \textit{channel} to
+\textit{wires}.
+The solving for ``hit'' \textit{cells} described below require a ($N
+\to M$) mapping from \textit{channels} to \textit{cells} and the
+tiling is just one factor of that mapping.
+Taking this to account, a full mapping from the number of hits in a
+cell to their measured charge in associated channels is the
+\textit{channel-cell matrix}.
 
 \begin{equation}
   \label{eq:Achc}
@@ -215,18 +241,133 @@ time $t$ as
   \mQexp = \mAchc \mQcell.
 \end{equation}
 
-In the absence of uncertainties, the expected channel-charge vector
-can be identified with the measured channel-charge vector and the
-channel-cell matrix can be potentially inverted and thus one may solve
+In the absence of uncertainties, the \textit{expected} channel-charge vector \Qexp
+can be identified with the \textit{measured} channel-charge vector \Qmeas and the
+channel-cell matrix \Achc can be potentially inverted and thus one may solve
 for the cell-charge vector.
 However, there are two confounding problems to performing this
 inversion which are described in
-sections~\ref{subsec:tilingdegeneracy} and~\ref{subsec:chargeunc}.
+subsection~\ref{subsec:tilingdegeneracy} and section~\ref{sec:chargeunc}.
 
 \subsection{Tiling Algorithms}
 \label{subsec:tilingalg}
 
-\fixme{Michael, fill this in.}
+This section describes some tiling algorithms that are being considered.
+The general approach of the wire-cell method is expected to be
+somewhat independent from the exact tiling procedure.
+It is expected that some tilings will perform differently in terms of
+spatial resolution and computational speed.
+
+Figure~\ref{fig:eyeball} shows some examples of wire patterns from
+existing detectors and ones being designed.
+
+\begin{figure}[htbp]
+  \centering
+
+  \begin{minipage}[b]{0.3\linewidth}
+    \begin{center}
+        \includegraphics[width=\textwidth]{wires-uboone.pdf}              
+
+        MicroBooNE
+    \end{center}
+  \end{minipage}
+  \begin{minipage}[b]{0.3\linewidth}
+    \begin{center}
+        \includegraphics[width=\textwidth]{wires-35t.pdf}      
+
+        DUNE \SI{35}{\tonne}
+    \end{center}
+  \end{minipage}
+  \begin{minipage}[b]{0.3\linewidth}
+    \begin{center}
+        \includegraphics[width=\textwidth]{wires-10kt.pdf}              
+
+        DUNE \SI{10}{\kilo\tonne}
+    \end{center}
+  \end{minipage}
+
+  \caption{Wire patterns (black lines) and their half-way lines (blue,
+    dashed) for MicroBooNE (left), DUNE \SI{35}{\tonne} prototype detector
+    (center) and DUNE \SI{10}{\kilo\tonne} far detector (right).
+  Between figures, wire pitches are not to scale.}
+  \label{fig:eyeball}
+\end{figure}
+
+\subsubsection{Trivial Tiling}
+
+The most trivial tiling is built by first identifying the
+\textit{half-way lines} the run midway between and parallel to any two
+neighboring wires in the same plane.
+The complete family of these lines produce the same pattern as the
+wires themselves but are offset by $\frac{1}{2}$ of a wire pitch in
+the direction transverse to the wire plane.
+The trivial tiling then identifies each smallest polygon bound by
+half-way lines and which has no other half-way lines intersecting.
+
+The tiling can be thought of as a cyclical, undirected graph made of
+nodes formed by the crossing points of half-way lines and edges made
+by the connecting of these points by the half-way lines themselves.
+
+To identify the cells the following algorithm can be used.
+Place all nodes in a sequence.
+Pop the first node from that sequence, call this the seed.
+Form a collection of groups (initially pairs) with the seed and every node directly
+connected via the seed's edges.
+Call each of these nodes the ``tail'' of the group.
+Iterate on the remaining sequence and
+for each node, add it as a new ``tail'' node if it is connected to an
+existing tail node via an edge.
+Determine if the same node was added to twice to any group,
+identify those two groups as surrounding the cell and remove them from
+the collection of groups.
+After this iteration all cells containing the original seed are found.
+Repeat with the next node in the sequence. 
+
+\subsubsection{Minimum Association}
+
+\fixme{Michael, fill this in, for now, it's just my blah blah.
+Also, let's pick a better name.}
+
+This section describes Michael's algorithm.
+It assigns exactly one wire to each cell.
+For the regular MicroBooNE wires the cells produced fall into two
+categories: regular hexagon shape and regular isosceles triangles of 
+$\frac{1}{6}$th size of the hexagons.
+
+
+
+\subsubsection{UV Diamond}
+
+The UV Diamond tiling simply identities a cell as the diamond-shaped
+region bounded by the half-way lines of the U and V wires.
+Such cells are centered on U-V wire crossing points.
+
+A Y wire is then associated with a UV Diamond cell by determining what
+fraction of the cell the band formed by its half-way lines subtend the
+cell's area.
+This fraction is then used to form a weighted association matrix.
+
+This tiling reflects the symmetry that exists in the fact
+that U and V wires record induced charge while the Y wires record
+collected charge.
+It also exploits the spatial symmetry that exists when only two wire
+planes are considered.
+The UV Diamond cells then form a rectilinear space which can be mapped
+to Cartesian coordinates.
+This facilitates many required procedures such as indexing a cell
+given a point in space.
+
+When attempting to remove tiling degeneracy (see
+section~\ref{subsec:tilingdegeneracy}) this construction can help in a
+few ways.
+One may elect to sever wire-cell associations based on some selection
+criteria on the association weight.
+This would be done independent from any measured charge patterns, but
+measured charge could be used in a similar manner to break
+associations based on the weighted change each wire contributes to a cell.
+Such operations will likely require heuristics to be developed based
+on actual wire patterns and expected event topology.
+
 
 \subsection{Tiling Degeneracy}
 \label{subsec:tilingdegeneracy}
@@ -244,8 +385,67 @@ These procedures will either identify certain channels or cells which
 may be removed from consideration or which may be effectively joined
 or merged.
 
-\subsection{Measurement Uncertainty}
-\label{subsec:chargeunc}
+\subsection{Tiling Translational Invariance}
+
+One feature of a particular tiling which can help in reducing memory
+usage is if it has any step-wise translational invariance.
+If the tiling repeats over some distance it may be possible to
+represent the tiling in a compact way by storing only the
+non-repeating region.
+
+The MicroBooNE case is trivial.
+Wire crossings form a regular lattice made of isosceles triangles and
+tilings can be formed which repeat at a distance equal to that between
+any two neighboring, triple-crossing points.
+
+DUNE detectors are less regular due to engineering constraints.
+The DUNE 35t detector is least regular in that the U and V wires each have
+differing angles with respect to the Y wires.
+The other DUNE detectors are designed to have identical U and V angles
+(opposite signs)
+but are chosen such that they may not produce a regular pattern with
+respect to the Y wires.
+\fixme{Actually check this statement.}
+
+
+The translational invariance condition can be described in the
+following manner.
+First, without loss of generality, one can imagine shifting the Y wire
+play in a direction orthogonal to its wires so that one can form at
+least one triple-wire crossing between a Y, a U and a V wire.
+If the pattern of wires repeat then from that point one can imagine
+forming a vector to another triple-wire crossing which occurs such
+that the pattern from this new point is invariant to the pattern from
+the original.
+
+The condition of that point is:
+
+\begin{equation}
+  \label{eq:transinvcond}
+  n_y*P_y = n_v v \sin(\theta_v) + n_u u \sin(\theta_v)
+\end{equation}
+
+Where the $n_y$ etc are integers, $P_y$ is the wire pitch of the Y
+wires, $v$ and $u$ measure the distance along the V and U wires
+between U/V intersection points and $\theta_v$ and $\theta_u$ are the
+angles of V and U wires with respect to the Y wires.
+\fixme{I did this
+  on the plane and it still needs checking!}
+  
+Then, if integers $n_y$, etc, can be found which satisfies this
+equation, the cell pattern repeats as given by the vector formed using
+their values and the known wire directions.
+The magnitude of this vector may be larger than the physical extent of
+the detector, in which case the no exact reduction in the size of the
+representation of the tiling is possible.
+It may be possible to approximately satisfy
+equation~\ref{eq:transinvcond} such that errors in the approximation
+are small compared to the wire pitches across the entire physical extent.
+
+
+
+\section{Measurement Uncertainty}
+\label{sec:chargeunc}
 
 The second problem that confounds inverting the channel-cell matrix,
 even after it is reduced as above, is that this matrix alone does not
