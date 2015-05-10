@@ -8,6 +8,7 @@ subdirs = ['data',
            'sst',
            'tiling',
            'rootvis',
+           'graph',
            'examples',
            'matrix', 
            '2dtoy',
@@ -24,7 +25,6 @@ def options(opt):
 def configure(cfg):
     cfg.load('doxygen', tooldir='waf-tools')
     cfg.load('find_package', tooldir='waf-tools')
-    
     cfg.env.CXXFLAGS += [cfg.options.build_debug]
 
 def build(bld):

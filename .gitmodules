@@ -25,3 +25,6 @@
 [submodule "rootvis"]
 	path = rootvis
 	url = git@github.com:BNLIF/wire-cell-rootvis.git
+[submodule "graph"]
+	path = graph
+	url = git@github.com:BNLIF/wire-cell-graph.git
