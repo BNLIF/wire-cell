@@ -205,14 +205,16 @@ A potential tiling must satisfy some general criteria:
     wire-cell look-ups)
 \end{enumerate}
 
-The wire-cell association of an arbitrary tiling can be represented
-as a rectangular matrix with $N_{wires}$ wires rows and $N_{cells}$
-columns.
-It can equally well be represented as a block-off-diagonal square
-matrix of size $N_{wires} + N_{cells}$ although the former
-representation is used in this note.
-Elements in this \textit{association matrix} \Awc are zero if a wire
-and a cell are not associated.
+The wire-cell association of an arbitrary tiling can be represented as
+a \textit{bipartite graph} with $N_{wires}$ vertices representing the
+wires and $N_{cells}$ vertices representing the cells.
+As such it can also be represented as a $N_{wires} \times N_{cells}$
+association or \textit{biadjacency} matrix or as a block-off-diagonal
+square \textit{adjacency matrix} of size $N_{wires} + N_{cells}$.
+Below we use the \textit{biadjacency} representation but refer to the
+graph representation at times.
+Elements in this association matrix \Awc are zero if a wire and a cell
+are not associated.
 A non-zero element may be unity or may be some number $<1$ if the
 association is weighted.
 
@@ -323,13 +325,30 @@ the collection of groups.
 After this iteration all cells containing the original seed are found.
 Repeat with the next node in the sequence. 
 
+\subsubsection{Bounded Tiling}
+
+Bounded tiling is simple and fairly fast if order $N^3$ in the number
+of wires.
+For each U and V wire determine the four crossing points of their
+half-way lines.
+Then, for each Y wire, find its half-way lines and determine if any of
+the four U/V crossing points are bound between them.
+If so, save them and find the crossing points of the Y-half-way lines
+and the U-half-way lines and if they are bound by the two V-half-way
+lines save them.
+Repeat to determine if any Y and V crossings are bound by the
+U-half-way lines.
+All crossings of pairs of half-way lines from two planes which are
+bound by half-way lines of the third plane are thus included in the cell.
+
+
 \subsubsection{Minimum Association}
 
 \fixme{Michael, fill this in, for now, it's just my blah blah.
 Also, let's pick a better name.}
 
 This section describes Michael's algorithm.
-It assigns exactly one wire to each cell.
+It assigns exactly one wire from each plane to a cell.
 For the regular MicroBooNE wires the cells produced fall into two
 categories: regular hexagon shape and regular isosceles triangles of 
 $\frac{1}{6}$th size of the hexagons.
@@ -504,15 +523,18 @@ number of cells and the size of the full channel-cell matrix.
     Detector & \#channels & \#cells & $size(\mAchc)$ \\
     \hline
     \hline
-    DUNE 35t APA & 512 & $3\times 10^4$ & $1\times 10^7$\\
-    DUNE 10kt APA & 2560 & $7\times 10^5$ & $2\times 10^9$ \\
+    % fixme: 512 is per face or per all APA?
+    DUNE 35t APA Face & 512/2 & $7\times 10^3$ & $2\times 10^6$\\
+    DUNE 10kt APA Face & 2560/2 & $2\times 10^5$ & $2\times 10^8$ \\
     MicroBooNE & 8256 & $7\times 10^6$ & $6\times 10^{10}$\\
     \hline
   \end{tabular}
   \caption{Channel counts and estimated number of cells of some LAr
     TPC detectors.
-    In the case of DUNE detectors only one APA is considered.
-    Activity that cross APA boundaries is left for future investigations.}
+    In the case of DUNE detectors, only one APA (face) is considered
+    and wire wrapping is ignored.
+    Wire wrapping will approximately double the number of cells.
+    A single 10kt DUNE module (1 of 4) will have 150 APAs sensing 200 LAr drift regions.}
   \label{tab:detectorcounts}
 \end{table}
 
@@ -525,24 +547,35 @@ One way to represent such procedures is to introduce the idea of
 \textit{reduction matrices}.
 
 
-As described in the following sections, the nature of the reduction
-procedures include things such as removing or merging some channels
-and cells.
-The effect of such procedures can be treated as a simultaneous
-coordinate transform in both the channel and cell space.
-% fixme: should introduce the idea of a state vector in these spaces earlier.
-These rotations can be constructed such that any uninteresting
-subspaces are represented at the end of the bases and then truncated
-away leaving an overall smaller space.
-In the case of simple removal, the rotated basis is merely a
-reordering of the basis vectors.
-In the case of merging, the rotated basis will be a linear combination
-of the original basis with one ``$+$'' term representing the merging
-of two channels (cells) and the ``$-$'' term being truncated away.
+As described in more detail in the following sections, the nature of
+the reduction procedures can grouped into two categories: removal or
+merging or channels or cells.
 
-In any case, we represent a reducing operation as the application of a
-reduction matrix $R$ to the full problem equations (eg. eqns~\ref{eq:Qexp} or~\ref{eq:Qcell}).
-As an example, applying a cell reduction and inserting a wire
+A removal is represented by constructing a series of
+\textit{row-switching} transformation matrices.
+These are square matrices of size $N_{ch}$ or $N_{cells}$ depending on
+which basis they operate.
+The inverse of such matrices are themselves and so as many pairs may
+be inserted as needed to move a given row to the last row of the matrix.
+A basis can then be truncated to produce a smaller matrix equation.
+
+A merge is a transformation where two elements becomes logically one.
+For example, a merged cell is a new logical cell which has associated
+all wires of its constituent cells.
+A merge is represented by a \textit{row-addition} transform matrix
+which is the identity pull an entry at $\delta_{ij}$.
+It's inverse is simply the same matrix but with the extra entry $-\delta_{ij}$.
+The effect is that elements at index $i$ become the sum of elements at
+$i$ and $j$.
+A removal transform is inserted to remove the entry at $j$.
+
+In general a reducing operation consists of applying or inserting a
+series of the transformation matrices (and possibly paired with their
+inverse) described above into a given equation.
+We represent their product-series as an overall reduction matrix
+$R^{ch}$ if it operates on the channel basis and $R^{cell}$ if on the
+cell basis.
+As an example, applying a channel reduction and inserting a cell
 reduction to eqn~\ref{eq:Qexp} gives:
 
 \begin{equation}
@@ -565,16 +598,6 @@ substitution:
   \label{eq:subst2}
   R^\mathrm{x} Q^\mathrm{x} \to Q^\mathrm{x}
 \end{equation}
-Multiple reduction stages are represented by subsequent application of
-a series of reduction matrices, each operating on the basis of the
-previous producing a new, smaller basis.
-
-
-
-\begin{equation}
-  \label{eq:multipleR}
-  R = R_1 R_2 R_3 ...
-\end{equation}
 
 \subsection{Lossless Reduction}
 
@@ -585,26 +608,35 @@ matrices in an information-lossless manner.
 Such channels may come about due to the time bin for that channel failing to
 satisfy zero-suppression (ZS) threshold applied during DAQ readout or
 an analysis threshold applied offline.
-To exploit the reduction this allows, with not loss of information,
-one considers a \textit{reduced} channel-cell matrix
-$A'_{i\alpha}$ which is made of only those associations
-between the channels above threshold and only those cells which can be
-formed with valid triplets of wires associated with this reduced set of
-channels.
 
 \subsection{Lossy Reduction}
 
-If the slice can not be solved after lossless reduction, further
-reduction can be attempted which is information-lossy in nature.
+In general a time slice can not be solved after lossless reduction.  Further
+reduction is attempted which is information-lossy in nature but which
+is hoped to reduce the complexity enough to allow solving the slice. 
 
 
-\subsubsection{Merging}
+\subsubsection{Blobs}
 
-One lossy reduction takes the form of merging channels or cells based on
-some desiderata.
-When two neighboring cells are merged, one or two of their wires may be in common.
-This leads to a reduction in both the number of rows and columns in
-producing a further reduced channel-cell matrix $A''_{i\alpha}$.
+After lossless reduction of a time slice, one is left only with
+channels containing charge and all their associated cells which are
+considered to be \textit{potentially hit} in that they all potentially
+contained drifting charge.
+Using the geometrical locations of these cells it is possible to merge
+neighboring cells into a number groups termed ``merged cells'' or
+``\textit{blobs}''.
+
+The extent and location of a blob is well defined in the 2D drift
+plane however in any given wire plane individual blobs may appear to
+overlap.
+One can construct a bipartite graph between blobs and their associated
+channels in a single wire plane.
+If this graph is composed of a number of fully connected subgraphs
+then that wire plane gives some individual measurement of a subset of
+the blobs.
+Combining these measurements in the three views may allow for the
+amount of charge in each blob to be calculated.
+
 
 \subsubsection{Inter-slice Interpolation}
 
