@@ -1,0 +1,22 @@
+#+TITLE: Similar Work by Others
+
+* Fine-grained parallel processing and GPU in HEP
+
+A sampling of recent activity
+
+ - [[http://arxiv.org/pdf/1311.5334.pdf][OPERA GPU]] 2014. Acceleration of track reconstruction in emulsion. 3 GPUs, 60x speed up over 1 CPU.  Use of FPGAs also mentioned.  CUDA 5.5 + ROOT, i7 + 3x TITAN 2688 cores.  
+
+ - [[https://indico.in2p3.fr/event/10713/][S. Binet]] 2014. Seminar which goes through many of the pertinent issues
+
+ - [[http://mu2e-docdb.fnal.gov/cgi-bin/RetrieveFile?docid=1950][R. Kutschke]] 2014. and Mu2e are thinking about this.  They have large field maps that need to be shared by any parallel procs.
+
+- [[https://agenda.infn.it/conferenceOtherViews.py?confId=7534&view=standardshort][GPU Computing in High Energy Physics]] 2014.  Various talks.  Hough transform (general case).  The OPERA work, NEMO trigger.  IceCube propagating GPU photons without Chroma.  Neutrino oscillation probabilities for T2K.
+
+- [[http://iopscience.iop.org/1742-6596/513/5/052004/pdf/1742-6596_513_5_052004.pdf][LHCb GPU offloading]] 2014.  Uses a Gaudi service to talk to a server fronting the parallel compute resource.
+ 
+ - [[https://github.com/GooFit/GooFit][GooFit]] and some associated [[https://indico.cern.ch/event/235992/][lessons at CERN]]
+
+* GPU Software
+
+ - [[https://thrust.github.io/][Thrust]] STL-like abstractions over CUDA, TBB, and OpenMP
+
