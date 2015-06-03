@@ -16,6 +16,10 @@ A sampling of recent activity
  
  - [[https://github.com/GooFit/GooFit][GooFit]] and some associated [[https://indico.cern.ch/event/235992/][lessons at CERN]]
 
+ - [[http://xxx.tau.ac.il/pdf/1505.04540.pdf][arXiv:1505.04540]] Kalman filter tracking on parallel architectures.
+
+ - [[http://www-alt.gsi.de/documents/DOC-2009-Apr-73-1.pdf][CHEP 09, Mohammad Al-Turany]] and early adopter of GPU.
+
 * GPU Software
 
  - [[https://thrust.github.io/][Thrust]] STL-like abstractions over CUDA, TBB, and OpenMP
