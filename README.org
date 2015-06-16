@@ -14,6 +14,7 @@ You may provide the external packages yourself.  The definitive list of required
 
  - ROOT v6 
  - Python 2.7
+ - BOOST 1.55 (or equiv)
 
 You will need to set up your run-time environment so that these commands do not fail and give the expected version:
 
