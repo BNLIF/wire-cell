@@ -28,3 +28,6 @@
 [submodule "graph"]
 	path = graph
 	url = git@github.com:BNLIF/wire-cell-graph.git
+[submodule "lsp"]
+	path = lsp
+	url = git@github.com:BNLIF/wire-cell-lsp.git
