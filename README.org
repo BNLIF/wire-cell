@@ -254,3 +254,65 @@ You can explicitly run C++ test programs.  When they are run as part of the buil
   ...
 #+END_EXAMPLE
 
+
+** Dealing with git submodules
+
+From [[http://git-scm.com/book/en/v2/Git-Tools-Submodules#Working-on-a-Project-with-Submodules][the git book]], do you updates like:
+
+#+BEGIN_EXAMPLE
+  $ git submodule update --remote --rebase
+#+END_EXAMPLE
+
+or like
+
+#+BEGIN_EXAMPLE
+  $ git submodule update --remote --merge
+#+END_EXAMPLE
+
+With:
+
+- =--rebase= :: put our local commits on top of any new ones
+
+- =--merge= :: merge our commits into new ones
+
+The first leaves a more "linear" commit history while the second leaves
+"diamonds" in the history whenever we have briefly diverged from the
+remote repository.  You can run "=gitk --all=" in wire-cell or one of the
+submodules to see what I mean.  Either way is fine.  Rebasing looks
+cleaner in the history but merge captures the subtle fact of where our
+line of development actually diverged.
+
+In that link there are other interesting things to do:
+
+- Configure your repository so "=git status=" in the top-level
+"wire-cell" gives us more info on the status of all submodules:
+
+#+BEGIN_EXAMPLE
+  $ git config status.submodulesummary 1
+#+END_EXAMPLE
+
+- Make it so "=git diff=" in wire-cell will also show any diff's in the
+submodules:
+
+#+BEGIN_EXAMPLE
+  $ git config diff.submodule log
+#+END_EXAMPLE
+
+- To check that we will push in the right order (submodules first):
+
+#+BEGIN_EXAMPLE
+  $ git push --recurse-submodules=check
+#+END_EXAMPLE
+
+- To force submodules to push first
+
+#+BEGIN_EXAMPLE
+  $ git push --recurse-submodules=on-demand
+#+END_EXAMPLE
+
+- To run any command in all submodules
+
+#+BEGIN_EXAMPLE
+  $ git submodule foreach 'the command'
+#+END_EXAMPLE
+
