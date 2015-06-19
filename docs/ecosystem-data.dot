@@ -1,0 +1,58 @@
+digraph "G" {
+	label="Wire-cell Data Flow, Components and Status";
+
+	larsoft[shape=box,label="LArSoft"];
+	larfile[shape=folder, label="Art ROOT file"];
+	chao[fillcolor=yellow,style=filled,shape=doubleoctagon,label="Chao magic\n(needs exposure)"];
+	xiaoyue[fillcolor=yellow,style=filled,shape=doubleoctagon,label="Xiaoyue magic)\n(needs exposure, and integration)\n(35t geo from larsoft\n(break from larsoft?)"];
+	celltree[shape=folder, label="celltree ROOT file"];
+	geomfile[shape=folder, label="geometry text file"];
+	sst[shape=component,label="WC SST\nGDS, FDS, SimDS"];
+	params[shape=ellipse,label="parameters"];
+	
+	nav[shape=component,label="WC NAV\nGenerativeFDS (FDS+SimDS)\nParamGDS\nPepperDepositor\nSimTruthDepositor"];
+	algs[shape=component,label="WC algs\n(2dtoy+nav+graph+tiling+...)"];
+
+	cellio[style=filled,fillcolor=red,shape=doubleoctagon,label="Reco cell I/O\n(needs implementing)"];
+	cellfile[shape=folder,label="Reco cell files"];
+
+	xinchao[fillcolor=yellow,style=filled,shape=doubleoctagon,label="Xin+Chao magic\n(needs exposure)"];
+	json[shape=folder,label="JSON files"];
+	
+	lard[shape=box,label="LAr Data Server\n(lard)"];
+	disp[style=rounded,shape=trapezium,label="WebGL Visualization"];
+	rootvis[style=rounded,shape=trapezium,label="ROOT Visualization"];
+
+	{rank=same; larsoft; params}
+
+	{rank=same; disp; rootvis}
+
+	larsoft->larfile[label="writes"];
+	larfile->chao[style="dashed",label="reads"];
+	chao->celltree[style="dashed",label="writes"];
+	chao->geomfile[style="dashed",label="writes"];
+	larsoft->xiaoyue[style=dashed,label="dumps"];
+	xiaoyue->geomfile[style=dashed,label="writes"];
+
+	celltree->sst[label="reads"];
+	geomfile->sst[label="reads"];
+	sst->algs[label="provides methods"];
+
+	params->nav[label="input"];
+	nav->algs[label="provides methods"];
+	nav->rootvis;
+
+	algs->cellio[style="dotted",label="writes"];
+	cellio->algs[style="dotted",label="reads"];
+	cellio->cellfile[style="dotted"];
+	cellfile->lard[label="reads"];
+
+	lard->disp[style=dashed, label="HTTP\n(needs common API developed)"];
+	larsoft->lard[style=dotted, label="raw data + trad. reco\n(needs implementing)"];
+
+	algs->xinchao[label="reformats"];
+	xinchao->json[label="writes"];
+	json->disp[label="HTTP"];
+
+	algs->rootvis;
+}
