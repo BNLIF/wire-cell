@@ -68,6 +68,16 @@ def make_package(bld, name, use=''):
     if srcdir:
         source += srcdir.ant_glob('*.cxx')
 
+    if dictdir:
+        if not headers:
+            error('No header files for ROOT dictionary "%s"' % name)
+        linkdef = dictdir.find_resource('LinkDef.h')
+        bld.gen_rootcling_dict(name, linkdef,
+                               headers = headers,
+                               includes = includes, 
+                               use = use)
+        source.append(name+'Dict.cxx')
+
     if incdir and srcdir:
         bld(features = 'cxx cxxshlib',
             name = name,
@@ -77,16 +87,7 @@ def make_package(bld, name, use=''):
             export_includes = 'inc',
             use=use)
 
-    if dictdir:
-        if not headers:
-            error('No header files for ROOT dictionary "%s"' % name)
-        linkdef = dictdir.find_resource('LinkDef.h')
-        bld.gen_rootcling_dict(name, linkdef,
-                               headers = headers,
-                               includes = includes, 
-                               use = use)
     if testsrc:
-
         for test_main in testsrc:
             bld.program(features = 'test', 
                         source = [test_main], 

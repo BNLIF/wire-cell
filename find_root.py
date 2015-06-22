@@ -55,8 +55,11 @@ def gen_rootcling_dict(bld, name, linkdef, headers = '', includes = '', use=''):
     #print 'INCS(%s): %s' % (name, str(incs))
     
     dict_src = name + 'Dict.cxx'
-    dict_lib = 'lib' + name + 'Dict.so' # what for Mac OS X?
-    dict_map = 'lib' + name + 'Dict.rootmap'
+    # dict_lib = 'lib' + name + 'Dict.so' # what for Mac OS X?
+    # dict_map = 'lib' + name + 'Dict.rootmap'
+    # dict_pcm =         name + 'Dict_rdict.pcm'
+    dict_lib = 'lib' + name + '.so' # what for Mac OS X?
+    dict_map = 'lib' + name + '.rootmap'
     dict_pcm =         name + 'Dict_rdict.pcm'
 
     if type(linkdef) == type(""):
@@ -69,10 +72,10 @@ def gen_rootcling_dict(bld, name, linkdef, headers = '', includes = '', use=''):
         target = [dict_src, dict_map, dict_pcm],
         rule=rule, use = use)
 
-    bld.shlib(source = dict_src,
-              target = name+'Dict',
-              includes = includes,
-              use = use + [name])
+    # bld.shlib(source = dict_src,
+    #           target = name+'Dict',
+    #           includes = includes,
+    #           use = use + [name])
 
     bld.install_files('${PREFIX}/lib/', dict_map)
     bld.install_files('${PREFIX}/lib/', dict_pcm)
