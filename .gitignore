@@ -14,3 +14,6 @@ doxy
 *.toc
 *.vrb
 *.root
+*.fdb_latexmk
+method.pdf
+junk
