@@ -31,3 +31,18 @@
 [submodule "lsp"]
 	path = lsp
 	url = git@github.com:BNLIF/wire-cell-lsp.git
+[submodule "iface"]
+	path = iface
+	url = git@github.com:BNLIF/wire-cell-iface.git
+[submodule "rio"]
+	path = rio
+	url = git@github.com:BNLIF/wire-cell-rio.git
+[submodule "riodata"]
+	path = riodata
+	url = git@github.com:BNLIF/wire-cell-riodata.git
+[submodule "rootdict"]
+	path = rootdict
+	url = git@github.com:BNLIF/wire-cell-rootdict.git
+[submodule "util"]
+	path = util
+	url = git@github.com:BNLIF/wire-cell-util.git
