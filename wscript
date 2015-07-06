@@ -4,6 +4,8 @@ TOP = '.'
 APPNAME = 'WireCell'
 
 subdirs = ['data',
+           'util',
+           'iface',
            'nav',
            'sst',
            'tiling',
@@ -12,6 +14,8 @@ subdirs = ['data',
            'examples',
            'matrix', 
            '2dtoy',
+           'riodata',
+           'rio',
            'lsp',
 ]
 
