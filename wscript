@@ -3,22 +3,6 @@
 TOP = '.'
 APPNAME = 'WireCell'
 
-subdirs = ['data',
-           'util',
-           'iface',
-           'nav',
-           'sst',
-           'tiling',
-           'rootvis',
-           'graph',
-           'examples',
-           'matrix', 
-           '2dtoy',
-           'riodata',
-           'rio',
-           'lsp',
-]
-
 def options(opt):
     opt.load('doxygen', tooldir='waf-tools')
     opt.load('find_package', tooldir='waf-tools')
@@ -34,6 +18,10 @@ def configure(cfg):
 
 def build(bld):
     bld.load('find_package', tooldir='waf-tools')
+
+    subdirs = [str(sd.parent) for sd in bld.path.ant_glob('*/wscript_build')]
+    print subdirs
+
     bld.recurse(subdirs)
     if bld.env.DOXYGEN and bld.options.doxygen_tarball:
         bld(features="doxygen", doxyfile=bld.path.find_resource('Doxyfile'),
