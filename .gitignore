@@ -17,3 +17,7 @@ doxy
 *.fdb_latexmk
 method.pdf
 junk
+test_*.pdf
+venv
+*.local
+install
