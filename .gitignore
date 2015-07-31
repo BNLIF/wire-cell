@@ -17,3 +17,6 @@ doxy
 *.fdb_latexmk
 method.pdf
 junk
+*.bak
+install
+test_*.pdf

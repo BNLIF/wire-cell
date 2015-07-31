@@ -1,0 +1,23 @@
+#!/bin/bash
+who=${1:-anon}
+
+usage () {
+    echo "./switch-git-urls dev|anon"
+    exit 1
+}
+if [ -z "$who" ] ; then usage ; fi
+
+dev_url="git@github.com:BNLIF"
+usr_url="https://github.com/BNLIF"
+
+case $who in
+    dev) from_url=$usr_url; to_url=$dev_url;;
+    anon)from_url=$dev_url; to_url=$usr_url;;
+    *) usage ;;
+esac
+
+echo "Convert to $to_url"
+sed -i -e 's|'$from_url'|'$to_url'|'g .gitmodules
+git submodule sync
+git remote set-url origin $to_url/wire-cell.git
+
