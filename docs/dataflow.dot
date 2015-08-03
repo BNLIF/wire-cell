@@ -1,0 +1,30 @@
+digraph "G" {
+	title="Wire Cell Data Flow";
+	
+	
+	sst_depo -> depo_fanin;
+	sig_depo -> depo_fanin;
+	bkg_depo -> depo_fanin;
+
+	depo_fanin -> depo_fanout;
+	
+	paramwires->wire_sequence;
+	sstwires->wire_sequence;
+	wire_sequence->wire_summary;
+	
+	wire_summary->digitizeU;
+	wire_summary->digitizeV;
+	wire_summary->digitizeW;
+
+	depo_fanout->driftU->digitizeU->frame_fanin;
+	depo_fanout->driftV->digitizeV->frame_fanin;
+	depo_fanout->driftW->digitizeW->frame_fanin;
+
+	wire_summary->cell_sequence->tiling->cell_charge_binner;
+
+	frame_fanin->slicer->cell_charge_binner;
+
+	cell_charge_binner->cell_merger->blob_sequence->blob_solver;
+	
+
+}
