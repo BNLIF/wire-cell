@@ -1,0 +1,87 @@
+% TEXINPUTS=.:$HOME/git/bvtex: latexmk  -pdf <main>.tex
+\documentclass[xcolor=dvipsnames]{beamer}
+
+\input{defaults}
+
+\input{beamer/preamble}
+\usepackage[outline]{contour}
+
+\definecolor{bvtitlecolor}{rgb}{0.98, 0.92, 0.84}
+\definecolor{bvoutline}{rgb}{0.1, 0.1, 0.1}
+
+\renewcommand{\bvtit}{Wire Cell}
+\renewcommand{\bvtitle}{\LARGE Wire Cell Software Overview and Status}
+\renewcommand{\bvevent}{BNLIF Wire Cell Team\\ 2015 Aug 11}
+\renewcommand{\bvbeamerbackground}{}
+\begin{document}
+\input{beamer/title.tex}
+\input{beamer/toc.tex}
+
+
+\lstset{%
+  language=C++,
+                basicstyle=\scriptsize\ttfamily,
+                keywordstyle=\color{blue}\ttfamily,
+                stringstyle=\color{red}\ttfamily,
+                commentstyle=\color{gray}\ttfamily,
+                morecomment=[l][\color{magenta}]{\#}
+}
+
+\section{Method}
+
+\begin{frame}
+  \begin{itemize}
+  \item cell cartoon from test
+  \item 3 panel shower from Chao
+  \end{itemize}
+\end{frame}
+
+\section{Software}
+
+\subsection{DFP paradigm}
+
+\begin{frame}
+  \begin{itemize}
+  \item high level flow diagram
+  \item details
+  \end{itemize}
+\end{frame}
+
+\subsection{Interfaces}
+
+\subsection{Data classes}
+
+\section{Wire Cell Integration}
+
+\subsection{WebGL display}
+
+\begin{frame}
+  \begin{itemize}
+  \item show some screen shots
+  \item production of json
+  \item chao's web app clean up
+  \item possible future ``lard'' data server
+  \end{itemize}
+\end{frame}
+
+\subsection{I/O}
+
+\begin{frame}
+  \begin{itemize}
+  \item sst/celltree as input
+  \item Chao's production of larsoft files
+  \item RIO
+  \end{itemize}
+\end{frame}
+
+\subsection{Applications}
+
+\begin{frame}
+  \begin{itemize}
+  \item Wire Cell as LArsoft external
+  \item Figuring out how to run on other arch (multi-thread/proc, GPU, HPC)
+  \end{itemize}
+\end{frame}
+
+\end{document}
+
