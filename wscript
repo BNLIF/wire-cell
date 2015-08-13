@@ -20,7 +20,7 @@ def build(bld):
     bld.load('find_package', tooldir='waf-tools')
 
     #subdirs = [str(sd.parent) for sd in bld.path.ant_glob('*/wscript_build')]
-    subdirs = 'util iface nav'.split()
+    subdirs = 'util iface nav rio riodata'.split()
     print subdirs
 
     bld.recurse(subdirs)
