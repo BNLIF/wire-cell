@@ -10,6 +10,8 @@ def options(opt):
                    help="Build with debug symbols")
     opt.add_option('--doxygen-tarball', default=None,
                    help="Build Doxygen documentation to a tarball")
+    opt.add_option('--doxygen-install-path', default="",
+                   help="Build Doxygen documentation to a tarball")
 
 def configure(cfg):
     cfg.load('doxygen', tooldir='waf-tools')
@@ -25,6 +27,8 @@ def build(bld):
 
     bld.recurse(subdirs)
     if bld.env.DOXYGEN and bld.options.doxygen_tarball:
-        bld(features="doxygen", doxyfile=bld.path.find_resource('Doxyfile'),
+        bld(features="doxygen",
+            doxyfile=bld.path.find_resource('Doxyfile'),
+            install_path=bld.options.doxygen_install_path or bld.env.PREFIX + "/doc",
             doxy_tar = bld.options.doxygen_tarball)
 
