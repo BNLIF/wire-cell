@@ -27,6 +27,7 @@ def configure(cfg):
     cfg.load('doxygen', tooldir='waf-tools')
     cfg.load('find_package', tooldir='waf-tools')
     cfg.env.CXXFLAGS += [cfg.options.build_debug]
+    cfg.check_boost(lib='system filesystem graph')
 
 def build(bld):
     bld.load('find_package', tooldir='waf-tools')
