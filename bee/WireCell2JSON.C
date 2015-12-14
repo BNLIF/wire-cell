@@ -77,6 +77,8 @@ void WireCell2JSON(TString filename, TString option = "truth", TString outfile="
     }
     else if (detector == 1) {
         out << '"' << "geom" << '"' << ":" << '"' << "dune35t" << '"' << "," << endl;
+    }else if (detector == 3) {
+      out << '"' << "geom" << '"' << ":" << '"' << "dune10kt_workspace" << '"' << "," << endl;
     }
 
     print_vector(out, vx, "x");
