@@ -5,20 +5,21 @@ ALIAS = {
     'true' : 'truth',
     'simple'  : 'rec_simple',
     'charge' : 'rec_charge_blob',
-    'deblob' : 'rec_charge_cell'
+    'deblob' : 'rec_charge_cell',
+    'mc' : 'mc',
 }
 
 def main(filename, options):
     if (options == []):
-        options =["rec_charge_blob", "rec_simple"]
+        options =["rec_charge_blob", "rec_simple", "truth", "mc"]
     for i in range(len(options)):
         options[i] = ALIAS.get(options[i], options[i])
-    print options
+    # print options
     to_glob = filename[:filename.rfind('_')] + '_*.root'
     # print to_glob
     list_of_files = glob.glob(to_glob)
     list_of_files.sort(key=lambda x: int(x[x.rfind('_')+1:x.rfind('.')]))
-    print list_of_files
+    # print list_of_files
     # root -b -q 'WireCell2JSON.C("shower3D_data_0.root","rec_simple", "1.json")'
     try:
         os.mkdir('data')
@@ -35,8 +36,18 @@ def main(filename, options):
                 filename,
                 rec,
                 'data/'+str_i+'/'+str_i+'-'+rec+'.json')
-            print cmd
+            # print cmd
             os.system(cmd)
+        # trackfilename = list_of_files[i].replace(
+        #     'shower3D',
+        #     'cluster'
+        #     )
+        # if (os.path.exists(trackfilename)):
+        #     cmd = "root -b -q -l 'Track2JSON.C(\"%s\", \"%s\")'" % (
+        #         trackfilename,
+        #         'data/'+str_i+'/'+str_i+'-WireCell-charge-track.json')
+        #     #print cmd
+        #     #os.system(cmd)
 
     if (os.path.exists('to_upload.zip')):
         print 'removing old to_upload.zip ...'
