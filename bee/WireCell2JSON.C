@@ -8,8 +8,9 @@ void WireCell2JSON(TString filename, TString option = "truth", TString outfile="
     WCReader r(filename, outfile);
     if (option == "mc") {
         r.DumpMC();
-    }
-    else {
+    } else if (option == "channel-deadarea") {
+         r.DumpDeadArea();
+    }    else {
         r.DumpSpacePoints(option);
     }
 }

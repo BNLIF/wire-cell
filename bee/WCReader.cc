@@ -72,6 +72,35 @@ void WCReader::DumpRunInfo()
     }
 }
 
+void WCReader::DumpDeadArea()
+{
+    int nPoints = 0;
+    const int MAX_POINTS = 10;
+    double y[MAX_POINTS], z[MAX_POINTS];
+
+    TTree *t = (TTree*)rootFile->Get("T_bad");
+    if (t) {
+        t->SetBranchAddress("bad_npoints", &nPoints);
+        t->SetBranchAddress("bad_y", &y);
+        t->SetBranchAddress("bad_z", &z);
+    }
+
+    jsonFile << "[";
+    jsonFile << fixed << setprecision(1);
+    int nEntries = t->GetEntries();
+    for (int i=0; i<nEntries; i++) {
+        t->GetEntry(i);
+        if (i>0) jsonFile << "," << endl;
+        jsonFile << "[";
+        for (int j=0; j<nPoints; j++) {
+            if (j>0) jsonFile << ",";
+            jsonFile << "[" << y[j] << ", " << z[j] << "]";
+        }
+        jsonFile << "]";
+    }
+    jsonFile << "]" << endl;
+}
+
 //----------------------------------------------------------------
 void WCReader::DumpSpacePoints(TString option)
 {
