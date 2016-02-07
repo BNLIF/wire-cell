@@ -7,3 +7,9 @@ For installation instructions and other information see the Docs:
 
 http://bnlif.github.io/wire-cell-docs/
 
+You will also need to install
+
+https://github.com/wirecell/wire-cell-xdata-root
+
+Install it into same place you use for "prefix" when installing this
+package and it will be picked up.

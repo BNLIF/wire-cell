@@ -24,10 +24,21 @@ def options(opt):
                    help="Build Doxygen documentation to a tarball")
 
 def configure(cfg):
+    cfg.env.append_unique('CXXFLAGS',['--std=c++11'])
+    cfg.load( "compiler_cxx" )
+    cfg.env.LIBPATH_XDATA = [cfg.env['PREFIX'] + '/lib']
+    cfg.env.INCLUDES_XDATA  = [cfg.env['PREFIX'] + '/include']
+    print cfg.env.LIBPATH_XDATA
+    print cfg.env.INCLUDES_XDATA
+
     cfg.load('doxygen', tooldir='waf-tools')
     cfg.load('find_package', tooldir='waf-tools')
     cfg.env.CXXFLAGS += [cfg.options.build_debug]
     cfg.check_boost(lib='system filesystem graph')
+
+    cfg.check_cxx(lib = "WireCellXdataRoot",
+                  header_name="WireCellXdataRoot/XdataFile.h",
+                  use='XDATA', uselib_store='XDATA')
 
 def build(bld):
     bld.load('find_package', tooldir='waf-tools')
