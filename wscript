@@ -38,7 +38,7 @@ def configure(cfg):
 
     cfg.check_cxx(lib = "WireCellXdataRoot",
                   header_name="WireCellXdataRoot/XdataFile.h",
-                  use='XDATA', uselib_store='XDATA')
+                  use='XDATA ROOTSYS', uselib_store='XDATA')
 
 def build(bld):
     bld.load('find_package', tooldir='waf-tools')
