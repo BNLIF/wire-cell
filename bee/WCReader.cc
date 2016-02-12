@@ -107,6 +107,7 @@ void WCReader::DumpSpacePoints(TString option)
     double x=0, y=0, z=0, q=0, nq=1;
     vector<double> vx, vy, vz, vq, vnq;
     TTree * t = 0;
+    int flag = 0;
 
     if (option == "truth" || option == "true") {
         t = (TTree*)rootFile->Get("T_true");
@@ -120,11 +121,15 @@ void WCReader::DumpSpacePoints(TString option)
     else if (option == "rec_charge_cell" || option == "deblob") {
         t = (TTree*)rootFile->Get("T_rec_charge_blob");
     }
+    else if (option == "rec_pattern" || option == "pattern"){
+      t = (TTree*)rootFile->Get("TC");
+      flag = 1;
+    }
     else {
         cout << "WARNING: Wrong option: " << option << endl;
     }
 
-    if (t) {
+    if (t && flag ==0) {
         t->SetBranchAddress("x", &x);
         t->SetBranchAddress("y", &y);
         t->SetBranchAddress("z", &z);
@@ -143,6 +148,27 @@ void WCReader::DumpSpacePoints(TString option)
             vq.push_back(q);
             vnq.push_back(nq);
         }
+    }else if (t && flag==1){
+      t->SetBranchStatus("*",0);
+      t->SetBranchStatus("xx",1);
+      t->SetBranchStatus("yy",1);
+      t->SetBranchStatus("zz",1);
+      t->SetBranchStatus("charge",1);
+      t->SetBranchAddress("xx",&x);
+      t->SetBranchAddress("yy",&y);
+      t->SetBranchAddress("zz",&z);
+      t->SetBranchAddress("charge",&q);
+      nq = 1; //hack for now
+      
+      int nPoints = t->GetEntries();
+      for (int i=0; i<nPoints; i++) {
+	t->GetEntry(i);
+	vx.push_back(x);
+	vy.push_back(y);
+	vz.push_back(z);
+	vq.push_back(q);
+	vnq.push_back(nq);
+      }
     }
 
     jsonFile << "{" << endl;

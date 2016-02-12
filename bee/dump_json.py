@@ -8,11 +8,12 @@ ALIAS = {
     'deblob' : 'rec_charge_cell',
     'mc' : 'mc',
     'deadarea' : 'channel-deadarea',
+    'pattern' : 'rec_pattern',
 }
 
 def main(filename, options):
     if (options == []):
-        options =["rec_charge_blob", "rec_simple", "truth", "mc"]
+        options =["rec_pattern", "rec_charge_blob", "rec_simple", "truth", "mc"]
     for i in range(len(options)):
         options[i] = ALIAS.get(options[i], options[i])
     # print options
