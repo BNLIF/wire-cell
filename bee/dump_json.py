@@ -13,7 +13,7 @@ ALIAS = {
 
 def main(filename, options):
     if (options == []):
-        options =["rec_pattern", "rec_charge_blob", "rec_simple", "truth", "mc"]
+        options =["rec_charge_cell", "rec_charge_blob", "rec_simple", "truth", "mc"]
     for i in range(len(options)):
         options[i] = ALIAS.get(options[i], options[i])
     # print options
