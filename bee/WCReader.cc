@@ -115,10 +115,13 @@ void WCReader::DumpSpacePoints(TString option)
     else if (option == "rec_simple" || option == "simple") {
         t = (TTree*)rootFile->Get("T_rec");
     }
+    else if (option == "2psimple"){
+        t = (TTree*)rootFile->Get("T_2p");
+    }
     else if (option == "rec_charge_blob" || option == "charge") {
         t = (TTree*)rootFile->Get("T_rec_charge");
     }
-    else if (option == "rec_charge_cell" || option == "deblob") {
+    else if (option == "rec_charge_cell" || option == "mixed") {
         t = (TTree*)rootFile->Get("T_rec_charge_blob");
     }
     else if (option == "rec_pattern" || option == "pattern"){

@@ -5,10 +5,10 @@ ALIAS = {
     'true' : 'truth',
     'simple'  : 'rec_simple',
     'charge' : 'rec_charge_blob',
-    'deblob' : 'rec_charge_cell',
+    'mixed' : 'rec_charge_cell',
     'mc' : 'mc',
     'deadarea' : 'channel-deadarea',
-    'pattern' : 'rec_pattern',
+    '2psimple'      : '2psimple'
 }
 
 def main(filename, options):
