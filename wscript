@@ -37,7 +37,7 @@ def configure(cfg):
     cfg.check_boost(lib='system filesystem graph')
 
     cfg.check_cxx(lib = "WireCellXdataRoot",
-                  header_name="WireCellXdataRoot/XdataFile.h",
+                  header_name="WireCellXdataRoot/Wire.h",
                   use='XDATA ROOTSYS', uselib_store='XDATA')
 
 def build(bld):
