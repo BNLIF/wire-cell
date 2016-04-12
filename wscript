@@ -27,6 +27,7 @@ def configure(cfg):
     cfg.env.append_unique('CXXFLAGS',['--std=c++11'])
     cfg.load( "compiler_cxx" )
     cfg.env.LIBPATH_XDATA = [cfg.env['PREFIX'] + '/lib']
+    cfg.env.LIBPATH_XDATA += [cfg.env['PREFIX'] + '/lib64']
     cfg.env.INCLUDES_XDATA  = [cfg.env['PREFIX'] + '/include']
     print cfg.env.LIBPATH_XDATA
     print cfg.env.INCLUDES_XDATA
