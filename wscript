@@ -3,8 +3,10 @@
 TOP = '.'
 APPNAME = 'WireCell'
 
+# the sequence matters
 subdirs = ['data',
            'nav',
+           'signal',
            'sst',
            'tiling',
            'rootvis',

@@ -31,3 +31,6 @@
 [submodule "lsp"]
 	path = lsp
 	url = git@github.com:BNLIF/wire-cell-lsp.git
+[submodule "signal"]
+	path = signal
+	url = git@github.com:BNLIF/wire-cell-signal.git
