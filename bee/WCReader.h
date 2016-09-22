@@ -64,6 +64,7 @@ public:
     void DumpRunInfo();
     void DumpSpacePoints(TString option);
     void DumpMC();
+    void DumpDeadArea();
 
     void print_vector(ostream& out, vector<double>& v, TString desc, bool end=false);
 

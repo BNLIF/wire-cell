@@ -7,3 +7,47 @@ For installation instructions and other information see the Docs:
 
 http://bnlif.github.io/wire-cell-docs/
 
+You will also need to install
+
+https://github.com/wirecell/wire-cell-xdata-root
+
+Install it into same place you use for "prefix" when installing this
+package and it will be picked up.
+
+
+Explanation of the application in 2dtoy/apps
+
+uBooNE MC:
+1. wire-cell-milind.cxx (imaging: standard application I)
+2. wire-cell-improve.cxx (imaging: standard application II with improved order of algorithm)
+3. wire-cell-toffset.cxx (imaging: standard application III taking into account the time offset for the muons with respect to the trigger time)
+4. wire-cell-angle.cxx (imaging: temporary application to rotate events to study the TPC angle)
+
+5. wire-cell-cluster.cxx (pattern: recognition code for one chosen cluster)
+6. wire-cell-allcluster.cxx  (pattern: main pattern recognition code for all clusters)
+7. wire-cell-mc-ns.cxx wire-cell-mc-ns-prod.cxx (pattern: in development, made for the uBooNE neutrino selection, need to improve)
+8. wire-cell-mc-ns1.cxx wire-cell-mc-ns1-prod.cxx (pattern: in development, made for the uBooNE neutrino selection, need to improve)
+9. wire-cell-single-muon-eff.cxx (pattern: in development, made to calculate single track efficiency)
+
+10. wire-cell-wire-length.cxx (other: made for Jyoti to get the wire length for uBooNE)
+
+
+35 ton case and dune:
+1. wire-cell-35ton-disambiguity.cxx (imaging: standard application for 35 ton)
+2. wire-cell-dune_work_space.cxx (imaging: standard application for DUNE work space
+3. wire-cell-dune-det-op.cxx (pattern: in development, use MCtruth to find the gap and calculate dE/dx)
+
+
+
+uBooNE Data:
+1. wire-cell-real-data.cxx (imaging: for the real data)
+2. wire-cell-real-data-ns.cxx (pattern: in development, pattern recognition for real data's neutrino selection)
+3. wire-cell-real-data-2D-display.cxx (other: made for Chao's magnify 2D display)
+4. wire-cell-gap_demon.cxx (other: made for Brian, to identify the gap where the 2 wires are broken)
+
+
+Converter: 
+1. 2dtoy-shower3d-xdata.cxx (other: convert the internal rootfile to xdata format)
+
+
+

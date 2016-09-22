@@ -5,13 +5,15 @@ ALIAS = {
     'true' : 'truth',
     'simple'  : 'rec_simple',
     'charge' : 'rec_charge_blob',
-    'deblob' : 'rec_charge_cell',
+    'mixed' : 'rec_charge_cell',
     'mc' : 'mc',
+    'deadarea' : 'channel-deadarea',
+    '2psimple'      : '2psimple'
 }
 
 def main(filename, options):
     if (options == []):
-        options =["rec_charge_blob", "rec_simple", "truth", "mc"]
+        options =["rec_charge_cell", "rec_charge_blob", "rec_simple", "truth", "mc"]
     for i in range(len(options)):
         options[i] = ALIAS.get(options[i], options[i])
     # print options
@@ -59,7 +61,7 @@ def usage():
     print """
     python dump_json.py [filename] [alg1 alg2 ...]
 
-        available algorithms: simple, charge, true, deblob
+        available algorithms: simple, charge, true, deblob, mc, deadarea
     """
 
 if __name__ == "__main__":
