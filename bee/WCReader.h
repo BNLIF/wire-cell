@@ -65,8 +65,10 @@ public:
     void DumpSpacePoints(TString option);
     void DumpMC();
     void DumpDeadArea();
+    void DumpOp();
 
     void print_vector(ostream& out, vector<double>& v, TString desc, bool end=false);
+    void print_vector_vector(ostream& out, vector<vector<double> >& vv, TString desc, bool end=false);
 
     bool IsPrimary(int i) { return mc_mother[i] == 0 ; }
     void ProcessTracks();
