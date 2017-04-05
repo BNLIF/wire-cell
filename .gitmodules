@@ -34,3 +34,6 @@
 [submodule "signal"]
 	path = signal
 	url = git@github.com:BNLIF/wire-cell-signal.git
+[submodule "ress"]
+	path = ress
+	url = git@github.com:BNLIF/wire-cell-ress.git
