@@ -1,0 +1,39 @@
+[submodule "nav"]
+	path = nav
+	url = git@github.com:BNLIF/wire-cell-nav.git
+[submodule "data"]
+	path = data
+	url = git@github.com:BNLIF/wire-cell-data.git
+[submodule "waf-tools"]
+	path = waf-tools
+	url = git@github.com:BNLIF/waf-tools.git
+[submodule "sst"]
+	path = sst
+	url = git@github.com:BNLIF/wire-cell-sst.git
+[submodule "tiling"]
+	path = tiling
+	url = git@github.com:BNLIF/wire-cell-tiling.git
+[submodule "examples"]
+	path = examples
+	url = git@github.com:BNLIF/wire-cell-examples.git
+[submodule "matrix"]
+	path = matrix
+	url = git@github.com:BNLIF/wire-cell-matrix.git
+[submodule "2dtoy"]
+	path = 2dtoy
+	url = git@github.com:BNLIF/wire-cell-2dtoy.git
+[submodule "rootvis"]
+	path = rootvis
+	url = git@github.com:BNLIF/wire-cell-rootvis.git
+[submodule "graph"]
+	path = graph
+	url = git@github.com:BNLIF/wire-cell-graph.git
+[submodule "lsp"]
+	path = lsp
+	url = git@github.com:BNLIF/wire-cell-lsp.git
+[submodule "signal"]
+	path = signal
+	url = git@github.com:BNLIF/wire-cell-signal.git
+[submodule "ress"]
+	path = ress
+	url = git@github.com:BNLIF/wire-cell-ress.git
