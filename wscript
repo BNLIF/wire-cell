@@ -32,8 +32,6 @@ def configure(cfg):
     cfg.env.LIBPATH_XDATA = [cfg.env['PREFIX'] + '/lib']
     cfg.env.LIBPATH_XDATA += [cfg.env['PREFIX'] + '/lib64']
     cfg.env.INCLUDES_XDATA  = [cfg.env['PREFIX'] + '/include']
-    print cfg.env.LIBPATH_XDATA
-    print cfg.env.INCLUDES_XDATA
 
     cfg.load('doxygen', tooldir='waf-tools')
     cfg.load('find_package', tooldir='waf-tools')
@@ -42,7 +40,8 @@ def configure(cfg):
 
     cfg.check_cxx(lib = "WireCellXdataRoot",
                   header_name="WireCellXdataRoot/Wire.h",
-                  use='XDATA ROOTSYS', uselib_store='XDATA')
+                  use='XDATA ROOTSYS', uselib_store='XDATA', mandatory=False)
+
 
 def build(bld):
     bld.load('find_package', tooldir='waf-tools')
