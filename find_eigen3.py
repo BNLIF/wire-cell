@@ -1,3 +1,6 @@
+import os.path as osp
+from waflib.Configure import conf
+
 def options(opt):
     opt = opt.add_option_group('Eigen Options')
     opt.add_option('--with-eigen', type='string',
