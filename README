@@ -7,13 +7,6 @@ For installation instructions and other information see the Docs:
 
 http://bnlif.github.io/wire-cell-docs/
 
-You will also need to install
-
-https://github.com/wirecell/wire-cell-xdata-root
-
-Install it into same place you use for "prefix" when installing this
-package and it will be picked up.
-
 
 Explanation of the application in 2dtoy/apps
 
@@ -44,10 +37,5 @@ uBooNE Data:
 2. wire-cell-real-data-ns.cxx (pattern: in development, pattern recognition for real data's neutrino selection)
 3. wire-cell-real-data-2D-display.cxx (other: made for Chao's magnify 2D display)
 4. wire-cell-gap_demon.cxx (other: made for Brian, to identify the gap where the 2 wires are broken)
-
-
-Converter: 
-1. 2dtoy-shower3d-xdata.cxx (other: convert the internal rootfile to xdata format)
-
 
 
