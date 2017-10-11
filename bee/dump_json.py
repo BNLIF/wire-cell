@@ -9,6 +9,7 @@ ALIAS = {
     'mc' : 'mc',
     'deadarea' : 'channel-deadarea',
     'op' : 'op',
+    'cluster' : 'cluster'
 }
 
 def main(filename, options):
@@ -61,7 +62,7 @@ def usage():
     print """
     python dump_json.py [filename] [alg1 alg2 ...]
 
-        available algorithms: simple, charge, true, deblob, mc, deadarea
+        available algorithms: simple, charge, true, deblob, mc, deadarea, cluster
     """
 
 if __name__ == "__main__":

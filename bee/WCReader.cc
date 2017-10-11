@@ -153,7 +153,8 @@ void WCReader::DumpOp()
 void WCReader::DumpSpacePoints(TString option)
 {
     double x=0, y=0, z=0, q=0, nq=1;
-    vector<double> vx, vy, vz, vq, vnq;
+    int cluster_id=1;
+    vector<double> vx, vy, vz, vq, vnq, vcluster_id;
     TTree * t = 0;
 
     if (option == "truth" || option == "true") {
@@ -168,6 +169,9 @@ void WCReader::DumpSpacePoints(TString option)
     else if (option == "rec_charge_cell" || option == "deblob") {
         t = (TTree*)rootFile->Get("T_rec_charge_blob");
     }
+    else if (option == "cluster") {
+        t = (TTree*)rootFile->Get("T_cluster");
+    }
     else {
         cout << "WARNING: Wrong option: " << option << endl;
     }
@@ -176,11 +180,14 @@ void WCReader::DumpSpacePoints(TString option)
         t->SetBranchAddress("x", &x);
         t->SetBranchAddress("y", &y);
         t->SetBranchAddress("z", &z);
-        if (! option.Contains("simple") ) {
+        if (! (option.Contains("simple") ||  option.Contains("cluster")) ) {
             t->SetBranchAddress("q", &q);
         }
         if (option.Contains("charge")) {
             t->SetBranchAddress("nq", &nq);
+        }
+        if (option.Contains("cluster")) {
+            t->SetBranchAddress("cluster_id", &cluster_id);
         }
         int nPoints = t->GetEntries();
         for (int i=0; i<nPoints; i++) {
@@ -190,6 +197,7 @@ void WCReader::DumpSpacePoints(TString option)
             vz.push_back(z);
             vq.push_back(q);
             vnq.push_back(nq);
+            vcluster_id.push_back(cluster_id);
         }
     }
 
@@ -204,6 +212,7 @@ void WCReader::DumpSpacePoints(TString option)
     jsonFile << fixed << setprecision(0);
     print_vector(jsonFile, vq, "q");
     print_vector(jsonFile, vnq, "nq");
+    print_vector(jsonFile, vcluster_id, "cluster_id");
 
 
     jsonFile << '"' << "type" << '"' << ":" << '"' << option << '"' << "," << endl;
