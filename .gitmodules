@@ -37,9 +37,9 @@
 [submodule "ress"]
 	path = ress
 	url = git@github.com:BNLIF/wire-cell-ress.git
-[submodule "nanoflann"]
-	path = nanoflann
-	url = git@github.com:/BNLIF/wire-cell-nanoflann.git
 [submodule "quickhull"]
 	path = quickhull
 	url = git@github.com:BNLIF/wire-cell-quickhull.git
+[submodule "nanoflann"]
+	path = nanoflann
+	url = git@github.com:BNLIF/wire-cell-nanoflann.git
