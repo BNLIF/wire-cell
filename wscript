@@ -17,6 +17,7 @@ subdirs = ['data',
            '2dtoy',
            'lsp',
            'nanoflann',
+           'quickhull',
 ]
 
 def options(opt):

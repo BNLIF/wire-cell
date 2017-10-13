@@ -40,3 +40,6 @@
 [submodule "nanoflann"]
 	path = nanoflann
 	url = git@github.com:/BNLIF/wire-cell-nanoflann.git
+[submodule "wire-cell-quickhull"]
+	path = wire-cell-quickhull
+	url = git@github.com:BNLIF/wire-cell-quickhull.git
