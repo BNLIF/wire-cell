@@ -14,10 +14,10 @@ subdirs = ['data',
            'graph',
            'examples',
            'matrix',
-           '2dtoy',
-           'lsp',
            'nanoflann',
            'quickhull',
+           '2dtoy',
+           'lsp',
 ]
 
 def options(opt):
