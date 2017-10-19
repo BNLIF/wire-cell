@@ -4,7 +4,9 @@ TOP = '.'
 APPNAME = 'WireCell'
 
 # the sequence matters
-subdirs = ['data',
+subdirs = ['nanoflann',
+           'quickhull',
+           'data',
            'ress',
            'nav',
            'signal',
@@ -14,8 +16,6 @@ subdirs = ['data',
            'graph',
            'examples',
            'matrix',
-           'nanoflann',
-           'quickhull',
            '2dtoy',
            'lsp',
 ]
