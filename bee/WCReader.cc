@@ -105,47 +105,87 @@ void WCReader::DumpDeadArea()
 
 void WCReader::DumpOp()
 {
-    vector<double> *of_t = new vector<double>;
-    vector<double> *of_peTotal = new vector<double>;
-    TClonesArray *pe_opdet = 0;
+    double PE[32];
+    double time;
+    double total_PE;
 
-    TTree *t = (TTree*)rootFile->Get("T_op");
+    TTree *t = (TTree*)rootFile->Get("T_flash");
     if (t) {
-        t->SetBranchAddress("of_t", &of_t);
-        t->SetBranchAddress("of_peTotal", &of_peTotal);
-        t->SetBranchAddress("pe_opdet", &pe_opdet);
+        t->SetBranchAddress("PE", &PE);
+        t->SetBranchAddress("time", &time);
+        t->SetBranchAddress("total_PE", &total_PE);
+    }
 
-        t->GetEntry(0);
+    //For bee:
+    vector<double> op_t;
+    vector<double> op_peTotal;
+    vector<vector<double> > op_pes;
+
+    int nEntries = t->GetEntries();
+    for (int i=0; i<nEntries; i++) {
+        t->GetEntry(i);
+        op_t.push_back(time);
+        op_peTotal.push_back(total_PE);
+        vector<double> tmp;
+        op_pes.push_back(tmp);
+        for (int j=0; j<32; j++) {
+            op_pes[i].push_back(PE[j]);
+        }
     }
 
     jsonFile << "{" << endl;
 
     jsonFile << fixed << setprecision(2);
-    print_vector(jsonFile, *of_t, "op_t");
-    print_vector(jsonFile, *of_peTotal, "op_peTotal");
-
-    if(pe_opdet) {
-        vector<vector<double> > op_pes;
-
-        int size = of_t->size();
-        for (int i=0; i!=size; i++) {
-            vector<double> tmp;
-            op_pes.push_back(tmp);
-            TH1F *h = (TH1F*)pe_opdet->At(i);
-            int nEntries = h->GetEntries();
-            for (int j=0; j!=nEntries; j++) {
-                double content = h->GetBinContent(j);
-                op_pes[i].push_back(content);
-            }
-        }
-        print_vector_vector(jsonFile, op_pes, "op_pes");
-
-    }
+    print_vector(jsonFile, op_t, "op_t");
+    print_vector(jsonFile, op_peTotal, "op_peTotal");
+    print_vector_vector(jsonFile, op_pes, "op_pes");
 
     // always dump runinfo in the end
     DumpRunInfo();
 
     jsonFile << "}" << endl;
+
+    // vector<double> *of_t = new vector<double>;
+    // vector<double> *of_peTotal = new vector<double>;
+    // TClonesArray *pe_opdet = 0;
+
+    // TTree *t = (TTree*)rootFile->Get("T_op");
+    // if (t) {
+    //     t->SetBranchAddress("of_t", &of_t);
+    //     t->SetBranchAddress("of_peTotal", &of_peTotal);
+    //     t->SetBranchAddress("pe_opdet", &pe_opdet);
+
+    //     t->GetEntry(0);
+    // }
+
+    // jsonFile << "{" << endl;
+
+    // jsonFile << fixed << setprecision(2);
+    // print_vector(jsonFile, *of_t, "op_t");
+    // print_vector(jsonFile, *of_peTotal, "op_peTotal");
+
+    // if(pe_opdet) {
+    //     vector<vector<double> > op_pes;
+
+    //     int size = of_t->size();
+    //     for (int i=0; i!=size; i++) {
+    //         vector<double> tmp;
+    //         op_pes.push_back(tmp);
+    //         TH1F *h = (TH1F*)pe_opdet->At(i);
+    //         int nEntries = h->GetEntries();
+    //         for (int j=0; j!=nEntries; j++) {
+    //             double content = h->GetBinContent(j);
+    //             op_pes[i].push_back(content);
+    //         }
+    //     }
+    //     print_vector_vector(jsonFile, op_pes, "op_pes");
+
+    // }
+
+    // // always dump runinfo in the end
+    // DumpRunInfo();
+
+    // jsonFile << "}" << endl;
 
 }
 
@@ -153,7 +193,7 @@ void WCReader::DumpOp()
 void WCReader::DumpSpacePoints(TString option)
 {
     double x=0, y=0, z=0, q=0, nq=1;
-    int cluster_id=1;
+    int cluster_id=0;
     vector<double> vx, vy, vz, vq, vnq, vcluster_id;
     TTree * t = 0;
 

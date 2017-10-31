@@ -8,7 +8,7 @@ ALIAS = {
     'deblob' : 'rec_charge_cell',
     'mc' : 'mc',
     'deadarea' : 'channel-deadarea',
-    'op' : 'op',
+    'flash' : 'op',
     'cluster' : 'cluster'
 }
 
