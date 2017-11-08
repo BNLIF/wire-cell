@@ -38,9 +38,12 @@ def gen_rootcling_dict(bld, name, linkdef, headers = '', includes = '', use=''):
     rootcling -f NAMEDict.cxx -rml libNAME.so -rmf libNAME.rootmap myHeader1.h myHeader2.h ... LinkDef.h
     '''
     use = waflib.Utils.to_list(use) + ['ROOTSYS']
+    #print 'USE',use
     includes = waflib.Utils.to_list(includes)
     for u in use:
         more = bld.env['INCLUDES_'+u]
+        if not isinstance(more,list):
+            more = [more]
         #print 'USE(%s)=%s: %s' % (name, u, more)
         includes += more
 
