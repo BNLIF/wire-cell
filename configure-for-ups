@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Keep this script in place under waf-tools/
+
+# run waf configure assuming a UPS environment for externals.  See
+# sourceme-for-ups for an easy way to set up such an environment.
+
+# an optional argument sets the installation location.  O.w. will
+# install into install/ in source area.
+
+instdir="$1"
+
+wtdir=$(dirname $(readlink -f $BASH_SOURCE))
+topdir=$(dirname $wtdir)
+if [ -z "$instdir" ] ; then
+    instdir="$topdir/install"
+fi
+
+cd $topdir
+
+set -x
+$topdir/waf-tools/waf configure \
+    --prefix="$instdir" \
+    --with-root="$ROOTSYS" \
+    --boost-includes="$BOOST_INC" \
+    --boost-libs="$BOOST_LIB" \
+    --boost-mt \
+    --with-fftw="$FFTW_FQ_DIR" \
+    --with-fftw-include="$FFTW_INC" \
+    --with-fftw-lib="$FFTW_LIBRARY" \
+    --with-eigen="$EIGEN_DIR"
+

@@ -1,0 +1,15 @@
+# shell-independent script for WCP dependencies from UPS
+source /grid/fermiapp/products/larsoft/setups
+
+# ca. WCT 0.6.2
+#setup root v6_10_04d -q e14:nu:prof
+#setup boost v1_64_0 -q e14:prof
+#setup jsoncpp v1_7_7 -q e14:prof
+#setup eigen v3_3_3 
+
+# ca WCT 0.5.2
+setup root v6_08_06g -q e14:nu:prof
+setup boost v1_63_0b -q e14:prof
+setup tbb v2017_3c -q e14:prof
+setup jsoncpp v1_7_7 -q e14:prof
+setup eigen v3_3_3 
