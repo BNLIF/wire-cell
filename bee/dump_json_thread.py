@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os, sys, glob, shutil, threading
+from multiprocessing import Process
 
 ALIAS = {
     'true' : 'truth',
@@ -44,6 +45,7 @@ def main(filename, options):
             inputs.append(cmd)
     # print inputs[0]
     threads = [threading.Thread(target=os.system, args=(i,)) for i in inputs]
+    # threads = [Process(target=os.system, args=(i,)) for i in inputs]
     [t.start() for t in threads]
     [t.join() for t in threads]
 
