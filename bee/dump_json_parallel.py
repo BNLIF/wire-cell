@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-import os, sys, glob, shutil, threading
-from multiprocessing import Process
+import os, sys, glob, shutil, threading, multiprocessing
 
 ALIAS = {
     'true' : 'truth',
@@ -44,11 +43,17 @@ def main(filename, options):
             # print cmd
             inputs.append(cmd)
     # print inputs[0]
-    threads = [threading.Thread(target=os.system, args=(i,)) for i in inputs]
-    # threads = [Process(target=os.system, args=(i,)) for i in inputs]
-    [t.start() for t in threads]
-    [t.join() for t in threads]
-
+    # threads = [threading.Thread(target=os.system, args=(i,)) for i in inputs]
+    # threads = [multiprocessing.Process(target=os.system, args=(i,)) for i in inputs]
+    # [t.start() for t in threads]
+    # [t.join() for t in threads]
+    nCores = multiprocessing.cpu_count()
+    print 'total cpu: ', nCores
+    pool = multiprocessing.Pool(nCores*8)
+    for cmd in inputs:
+        pool.apply_async(os.system, args=(cmd,))
+    pool.close()
+    pool.join()
 
     if (os.path.exists('to_upload.zip')):
         print 'removing old to_upload.zip ...'
