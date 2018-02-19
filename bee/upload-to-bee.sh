@@ -1,6 +1,6 @@
-LOGIN_URL=http://www.phy.bnl.gov/wire-cell/bee
+LOGIN_URL=https://www.phy.bnl.gov/wire-cell/bee
 COOKIES=cookies.txt
-CURL_BIN="curl -s -c $COOKIES -b $COOKIES -e $LOGIN_URL"
+CURL_BIN="curl -k -s -c $COOKIES -b $COOKIES -e $LOGIN_URL"
 
 $CURL_BIN $LOGIN_URL > /dev/null
 echo -n "Django Auth: get csrftoken ... "
@@ -20,3 +20,4 @@ URL="$LOGIN_URL/set/$UUID/event/list/"
 ${BROWSER:-echo} "$URL"
 
 rm $COOKIES
+
