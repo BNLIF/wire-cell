@@ -154,6 +154,7 @@ void WCReader::DumpOp()
 
         vector<vector<double> > op_cluster_ids;
         vector<vector<double> > op_pes_pred;
+        vector<double> op_nomatching_cluster_ids;
         for (int i=0; i<nFlash; i++) { // each Flash has some properties
             // vector<double> tmp;
             op_cluster_ids.push_back(vector<double>());
@@ -173,7 +174,7 @@ void WCReader::DumpOp()
                 }
             }
             else if (flash_id == -1) {
-
+                op_nomatching_cluster_ids.push_back(tpc_cluster_id);
             }
 
         }
@@ -181,6 +182,7 @@ void WCReader::DumpOp()
         print_vector_vector(jsonFile, op_pes_pred, "op_pes_pred");
         jsonFile << fixed << setprecision(0);
         print_vector_vector(jsonFile, op_cluster_ids, "op_cluster_ids");
+        print_vector(jsonFile, op_nomatching_cluster_ids, "op_nomatching_cluster_ids");
     }
 
 
