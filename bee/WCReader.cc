@@ -122,6 +122,7 @@ void WCReader::DumpOp()
     vector<vector<double> > op_pes;
 
     int nEntries = t->GetEntries();
+    int nFlash = nEntries;
     for (int i=0; i<nEntries; i++) {
         t->GetEntry(i);
         op_t.push_back(time);
@@ -140,52 +141,54 @@ void WCReader::DumpOp()
     print_vector(jsonFile, op_peTotal, "op_peTotal");
     print_vector_vector(jsonFile, op_pes, "op_pes");
 
+
+    // read the flash match tree
+    int tpc_cluster_id;
+    int flash_id;
+    double pe_pred[32];
+    t = (TTree*)rootFile->Get("T_match");
+    if (t) {
+        t->SetBranchAddress("tpc_cluster_id", &tpc_cluster_id);
+        t->SetBranchAddress("flash_id", &flash_id);
+        t->SetBranchAddress("pe_pred", &pe_pred);
+
+        vector<vector<double> > op_cluster_ids;
+        vector<vector<double> > op_pes_pred;
+        for (int i=0; i<nFlash; i++) { // each Flash has some properties
+            // vector<double> tmp;
+            op_cluster_ids.push_back(vector<double>());
+            op_pes_pred.push_back(vector<double>());
+            for (int j=0; j<32; j++) {
+                op_pes_pred[i].push_back(0);
+            }
+        }
+
+        nEntries = t->GetEntries();
+        for (int i=0; i<nEntries; i++) {
+            t->GetEntry(i);
+            if (flash_id>=0 && flash_id<nFlash) {
+                op_cluster_ids.at(flash_id).push_back(tpc_cluster_id);
+                for (int j=0; j<32; j++) {
+                    op_pes_pred.at(flash_id).at(j) += pe_pred[j];
+                }
+            }
+            else if (flash_id == -1) {
+
+            }
+
+        }
+
+        print_vector_vector(jsonFile, op_pes_pred, "op_pes_pred");
+        jsonFile << fixed << setprecision(0);
+        print_vector_vector(jsonFile, op_cluster_ids, "op_cluster_ids");
+    }
+
+
     // always dump runinfo in the end
     DumpRunInfo();
 
     jsonFile << "}" << endl;
 
-    // vector<double> *of_t = new vector<double>;
-    // vector<double> *of_peTotal = new vector<double>;
-    // TClonesArray *pe_opdet = 0;
-
-    // TTree *t = (TTree*)rootFile->Get("T_op");
-    // if (t) {
-    //     t->SetBranchAddress("of_t", &of_t);
-    //     t->SetBranchAddress("of_peTotal", &of_peTotal);
-    //     t->SetBranchAddress("pe_opdet", &pe_opdet);
-
-    //     t->GetEntry(0);
-    // }
-
-    // jsonFile << "{" << endl;
-
-    // jsonFile << fixed << setprecision(2);
-    // print_vector(jsonFile, *of_t, "op_t");
-    // print_vector(jsonFile, *of_peTotal, "op_peTotal");
-
-    // if(pe_opdet) {
-    //     vector<vector<double> > op_pes;
-
-    //     int size = of_t->size();
-    //     for (int i=0; i!=size; i++) {
-    //         vector<double> tmp;
-    //         op_pes.push_back(tmp);
-    //         TH1F *h = (TH1F*)pe_opdet->At(i);
-    //         int nEntries = h->GetEntries();
-    //         for (int j=0; j!=nEntries; j++) {
-    //             double content = h->GetBinContent(j);
-    //             op_pes[i].push_back(content);
-    //         }
-    //     }
-    //     print_vector_vector(jsonFile, op_pes, "op_pes");
-
-    // }
-
-    // // always dump runinfo in the end
-    // DumpRunInfo();
-
-    // jsonFile << "}" << endl;
 
 }
 
