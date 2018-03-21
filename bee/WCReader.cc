@@ -108,18 +108,24 @@ void WCReader::DumpOp()
     double PE[32];
     double time;
     double total_PE;
+    vector<double> *l1_fired_time = new std::vector<double>;
+    vector<double> *l1_fired_pe = new std::vector<double>;
 
     TTree *t = (TTree*)rootFile->Get("T_flash");
     if (t) {
         t->SetBranchAddress("PE", &PE);
         t->SetBranchAddress("time", &time);
         t->SetBranchAddress("total_PE", &total_PE);
+        t->SetBranchAddress("l1_fired_time",&l1_fired_time);
+        t->SetBranchAddress("l1_fired_pe",&l1_fired_pe);
     }
 
     //For bee:
     vector<double> op_t;
     vector<double> op_peTotal;
     vector<vector<double> > op_pes;
+    vector<vector<double> > op_l1_t;
+    vector<vector<double> > op_l1_pe;
 
     int nEntries = t->GetEntries();
     int nFlash = nEntries;
@@ -132,6 +138,8 @@ void WCReader::DumpOp()
         for (int j=0; j<32; j++) {
             op_pes[i].push_back(PE[j]);
         }
+        op_l1_t.push_back(*l1_fired_time);
+        op_l1_pe.push_back(*l1_fired_pe);
     }
 
     jsonFile << "{" << endl;
@@ -140,6 +148,8 @@ void WCReader::DumpOp()
     print_vector(jsonFile, op_t, "op_t");
     print_vector(jsonFile, op_peTotal, "op_peTotal");
     print_vector_vector(jsonFile, op_pes, "op_pes");
+    print_vector_vector(jsonFile, op_l1_t, "op_l1_t");
+    print_vector_vector(jsonFile, op_l1_pe, "op_l1_pe");
 
 
     // read the flash match tree
