@@ -49,7 +49,7 @@ def main(filename, options):
     # [t.join() for t in threads]
     nCores = multiprocessing.cpu_count()
     print 'total cpu: ', nCores
-    pool = multiprocessing.Pool(nCores*8)
+    pool = multiprocessing.Pool(nCores*4)
     for cmd in inputs:
         pool.apply_async(os.system, args=(cmd,))
     pool.close()

@@ -1,4 +1,4 @@
-LOGIN_URL=https://www.phy.bnl.gov/wire-cell/bee
+LOGIN_URL=https://www.phy.bnl.gov/twister/bee
 COOKIES=cookies.txt
 CURL_BIN="curl -k -s -c $COOKIES -b $COOKIES -e $LOGIN_URL"
 
