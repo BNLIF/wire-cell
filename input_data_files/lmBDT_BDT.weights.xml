@@ -4,11 +4,11 @@
     <Info name="TMVA Release" value="4.2.1 [262657]"/>
     <Info name="ROOT Release" value="6.04/18 [394258]"/>
     <Info name="Creator" value="brooke"/>
-    <Info name="Date" value="Tue Jul 17 22:09:57 2018"/>
+    <Info name="Date" value="Wed Jul 18 08:57:24 2018"/>
     <Info name="Host" value="Linux brooke-Inspiron-13-7368 4.4.0-38-generic #57-Ubuntu SMP Tue Sep 6 15:42:33 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux"/>
     <Info name="Dir" value="/home/brooke/WireCell/build_root/tutorials/tmva"/>
     <Info name="Training events" value="618"/>
-    <Info name="TrainingTime" value="3.80944014e-01"/>
+    <Info name="TrainingTime" value="3.46458197e-01"/>
     <Info name="AnalysisType" value="Classification"/>
   </GeneralInfo>
   <Options>
@@ -62,15 +62,10 @@
     <Variable VarIndex="4" Expression="log(cluster_length)" Label="cluster" Title="Log10(Cluster Length)" Unit="cm" Internal="cluster" Type="F" Min="7.26554915e-02" Max="6.22465563e+00"/>
     <Variable VarIndex="5" Expression="pred_PE" Label="pred" Title="Predicted PE" Unit="PE" Internal="pred" Type="F" Min="1.51280999e-01" Max="1.90606992e+04"/>
   </Variables>
-  <Spectators NSpec="8">
-    <Spectator SpecIndex="0" Expression="runNo" Label="runNo" Title="Run No." Unit="" Internal="runNo" Type="F" Min="5.12200000e+03" Max="6.21000000e+03"/>
-    <Spectator SpecIndex="1" Expression="subRunNo" Label="subRunNo" Title="Subrun No." Unit="" Internal="subRunNo" Type="F" Min="0.00000000e+00" Max="2.36000000e+02"/>
-    <Spectator SpecIndex="2" Expression="eventNo" Label="eventNo" Title="Event No." Unit="" Internal="eventNo" Type="F" Min="3.00000000e+00" Max="1.18320000e+04"/>
-    <Spectator SpecIndex="3" Expression="flash_id" Label="flash_id" Title="Flash ID" Unit="" Internal="flash_id" Type="F" Min="6.00000000e+00" Max="1.39000000e+02"/>
-    <Spectator SpecIndex="4" Expression="tpc_cluster_id" Label="tpc_cluster_id" Title="Cluster ID" Unit="" Internal="tpc_cluster_id" Type="F" Min="1.00000000e+00" Max="1.81000000e+02"/>
-    <Spectator SpecIndex="5" Expression="event_type" Label="event_type" Title="Event Type" Unit="" Internal="event_type" Type="F" Min="0.00000000e+00" Max="8.00000000e+00"/>
-    <Spectator SpecIndex="6" Expression="flag_anode" Label="flag_anode" Title="Flag Anode" Unit="" Internal="flag_anode" Type="F" Min="0.00000000e+00" Max="0.00000000e+00"/>
-    <Spectator SpecIndex="7" Expression="flag_boundary" Label="flag_boundary" Title="Flag Boundary" Unit="" Internal="flag_boundary" Type="F" Min="0.00000000e+00" Max="0.00000000e+00"/>
+  <Spectators NSpec="3">
+    <Spectator SpecIndex="0" Expression="event_type" Label="event_type" Title="Event Type" Unit="" Internal="event_type" Type="F" Min="0.00000000e+00" Max="8.00000000e+00"/>
+    <Spectator SpecIndex="1" Expression="flag_anode" Label="flag_anode" Title="Flag Anode" Unit="" Internal="flag_anode" Type="F" Min="0.00000000e+00" Max="0.00000000e+00"/>
+    <Spectator SpecIndex="2" Expression="flag_boundary" Label="flag_boundary" Title="Flag Boundary" Unit="" Internal="flag_boundary" Type="F" Min="0.00000000e+00" Max="0.00000000e+00"/>
   </Spectators>
   <Classes NClass="2">
     <Class Name="Signal" Index="0"/>
