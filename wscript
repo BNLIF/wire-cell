@@ -18,6 +18,7 @@ subdirs = ['nanoflann',
            'matrix',
            '2dtoy',
            'lsp',
+           'mcs',
 ]
 
 def options(opt):
