@@ -43,3 +43,6 @@
 [submodule "nanoflann"]
 	path = nanoflann
 	url = https://github.com/BNLIF/wire-cell-nanoflann.git
+[submodule "mcs"]
+	path = mcs
+	url = https://github.com/BNLIF/wire-cell-mcs.git
