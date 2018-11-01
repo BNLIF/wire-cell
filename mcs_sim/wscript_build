@@ -1,2 +1,0 @@
-#!/usr/bin/env python
-bld.make_package('WireCellMCSSim', use='WireCellData')
