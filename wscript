@@ -20,6 +20,7 @@ subdirs = ['nanoflann',
            'lsp',
            'mcs',
            'uboone_sp_app',
+           'uboone_light_app',
 ]
 
 def options(opt):
