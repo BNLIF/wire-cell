@@ -1,0 +1,2 @@
+#!/usr/bin/env python
+bld.make_package('WireCellDUNE_APP', use='WireCell2dToy WireCellNav EIGEN WireCellData WireCellSignal WireCellTiling WireCellSst WireCellRess WireCellQuickhull WireCellNanoflann lsp BOOST')

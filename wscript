@@ -21,6 +21,9 @@ subdirs = ['nanoflann',
            'mcs',
            'uboone_sp_app',
            'uboone_light_app',
+           'uboone_nusel_app',
+           'uboone_eval_app',
+           'dune_app', 
 ]
 
 def options(opt):
