@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
   TH1::AddDirectory(kFALSE);
 
   int two_plane = 0; //not used
-  
+  int no_dead_channel = 0;
   int nt_off1 = 0; // not used
   int nt_off2 = 0; // not used
   int solve_charge = 1; // not used
@@ -164,6 +164,9 @@ int main(int argc, char* argv[])
        break;
      case 'l':
        flag_l1 = atoi(&argv[i][2]);
+       break;
+     case 'n':
+       no_dead_channel = atoi(&argv[i][2]);
        break;
      }
   }
@@ -408,84 +411,86 @@ if(beamspill || beam==-1){
   
 
 
-  
-  
-
-
-  // add a special treatment here ...
-  for (int i=296; i!=671;i++){
-    if (uplane_map.find(i)==uplane_map.end()){
-      if ((uplane_map.find(i-1)!=uplane_map.end() &&
-	   uplane_map.find(i+2)!=uplane_map.end()) ||
-	  (uplane_map.find(i-2)!=uplane_map.end() &&
-	   uplane_map.find(i+1)!=uplane_map.end())
-	  ){
-	std::cout << "U plane (shorted): " << i << " added to bad chanel list" << std::endl;
-	uplane_map[i] = uplane_map[i-1];
-	for (int j=0;j!=hu_decon->GetNbinsY();j++){
-	  hu_decon->SetBinContent(i+1,j+1,0);
-	  hu_decon_g->SetBinContent(i+1,j+1,0);
-	}
-      }
-    }
-  }
-  for (int i=2336;i!=2463;i++){
-    if (wplane_map.find(i)==wplane_map.end()){
-      if ((wplane_map.find(i-1)!=wplane_map.end() &&
-	   wplane_map.find(i+2)!=wplane_map.end()) ||
-	  (wplane_map.find(i-2)!=wplane_map.end() &&
-	   wplane_map.find(i+1)!=wplane_map.end())
-	  ){
-	wplane_map[i] = wplane_map[i-1];
-	std::cout << "W plane (shorted): " << i << " added to bad chanel list" << std::endl;
-	for (int j=0;j!=hw_decon->GetNbinsY();j++){
-	  hw_decon->SetBinContent(i+1,j+1,0);
-	  hw_decon_g->SetBinContent(i+1,j+1,0);
-	}
-      }
-    }
-  }
-  //
   TH2F *hv_raw = new TH2F("hv_raw","hv_raw",nwire_v,0,nwire_v,nwindow_size*nrebin,0,nwindow_size*nrebin);
-  for (size_t i=0;i!=nf_channelId->size();i++){
-    int chid = nf_channelId->at(i);
-    TH1S *htemp = (TH1S*)nf_wf->At(i);
-    if (chid < nwire_u){
-    }else if (chid < nwire_v+nwire_u){
-      for (size_t j=0;j!=nwindow_size*nrebin;j++){
-	hv_raw->SetBinContent(chid-nwire_u+1,j+1,(htemp->GetBinContent(j+1)+nf_shift)*1.0/nf_scale);
-      }
-    }else if (chid < nwire_w+nwire_v+nwire_u){
-    }
-  }
   
-  // V wire noisy channels 10 vetoed ...
-  for (int i=3684;i!=3699;i++){
-    if (vplane_map.find(i-2400)==vplane_map.end()){
-      vplane_map[i-2400] = std::make_pair(0,hv_raw->GetNbinsY()-1);
-      std::cout << "V plane (noisy): " << i -2400 << " added to bad channel list" << std::endl;
-    }else{
-      vplane_map[i-2400] = std::make_pair(0,hv_raw->GetNbinsY()-1);
+  if (no_dead_channel!=1){
+    
+    // add a special treatment here ...
+    for (int i=296; i!=671;i++){
+      if (uplane_map.find(i)==uplane_map.end()){
+	if ((uplane_map.find(i-1)!=uplane_map.end() &&
+	     uplane_map.find(i+2)!=uplane_map.end()) ||
+	    (uplane_map.find(i-2)!=uplane_map.end() &&
+	     uplane_map.find(i+1)!=uplane_map.end())
+	    ){
+	  std::cout << "U plane (shorted): " << i << " added to bad chanel list" << std::endl;
+	  uplane_map[i] = uplane_map[i-1];
+	  for (int j=0;j!=hu_decon->GetNbinsY();j++){
+	    hu_decon->SetBinContent(i+1,j+1,0);
+	    hu_decon_g->SetBinContent(i+1,j+1,0);
+	  }
+	}
+      }
     }
-    for (int j=0;j!=hv_decon->GetNbinsY();j++){
-      hv_decon->SetBinContent(i+1-2400,j+1,0);
-      hv_decon_g->SetBinContent(i+1-2400,j+1,0);
+    for (int i=2336;i!=2463;i++){
+      if (wplane_map.find(i)==wplane_map.end()){
+	if ((wplane_map.find(i-1)!=wplane_map.end() &&
+	     wplane_map.find(i+2)!=wplane_map.end()) ||
+	    (wplane_map.find(i-2)!=wplane_map.end() &&
+	     wplane_map.find(i+1)!=wplane_map.end())
+	    ){
+	  wplane_map[i] = wplane_map[i-1];
+	  std::cout << "W plane (shorted): " << i << " added to bad chanel list" << std::endl;
+	  for (int j=0;j!=hw_decon->GetNbinsY();j++){
+	    hw_decon->SetBinContent(i+1,j+1,0);
+	    hw_decon_g->SetBinContent(i+1,j+1,0);
+	  }
+	}
+      }
     }
-    for (int j=0;j!=hv_raw->GetNbinsY();j++){
-      hv_raw->SetBinContent(i+1-2400,j+1,0);
+  
+    //
+    
+    for (size_t i=0;i!=nf_channelId->size();i++){
+      int chid = nf_channelId->at(i);
+      TH1S *htemp = (TH1S*)nf_wf->At(i);
+      if (chid < nwire_u){
+      }else if (chid < nwire_v+nwire_u){
+	for (size_t j=0;j!=nwindow_size*nrebin;j++){
+	  hv_raw->SetBinContent(chid-nwire_u+1,j+1,(htemp->GetBinContent(j+1)+nf_shift)*1.0/nf_scale);
+	}
+      }else if (chid < nwire_w+nwire_v+nwire_u){
+      }
     }
-  }
-  // U wire plane bad channels
-  for (int i=2160;i!=2176;i++){
-    if (uplane_map.find(i)==uplane_map.end()){
-      uplane_map[i] = std::make_pair(0,hv_raw->GetNbinsY()-1);
-      std::cout << "U plane (bad): " << i << " added to bad channel list" << std::endl;
-    }else{
-      uplane_map[i] = std::make_pair(0,hv_raw->GetNbinsY()-1);
+    
+    // V wire noisy channels 10 vetoed ...
+    for (int i=3684;i!=3699;i++){
+      if (vplane_map.find(i-2400)==vplane_map.end()){
+	vplane_map[i-2400] = std::make_pair(0,hv_raw->GetNbinsY()-1);
+	std::cout << "V plane (noisy): " << i -2400 << " added to bad channel list" << std::endl;
+      }else{
+	vplane_map[i-2400] = std::make_pair(0,hv_raw->GetNbinsY()-1);
+      }
+      for (int j=0;j!=hv_decon->GetNbinsY();j++){
+	hv_decon->SetBinContent(i+1-2400,j+1,0);
+	hv_decon_g->SetBinContent(i+1-2400,j+1,0);
+      }
+      for (int j=0;j!=hv_raw->GetNbinsY();j++){
+	hv_raw->SetBinContent(i+1-2400,j+1,0);
+      }
     }
-    for (int j=0;j!=hu_decon->GetNbinsY();j++){
-      hu_decon->SetBinContent(i+1,j+1,0);
-      hu_decon_g->SetBinContent(i+1,j+1,0);
+    // U wire plane bad channels
+    for (int i=2160;i!=2176;i++){
+      if (uplane_map.find(i)==uplane_map.end()){
+	uplane_map[i] = std::make_pair(0,hv_raw->GetNbinsY()-1);
+	std::cout << "U plane (bad): " << i << " added to bad channel list" << std::endl;
+      }else{
+	uplane_map[i] = std::make_pair(0,hv_raw->GetNbinsY()-1);
+      }
+      for (int j=0;j!=hu_decon->GetNbinsY();j++){
+	hu_decon->SetBinContent(i+1,j+1,0);
+	hu_decon_g->SetBinContent(i+1,j+1,0);
+      }
     }
   }
   
@@ -519,7 +524,7 @@ if(beamspill || beam==-1){
       hw_decon_g->SetBinContent(ch+1,j+1,0);
     }
   }
-
+  
   
   
 
@@ -3067,71 +3072,72 @@ if(beamspill || beam==-1){
   
   cout << em("finish the local deghosting ... ") << std::endl;
 
-   // try to group the dead cells ...
-  for (int i=start_num;i!=end_num+1;i++){
-    GeomCellSelection& allmcell = lowmemtiling[i]->get_two_bad_wire_cells();
-    if (lowmemtiling[i]->get_regen_two_bad_wire_cells() || dead_cluster_set.empty()){
-      if (dead_cluster_set.empty()){
-	Slim3DDeadCluster *cluster = new Slim3DDeadCluster(*((SlimMergeGeomCell*)allmcell[0]),i);
-	dead_cluster_set.insert(cluster);
-      }
-      for (int j=0;j<allmcell.size();j++){
-	int flag = 0;
-	int flag_save = 0;
-	Slim3DDeadCluster *cluster_save = 0;
-	dead_cluster_delset.clear();
-	
-	// loop through merged cell
-	for (auto it = dead_cluster_set.begin();it!=dead_cluster_set.end();it++){
-	  //loop through clusters
-	  flag += (*it)->AddCell(*((SlimMergeGeomCell*)allmcell[j]),i);
-	  if (flag==1 && flag != flag_save){
-	    cluster_save = *it;
-	  }else if (flag>1 && flag != flag_save){
-	    cluster_save->MergeCluster(*(*it));
-	    dead_cluster_delset.insert(*it);
-	  }
-	  flag_save = flag;
-	}
-	
-	//std::cout << i << " " << j << " " << flag << " " << flag_save << std::endl;
-	for (auto it = dead_cluster_delset.begin();it!=dead_cluster_delset.end();it++){
-	  dead_cluster_set.erase(*it);
-	  delete (*it);
-	}
-	
-	if (flag==0){
-	  Slim3DDeadCluster *cluster = new Slim3DDeadCluster(*((SlimMergeGeomCell*)allmcell[j]),i);
+  if (no_dead_channel!=1){
+    // try to group the dead cells ...
+    for (int i=start_num;i!=end_num+1;i++){
+      GeomCellSelection& allmcell = lowmemtiling[i]->get_two_bad_wire_cells();
+      if (lowmemtiling[i]->get_regen_two_bad_wire_cells() || dead_cluster_set.empty()){
+	if (dead_cluster_set.empty()){
+	  Slim3DDeadCluster *cluster = new Slim3DDeadCluster(*((SlimMergeGeomCell*)allmcell[0]),i);
 	  dead_cluster_set.insert(cluster);
 	}
+	for (int j=0;j<allmcell.size();j++){
+	  int flag = 0;
+	  int flag_save = 0;
+	  Slim3DDeadCluster *cluster_save = 0;
+	  dead_cluster_delset.clear();
+	  
+	  // loop through merged cell
+	  for (auto it = dead_cluster_set.begin();it!=dead_cluster_set.end();it++){
+	    //loop through clusters
+	    flag += (*it)->AddCell(*((SlimMergeGeomCell*)allmcell[j]),i);
+	    if (flag==1 && flag != flag_save){
+	      cluster_save = *it;
+	    }else if (flag>1 && flag != flag_save){
+	      cluster_save->MergeCluster(*(*it));
+	      dead_cluster_delset.insert(*it);
+	    }
+	    flag_save = flag;
+	  }
+	  
+	  //std::cout << i << " " << j << " " << flag << " " << flag_save << std::endl;
+	  for (auto it = dead_cluster_delset.begin();it!=dead_cluster_delset.end();it++){
+	    dead_cluster_set.erase(*it);
+	    delete (*it);
+	  }
+	  
+	  if (flag==0){
+	    Slim3DDeadCluster *cluster = new Slim3DDeadCluster(*((SlimMergeGeomCell*)allmcell[j]),i);
+	    dead_cluster_set.insert(cluster);
+	  }
+	}
+      }else{
+	for (auto it = dead_cluster_set.begin();it!=dead_cluster_set.end();it++){
+	  (*it)->Extend(i);
+	}
       }
-    }else{
+      //std::cout << i << " " << dead_cluster_set.size() << " " << allmcell.size() << std::endl;
+      
       for (auto it = dead_cluster_set.begin();it!=dead_cluster_set.end();it++){
-	(*it)->Extend(i);
+	if (i - ((*it)->get_cluster()).rbegin()->first >0){
+	  dead_cluster_set_save.insert(*it);
+	  dead_cluster_set.erase(*it);
+	}
       }
     }
-    //std::cout << i << " " << dead_cluster_set.size() << " " << allmcell.size() << std::endl;
-
-    for (auto it = dead_cluster_set.begin();it!=dead_cluster_set.end();it++){
-      if (i - ((*it)->get_cluster()).rbegin()->first >0){
-	dead_cluster_set_save.insert(*it);
-	dead_cluster_set.erase(*it);
-      }
-    }
-  }
-
-  for (auto it = dead_cluster_set.begin();it!=dead_cluster_set.end();it++){
-    dead_cluster_set_save.insert(*it);
-  }
-  dead_cluster_set = dead_cluster_set_save;
-  dead_cluster_set_save.clear();
-  
-  int cluster_id1 = 0;
-  for (auto it = dead_cluster_set.begin();it!=dead_cluster_set.end();it++){
-    (*it)->set_id(cluster_id1);
-    cluster_id1++;
-  }
     
+    for (auto it = dead_cluster_set.begin();it!=dead_cluster_set.end();it++){
+      dead_cluster_set_save.insert(*it);
+    }
+    dead_cluster_set = dead_cluster_set_save;
+    dead_cluster_set_save.clear();
+    
+    int cluster_id1 = 0;
+    for (auto it = dead_cluster_set.begin();it!=dead_cluster_set.end();it++){
+      (*it)->set_id(cluster_id1);
+      cluster_id1++;
+    }
+  
   // for (int i=start_num;i!=end_num+1;i++){
   //   GeomCellSelection allmcell = lowmemtiling[i]->get_two_bad_wire_cells();
   //   for (int j=0;j<allmcell.size();j++){
@@ -3145,8 +3151,9 @@ if(beamspill || beam==-1){
   // }
   // std::cout << "Done ... " << std::endl;
   // end to group the dead cells ... 
-  cout << em("finish cluster dead region ... ") << std::endl;
-
+    cout << em("finish cluster dead region ... ") << std::endl;
+  }
+  
   // for (auto it = cluster_set.begin();it!=cluster_set.end();it++){
   //   for (auto it1 = dead_cluster_set.begin();it1!=dead_cluster_set.end();it1++){
   //     GeomCellSelection mcells = (*it)->Is_Connected(*it1,2);
