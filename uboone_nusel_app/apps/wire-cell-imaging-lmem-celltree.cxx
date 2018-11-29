@@ -141,6 +141,7 @@ int main(int argc, char* argv[])
   // 1 for debug mode for bee ...
   // 2 for
   int flag_l1 = 0; // do not run l1sp code ... 
+  int flag_badtree = 0;
   
   for(Int_t i = 3; i != argc; i++){
      switch(argv[i][1]){
@@ -153,12 +154,12 @@ int main(int argc, char* argv[])
      case 'd':
        solve_charge = atoi(&argv[i][2]); 
        break;
-     case 'a':
-       nt_off1 = atoi(&argv[i][2]);
-       break;
-     case 'b':
-       nt_off2 = atoi(&argv[i][2]);
-       break;
+       //     case 'a':
+       // nt_off1 = atoi(&argv[i][2]);
+       //break;
+       //case 'b':
+       // nt_off2 = atoi(&argv[i][2]);
+       //break;
      case 'f':
        beam = atoi(&argv[i][2]);
        break;
@@ -167,6 +168,9 @@ int main(int argc, char* argv[])
        break;
      case 'n':
        no_dead_channel = atoi(&argv[i][2]);
+       break;
+     case 'b':
+       flag_badtree = atoi(&argv[i][2]);
        break;
      }
   }
@@ -686,6 +690,39 @@ if(beamspill || beam==-1){
     Twc->Branch("L1_chi2_penalty",L1_chi2_penalty,"L1_chi2_penalty[nL1_solved]/D");
     Twc->Branch("direct_ndf",direct_ndf,"direct_ndf[ndirect_solved]/I");
     Twc->Branch("direct_chi2",direct_chi2,"direct_chi2[ndirect_solved]/D");
+  }
+
+  if (flag_badtree==1){
+    TTree *T_bad = new TTree("T_bad_ch","T_bad_ch");
+    Int_t chid, plane;
+    Int_t start_time,end_time;
+    T_bad->Branch("chid",&chid,"chid/I");
+    T_bad->Branch("plane",&plane,"plane/I");
+    T_bad->Branch("start_time",&start_time,"start_time/I");
+    T_bad->Branch("end_time",&end_time,"end_time/I");
+    T_bad->SetDirectory(file);
+
+    for (auto it = uplane_map.begin(); it!=uplane_map.end(); it++){
+      chid = it->first;
+      plane = 0;
+      start_time = it->second.first;
+      end_time = it->second.second;
+      T_bad->Fill();
+    }
+    for (auto it = vplane_map.begin(); it!=vplane_map.end(); it++){
+      chid = it->first + 2400;
+      plane = 1;
+      start_time = it->second.first;
+      end_time = it->second.second;
+      T_bad->Fill();
+    }
+    for (auto it = wplane_map.begin(); it!=wplane_map.end(); it++){
+      chid = it->first + 4800;
+      plane = 2;
+      start_time = it->second.first;
+      end_time = it->second.second;
+      T_bad->Fill();
+    }
   }
   
   //test 

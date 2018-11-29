@@ -880,7 +880,10 @@ int main(int argc, char* argv[])
    // }
    
    
-   
+   TTree *T_bad_ch = (TTree*)file->Get("T_bad_ch");
+   if (T_bad_ch!=0){
+     T_bad_ch->CloneTree()->Write();
+   }
    
    TTree *t_bad = new TTree("T_bad","T_bad");
    t_bad->SetDirectory(file1);
