@@ -69,18 +69,18 @@ int ChannelMap::channel_to_plane(int chn){
   return cg.plane;
 }
 
-void fill_2dw1d(TH2I* h_orig, TH1F* hwf, int wire){
-  //cout << "fill wire= " << wire << endl; 
+void fill_2dw1d(TH2I* h_orig, TH1F* hwf, int chn){
+  // cout << "fill chn= " << chn << endl; 
   for(int ind=1; ind<=6000; ind++){
     int rawAdc = hwf->GetBinContent(ind);
-    h_orig->SetBinContent(wire, ind, rawAdc);
+    h_orig->SetBinContent(chn+1, ind, rawAdc);
   }
 }
-void fill_2dw1d(TH2F* h_orig, TH1F* hwf, int wire, double baseline, double scale=1){
-  //cout << "fill wire= " << wire << endl; 
+void fill_2dw1d(TH2F* h_orig, TH1F* hwf, int chn, double baseline, double scale=1){
+  // cout << "fill chn= " << chn << endl; 
   for(int ind=1; ind<=6000; ind++){
     int rawAdc = hwf->GetBinContent(ind) - baseline;
-    h_orig->SetBinContent(wire, ind, rawAdc * scale);
+    h_orig->SetBinContent(chn+1, ind, rawAdc * scale);
   }
 }
 
@@ -97,6 +97,7 @@ int main(int argc, char* argv[])
   const char* map_file = argv[1];
   const char* root_file = argv[2];
   int fEntry = atoi(argv[3]); // local entry in celltree root file
+  //const char* dltag = argv[4]; // additional tag
 
   //ifstream in("protodune-wires-larsoft-v1.txt");
   ifstream in(map_file);
@@ -173,6 +174,7 @@ int main(int argc, char* argv[])
   cout << "raw_nChannel: " << raw_nChannel << endl;
 
   TString title;
+  //title.Form("magnify_%04d_%d_%s.root", runNo, eventNo, dltag);
   title.Form("magnify_%04d_%d.root", runNo, eventNo);
   cout << "Output file: " << title << endl;
   TFile* ofile = new TFile(title.Data(),"recreate");
@@ -187,22 +189,22 @@ int main(int argc, char* argv[])
       fill_2dw1d(hu_orig, hwf, chId);
       fill_2dw1d(hu_raw, hwf, chId, baseline);
       fill_2dw1d(hu_decon, hwf, chId, baseline, 125);
-      hu_baseline->SetBinContent(chId, baseline);
-      hu_threshold->SetBinContent(chId, baseline);
+      hu_baseline->SetBinContent(chId+1, baseline);
+      hu_threshold->SetBinContent(chId+1, baseline);
     }
     else if(planeId==1){
       fill_2dw1d(hv_orig, hwf, chId);
       fill_2dw1d(hv_raw, hwf, chId, baseline);
       fill_2dw1d(hv_decon, hwf, chId, baseline, 125);
-      hv_baseline->SetBinContent(chId, baseline);
-      hv_threshold->SetBinContent(chId, baseline);
+      hv_baseline->SetBinContent(chId+1, baseline);
+      hv_threshold->SetBinContent(chId+1, baseline);
     }
     else if(planeId==2){
       fill_2dw1d(hw_orig, hwf, chId);
       fill_2dw1d(hw_raw, hwf, chId, baseline);
       fill_2dw1d(hw_decon, hwf, chId, baseline, 125);
-      hw_baseline->SetBinContent(chId, baseline);
-      hw_threshold->SetBinContent(chId, baseline);
+      hw_baseline->SetBinContent(chId+1, baseline);
+      hw_threshold->SetBinContent(chId+1, baseline);
     }
   }
 

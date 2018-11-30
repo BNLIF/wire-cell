@@ -1,7 +1,7 @@
 /**
  * Example for looping over protoDUNE channels and quality check
- * FIXME: 1) sst/FrameDataSource, configurable Claib_nChannel -> raw_nChannel, etc.
- * 2) sst/GeomDataSource does NOT fit protoDUNE structure, temporarily use a class ChannelGeo
+ * FIXME:
+ * sst/GeomDataSource does NOT fit protoDUNE structure, temporarily use a class ChannelGeo
  *
  */
 #include "WireCellNav/SliceDataSource.h"
@@ -15,6 +15,9 @@
 #include <ctime>
 #include <fstream>
 #include <iostream>
+
+#include "LedgeIdentify.h"
+
 using namespace std;
 
 class ChannelGeo{
@@ -69,7 +72,7 @@ int main(int argc, char* argv[])
 {
 
     if (argc < 2) {
-	cerr << "usage: wire-cell-pdune-chan-qual sst-geometry.txt sst-celltree.root" << endl;
+	cerr << "usage: wire-cell-pdune-chan-qual /path/to/pdune-geometry.txt sst-celltree.root" << endl;
 	exit (1);
     }
 
@@ -113,7 +116,22 @@ int main(int argc, char* argv[])
     // open data file to make frame data source
     TFile* tfile = TFile::Open(argv[2]);
     TTree* tree = dynamic_cast<TTree*>(tfile->Get("/Event/Sim"));
-    WireCellSst::FrameDataSource fds(*tree);
+    WireCellSst::FrameDataSource fds(*tree, "raw");
+
+    TFile* ofile = new TFile("chan-qual.root","recreate");
+    TTree* otree = new TTree("T","T");
+    int t_run, t_event, t_channel, t_ledge, t_plateau;
+    double t_baseline, t_rms;
+    otree->Branch("run", &t_run, "run/I");
+    otree->Branch("event", &t_event, "event/I");
+    otree->Branch("channel", &t_channel, "channel/I");
+    otree->Branch("ledge", &t_ledge, "ledge/I");
+    otree->Branch("plateau", &t_plateau, "plateau/I");
+    otree->Branch("baseline", &t_baseline, "baseline/D");
+    otree->Branch("rms", &t_rms, "rms/D");
+
+    tree->SetBranchAddress("eventNo",&t_event);
+    tree->SetBranchAddress("runNo",&t_run);
     
 //    start_time = time(0);
 //    WireCell::SliceDataSource sds(fds);
@@ -139,21 +157,34 @@ int main(int argc, char* argv[])
         const WireCell::Frame& frame = fds.get();
         size_t ntraces = frame.traces.size();
         cout << "protoDUNE::frame.traces.size(): " << ntraces << endl;
-        ntraces = 1;
         for (size_t ind=0; ind<ntraces; ++ind) {
           const WireCell::Trace& trace = frame.traces[ind];
           int tbin = trace.tbin;
           int chid = trace.chid;
           int nbins = trace.charge.size();
-          //TH1F* hCharge = trace.hCharge;
-          //cout << hCharge->GetMaximum() << endl;
+          TH1F* hCharge = dynamic_cast<TH1F*>(trace.hCharge);
+          //cout << "hCharge.GetMaximum= " << hCharge->GetMaximum() << endl;
+          //if(hCharge==nullptr) cout << "error: trace.hCharge is null" << endl;
+          //cout << "max adc: " << hCharge->GetMaximum() << endl;
           //cout << "chanId: " << chid <<  " tbin: " << tbin << " nbins: " << nbins << endl;
           //for(size_t itick=0; itick<nbins; ++itick){
           //  cout << "tick: " << itick+1 <<  " adc: " << trace.charge[itick] << endl;
           //}
-          int iplane = chanmap.channel_to_plane(chid);
-          cout << "chanId: " << chid << " plane: " << iplane << endl;
+          //int iplane = chanmap.channel_to_plane(chid);
+          //cout << "chanId: " << chid << " plane: " << iplane << endl;
+
+          WireCellDune::get_baseline_rms(hCharge, t_baseline, t_rms);
+          double LedgeStart, LedgeEnd, PlateauStart, PlateauStartEnd;
+          t_ledge =  WireCellDune::LedgeIdentify(chid, hCharge, t_baseline, LedgeStart, LedgeEnd);
+          t_plateau = WireCellDune::judgePlateau(chid, hCharge, t_baseline, PlateauStart, PlateauStartEnd);
+          if(t_ledge) cout << "Found a ledge: run= " << t_run << " event= " << t_event << " channel= " << chid << endl;
+          if(t_plateau) cout << "Found a plateau: run= " << t_run << " event= " << t_event << " channel= " << chid << endl;
+          t_channel = chid;
+          otree->Fill();
+          t_ledge=0; t_plateau=0;
         }
+        otree->Write();
+        ofile->Close();
 
 	// loop over slices of the frame 
 
