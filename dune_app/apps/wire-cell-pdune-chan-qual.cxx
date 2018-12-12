@@ -17,6 +17,7 @@
 #include <iostream>
 
 #include "LedgeIdentify.h"
+#include "StickyCodeIdent.h"
 
 using namespace std;
 
@@ -120,13 +121,14 @@ int main(int argc, char* argv[])
 
     TFile* ofile = new TFile("chan-qual.root","recreate");
     TTree* otree = new TTree("T","T");
-    int t_run, t_event, t_channel, t_ledge, t_plateau;
+    int t_run, t_event, t_channel, t_ledge, t_plateau, t_nsticky;
     double t_baseline, t_rms;
     otree->Branch("run", &t_run, "run/I");
     otree->Branch("event", &t_event, "event/I");
     otree->Branch("channel", &t_channel, "channel/I");
     otree->Branch("ledge", &t_ledge, "ledge/I");
     otree->Branch("plateau", &t_plateau, "plateau/I");
+    otree->Branch("nsticky", &t_nsticky, "nsticky/I");
     otree->Branch("baseline", &t_baseline, "baseline/D");
     otree->Branch("rms", &t_rms, "rms/D");
 
@@ -173,6 +175,7 @@ int main(int argc, char* argv[])
           //int iplane = chanmap.channel_to_plane(chid);
           //cout << "chanId: " << chid << " plane: " << iplane << endl;
 
+          // ident ledge & plateau
           WireCellDune::get_baseline_rms(hCharge, t_baseline, t_rms);
           double LedgeStart, LedgeEnd, PlateauStart, PlateauStartEnd;
           t_ledge =  WireCellDune::LedgeIdentify(chid, hCharge, t_baseline, LedgeStart, LedgeEnd);
@@ -180,6 +183,10 @@ int main(int argc, char* argv[])
           if(t_ledge) cout << "Found a ledge: run= " << t_run << " event= " << t_event << " channel= " << chid << endl;
           if(t_plateau) cout << "Found a plateau: run= " << t_run << " event= " << t_event << " channel= " << chid << endl;
           t_channel = chid;
+
+          // ident sticy code ticks per channel
+          t_nsticky = WireCellDune::StickyCodeIdent(hCharge);
+
           otree->Fill();
           t_ledge=0; t_plateau=0;
         }
