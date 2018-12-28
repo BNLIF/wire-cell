@@ -721,7 +721,7 @@ int main(int argc, char* argv[])
      
      //std::cout << "shortest path end point" << std::endl;
      
-     live_clusters.at(i)->fine_tracking();
+     live_clusters.at(i)->fine_tracking(global_wc_map);
      
      //std::cout << "fine tracking" << std::endl;
      
