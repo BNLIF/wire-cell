@@ -1369,10 +1369,11 @@ int main(int argc, char* argv[])
     std::vector<int> proj_timeslice;
     std::vector<int> proj_charge;
     std::vector<int> proj_charge_err;
+    std::vector<int> proj_flag;
     
     for (size_t j = 0; j!= temp_clusters.size(); j++){
       PR3DCluster *cluster = temp_clusters.at(j);
-      cluster->get_projection(proj_channel,proj_timeslice,proj_charge, proj_charge_err,global_wc_map);
+      cluster->get_projection(proj_channel,proj_timeslice,proj_charge, proj_charge_err, proj_flag, global_wc_map);
     }
     proj_cluster_id->push_back(cluster_id);
     proj_cluster_channel->push_back(proj_channel);
