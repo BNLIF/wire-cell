@@ -978,6 +978,15 @@ if(beamspill || beam==-1){
     GeomCellSelection allmcell;
     for (auto it=cell_wires_map.begin(); it!= cell_wires_map.end(); it++){
       SlimMergeGeomCell *mcell = (SlimMergeGeomCell*)it->first;
+
+      // if (i==2387){
+      // 	int this_time_slice = mcell->GetTimeSlice();
+      // 	GeomWireSelection uwires = mcell->get_uwires();
+      // 	GeomWireSelection vwires = mcell->get_vwires();
+      // 	GeomWireSelection wwires = mcell->get_wwires();
+      // 	std::cout << this_time_slice << " " << uwires.front()->index() << " " << uwires.back()->index() << " " << vwires.front()->index()+2400 << " " << vwires.back()->index()+2400 << " " << wwires.front()->index()+4800 << " " << wwires.back()->index()+4800 << std::endl;
+      // }
+      
       allmcell.push_back(mcell);
     }
     if (cluster_set.empty()){
@@ -1799,6 +1808,15 @@ if(beamspill || beam==-1){
     for (auto it = cell_map.begin(); it!=cell_map.end(); it++){
       SlimMergeGeomCell *mcell = (SlimMergeGeomCell*) it->first;
       bool flag1 = chargesolver[i]->get_mcell_charge(mcell)>300;
+
+      // if (i==2387){
+      // 	int this_time_slice = mcell->GetTimeSlice();
+      // 	GeomWireSelection uwires = mcell->get_uwires();
+      // 	GeomWireSelection vwires = mcell->get_vwires();
+      // 	GeomWireSelection wwires = mcell->get_wwires();
+      // 	std::cout << this_time_slice << " " << uwires.front()->index() << " " << uwires.back()->index() << " " << vwires.front()->index()+2400 << " " << vwires.back()->index()+2400 << " " << wwires.front()->index()+4800 << " " << wwires.back()->index()+4800 << " " << flag1 << std::endl;
+      // }
+      
       if (flag1){
 	good_mcells.insert(mcell);
 	potential_good_mcells.insert(mcell);
@@ -1891,7 +1909,7 @@ if(beamspill || beam==-1){
     //   }
     // }
     // std::cout << nc_mcells << std::endl;
-    cout << em("finish 2nd round of solving with connectivities") << endl;
+    cout << em("finish 1st round of solving with connectivities") << endl;
   }
   
   // delete clusters here ... 
@@ -1915,8 +1933,19 @@ if(beamspill || beam==-1){
       GeomCellSelection allmcell;
       for (auto it=cell_wires_map.begin(); it!= cell_wires_map.end(); it++){
 	SlimMergeGeomCell *mcell = (SlimMergeGeomCell*)it->first;
-	if (potential_good_mcells.find(mcell)!=potential_good_mcells.end() && potential_bad_mcells.find(mcell)==potential_bad_mcells.end())
+
+	
+	
+	if (potential_good_mcells.find(mcell)!=potential_good_mcells.end() && potential_bad_mcells.find(mcell)==potential_bad_mcells.end()){
+	  // if (i==2387){
+	  //   int this_time_slice = mcell->GetTimeSlice();
+	  //   GeomWireSelection uwires = mcell->get_uwires();
+	  //   GeomWireSelection vwires = mcell->get_vwires();
+	  //   GeomWireSelection wwires = mcell->get_wwires();
+	  //   std::cout << this_time_slice << " " << uwires.front()->index() << " " << uwires.back()->index() << " " << vwires.front()->index()+2400 << " " << vwires.back()->index()+2400 << " " << wwires.front()->index()+4800 << " " << wwires.back()->index()+4800 << " "  << std::endl;
+	  // }
 	  allmcell.push_back(mcell);
+	}
       }
       if (temp_cluster_set.empty()){
 	// if cluster is empty, just insert all the mcell, each as a cluster
@@ -2714,6 +2743,16 @@ if(beamspill || beam==-1){
      for (auto it = cell_map.begin(); it!=cell_map.end(); it++){
        SlimMergeGeomCell *mcell = (SlimMergeGeomCell*) it->first;
        bool flag1 = chargesolver[i]->get_mcell_charge(mcell)>300;
+
+      //  if (i==2387){
+      // 	int this_time_slice = mcell->GetTimeSlice();
+      // 	GeomWireSelection uwires = mcell->get_uwires();
+      // 	GeomWireSelection vwires = mcell->get_vwires();
+      // 	GeomWireSelection wwires = mcell->get_wwires();
+      // 	std::cout << this_time_slice << " " << uwires.front()->index() << " " << uwires.back()->index() << " " << vwires.front()->index()+2400 << " " << vwires.back()->index()+2400 << " " << wwires.front()->index()+4800 << " " << wwires.back()->index()+4800 << " " << flag1 << std::endl;
+      // }
+
+       
        if (flag1){
 	 good_mcells.insert(mcell);
 	 potential_good_mcells.insert(mcell);
@@ -2728,11 +2767,47 @@ if(beamspill || beam==-1){
      for (int i=start_num;i!=end_num+1;i++){
        nmcell_before += lowmemtiling[i]->get_cell_wires_map().size();
      }
+
+
+     std::map<SlimMergeGeomCell*, double> map_mcell_charge;
+     for (auto it = potential_good_mcells.begin(); it!=potential_good_mcells.end();it++){
+       map_mcell_charge[*it] = chargesolver[(*it)->GetTimeSlice()]->get_mcell_charge(*it);
+     }
      
      for (int i=start_num; i!=end_num+1;i++){
-       lowmemtiling[i]->local_deghosting1(potential_good_mcells);//(potential_good_mcells,false);
+       {
+	 WireCell::GeomCellMap& cell_map = lowmemtiling[i]->get_cell_wires_map();
+	 for (auto it = cell_map.begin(); it!=cell_map.end(); it++){
+	   SlimMergeGeomCell *mcell = (SlimMergeGeomCell*) it->first;
+	   
+	   // if (i==2387){
+	   //   int this_time_slice = mcell->GetTimeSlice();
+	   //   GeomWireSelection uwires = mcell->get_uwires();
+	   //   GeomWireSelection vwires = mcell->get_vwires();
+	   //   GeomWireSelection wwires = mcell->get_wwires();
+	   //   std::cout << "Before: " << this_time_slice << " " << uwires.front()->index() << " " << uwires.back()->index() << " " << vwires.front()->index()+2400 << " " << vwires.back()->index()+2400 << " " << wwires.front()->index()+4800 << " " << wwires.back()->index()+4800 << " " << chargesolver[i]->get_mcell_charge(mcell) << std::endl;
+	   // }
+	 }
+       }
+
        
        
+       lowmemtiling[i]->local_deghosting1(potential_good_mcells, map_mcell_charge);//(potential_good_mcells,false);
+
+       {
+	 WireCell::GeomCellMap& cell_map = lowmemtiling[i]->get_cell_wires_map();
+	 for (auto it = cell_map.begin(); it!=cell_map.end(); it++){
+	   SlimMergeGeomCell *mcell = (SlimMergeGeomCell*) it->first;
+	   
+	   // if (i==2387){
+	   //   int this_time_slice = mcell->GetTimeSlice();
+	   //   GeomWireSelection uwires = mcell->get_uwires();
+	   //   GeomWireSelection vwires = mcell->get_vwires();
+	   //   GeomWireSelection wwires = mcell->get_wwires();
+	   //   std::cout << this_time_slice << " " << uwires.front()->index() << " " << uwires.back()->index() << " " << vwires.front()->index()+2400 << " " << vwires.back()->index()+2400 << " " << wwires.front()->index()+4800 << " " << wwires.back()->index()+4800 << " " << std::endl;
+	   // }
+	 }
+       }
        
        // if (i==1681){
        //draw ...
@@ -2885,6 +2960,15 @@ if(beamspill || beam==-1){
     for (auto it = cell_map.begin(); it!=cell_map.end(); it++){
       SlimMergeGeomCell *mcell = (SlimMergeGeomCell*) it->first;
       bool flag1 = chargesolver[i]->get_mcell_charge(mcell)>300;
+
+      //  if (i==2387){
+      // 	int this_time_slice = mcell->GetTimeSlice();
+      // 	GeomWireSelection uwires = mcell->get_uwires();
+      // 	GeomWireSelection vwires = mcell->get_vwires();
+      // 	GeomWireSelection wwires = mcell->get_wwires();
+      // 	std::cout << this_time_slice << " " << uwires.front()->index() << " " << uwires.back()->index() << " " << vwires.front()->index()+2400 << " " << vwires.back()->index()+2400 << " " << wwires.front()->index()+4800 << " " << wwires.back()->index()+4800 << " " << flag1 << std::endl;
+      // }
+      
       if (flag1){
 	good_mcells.insert(mcell);
 	potential_good_mcells.insert(mcell);

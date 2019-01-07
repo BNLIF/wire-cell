@@ -2423,9 +2423,14 @@ int main(int argc, char* argv[])
    for (int i=start_num;i!=end_num+1;i++){
      nmcell_before += lowmemtiling[i]->get_cell_wires_map().size();
    }
+
+   std::map<SlimMergeGeomCell*, double> map_mcell_charge;
+   for (auto it = potential_good_mcells.begin(); it!=potential_good_mcells.end();it++){
+     map_mcell_charge[*it] = chargesolver[(*it)->GetTimeSlice()]->get_mcell_charge(*it);
+   }
    
    for (int i=start_num; i!=end_num+1;i++){
-     lowmemtiling[i]->local_deghosting1(potential_good_mcells);//(potential_good_mcells,false);
+     lowmemtiling[i]->local_deghosting1(potential_good_mcells, map_mcell_charge);//(potential_good_mcells,false);
    }
    nmcell_after = 0;
    for (int i=start_num;i!=end_num+1;i++){
