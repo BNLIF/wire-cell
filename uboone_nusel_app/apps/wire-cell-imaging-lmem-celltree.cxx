@@ -141,7 +141,7 @@ int main(int argc, char* argv[])
   // 1 for debug mode for bee ...
   // 2 for
   int flag_l1 = 0; // do not run l1sp code ... 
-  int flag_badtree = 0;
+  int flag_badtree = 1;
   
   for(Int_t i = 3; i != argc; i++){
      switch(argv[i][1]){
