@@ -235,8 +235,8 @@ int main(int argc, char* argv[])
   TH2F *hw_decon = new TH2F("hw_decon","hw_decon",nwire_w,-0.5+nwire_u+nwire_v,-0.5+nwire_u+nwire_v+nwire_w,nwindow_size,0,nwindow_size*nrebin);
   
   TH2F *hu_decon_g = new TH2F("hu_decon_g","hu_decon_g",nwire_u,-0.5,nwire_u-0.5,nwindow_size,0,nwindow_size*nrebin);
-  TH2F *hv_decon_g = new TH2F("hu_decon_g","hu_decon_g",nwire_v,-0.5+nwire_u,-0.5+nwire_u+nwire_v,nwindow_size,0,nwindow_size*nrebin);
-  TH2F *hw_decon_g = new TH2F("hu_decon_g","hu_decon_g",nwire_w,-0.5+nwire_u+nwire_v,-0.5+nwire_u+nwire_v+nwire_w,nwindow_size,0,nwindow_size*nrebin);
+  TH2F *hv_decon_g = new TH2F("hv_decon_g","hv_decon_g",nwire_v,-0.5+nwire_u,-0.5+nwire_u+nwire_v,nwindow_size,0,nwindow_size*nrebin);
+  TH2F *hw_decon_g = new TH2F("hw_decon_g","hw_decon_g",nwire_w,-0.5+nwire_u+nwire_v,-0.5+nwire_u+nwire_v+nwire_w,nwindow_size,0,nwindow_size*nrebin);
   
   for (size_t i=0;i!=calibWiener_channelId->size();i++){
     int chid = calibWiener_channelId->at(i);
