@@ -1,3 +1,3 @@
-python dump_json.py /home/xqian/uboone/matrix_inversion/work/wire-cell/temp/3-planes/shower3D_data_0.root simple charge
+python dump_json.py /home/xqian/uboone/matrix_inversion/work/wire-cell/temp/3-planes/shower3D_data_0.root flash cluster deadarea simple charge
 
 python dump_json_parallel.py cluster flash deadarea ../numuscan/bnb_nu/match_01.root
