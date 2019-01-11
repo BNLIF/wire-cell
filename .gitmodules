@@ -46,3 +46,6 @@
 [submodule "mcs"]
 	path = mcs
 	url = https://github.com/BNLIF/wire-cell-mcs
+[submodule "paal"]
+	path = paal
+	url = git@github.com:BNLIF/wire-cell-paal.git
