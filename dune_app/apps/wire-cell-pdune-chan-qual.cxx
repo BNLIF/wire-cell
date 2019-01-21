@@ -132,8 +132,9 @@ int main(int argc, char* argv[])
     otree->Branch("baseline", &t_baseline, "baseline/D");
     otree->Branch("rms", &t_rms, "rms/D");
 
-    tree->SetBranchAddress("eventNo",&t_event);
-    tree->SetBranchAddress("runNo",&t_run);
+    int eventNo, runNo;
+    tree->SetBranchAddress("eventNo",&eventNo);
+    tree->SetBranchAddress("runNo",&runNo);
     
 //    start_time = time(0);
 //    WireCell::SliceDataSource sds(fds);
@@ -145,16 +146,18 @@ int main(int argc, char* argv[])
     cout << "FDS: " << nframes << " frames" << endl;
 
 //    start_time = time(0);
-    nframes=1;
+    // nframes=1;
     for (size_t iframe = 0; iframe < nframes; ++iframe) {
 
-	cout << "FDS: jumping to frame #" << iframe << endl;
 
 	int iframe_got = fds.jump(iframe);
 	if (iframe_got < 0) {
 	    cerr << "Failed to get frame " << iframe << endl;
 	    exit(1); // real code may want to do something less drastic
 	}
+	cout << "FDS: jumping to frame #" << iframe << " eventNo " << eventNo << endl;
+        t_run = runNo;
+        t_event = eventNo;
 
         const WireCell::Frame& frame = fds.get();
         size_t ntraces = frame.traces.size();
@@ -190,8 +193,6 @@ int main(int argc, char* argv[])
           otree->Fill();
           t_ledge=0; t_plateau=0;
         }
-        otree->Write();
-        ofile->Close();
 
 	// loop over slices of the frame 
 
@@ -224,6 +225,8 @@ int main(int argc, char* argv[])
 	//     << " total time: " << now-start_time
 	//     << endl;
     }
+    otree->Write();
+    ofile->Close();
 
     return 0;
 
