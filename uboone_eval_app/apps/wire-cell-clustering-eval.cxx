@@ -31,7 +31,7 @@ using namespace std;
 int main(int argc, char* argv[])
 {
   if (argc < 3) {
-    cerr << "usage: wire-cell-uboone /path/to/ChannelWireGeometry.txt /path/to/imaging.root" << endl;
+    cerr << "usage: wire-cell-uboone /path/to/ChannelWireGeometry.txt /path/to/imaging.root event_no" << endl;
     return 1;
   }
   TH1::AddDirectory(kFALSE);
@@ -80,8 +80,8 @@ int main(int argc, char* argv[])
   TString filename = argv[2];
   TFile *file = new TFile(filename);
   TTree *Trun = (TTree*)file->Get("Trun");
-  TTree *T_track = (TTree*)file->Get("T_track");
-  TTree *T_true = (TTree*)file->Get("T_true");
+  //TTree *T_track = (TTree*)file->Get("T_track");
+  //TTree *T_true = (TTree*)file->Get("T_true");
 
   int run_no, subrun_no, event_no;
   int time_offset;
@@ -663,7 +663,6 @@ int main(int argc, char* argv[])
   
   //
 
-     
      //   cout<<"BUGGGG"<<endl;
      //   std::vector<std::tuple<WireCell::PR3DCluster*, WireCell::Opflash*, double, std::vector<double>>> matched_results = WireCell2dToy::tpc_light_match(time_offset,nrebin,group_clusters,flashes);
      FlashTPCBundleSelection matched_bundles = WireCell2dToy::tpc_light_match(time_offset,nrebin,group_clusters,flashes);
@@ -730,7 +729,8 @@ int main(int argc, char* argv[])
      cerr << em("Create Graph in all clusters") << std::endl;
      
    }   
-   
+  
+   event_no = atoi(argv[3]);
    TFile *file1 = new TFile(Form("cluster_%d_%d_%d.root",run_no,subrun_no,event_no),"RECREATE");
  
    /* TTree *T_match = new TTree("T_match","T_match"); */
@@ -970,6 +970,13 @@ int main(int argc, char* argv[])
       ncluster++;
       for (size_t i=0; i!=mcells.size(); i++){
           PointVector ps = mcells.at(i)->get_sampling_points();
+
+	  if( ps.size()==0 ) {
+	    std::cout << "zero sampling points!" << std::endl;
+	  }
+	  int time_slice = mcells.at(i)->GetTimeSlice();
+	  q = mcells.at(i)->get_q() / ps.size();
+	  
           for (int k=0;k!=ps.size();k++){
               x = ps.at(k).x/units::cm;//time_slice*nrebin/2.*unit_dis/10. - frame_length/2.*unit_dis/10.;
               y = ps.at(k).y/units::cm;
@@ -977,8 +984,7 @@ int main(int argc, char* argv[])
               T_cluster->Fill();
           }
       }
-     
-     
+
      // if (live_clusters.at(j)->get_num_mcells()>30){
      //   // add PCA axis point
      //   Vector center = live_clusters.at(j)->get_center();
@@ -1035,8 +1041,8 @@ int main(int argc, char* argv[])
    // }
    
    Trun->CloneTree();
-   T_track->CloneTree();
-   T_true->CloneTree();
+   //T_track->CloneTree();
+   //T_true->CloneTree();
 
    
    /* TTree *t1 = new TTree("T_data","T_data"); */
@@ -1141,9 +1147,6 @@ int main(int argc, char* argv[])
    /*  T_flash->Fill(); */
   /* } */
 
- 
- 
-  
   
   /* // now save the projected charge information ... */ 
   /* TTree *T_proj = new TTree("T_proj","T_proj"); */
