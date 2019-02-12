@@ -36,7 +36,7 @@ def options(opt):
                    help="Build Doxygen documentation to a tarball")
 
 def configure(cfg):
-    cfg.env.append_unique('CXXFLAGS',['--std=c++11'])
+    cfg.env.append_unique('CXXFLAGS',['--std=c++14'])
     cfg.load( "compiler_cxx" )
 
     cfg.load('doxygen', tooldir='waf-tools')
