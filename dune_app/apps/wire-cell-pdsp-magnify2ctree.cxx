@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
   std::cerr <<"[wgu] input magnify file: " << infile << std::endl;
   std::cerr <<"[wgu] output celltree file: " << outfile << std::endl;
   std::cerr <<"[wgu] converting frame tag: " << intag << std::endl;
-  int fEvent=0, fRun=0;
+  int fEvent=0, fRun=0, fSubRun=0;
   if(argc>4){
     fRun = atoi(argv[4]);
     fEvent = atoi(argv[5]);
@@ -58,6 +58,7 @@ int main(int argc, char* argv[])
   auto fEventTree = new TTree("Sim", "Event Tree from Simulation");
   fEventTree->Branch("eventNo", &fEvent);
   fEventTree->Branch("runNo", &fRun);
+  fEventTree->Branch("subRunNo", &fSubRun);
   fEventTree->Branch("raw_nChannel", &fRaw_nChannel);  // number of hit channels above threshold
   fEventTree->Branch("raw_channelId" , &fRaw_channelId); // hit channel id; size == raw_nChannel
   fEventTree->Branch("raw_wf", &fRaw_wf, 256000, 0);  // raw waveform adc of each channel
