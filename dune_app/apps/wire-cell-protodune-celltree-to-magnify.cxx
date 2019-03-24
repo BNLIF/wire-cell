@@ -71,14 +71,16 @@ int ChannelMap::channel_to_plane(int chn){
 
 void fill_2dw1d(TH2I* h_orig, TH1F* hwf, int chn){
   // cout << "fill chn= " << chn << endl; 
-  for(int ind=1; ind<=6000; ind++){
+  int nticks = hwf->GetNbinsX();
+  for(int ind=1; ind<=nticks; ind++){
     int rawAdc = hwf->GetBinContent(ind);
     h_orig->SetBinContent(chn+1, ind, rawAdc);
   }
 }
 void fill_2dw1d(TH2F* h_orig, TH1F* hwf, int chn, double baseline, double scale=1){
   // cout << "fill chn= " << chn << endl; 
-  for(int ind=1; ind<=6000; ind++){
+  int nticks = hwf->GetNbinsX();
+  for(int ind=1; ind<=nticks; ind++){
     int rawAdc = hwf->GetBinContent(ind) - baseline;
     h_orig->SetBinContent(chn+1, ind, rawAdc * scale);
   }
@@ -142,7 +144,7 @@ int main(int argc, char* argv[])
   int nchn_u=15360;
   int nchn_v=15360;
   int nchn_w=15360;
-  int total_time_bin=6000;
+  int total_time_bin=15000;
   TH2I* hu_orig = new TH2I("hu_orig","hu_orig",nchn_u,-0.5,nchn_u-0.5,total_time_bin,0,total_time_bin);
   TH2I* hv_orig = new TH2I("hv_orig","hv_orig",nchn_v,-0.5,nchn_v-0.5,total_time_bin,0,total_time_bin);
   TH2I* hw_orig = new TH2I("hw_orig","hw_orig",nchn_w,-0.5,nchn_w-0.5,total_time_bin,0,total_time_bin);
@@ -183,6 +185,9 @@ int main(int argc, char* argv[])
     int chId = raw_channelId->at(ich);
     int planeId = cmap.channel_to_plane(chId);
     TH1F* hwf = (TH1F*)raw_wf->At(ich);
+    cout << "celltree raw waveform nticks: " << hwf->GetNbinsX() << endl;
+    cout << "celltree raw waveform tick 6000: " << hwf->GetBinContent(5999) << endl;
+    cout << "celltree raw waveform tick 15000: " << hwf->GetBinContent(15000) << endl;
     hwf->Fit(fp0,"RQ");
     double baseline = fp0->GetParameter(0);
     if(planeId==0){
