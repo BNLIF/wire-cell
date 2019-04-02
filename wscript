@@ -6,7 +6,6 @@ APPNAME = 'WireCell'
 # the sequence matters
 subdirs = ['nanoflann',
            'quickhull',
-           'paal',
            'data',
            'ress',
            'nav',
