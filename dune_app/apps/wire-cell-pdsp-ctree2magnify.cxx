@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
   int nchn_u=15360;
   int nchn_v=15360;
   int nchn_w=15360;
-  int total_time_bin=15000;
+  int total_time_bin=6000;
   TH2I* hu_orig = new TH2I("hu_orig","hu_orig",nchn_u,-0.5,nchn_u-0.5,total_time_bin,0,total_time_bin);
   TH2I* hv_orig = new TH2I("hv_orig","hv_orig",nchn_v,-0.5,nchn_v-0.5,total_time_bin,0,total_time_bin);
   TH2I* hw_orig = new TH2I("hw_orig","hw_orig",nchn_w,-0.5,nchn_w-0.5,total_time_bin,0,total_time_bin);
