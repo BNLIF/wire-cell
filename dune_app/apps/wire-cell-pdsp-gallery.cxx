@@ -66,7 +66,7 @@ int planeid(int chid){
 int main(int argc, char* argv[])
 {
 
-  if (argc < 2) {
+  if (argc < 3) {
   	cerr << "usage: wire-cell-pdune-chan-qual celltree_file_name.root output.root" << endl;
   	exit (1);
   }
