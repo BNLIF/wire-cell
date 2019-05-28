@@ -51,5 +51,5 @@
 	url = https://github.com/BNLIF/wire-cell-paal.git
 [submodule "3dst"]
 	path = 3dst
-	url = git@github.com:BNLIF/wire-cell-3dst.git
+	url = https://github.com/BNLIF/wire-cell-3dst.git
 	branch = master
