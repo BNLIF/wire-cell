@@ -36,11 +36,15 @@ int main(int argc, char* argv[])
   }
   TH1::AddDirectory(kFALSE);
   
-  int flag_pos_corr = 0; // correct X position after matching ... 
+  int flag_pos_corr = 0; // correct X position after matching ...
+  int flag_data = 1; // data ... 0 for MC
   for(Int_t i = 1; i != argc; i++){
      switch(argv[i][1]){
      case 'c':
        flag_pos_corr = atoi(&argv[i][2]); 
+       break;
+     case 't':
+       flag_data = atoi(&argv[i][2]);
        break;
      }
   }
@@ -238,8 +242,7 @@ int main(int argc, char* argv[])
   WireCell2dToy::ToyFiducial *fid = new WireCell2dToy::ToyFiducial(3,800,-first_u_dis/pitch_u, -first_v_dis/pitch_v, -first_w_dis/pitch_w,
 								   1./time_slice_width, 1./pitch_u, 1./pitch_v, 1./pitch_w, // slope
 								   angle_u,angle_v,angle_w,// angle
-								   3*units::cm);
-  
+								   3*units::cm, 117*units::cm, -116*units::cm, 0*units::cm, 1037*units::cm, 0*units::cm, 256*units::cm, flag_data);
 
   // {
   //   Point test_p(166.691*units::cm,-104.599*units::cm, 248.05*units::cm);
