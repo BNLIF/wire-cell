@@ -730,21 +730,20 @@ int main(int argc, char* argv[])
    }
 
 
-   // do the dQ/dx fitting ... 
-   for (auto it = matched_bundles.begin(); it!= matched_bundles.end(); it++){
-     FlashTPCBundle *bundle = *it;
-     Opflash *flash = bundle->get_flash();
-     PR3DCluster *main_cluster = bundle->get_main_cluster();
+   // // do the dQ/dx fitting ... 
+   // for (auto it = matched_bundles.begin(); it!= matched_bundles.end(); it++){
+   //   FlashTPCBundle *bundle = *it;
+   //   Opflash *flash = bundle->get_flash();
+   //   PR3DCluster *main_cluster = bundle->get_main_cluster();
 
-     if (flash!=0){
-       //
-       //       if (flash->get_time() > 2 && flash->get_time() < 6){
-       std::cout << flash->get_time() << std::endl;
-       main_cluster->dQ_dx_fit(global_wc_map, flash->get_time()*units::microsecond);
-	 // }
-     }
-     
-   }
+   //   if (flash!=0){
+   //     //
+   //     //       if (flash->get_time() > 2 && flash->get_time() < 6){
+   //     std::cout << flash->get_time() << std::endl;
+   //     main_cluster->dQ_dx_fit(global_wc_map, flash->get_time()*units::microsecond);
+   // 	 // }
+   //   }
+   // }
 
 
    
@@ -841,8 +840,10 @@ int main(int argc, char* argv[])
        if (fid->check_tgm(bundle,offset_x, ct_point_cloud,old_new_cluster_map)){
 	 event_type |= 1UL << 3; // 3rd bit for TGM
        }else{
-	 if (fid->check_fully_contained(bundle,offset_x, ct_point_cloud,old_new_cluster_map))
+	 if (fid->check_fully_contained(bundle,offset_x, ct_point_cloud,old_new_cluster_map)){
+	   //	   std::cout << "fully contained " << flash->get_flash_id() << "  " << flash_get_time << std::endl;
 	   event_type |= 1UL << 2; // 2nd bit for fully contained 
+	 }
        }
 
        int temp_flag = fid->check_LM(bundle,cluster_length);
