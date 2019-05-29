@@ -838,8 +838,12 @@ int main(int argc, char* argv[])
        // Note, for BNB, flash time is aroudn 4us
        // time offset happened to be 4us ...
        double offset_x = (flash->get_time() - time_offset)*2./nrebin*time_slice_width;
-       if (fid->check_tgm(bundle,offset_x, ct_point_cloud,old_new_cluster_map))
+       if (fid->check_tgm(bundle,offset_x, ct_point_cloud,old_new_cluster_map)){
 	 event_type |= 1UL << 3; // 3rd bit for TGM
+       }else{
+	 if (fid->check_fully_contained(bundle,offset_x, ct_point_cloud,old_new_cluster_map))
+	   event_type |= 1UL << 2; // 2nd bit for fully contained 
+       }
 
        int temp_flag = fid->check_LM(bundle,cluster_length);
        if (temp_flag==1){
