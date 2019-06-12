@@ -48,6 +48,11 @@ int main(int argc, char* argv[])
        break;
      }
   }
+  bool datatier = false;
+  
+  if (flag_data==0)
+    datatier = true;
+  
   
   
   ExecMon em("starting");
@@ -589,7 +594,7 @@ int main(int argc, char* argv[])
    // processing light information
    //const char* root_file = argv[3];
    //  WireCell2dToy::uBooNE_light_reco uboone_flash(root_file);
-   WireCell2dToy::ToyLightReco uboone_flash(filename, 1); // 1: imagingoutput, "Trun"; default/not specfified: path "Event/Sim"
+   WireCell2dToy::ToyLightReco uboone_flash(filename, 1, datatier); // 1: imagingoutput, "Trun"; default/not specfified: path "Event/Sim"
    uboone_flash.load_event_raw(0);
    cout << em("flash reconstruction") << std::endl;
 
