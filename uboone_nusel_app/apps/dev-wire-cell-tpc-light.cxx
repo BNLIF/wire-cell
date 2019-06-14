@@ -31,24 +31,26 @@ using namespace std;
 int main(int argc, char* argv[])
 {
   if (argc < 3) {
-    cerr << "usage: wire-cell-uboone /path/to/ChannelWireGeometry.txt /path/to/imaging.root" << endl;
+    cerr << "usage: wire-cell-uboone /path/to/ChannelWireGeometry.txt /path/to/imaging.root -d[0,1,2]" << endl;
     return 1;
   }
   TH1::AddDirectory(kFALSE);
   
   int flag_pos_corr = 0; // correct X position after matching ...
-  int flag_data = 1; // data, 0 for MC
+  int datatier = 0; // data=0, overlay=1, full mc=2
   for(Int_t i = 1; i != argc; i++){
      switch(argv[i][1]){
      case 'c':
        flag_pos_corr = atoi(&argv[i][2]); 
        break;
-     case 't':
-       flag_data = atoi(&argv[i][2]);
+     case 'd':
+       datatier = atoi(&argv[i][2]);
        break;
      }
   }
-  
+
+  int flag_data = 1; // data
+  if(datatier==1 || datatier==2) flag_data=0; // overlay, full mc
   
   ExecMon em("starting");
   cout << em("load geometry") << endl;
@@ -587,9 +589,11 @@ int main(int argc, char* argv[])
   
    
    // processing light information
-   //const char* root_file = argv[3];
-   //  WireCell2dToy::uBooNE_light_reco uboone_flash(root_file);
-   WireCell2dToy::ToyLightReco uboone_flash(filename, 1); // 1: imagingoutput, "Trun"; default/not specfified: path "Event/Sim"
+   bool use_overlayinput = false;
+   if(datatier==1) use_overlayinput = true;
+   bool use_remap_channel = false;
+   if(datatier==2) use_remap_channel = true;
+   WireCell2dToy::ToyLightReco uboone_flash(filename,true,use_overlayinput,use_remap_channel); 
    uboone_flash.load_event_raw(0);
    cout << em("flash reconstruction") << std::endl;
 

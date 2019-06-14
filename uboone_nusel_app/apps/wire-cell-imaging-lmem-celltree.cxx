@@ -123,7 +123,7 @@ bool flashFilter(const char* file, int eve_num, unsigned int triggerbits)
 int main(int argc, char* argv[])
 {
   if (argc < 3) {
-    cerr << "usage: wire-cell-uboone /path/to/ChannelWireGeometry.txt /path/to/celltree.root -t[0,1] -s[0,1,2] -f[0,1]" << endl;
+    cerr << "usage: wire-cell-uboone /path/to/ChannelWireGeometry.txt /path/to/celltree.root -t[0,1] -s[0,1,2] -f[0,1] -d[0,1,2]" << endl;
     return 1;
   }
 
@@ -142,16 +142,21 @@ int main(int argc, char* argv[])
   // 2 for
   int flag_l1 = 0; // do not run l1sp code ... 
   int flag_badtree = 1;
+
+  int datatier = 0; // data=0, overlay=1, full mc=2
   
   for(Int_t i = 3; i != argc; i++){
      switch(argv[i][1]){
+     case 'd':
+       datatier = atoi(&argv[i][2]);
+       break;
      case 't':
        two_plane = atoi(&argv[i][2]); 
        break;
      case 's':
        save_file = atoi(&argv[i][2]); 
        break;
-     case 'd':
+     case 'c':
        solve_charge = atoi(&argv[i][2]); 
        break;
        //     case 'a':
@@ -883,25 +888,32 @@ if(beamspill || beam==-1){
   T->SetBranchStatus("*",0);
   T->SetBranchStatus("cosmic_hg_wf",1);
   T->SetBranchStatus("cosmic_lg_wf",1);
-  T->SetBranchStatus("beam_hg_wf",1);
-  T->SetBranchStatus("beam_lg_wf",1);
   T->SetBranchStatus("cosmic_hg_opch",1);
   T->SetBranchStatus("cosmic_lg_opch",1);
-  T->SetBranchStatus("beam_hg_opch",1);
-  T->SetBranchStatus("beam_lg_opch",1);
   T->SetBranchStatus("cosmic_hg_timestamp",1);
   T->SetBranchStatus("cosmic_lg_timestamp",1);
-  T->SetBranchStatus("beam_hg_timestamp",1);
-  T->SetBranchStatus("beam_lg_timestamp",1);
   T->SetBranchStatus("op_gain",1);
   T->SetBranchStatus("op_gainerror",1);
   T->SetBranchStatus("PHMAX",1);
   T->SetBranchStatus("multiplicity",1);
 
-
-
-
-
+  if(datatier==0 || datatier==2){
+    T->SetBranchStatus("beam_hg_wf",1);
+    T->SetBranchStatus("beam_lg_wf",1);
+    T->SetBranchStatus("beam_hg_opch",1);
+    T->SetBranchStatus("beam_lg_opch",1);
+    T->SetBranchStatus("beam_hg_timestamp",1);
+    T->SetBranchStatus("beam_lg_timestamp",1);
+  }
+  else{
+    T->SetBranchStatus("mixer_beam_hg_wf",1);
+    T->SetBranchStatus("mixer_beam_lg_wf",1);
+    T->SetBranchStatus("mixer_beam_hg_opch",1);
+    T->SetBranchStatus("mixer_beam_lg_opch",1);
+    T->SetBranchStatus("mixer_beam_hg_timestamp",1);
+    T->SetBranchStatus("mixer_beam_lg_timestamp",1);
+  }
+  
   //TTree *Trun = new TTree("Trun","Trun");
   TTree *Trun = T->CloneTree(0);
   Trun->SetTitle("Trun");
