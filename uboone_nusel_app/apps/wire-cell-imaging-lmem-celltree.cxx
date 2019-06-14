@@ -905,7 +905,7 @@ if(beamspill || beam==-1){
     T->SetBranchStatus("beam_hg_timestamp",1);
     T->SetBranchStatus("beam_lg_timestamp",1);
   }
-  else{
+  else{ // overlay
     T->SetBranchStatus("mixer_beam_hg_wf",1);
     T->SetBranchStatus("mixer_beam_lg_wf",1);
     T->SetBranchStatus("mixer_beam_hg_opch",1);
@@ -913,6 +913,62 @@ if(beamspill || beam==-1){
     T->SetBranchStatus("mixer_beam_hg_timestamp",1);
     T->SetBranchStatus("mixer_beam_lg_timestamp",1);
   }
+  if(datatier==1 || datatier==2){
+    T->SetBranchStatus("savedMCTrackIdMap",1);
+    T->SetBranchStatus("mc_id",1);
+    T->SetBranchStatus("mc_pdg",1);
+    T->SetBranchStatus("mc_process",1);
+    T->SetBranchStatus("mc_mother",1);
+    T->SetBranchStatus("mc_daughters",1);
+    T->SetBranchStatus("mc_startXYZT",1);
+    T->SetBranchStatus("mc_endXYZT",1);
+    T->SetBranchStatus("mc_startMomentum",1);
+    T->SetBranchStatus("mc_endMomentum",1);
+    T->SetBranchStatus("mc_trackPosition",1);
+    T->SetBranchStatus("mc_isnu",1);
+    T->SetBranchStatus("mc_nGeniePrimaries",1);
+    T->SetBranchStatus("mc_nu_pdg",1);
+    T->SetBranchStatus("mc_nu_ccnc",1);
+    T->SetBranchStatus("mc_nu_mode",1);
+    T->SetBranchStatus("mc_nu_intType",1);
+    T->SetBranchStatus("mc_nu_target",1);
+    T->SetBranchStatus("mc_hitnuc",1);
+    T->SetBranchStatus("mc_nu_Q2",1);
+    T->SetBranchStatus("mc_nu_W",1);
+    T->SetBranchStatus("mc_nu_X",1);
+    T->SetBranchStatus("mc_nu_Y",1);
+    T->SetBranchStatus("mc_nu_Pt",1);
+    T->SetBranchStatus("mc_nu_Theta",1);
+    T->SetBranchStatus("mc_nu_pos",1);
+    T->SetBranchStatus("mc_nu_mom",1);
+    T->SetBranchStatus("sedi_nelectrons",1);
+    T->SetBranchStatus("sedi_nphotons",1);
+    T->SetBranchStatus("sedi_time_start",1);
+    T->SetBranchStatus("sedi_time_end",1);
+    T->SetBranchStatus("sedi_x_start",1);
+    T->SetBranchStatus("sedi_x_end",1);
+    T->SetBranchStatus("sedi_y_start",1);
+    T->SetBranchStatus("sedi_y_end",1);
+    T->SetBranchStatus("sedi_z_start",1);
+    T->SetBranchStatus("sedi_z_end",1);
+    T->SetBranchStatus("sedi_pdg",1);
+    T->SetBranchStatus("sedi_trackId",1);
+    T->SetBranchStatus("sedi_energy",1);
+    T->SetBranchStatus("sedo_nelectrons",1);
+    T->SetBranchStatus("sedo_nphotons",1);
+    T->SetBranchStatus("sedo_time_start",1);
+    T->SetBranchStatus("sedo_time_end",1);
+    T->SetBranchStatus("sedo_x_start",1);
+    T->SetBranchStatus("sedo_x_end",1);
+    T->SetBranchStatus("sedo_y_start",1);
+    T->SetBranchStatus("sedo_y_end",1);
+    T->SetBranchStatus("sedo_z_start",1);
+    T->SetBranchStatus("sedo_z_end",1);
+    T->SetBranchStatus("sedo_pdg",1);
+    T->SetBranchStatus("sedo_trackId",1);
+    T->SetBranchStatus("sedo_energy",1);
+  }
+
   
   //TTree *Trun = new TTree("Trun","Trun");
   TTree *Trun = T->CloneTree(0);
