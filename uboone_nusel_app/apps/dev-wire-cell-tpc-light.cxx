@@ -592,7 +592,7 @@ int main(int argc, char* argv[])
    bool use_overlayinput = false;
    if(datatier==1) use_overlayinput = true;
    bool use_remap_channel = false;
-   if(datatier==2) use_remap_channel = true;
+   if(datatier==0) use_remap_channel = true;
    WireCell2dToy::ToyLightReco uboone_flash(filename,true,use_overlayinput,use_remap_channel); 
 
    uboone_flash.load_event_raw(0);

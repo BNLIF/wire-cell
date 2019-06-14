@@ -277,25 +277,27 @@ int main(int argc, char* argv[])
   T->SetBranchAddress("badBegin",&badBegin);
   T->SetBranchAddress("badEnd",&badEnd);
 
-  Short_t nf_shift, nf_scale;
-  T->SetBranchAddress("nf_shift",&nf_shift);
-  T->SetBranchAddress("nf_scale",&nf_scale);
+  // legacy - corresponding to December 2017 celltree version (outdated)
+  // along with nf_wf & nf_channelId
+  //Short_t nf_shift=0, nf_scale=0; 
+  //T->SetBranchAddress("nf_shift",&nf_shift);
+  //T->SetBranchAddress("nf_scale",&nf_scale);
   
   std::vector<double> *channelThreshold = new std::vector<double>;
   T->SetBranchAddress("channelThreshold",&channelThreshold);
   std::vector<int> *calibGaussian_channelId = new std::vector<int>;
   std::vector<int> *calibWiener_channelId = new std::vector<int>;
-  std::vector<int> *nf_channelId = new std::vector<int>;
+  //std::vector<int> *nf_channelId = new std::vector<int>;
   T->SetBranchAddress("calibGaussian_channelId",&calibGaussian_channelId);
   T->SetBranchAddress("calibWiener_channelId",&calibWiener_channelId);
-  T->SetBranchAddress("nf_channelId",&nf_channelId);
+  //T->SetBranchAddress("nf_channelId",&nf_channelId);
   TClonesArray* calibWiener_wf = new TClonesArray;
   TClonesArray* calibGaussian_wf = new TClonesArray;
-  TClonesArray* nf_wf = new TClonesArray;
+  //TClonesArray* nf_wf = new TClonesArray;
   // TH1F  ... 
   T->SetBranchAddress("calibWiener_wf",&calibWiener_wf);
   T->SetBranchAddress("calibGaussian_wf",&calibGaussian_wf);
-  T->SetBranchAddress("nf_wf",&nf_wf);
+  //T->SetBranchAddress("nf_wf",&nf_wf);
   // a "special" branch for light info 
   double triggerTime; // two Branches using same name triggerTime  
   T->SetBranchAddress("triggerTime",&triggerTime);
@@ -459,18 +461,20 @@ if(beamspill || beam==-1){
     }
   
     //
-    
+    /*    
     for (size_t i=0;i!=nf_channelId->size();i++){
       int chid = nf_channelId->at(i);
       TH1S *htemp = (TH1S*)nf_wf->At(i);
       if (chid < nwire_u){
       }else if (chid < nwire_v+nwire_u){
 	for (size_t j=0;j!=nwindow_size*nrebin;j++){
-	  hv_raw->SetBinContent(chid-nwire_u+1,j+1,(htemp->GetBinContent(j+1)+nf_shift)*1.0/nf_scale);
+	  //hv_raw->SetBinContent(chid-nwire_u+1,j+1,(htemp->GetBinContent(j+1)+nf_shift)*1.0/nf_scale);
+	  hv_raw->SetBinContent(chid-nwire_u+1,j+1,htemp->GetBinContent(j+1));
 	}
       }else if (chid < nwire_w+nwire_v+nwire_u){
       }
     }
+    */
     
     // V wire noisy channels 10 vetoed ...
     for (int i=3684;i!=3699;i++){
@@ -824,7 +828,7 @@ if(beamspill || beam==-1){
 
   calibWiener_wf->Clear("C");
   calibGaussian_wf->Clear("C");
-  nf_wf->Clear("C"); 
+  //nf_wf->Clear("C"); 
 
   if (flag_l1)
     cout << em("finish L1SP and retiling") << endl;
