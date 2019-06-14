@@ -594,6 +594,7 @@ int main(int argc, char* argv[])
    bool use_remap_channel = false;
    if(datatier==2) use_remap_channel = true;
    WireCell2dToy::ToyLightReco uboone_flash(filename,true,use_overlayinput,use_remap_channel); 
+
    uboone_flash.load_event_raw(0);
    cout << em("flash reconstruction") << std::endl;
 
@@ -1353,12 +1354,13 @@ int main(int argc, char* argv[])
   std::vector<std::vector<int>> *proj_cluster_timeslice= new std::vector<std::vector<int>>;
   std::vector<std::vector<int>> *proj_cluster_charge= new std::vector<std::vector<int>>;
   std::vector<std::vector<int>> *proj_cluster_charge_err= new std::vector<std::vector<int>>;
+  std::vector<std::vector<int>> *proj_cluster_main_flag = new std::vector<std::vector<int>>;
   T_proj->Branch("cluster_id",&proj_cluster_id);
   T_proj->Branch("channel",&proj_cluster_channel);
   T_proj->Branch("time_slice",&proj_cluster_timeslice);
   T_proj->Branch("charge",&proj_cluster_charge);
   T_proj->Branch("charge_err",&proj_cluster_charge_err);
-  
+  T_proj->Branch("flag_main",&proj_cluster_main_flag);
   T_proj->SetDirectory(file1);
   
   for (auto it = matched_bundles.begin(); it!= matched_bundles.end(); it++){
@@ -1383,17 +1385,25 @@ int main(int argc, char* argv[])
     std::vector<int> proj_charge;
     std::vector<int> proj_charge_err;
     std::vector<int> proj_flag;
-    
+    std::vector<int> proj_flag_main;
+    int size_main = 0;
     for (size_t j = 0; j!= temp_clusters.size(); j++){
       PR3DCluster *cluster = temp_clusters.at(j);
       cluster->get_projection(proj_channel,proj_timeslice,proj_charge, proj_charge_err, proj_flag, global_wc_map);
+      if (j==0)
+	size_main = proj_channel.size();
     }
+    proj_flag_main.resize(proj_channel.size(),0);
+    for (size_t i=0;i!=size_main;i++){
+      proj_flag_main.at(i)=1;
+    }
+    
     proj_cluster_id->push_back(cluster_id);
     proj_cluster_channel->push_back(proj_channel);
     proj_cluster_timeslice->push_back(proj_timeslice);
     proj_cluster_charge->push_back(proj_charge);
     proj_cluster_charge_err->push_back(proj_charge_err);
-    
+    proj_cluster_main_flag->push_back(proj_flag_main);
       // }
   }
   T_proj->Fill();
