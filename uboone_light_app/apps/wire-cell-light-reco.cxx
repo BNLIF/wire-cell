@@ -12,10 +12,24 @@ using namespace std;
 int main(int argc, char* argv[])
 {
   if (argc < 4) {
-    cerr << "usage: wire-cell-uboone /path/to/ChannelWireGeometry.txt /path/to/celltree.root eve_num " << endl;
+    cerr << "usage: wire-cell-uboone /path/to/ChannelWireGeometry.txt /path/to/celltree.root eve_num -i[0,1] -d[0,1,2]" << endl;
     return 1;
   }
   TH1::AddDirectory(kFALSE);
+
+  int imagingoutput = 0;
+  int datatier = 0; // data=0, overlay=1, full mc=2
+  for(Int_t i=4; i!=argc; i++){
+    switch(argv[i][1]){
+    case 'i':
+      imagingoutput = atoi(&argv[i][2]);
+      break;
+    case 'd':
+      datatier = atoi(&argv[i][2]);
+      break;
+    }
+  }
+
   WireCellSst::GeomDataSource gds(argv[1]);
   std::vector<double> ex = gds.extent();
   cerr << "Extent: "
@@ -35,9 +49,14 @@ int main(int argc, char* argv[])
 
   const char* root_file = argv[2];
   int eve_num = atoi(argv[3]);
-//  WireCell2dToy::ToyLightReco uboone_flash(root_file);
-  WireCell2dToy::ToyLightReco uboone_flash(root_file, false, true);
-  //WireCell2dToy::ToyLightReco uboone_flash(root_file, true, false);
+
+  bool use_imagingoutput = false;
+  if(imagingoutput==1) use_imagingoutput = true;
+  bool use_overlayinput = false;
+  if(datatier==1) use_overlayinput = true;
+  bool use_remap_channel = false;
+  if(datatier==2) use_remap_channel = true;
+  WireCell2dToy::ToyLightReco uboone_flash(root_file,use_imagingoutput,use_overlayinput,use_remap_channel);
 
   uboone_flash.load_event_raw(eve_num);
   TFile *file1 = new TFile(root_file);

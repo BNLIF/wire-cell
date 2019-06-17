@@ -123,7 +123,7 @@ bool flashFilter(const char* file, int eve_num, unsigned int triggerbits)
 int main(int argc, char* argv[])
 {
   if (argc < 3) {
-    cerr << "usage: wire-cell-uboone /path/to/ChannelWireGeometry.txt /path/to/celltree.root -t[0,1] -s[0,1,2] -f[0,1]" << endl;
+    cerr << "usage: wire-cell-uboone /path/to/ChannelWireGeometry.txt /path/to/celltree.root -t[0,1] -s[0,1,2] -f[0,1] -d[0,1,2]" << endl;
     return 1;
   }
 
@@ -142,16 +142,22 @@ int main(int argc, char* argv[])
   // 2 for
   int flag_l1 = 0; // do not run l1sp code ... 
   int flag_badtree = 1;
+
+  int datatier = 0; // data=0, overlay=1, full mc=2
   
+  int shortedU_correction = 1; // charge correction 1./0.8 for shortedU region
   for(Int_t i = 3; i != argc; i++){
      switch(argv[i][1]){
+     case 'd':
+       datatier = atoi(&argv[i][2]);
+       break;
      case 't':
        two_plane = atoi(&argv[i][2]); 
        break;
      case 's':
        save_file = atoi(&argv[i][2]); 
        break;
-     case 'd':
+     case 'c':
        solve_charge = atoi(&argv[i][2]); 
        break;
        //     case 'a':
@@ -171,6 +177,9 @@ int main(int argc, char* argv[])
        break;
      case 'b':
        flag_badtree = atoi(&argv[i][2]);
+       break;
+     case 'u':
+       shortedU_correction = atoi(&argv[i][2]);
        break;
      }
   }
@@ -272,25 +281,27 @@ int main(int argc, char* argv[])
   T->SetBranchAddress("badBegin",&badBegin);
   T->SetBranchAddress("badEnd",&badEnd);
 
-  Short_t nf_shift, nf_scale;
-  T->SetBranchAddress("nf_shift",&nf_shift);
-  T->SetBranchAddress("nf_scale",&nf_scale);
+  // legacy - corresponding to December 2017 celltree version (outdated)
+  // along with nf_wf & nf_channelId
+  //Short_t nf_shift=0, nf_scale=0; 
+  //T->SetBranchAddress("nf_shift",&nf_shift);
+  //T->SetBranchAddress("nf_scale",&nf_scale);
   
   std::vector<double> *channelThreshold = new std::vector<double>;
   T->SetBranchAddress("channelThreshold",&channelThreshold);
   std::vector<int> *calibGaussian_channelId = new std::vector<int>;
   std::vector<int> *calibWiener_channelId = new std::vector<int>;
-  std::vector<int> *nf_channelId = new std::vector<int>;
+  //std::vector<int> *nf_channelId = new std::vector<int>;
   T->SetBranchAddress("calibGaussian_channelId",&calibGaussian_channelId);
   T->SetBranchAddress("calibWiener_channelId",&calibWiener_channelId);
-  T->SetBranchAddress("nf_channelId",&nf_channelId);
+  //T->SetBranchAddress("nf_channelId",&nf_channelId);
   TClonesArray* calibWiener_wf = new TClonesArray;
   TClonesArray* calibGaussian_wf = new TClonesArray;
-  TClonesArray* nf_wf = new TClonesArray;
+  //TClonesArray* nf_wf = new TClonesArray;
   // TH1F  ... 
   T->SetBranchAddress("calibWiener_wf",&calibWiener_wf);
   T->SetBranchAddress("calibGaussian_wf",&calibGaussian_wf);
-  T->SetBranchAddress("nf_wf",&nf_wf);
+  //T->SetBranchAddress("nf_wf",&nf_wf);
   // a "special" branch for light info 
   double triggerTime; // two Branches using same name triggerTime  
   T->SetBranchAddress("triggerTime",&triggerTime);
@@ -454,19 +465,20 @@ if(beamspill || beam==-1){
     }
   
     //
-    
+    /*
     for (size_t i=0;i!=nf_channelId->size();i++){
       int chid = nf_channelId->at(i);
       TH1S *htemp = (TH1S*)nf_wf->At(i);
       if (chid < nwire_u){
       }else if (chid < nwire_v+nwire_u){
 	for (size_t j=0;j!=nwindow_size*nrebin;j++){
-	  hv_raw->SetBinContent(chid-nwire_u+1,j+1,(htemp->GetBinContent(j+1)+nf_shift)*1.0/nf_scale);
+	  //hv_raw->SetBinContent(chid-nwire_u+1,j+1,(htemp->GetBinContent(j+1)+nf_shift)*1.0/nf_scale);
+	  hv_raw->SetBinContent(chid-nwire_u+1,j+1,htemp->GetBinContent(j+1));
 	}
       }else if (chid < nwire_w+nwire_v+nwire_u){
       }
     }
-    
+    */
     // V wire noisy channels 10 vetoed ...
     for (int i=3684;i!=3699;i++){
       if (vplane_map.find(i-2400)==vplane_map.end()){
@@ -819,7 +831,7 @@ if(beamspill || beam==-1){
 
   calibWiener_wf->Clear("C");
   calibGaussian_wf->Clear("C");
-  nf_wf->Clear("C"); 
+  //nf_wf->Clear("C"); 
 
   if (flag_l1)
     cout << em("finish L1SP and retiling") << endl;
@@ -883,23 +895,86 @@ if(beamspill || beam==-1){
   T->SetBranchStatus("*",0);
   T->SetBranchStatus("cosmic_hg_wf",1);
   T->SetBranchStatus("cosmic_lg_wf",1);
-  T->SetBranchStatus("beam_hg_wf",1);
-  T->SetBranchStatus("beam_lg_wf",1);
   T->SetBranchStatus("cosmic_hg_opch",1);
   T->SetBranchStatus("cosmic_lg_opch",1);
-  T->SetBranchStatus("beam_hg_opch",1);
-  T->SetBranchStatus("beam_lg_opch",1);
   T->SetBranchStatus("cosmic_hg_timestamp",1);
   T->SetBranchStatus("cosmic_lg_timestamp",1);
-  T->SetBranchStatus("beam_hg_timestamp",1);
-  T->SetBranchStatus("beam_lg_timestamp",1);
   T->SetBranchStatus("op_gain",1);
   T->SetBranchStatus("op_gainerror",1);
   T->SetBranchStatus("PHMAX",1);
   T->SetBranchStatus("multiplicity",1);
 
-
-
+  if(datatier==0 || datatier==2){
+    T->SetBranchStatus("beam_hg_wf",1);
+    T->SetBranchStatus("beam_lg_wf",1);
+    T->SetBranchStatus("beam_hg_opch",1);
+    T->SetBranchStatus("beam_lg_opch",1);
+    T->SetBranchStatus("beam_hg_timestamp",1);
+    T->SetBranchStatus("beam_lg_timestamp",1);
+  }
+  else{ // overlay
+    T->SetBranchStatus("mixer_beam_hg_wf",1);
+    T->SetBranchStatus("mixer_beam_lg_wf",1);
+    T->SetBranchStatus("mixer_beam_hg_opch",1);
+    T->SetBranchStatus("mixer_beam_lg_opch",1);
+    T->SetBranchStatus("mixer_beam_hg_timestamp",1);
+    T->SetBranchStatus("mixer_beam_lg_timestamp",1);
+  }
+  if(datatier==1 || datatier==2){
+    T->SetBranchStatus("savedMCTrackIdMap",1);
+    T->SetBranchStatus("mc_id",1);
+    T->SetBranchStatus("mc_pdg",1);
+    T->SetBranchStatus("mc_process",1);
+    T->SetBranchStatus("mc_mother",1);
+    T->SetBranchStatus("mc_daughters",1);
+    T->SetBranchStatus("mc_startXYZT",1);
+    T->SetBranchStatus("mc_endXYZT",1);
+    T->SetBranchStatus("mc_startMomentum",1);
+    T->SetBranchStatus("mc_endMomentum",1);
+    T->SetBranchStatus("mc_trackPosition",1);
+    T->SetBranchStatus("mc_isnu",1);
+    T->SetBranchStatus("mc_nGeniePrimaries",1);
+    T->SetBranchStatus("mc_nu_pdg",1);
+    T->SetBranchStatus("mc_nu_ccnc",1);
+    T->SetBranchStatus("mc_nu_mode",1);
+    T->SetBranchStatus("mc_nu_intType",1);
+    T->SetBranchStatus("mc_nu_target",1);
+    T->SetBranchStatus("mc_hitnuc",1);
+    T->SetBranchStatus("mc_nu_Q2",1);
+    T->SetBranchStatus("mc_nu_W",1);
+    T->SetBranchStatus("mc_nu_X",1);
+    T->SetBranchStatus("mc_nu_Y",1);
+    T->SetBranchStatus("mc_nu_Pt",1);
+    T->SetBranchStatus("mc_nu_Theta",1);
+    T->SetBranchStatus("mc_nu_pos",1);
+    T->SetBranchStatus("mc_nu_mom",1);
+    T->SetBranchStatus("sedi_nelectrons",1);
+    T->SetBranchStatus("sedi_nphotons",1);
+    T->SetBranchStatus("sedi_time_start",1);
+    T->SetBranchStatus("sedi_time_end",1);
+    T->SetBranchStatus("sedi_x_start",1);
+    T->SetBranchStatus("sedi_x_end",1);
+    T->SetBranchStatus("sedi_y_start",1);
+    T->SetBranchStatus("sedi_y_end",1);
+    T->SetBranchStatus("sedi_z_start",1);
+    T->SetBranchStatus("sedi_z_end",1);
+    T->SetBranchStatus("sedi_pdg",1);
+    T->SetBranchStatus("sedi_trackId",1);
+    T->SetBranchStatus("sedi_energy",1);
+    T->SetBranchStatus("sedo_nelectrons",1);
+    T->SetBranchStatus("sedo_nphotons",1);
+    T->SetBranchStatus("sedo_time_start",1);
+    T->SetBranchStatus("sedo_time_end",1);
+    T->SetBranchStatus("sedo_x_start",1);
+    T->SetBranchStatus("sedo_x_end",1);
+    T->SetBranchStatus("sedo_y_start",1);
+    T->SetBranchStatus("sedo_y_end",1);
+    T->SetBranchStatus("sedo_z_start",1);
+    T->SetBranchStatus("sedo_z_end",1);
+    T->SetBranchStatus("sedo_pdg",1);
+    T->SetBranchStatus("sedo_trackId",1);
+    T->SetBranchStatus("sedo_energy",1);
+  }
 
 
   //TTree *Trun = new TTree("Trun","Trun");
@@ -3783,21 +3858,41 @@ if (no_dead_channel==1){
 	SlimMergeGeomCell *mcell = (SlimMergeGeomCell*)((*it)->get_allcell().at(i));
 	int time_slice_temp = mcell->GetTimeSlice();
     time_slice->push_back(time_slice_temp);
-	q->push_back(chargesolver[time_slice_temp]->get_mcell_charge(mcell));
-	
+
+    // shorted-U region charge correction 1./0.8
+    double correction = 1.0;
+    if(shortedU_correction) {
+        //std::cout<< "!!!do charge correction for shorted u region!!!\n";
+        mcell->OrderWires();
+        GeomWireSelection& uwires = mcell->get_uwires();
+        int center_u = 0.5*(uwires.front()->index()+uwires.back()->index());
+        //std::cout<< "u wire: " << center_u << std::endl;
+        if ((center_u >=296 && center_u <=327) ||
+                (center_u >=336 && center_u <=337) ||
+                (center_u >=343 && center_u <=351) ||
+                (center_u >=376 && center_u <=400) ||
+                (center_u >=410 && center_u <=484) ||
+                (center_u >=501 && center_u <=524) ||
+                (center_u >=536 && center_u <=671)) {
+            correction = 1./0.8;
+        }
+    }
+
+	q->push_back(correction*chargesolver[time_slice_temp]->get_mcell_charge(mcell));
+
 	GeomCellMap cell_wires_map = lowmemtiling[time_slice_temp]->get_cell_wires_map();
 	WireCell::WireChargeMap& wire_charge = lowmemtiling[time_slice_temp]->get_wire_charge_map();
 	WireCell::WireChargeMap& wire_charge_error = lowmemtiling[time_slice_temp]->get_wire_charge_error_map();
 	for (auto it1 = cell_wires_map[mcell].begin(); it1!= cell_wires_map[mcell].end(); it1++){
 	  MergeGeomWire *mwire = (MergeGeomWire*)(*it1);
 	  if (mwire->get_allwire().front()->iplane()==0){
-	    uq->push_back(wire_charge[mwire]);
+	    uq->push_back(correction*wire_charge[mwire]);
 	    udq->push_back(wire_charge_error[mwire]);
 	  }else if(mwire->get_allwire().front()->iplane()==1){
-	    vq->push_back(wire_charge[mwire]);
+	    vq->push_back(correction*wire_charge[mwire]);
 	    vdq->push_back(wire_charge_error[mwire]);
 	  }else if(mwire->get_allwire().front()->iplane()==2){
-	    wq->push_back(wire_charge[mwire]);
+	    wq->push_back(correction*wire_charge[mwire]);
 	    wdq->push_back(wire_charge_error[mwire]);
 	  }
 	}
