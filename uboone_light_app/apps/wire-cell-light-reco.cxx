@@ -3,6 +3,7 @@
 #include "TH1F.h"
 #include "TH2F.h"
 
+#include <TLeaf.h>
 #include <iostream>
 
 using namespace WireCell;
@@ -15,7 +16,6 @@ int main(int argc, char* argv[])
     return 1;
   }
   TH1::AddDirectory(kFALSE);
-
   WireCellSst::GeomDataSource gds(argv[1]);
   std::vector<double> ex = gds.extent();
   cerr << "Extent: "
@@ -35,14 +35,14 @@ int main(int argc, char* argv[])
 
   const char* root_file = argv[2];
   int eve_num = atoi(argv[3]);
-
-  WireCell2dToy::ToyLightReco uboone_flash(root_file);
+//  WireCell2dToy::ToyLightReco uboone_flash(root_file);
+  WireCell2dToy::ToyLightReco uboone_flash(root_file, false, true);
+  //WireCell2dToy::ToyLightReco uboone_flash(root_file, true, false);
 
   uboone_flash.load_event_raw(eve_num);
-
   TFile *file1 = new TFile(root_file);
   TTree *T = (TTree*)file1->Get("/Event/Sim");
-  
+  //TTree *T = (TTree*)file1->Get("/Trun");
   TClonesArray* cosmic_hg_wf = new TClonesArray;
   TClonesArray* cosmic_lg_wf = new TClonesArray;
   TClonesArray* beam_hg_wf = new TClonesArray;
@@ -58,7 +58,8 @@ int main(int argc, char* argv[])
   std::vector<float> *op_gain = new std::vector<float>;
   std::vector<float> *op_gainerror = new std::vector<float>; 
   double triggerTime;
-  
+  //Added for mc
+  //float startT;
   TClonesArray* op_wf = new TClonesArray("TH1S");
   std::vector<short> *op_femch = new std::vector<short>;
   std::vector<double> *op_timestamp = new std::vector<double>;
@@ -85,20 +86,17 @@ int main(int argc, char* argv[])
   T->SetBranchAddress("runNo"   , &run_no);
   T->SetBranchStatus("subRunNo",1);
   T->SetBranchAddress("subRunNo", &subrun_no);
-  
   T->GetEntry(eve_num);
 
   TFile *file = new TFile(Form("flash_%d_%d_%d.root",run_no, subrun_no, event_no),"RECREATE");
   TTree *t1 = new TTree("T_data","T_data");
   t1->SetDirectory(file);
-
   t1->Branch("op_gain",&op_gain);
   t1->Branch("op_gainerror",&op_gainerror);
   t1->Branch("op_femch",&op_femch);
   t1->Branch("op_timestamp",&op_timestamp);
   t1->Branch("op_wf",&op_wf,256000,0);
   t1->Branch("triggerTime",&triggerTime);
-  
   t1->Branch("runNo",&run_no);
   t1->Branch("subRunNo",&subrun_no);
   t1->Branch("eventNo",&event_no);
@@ -149,6 +147,7 @@ int main(int argc, char* argv[])
   std::vector<double> l1_fired_time;
   std::vector<double> l1_fired_pe;
 
+
   T_flash->Branch("type",&type);
   T_flash->Branch("low_time",&low_time);
   T_flash->Branch("high_time",&high_time);
@@ -159,6 +158,11 @@ int main(int argc, char* argv[])
   T_flash->Branch("fired_channels",&fired_channels);
   T_flash->Branch("l1_fired_time",&l1_fired_time);
   T_flash->Branch("l1_fired_pe",&l1_fired_pe);
+  //I don't know how to set start_T better than this
+  //startT = T->FindBranch("mc_nu_pos")->GetLeaf("mc_nu_pos")->GetValue(3);
+  //T_flash->Branch("startT",&startT);
+  //startT = T->FindBranch("mc_startXYZT")->GetLeaf("mc_startXYZT")->GetValue(7);
+  //T_flash->Branch("startT",&startT);
 
   WireCell::OpflashSelection& flashes = uboone_flash.get_flashes();
 
