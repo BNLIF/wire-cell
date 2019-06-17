@@ -874,9 +874,9 @@ int main(int argc, char* argv[])
            match_isFC = true; 
        }
        else {
-           unsigned int match_notFC_FV = (fc_breakdown>>2) & 1U; // outside fiducial volume
-           unsigned int match_notFC_SP = (fc_breakdown>>1) & 1U; // SP gaps
-           unsigned int match_notFC_DC = (fc_breakdown) & 1U; // dead regions
+           match_notFC_FV = (fc_breakdown>>2) & 1U; // outside fiducial volume
+           match_notFC_SP = (fc_breakdown>>1) & 1U; // SP gaps
+           match_notFC_DC = (fc_breakdown) & 1U; // dead regions
        }
        is_inTime=false;
      }
