@@ -150,9 +150,11 @@ int main(int argc, char* argv[])
   T->SetBranchAddress("badEnd",&badEnd);
 
   Short_t nf_shift, nf_scale;
-  T->SetBranchAddress("nf_shift",&nf_shift);
-  T->SetBranchAddress("nf_scale",&nf_scale);
-  
+  //T->SetBranchAddress("nf_shift",&nf_shift);
+  //T->SetBranchAddress("nf_scale",&nf_scale);
+  nf_shift=0;
+  nf_scale=1;
+
   std::vector<double> *channelThreshold = new std::vector<double>;
   T->SetBranchAddress("channelThreshold",&channelThreshold);
   std::vector<int> *calibGaussian_channelId = new std::vector<int>;
@@ -160,14 +162,14 @@ int main(int argc, char* argv[])
   std::vector<int> *nf_channelId = new std::vector<int>;
   T->SetBranchAddress("calibGaussian_channelId",&calibGaussian_channelId);
   T->SetBranchAddress("calibWiener_channelId",&calibWiener_channelId);
-  T->SetBranchAddress("nf_channelId",&nf_channelId);
+  T->SetBranchAddress("raw_channelId",&nf_channelId);
   TClonesArray* calibWiener_wf = new TClonesArray;
   TClonesArray* calibGaussian_wf = new TClonesArray;
   TClonesArray* nf_wf = new TClonesArray;
   // TH1F  ... 
   T->SetBranchAddress("calibWiener_wf",&calibWiener_wf);
   T->SetBranchAddress("calibGaussian_wf",&calibGaussian_wf);
-  T->SetBranchAddress("nf_wf",&nf_wf);
+  T->SetBranchAddress("raw_wf",&nf_wf);
   
   T->GetEntry(eve_num);
   cout << "Run No: " << run_no << " " << subrun_no << " " << event_no << endl;
@@ -205,7 +207,7 @@ int main(int argc, char* argv[])
     }
   }
 
-  // std::cout << uplane_map.size() << " " << vplane_map.size() << " " << wplane_map.size() << std::endl;
+   std::cout << uplane_map.size() << " " << vplane_map.size() << " " << wplane_map.size() << std::endl;
   
   std::vector<float> uplane_rms;
   std::vector<float> vplane_rms;
@@ -224,7 +226,7 @@ int main(int argc, char* argv[])
     }
   }
 
-  //  std::cout <<uplane_rms.size() << " " << vplane_rms.size() << " " << wplane_rms.size() << std::endl;
+    std::cout <<uplane_rms.size() << " " << vplane_rms.size() << " " << wplane_rms.size() << std::endl;
   
   const int nwindow_size = ((TH1F*)calibWiener_wf->At(0))->GetNbinsX();
 
@@ -310,16 +312,24 @@ int main(int argc, char* argv[])
 
    
    //
+    TH2F *hu_raw = new TH2F("hu_raw","hu_raw",nwire_u,-0.5,-0.5+nwire_u,nwindow_size*nrebin,0,nwindow_size*nrebin);
     TH2F *hv_raw = new TH2F("hv_raw","hv_raw",nwire_v,-0.5+nwire_u,-0.5+nwire_u+nwire_v,nwindow_size*nrebin,0,nwindow_size*nrebin);
+    TH2F *hw_raw = new TH2F("hw_raw","hw_raw",nwire_w,-0.5+nwire_u+nwire_v,-0.5+nwire_u+nwire_v+nwire_w, nwindow_size*nrebin,0,nwindow_size*nrebin);
     for (size_t i=0;i!=nf_channelId->size();i++){
       int chid = nf_channelId->at(i);
       TH1S *htemp = (TH1S*)nf_wf->At(i);
       if (chid < nwire_u){
+	    for (size_t j=0;j!=nwindow_size*nrebin;j++){
+	        hu_raw->SetBinContent(chid+1,j+1,(htemp->GetBinContent(j+1)+nf_shift)*1.0/nf_scale);
+        }
       }else if (chid < nwire_v+nwire_u){
-	for (size_t j=0;j!=nwindow_size*nrebin;j++){
-	  hv_raw->SetBinContent(chid-nwire_u+1,j+1,(htemp->GetBinContent(j+1)+nf_shift)*1.0/nf_scale);
-	}
+	    for (size_t j=0;j!=nwindow_size*nrebin;j++){
+	        hv_raw->SetBinContent(chid-nwire_u+1,j+1,(htemp->GetBinContent(j+1)+nf_shift)*1.0/nf_scale);
+	    }
       }else if (chid < nwire_w+nwire_v+nwire_u){
+	    for (size_t j=0;j!=nwindow_size*nrebin;j++){
+	        hw_raw->SetBinContent(chid-nwire_u-nwire_v+1,j+1,(htemp->GetBinContent(j+1)+nf_shift)*1.0/nf_scale);
+        }
       }
     }
 
@@ -400,6 +410,9 @@ int main(int argc, char* argv[])
       hu_decon->SetBinContent(ch+1,j+1,0);
       hu_decon_g->SetBinContent(ch+1,j+1,0);
     }
+    for (int j=it->second.first;j!=it->second.second+1;j++){
+      hu_raw->SetBinContent(ch+1,j+1,0);
+    }
   }
 
 
@@ -422,6 +435,9 @@ int main(int argc, char* argv[])
     for (int j=start; j!=end+1;j++){
       hw_decon->SetBinContent(ch+1,j+1,0);
       hw_decon_g->SetBinContent(ch+1,j+1,0);
+    }
+    for (int j=it->second.first;j!=it->second.second+1;j++){
+      hw_raw->SetBinContent(ch+1,j+1,0);
     }
   }
 
@@ -518,7 +534,9 @@ int main(int argc, char* argv[])
    hv_decon_g->SetDirectory(file);
    hw_decon_g->SetDirectory(file);
 
+   hu_raw->SetDirectory(file);
    hv_raw->SetDirectory(file);
+   hw_raw->SetDirectory(file);
 
     TH1I *hu_threshold = new TH1I("hu_threshold","hu_threshold",nwire_u,-0.5,-0.5+nwire_u);
   TH1I *hv_threshold = new TH1I("hv_threshold","hv_threshold",nwire_v,-0.5+nwire_u,-0.5+nwire_u+nwire_v);

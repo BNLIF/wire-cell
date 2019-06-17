@@ -145,6 +145,7 @@ int main(int argc, char* argv[])
 
   int datatier = 0; // data=0, overlay=1, full mc=2
   
+  int shortedU_correction = 1; // charge correction 1./0.8 for shortedU region
   for(Int_t i = 3; i != argc; i++){
      switch(argv[i][1]){
      case 'd':
@@ -176,6 +177,9 @@ int main(int argc, char* argv[])
        break;
      case 'b':
        flag_badtree = atoi(&argv[i][2]);
+       break;
+     case 'u':
+       shortedU_correction = atoi(&argv[i][2]);
        break;
      }
   }
@@ -461,7 +465,7 @@ if(beamspill || beam==-1){
     }
   
     //
-    /*    
+    /*
     for (size_t i=0;i!=nf_channelId->size();i++){
       int chid = nf_channelId->at(i);
       TH1S *htemp = (TH1S*)nf_wf->At(i);
@@ -475,7 +479,6 @@ if(beamspill || beam==-1){
       }
     }
     */
-    
     // V wire noisy channels 10 vetoed ...
     for (int i=3684;i!=3699;i++){
       if (vplane_map.find(i-2400)==vplane_map.end()){
@@ -973,7 +976,7 @@ if(beamspill || beam==-1){
     T->SetBranchStatus("sedo_energy",1);
   }
 
-  
+
   //TTree *Trun = new TTree("Trun","Trun");
   TTree *Trun = T->CloneTree(0);
   Trun->SetTitle("Trun");
@@ -3855,21 +3858,41 @@ if (no_dead_channel==1){
 	SlimMergeGeomCell *mcell = (SlimMergeGeomCell*)((*it)->get_allcell().at(i));
 	int time_slice_temp = mcell->GetTimeSlice();
     time_slice->push_back(time_slice_temp);
-	q->push_back(chargesolver[time_slice_temp]->get_mcell_charge(mcell));
-	
+
+    // shorted-U region charge correction 1./0.8
+    double correction = 1.0;
+    if(shortedU_correction) {
+        //std::cout<< "!!!do charge correction for shorted u region!!!\n";
+        mcell->OrderWires();
+        GeomWireSelection& uwires = mcell->get_uwires();
+        int center_u = 0.5*(uwires.front()->index()+uwires.back()->index());
+        //std::cout<< "u wire: " << center_u << std::endl;
+        if ((center_u >=296 && center_u <=327) ||
+                (center_u >=336 && center_u <=337) ||
+                (center_u >=343 && center_u <=351) ||
+                (center_u >=376 && center_u <=400) ||
+                (center_u >=410 && center_u <=484) ||
+                (center_u >=501 && center_u <=524) ||
+                (center_u >=536 && center_u <=671)) {
+            correction = 1./0.8;
+        }
+    }
+
+	q->push_back(correction*chargesolver[time_slice_temp]->get_mcell_charge(mcell));
+
 	GeomCellMap cell_wires_map = lowmemtiling[time_slice_temp]->get_cell_wires_map();
 	WireCell::WireChargeMap& wire_charge = lowmemtiling[time_slice_temp]->get_wire_charge_map();
 	WireCell::WireChargeMap& wire_charge_error = lowmemtiling[time_slice_temp]->get_wire_charge_error_map();
 	for (auto it1 = cell_wires_map[mcell].begin(); it1!= cell_wires_map[mcell].end(); it1++){
 	  MergeGeomWire *mwire = (MergeGeomWire*)(*it1);
 	  if (mwire->get_allwire().front()->iplane()==0){
-	    uq->push_back(wire_charge[mwire]);
+	    uq->push_back(correction*wire_charge[mwire]);
 	    udq->push_back(wire_charge_error[mwire]);
 	  }else if(mwire->get_allwire().front()->iplane()==1){
-	    vq->push_back(wire_charge[mwire]);
+	    vq->push_back(correction*wire_charge[mwire]);
 	    vdq->push_back(wire_charge_error[mwire]);
 	  }else if(mwire->get_allwire().front()->iplane()==2){
-	    wq->push_back(wire_charge[mwire]);
+	    wq->push_back(correction*wire_charge[mwire]);
 	    wdq->push_back(wire_charge_error[mwire]);
 	  }
 	}
