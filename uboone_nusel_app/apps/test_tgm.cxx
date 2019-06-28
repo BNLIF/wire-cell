@@ -145,8 +145,9 @@ int main(int argc, char* argv[])
 	int flag_low_energy = (event_type >> 4) & 1U;
 	int flag_lm = (event_type >> 1) & 1U;
 	int flag_fully_contained = (event_type >> 2) & 1U;
-	
+
 	std::cout << runNo << "_" << subRunNo << "_" << eventNo << " " << flash_id << " " << tpc_cluster_id << " " << saved_id_time_map[flash_id] << " " << event_type << " " << flag_low_energy << " " << flag_lm << " " << flag_tgm << " " << flag_fully_contained << std::endl;
+
       }
       
     }

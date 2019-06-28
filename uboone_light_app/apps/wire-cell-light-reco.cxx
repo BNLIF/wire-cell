@@ -56,7 +56,8 @@ int main(int argc, char* argv[])
   if(datatier==1) use_overlayinput = true;
   bool use_remap_channel = false;
   if(datatier==2) use_remap_channel = true;
-  WireCell2dToy::ToyLightReco uboone_flash(root_file,use_imagingoutput,use_overlayinput,use_remap_channel);
+  //WireCell2dToy::ToyLightReco uboone_flash(root_file,use_imagingoutput,use_overlayinput,use_remap_channel);
+  WireCell2dToy::ToyLightReco uboone_flash(root_file,use_imagingoutput,datatier); //use_overlayinput,use_remap_channel);
 
   uboone_flash.load_event_raw(eve_num);
   TFile *file1 = new TFile(root_file);

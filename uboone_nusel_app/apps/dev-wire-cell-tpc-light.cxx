@@ -589,11 +589,12 @@ int main(int argc, char* argv[])
   
    
    // processing light information
-   bool use_overlayinput = false;
-   if(datatier==1) use_overlayinput = true;
+   bool use_overlay_input = false;
+   if(datatier==1) use_overlay_input = true;
    bool use_remap_channel = false;
-   if(datatier==0) use_remap_channel = true;
-   WireCell2dToy::ToyLightReco uboone_flash(filename,true,use_overlayinput,use_remap_channel); 
+   if(datatier==0 || datatier==1) use_remap_channel = true;
+   //WireCell2dToy::ToyLightReco uboone_flash(filename,true,use_overlay_input,use_remap_channel);
+   WireCell2dToy::ToyLightReco uboone_flash(filename,true,datatier); //use_overlay_input,use_remap_channel); 
 
    uboone_flash.load_event_raw(0);
    cout << em("flash reconstruction") << std::endl;
