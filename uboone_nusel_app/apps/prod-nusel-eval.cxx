@@ -26,7 +26,7 @@ using namespace std;
 int main(int argc, char* argv[])
 {
   if (argc < 3) {
-    cerr << "usage: wire-cell-uboone /path/to/ChannelWireGeometry.txt /path/to/imaging.root -m[0,1] -p[0,1]" << endl;
+    cerr << "usage: wire-cell-uboone /path/to/ChannelWireGeometry.txt /path/to/imaging.root -d[0,1,2] -p[0,1]" << endl;
     return 1;
   }
   TH1::AddDirectory(kFALSE);
