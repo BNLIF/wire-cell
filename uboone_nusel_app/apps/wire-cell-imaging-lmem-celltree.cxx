@@ -921,7 +921,7 @@ if(beamspill || beam==-1){
     T->SetBranchStatus("mixer_beam_lg_timestamp",1);
   }
   if(datatier==1 || datatier==2){
-    T->SetBranchStatus("savedMCTrackIdMap",1);
+    //T->SetBranchStatus("savedMCTrackIdMap",1);
     T->SetBranchStatus("mc_id",1);
     T->SetBranchStatus("mc_pdg",1);
     T->SetBranchStatus("mc_process",1);
