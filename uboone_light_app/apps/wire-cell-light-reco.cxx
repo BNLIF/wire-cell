@@ -52,17 +52,13 @@ int main(int argc, char* argv[])
 
   bool use_imagingoutput = false;
   if(imagingoutput==1) use_imagingoutput = true;
-  bool use_overlayinput = false;
-  if(datatier==1) use_overlayinput = true;
-  bool use_remap_channel = false;
-  if(datatier==2) use_remap_channel = true;
-  //WireCell2dToy::ToyLightReco uboone_flash(root_file,use_imagingoutput,use_overlayinput,use_remap_channel);
-  WireCell2dToy::ToyLightReco uboone_flash(root_file,use_imagingoutput,datatier); //use_overlayinput,use_remap_channel);
+  WireCell2dToy::ToyLightReco uboone_flash(root_file,use_imagingoutput,datatier); 
 
   uboone_flash.load_event_raw(eve_num);
   TFile *file1 = new TFile(root_file);
-  TTree *T = (TTree*)file1->Get("/Event/Sim");
-  //TTree *T = (TTree*)file1->Get("/Trun");
+  TTree *T;
+  if(!use_imagingoutput){ T = (TTree*)file1->Get("/Event/Sim"); } // celltree input
+  else{ T = (TTree*)file1->Get("/Trun"); }
   TClonesArray* cosmic_hg_wf = new TClonesArray;
   TClonesArray* cosmic_lg_wf = new TClonesArray;
   TClonesArray* beam_hg_wf = new TClonesArray;
