@@ -774,7 +774,7 @@ int main(int argc, char* argv[])
    double lowerwindow = 0., upperwindow = 0.;
    if(datatier==0 && triggerbits==2048){ lowerwindow=3.1875; upperwindow=4.96876; } // BNB
    if(datatier==0 && triggerbits==512){ lowerwindow=3.5625; upperwindow=5.34376; } // BNB EXT
-   if(datatier==2 && triggerbits==2048){ lowerwindow=3.1718; upperwindow=4.95306; } // full mc
+   if(datatier==1 || datatier==2){ lowerwindow=3.1718; upperwindow=4.95306; } // overlay & full mc
    
    bool is_inTime=false;
    for (auto it = matched_bundles.begin(); it!=matched_bundles.end(); it++){
