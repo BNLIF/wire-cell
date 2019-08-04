@@ -1076,6 +1076,8 @@ int main(int argc, char* argv[])
      std::vector<double>& tpv = live_clusters.at(j)->get_pv();
      std::vector<double>& tpw = live_clusters.at(j)->get_pw();
      std::vector<double>& tpt = live_clusters.at(j)->get_pt();
+
+     if (pts.size()!=dQ.size()) continue;
      
      std::map<std::pair<int,int>, std::tuple<double,double,double> > & proj_data_u_map = live_clusters.at(j)->get_proj_data_u_map();
      std::map<std::pair<int,int>, std::tuple<double,double,double> > & proj_data_v_map = live_clusters.at(j)->get_proj_data_v_map();
