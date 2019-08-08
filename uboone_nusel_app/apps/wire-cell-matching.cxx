@@ -15,7 +15,7 @@
 #include "WireCell2dToy/ToyFiducial.h"
 
 #include "WireCell2dToy/ImprovePR3DCluster.h"
-
+#include "WireCell2dToy/ExamineBundles.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -543,7 +543,8 @@ int main(int argc, char* argv[])
   cout << em("TPC Light Matching") << std::endl;
 
   // further merge or split clusters ... protect against over clustering
-
+  WireCell2dToy::ExamineBundles(matched_bundles);
+  // finish the further merge ... 
   
   // create the live clusters ...
   live_clusters.clear();
