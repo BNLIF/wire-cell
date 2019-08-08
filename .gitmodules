@@ -53,3 +53,8 @@
 	path = 3dst
 	url = https://github.com/BNLIF/wire-cell-3dst.git
 	branch = master
+
+
+[submodule "pid"]
+	path = pid
+	url = https://github.com/BNLIF/wire-cell-pid.git
