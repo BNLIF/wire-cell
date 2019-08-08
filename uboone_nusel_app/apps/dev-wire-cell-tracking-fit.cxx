@@ -36,15 +36,11 @@ int main(int argc, char* argv[])
   }
   TH1::AddDirectory(kFALSE);
   
-  int flag_pos_corr = 0; // correct X position after matching ...
-  int flag_data = 1; // data ... 0 for MC
+  int flag_pos_corr = 0; // correct X position after matching ... 
   for(Int_t i = 1; i != argc; i++){
      switch(argv[i][1]){
      case 'c':
        flag_pos_corr = atoi(&argv[i][2]); 
-       break;
-     case 't':
-       flag_data = atoi(&argv[i][2]);
        break;
      }
   }
@@ -242,7 +238,8 @@ int main(int argc, char* argv[])
   WireCell2dToy::ToyFiducial *fid = new WireCell2dToy::ToyFiducial(3,800,-first_u_dis/pitch_u, -first_v_dis/pitch_v, -first_w_dis/pitch_w,
 								   1./time_slice_width, 1./pitch_u, 1./pitch_v, 1./pitch_w, // slope
 								   angle_u,angle_v,angle_w,// angle
-								   3*units::cm, 117*units::cm, -116*units::cm, 0*units::cm, 1037*units::cm, 0*units::cm, 256*units::cm, flag_data);
+								   3*units::cm);
+  
 
   // {
   //   Point test_p(166.691*units::cm,-104.599*units::cm, 248.05*units::cm);
@@ -821,13 +818,9 @@ int main(int argc, char* argv[])
    //   if (flash!=0){
    //     //std::cout << "Flash: " << flash->get_flash_id() << " " << flash->get_time() << std::endl;
    //     double offset_x = (flash->get_time() - time_offset)*2./nrebin*time_slice_width;
-   // if (fid->check_tgm(bundle,offset_x, ct_point_cloud,old_new_cluster_map)){
-   //   event_type |= 1UL << 3; // 3rd bit for TGM
-   //     }else{
-   //   if (fid->check_fully_contained(bundle,offset_x, ct_point_cloud,old_new_cluster_map))
-   //     event_type |= 1UL << 2; // 2nd bit for fully contained 
-   // }
-    
+   //     if (fid->check_tgm(bundle,offset_x, ct_point_cloud,old_new_cluster_map))
+   // 	 event_type |= 1UL << 3; // 3rd bit for TGM
+
    //     int temp_flag = fid->check_LM(bundle,cluster_length);
    //     if (temp_flag==1){
    // 	 event_type |= 1UL << 4; // 4th bit for low energy ...
@@ -899,6 +892,8 @@ int main(int argc, char* argv[])
        t_bad->Fill();
      }
    }
+
+   cerr << em("Fill t_bad tree") << std::endl;
    
    TTree *T_cluster ;
    Double_t x,y,z,q,nq;
@@ -1029,6 +1024,8 @@ int main(int argc, char* argv[])
      }
      //     ncluster ++;
    }
+   cerr << em("Fill T_cluster tree") << std::endl;
+
    
    for (size_t j = 0; j!= live_clusters.size(); j++){
      
@@ -1078,6 +1075,7 @@ int main(int argc, char* argv[])
      std::vector<double>& tpt = live_clusters.at(j)->get_pt();
 
      if (pts.size()!=dQ.size()) continue;
+     //     std::cout << pts.size() << " " << dQ.size() << " " << dx.size() << " " << tpu.size() << " "  << std::endl;
      
      std::map<std::pair<int,int>, std::tuple<double,double,double> > & proj_data_u_map = live_clusters.at(j)->get_proj_data_u_map();
      std::map<std::pair<int,int>, std::tuple<double,double,double> > & proj_data_v_map = live_clusters.at(j)->get_proj_data_v_map();
@@ -1157,6 +1155,8 @@ int main(int argc, char* argv[])
      // }
    }
 
+   cerr << em("Fill t_rec and t_rec_charge trees") << std::endl;
+   
    // ncluster = 0;
    // for (auto it = dead_live_cluster_mapping.begin(); it!= dead_live_cluster_mapping.end(); it++){
    //   std::vector<PR3DCluster*> clusters = (*it).second;
@@ -1226,6 +1226,8 @@ int main(int argc, char* argv[])
 
   t1->Fill();
 
+  cerr << em("Fill T_data tree") << std::endl;
+  
   // TH2F *h1 = new TH2F("hraw","hraw",1500,0,1500,32,0,32);
   // TH2F *h2 = new TH2F("hdecon","hdecon",250,0,250,32,0,32);
   // TH2F *h3 = new TH2F("hl1","hl1",250,0,250,32,0,32);
@@ -1363,7 +1365,10 @@ int main(int argc, char* argv[])
   }
   T_proj->Fill();
   T_proj_data->Fill();
-   
+
+  cerr << em("Fill T_proj and T_proj_data trees") << std::endl;
+
+  
   file1->Write();
   file1->Close();
 }
