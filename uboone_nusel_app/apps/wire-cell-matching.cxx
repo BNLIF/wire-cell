@@ -701,6 +701,7 @@ int main(int argc, char* argv[])
       
       
       int temp_flag = fid->check_LM(bundle,cluster_length);
+      //      std::cout << temp_flag << std::endl;
       if (temp_flag==1){
 	event_type |= 1UL << 4; // 4th bit for low energy ...
       }else if (temp_flag==2){
