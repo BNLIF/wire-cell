@@ -543,7 +543,7 @@ int main(int argc, char* argv[])
   cout << em("TPC Light Matching") << std::endl;
 
   // further merge or split clusters ... protect against over clustering
-  WireCell2dToy::ExamineBundles(matched_bundles);
+  WireCell2dToy::ExamineBundles(matched_bundles, ct_point_cloud);
   // finish the further merge ... 
   
   // create the live clusters ...
@@ -995,7 +995,7 @@ int main(int argc, char* argv[])
     if (flag_pos_corr==0)
       offset_x = 0;
     
-    ncluster = main_cluster->get_cluster_id();
+    //    ncluster = main_cluster->get_cluster_id();
     
     PR3DClusterSelection temp_clusters;
     temp_clusters.push_back(main_cluster);
@@ -1006,7 +1006,9 @@ int main(int argc, char* argv[])
       
       // show individual clusters ... 
       SMGCSelection& mcells = temp_clusters.at(j)->get_mcells();
-      //ncluster = temp_clusters.at(0)->get_cluster_id();
+
+      ncluster = temp_clusters.at(j)->get_cluster_id();
+
       for (size_t i=0;i!=mcells.size();i++){
 	PointVector ps = mcells.at(i)->get_sampling_points();
 	int time_slice = mcells.at(i)->GetTimeSlice();
