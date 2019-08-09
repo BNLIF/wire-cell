@@ -488,6 +488,14 @@ int main(int argc, char* argv[])
   
   cout << em("load clusters from file") << endl;
 
+  // veto 16 channels in U ...
+  for (int i=2080; i!=2096;i++){
+    if (dead_u_index.find(i)==dead_u_index.end()){
+      dead_u_index[i] = std::make_pair((0*nrebin/2.*unit_dis/10. - frame_length/2.*unit_dis/10.) * units::cm-0.1*units::cm, (2400*nrebin/2.*unit_dis/10. - frame_length/2.*unit_dis/10.) * units::cm+0.1*units::cm);
+    }
+  }
+  //
+  
   // Start to add X, Y, Z points
   // form boundaries for the bad cells ... 
    for (size_t j = 0; j!= dead_clusters.size(); j++){

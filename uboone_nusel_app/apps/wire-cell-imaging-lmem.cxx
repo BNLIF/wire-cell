@@ -371,6 +371,22 @@ int main(int argc, char* argv[])
     }
   }
 
+  for (int i=2080;i!=2096;i++){
+    if (uplane_map.find(i)==uplane_map.end()){
+      uplane_map[i] = std::make_pair(0,hv_raw->GetNbinsY()-1);
+      std::cout << "U plane (bad): " << i << " added to bad channel list" << std::endl;
+    }else{
+      uplane_map[i] = std::make_pair(0,hv_raw->GetNbinsY()-1);
+    }
+    for (int j=0;j!=hu_decon->GetNbinsY();j++){
+      hu_decon->SetBinContent(i+1,j+1,0);
+      hu_decon_g->SetBinContent(i+1,j+1,0);
+    }
+  }
+
+
+  
+
   // loop through U/V/W plane to disable the bad channels completely
   for (auto it = uplane_map.begin(); it!=uplane_map.end(); it++){
     int ch = it->first;
