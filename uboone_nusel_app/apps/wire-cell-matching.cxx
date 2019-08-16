@@ -432,15 +432,74 @@ int main(int argc, char* argv[])
     return 0;
   }
   
-  cout << em("load clusters from file") << endl;
-
   // veto 16 channels in U ...
   for (int i=2080; i!=2096;i++){
     if (dead_u_index.find(i)==dead_u_index.end()){
       dead_u_index[i] = std::make_pair((0*nrebin/2.*unit_dis/10. - frame_length/2.*unit_dis/10.) * units::cm-0.1*units::cm, (2400*nrebin/2.*unit_dis/10. - frame_length/2.*unit_dis/10.) * units::cm+0.1*units::cm);
     }
   }
+  TTree *T_bad_ch = (TTree*)file->Get("T_bad_ch");
+  if (T_bad_ch!=0){
+    Int_t chid, plane;
+    Int_t start_time,end_time;
+    T_bad_ch->Branch("chid",&chid,"chid/I");
+    T_bad_ch->Branch("plane",&plane,"plane/I");
+    T_bad_ch->Branch("start_time",&start_time,"start_time/I");
+    T_bad_ch->Branch("end_time",&end_time,"end_time/I");
+    
+    for (int i=0;i!=T_bad_ch->GetEntries();i++){
+      T_bad_ch->GetEntry(i);
+      double temp_x1 = (start_time/2.*unit_dis/10. - frame_length/2.*unit_dis/10.) * units::cm;
+      double temp_x2 = (end_time/2.*unit_dis/10. - frame_length/2.*unit_dis/10.) * units::cm;
+      if (plane==1){
+	chid -= 2400;
+      }else if (plane==2){
+	chid -=4800;
+      }
+      if (plane==0){
+	if (dead_u_index.find(chid)==dead_u_index.end()){
+	  dead_u_index[chid] = std::make_pair(temp_x1-0.1*units::cm,temp_x2+0.1*units::cm);
+	}else{
+	  if (temp_x1-0.1*units::cm < dead_u_index[chid].first){
+	    dead_u_index[chid].first = temp_x1 - 0.1*units::cm;
+	  }else if (temp_x2+0.1*units::cm > dead_u_index[chid].second){
+	    dead_u_index[chid].second = temp_x2 + 0.1*units::cm;
+	  }
+	}
+      }else if (plane==1){
+	if (dead_v_index.find(chid)==dead_v_index.end()){
+	  dead_v_index[chid] = std::make_pair(temp_x1-0.1*units::cm,temp_x2+0.1*units::cm);
+	  //std::cout << plane << " " << chid << std::endl;
+	}else{
+	  if (temp_x1-0.1*units::cm < dead_v_index[chid].first){
+	    dead_v_index[chid].first = temp_x1 - 0.1*units::cm;
+	    //std::cout << plane << " a " << chid << std::endl;
+	  }else if (temp_x2+0.1*units::cm > dead_v_index[chid].second){
+	    dead_v_index[chid].second = temp_x2 + 0.1*units::cm;
+	    //std::cout << plane << " b " << chid << std::endl;
+	  }
+	}
+      }else if (plane==2){
+	if (dead_w_index.find(chid)==dead_w_index.end()){
+	  dead_w_index[chid] = std::make_pair(temp_x1-0.1*units::cm,temp_x2+0.1*units::cm);
+	  //std::cout << plane << " " << chid << std::endl;
+	}else{
+	  if (temp_x1-0.1*units::cm < dead_w_index[chid].first){
+	    dead_w_index[chid].first = temp_x1 - 0.1*units::cm;
+	    //std::cout << plane << " a " << chid << std::endl;
+	  }else if (temp_x2+0.1*units::cm > dead_w_index[chid].second){
+	    dead_w_index[chid].second = temp_x2 + 0.1*units::cm;
+	    //std::cout << plane << " b " << chid << std::endl;
+	  }
+	}
+      }
+    }
+  }
   //
+  
+  cout << em("load clusters from file") << endl;
+
+ 
 
 
   
@@ -898,7 +957,7 @@ int main(int argc, char* argv[])
   //
 
   
-  TTree *T_bad_ch = (TTree*)file->Get("T_bad_ch");
+
   if (T_bad_ch!=0){
     T_bad_ch->CloneTree()->Write();
   }
