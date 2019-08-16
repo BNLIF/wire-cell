@@ -40,30 +40,30 @@ int main(int argc, char* argv[])
   int save_proj = 0;
   
   for(Int_t i = 1; i != argc; i++){
-     switch(argv[i][1]){
-     case 'c':
-       flag_pos_corr = atoi(&argv[i][2]); 
-       break;
-     case 'd':
-       datatier = atoi(&argv[i][2]);
-       break;
-     case 'l':
-       save_light = atoi(&argv[i][2]);
-       break;
-     case 'b':
-       bee_debug = atoi(&argv[i][2]);
-       break;
-     case 'p':
-       save_proj = atoi(&argv[i][2]);
-     }
+    switch(argv[i][1]){
+    case 'c':
+      flag_pos_corr = atoi(&argv[i][2]); 
+      break;
+    case 'd':
+      datatier = atoi(&argv[i][2]);
+      break;
+    case 'l':
+      save_light = atoi(&argv[i][2]);
+      break;
+    case 'b':
+      bee_debug = atoi(&argv[i][2]);
+      break;
+    case 'p':
+      save_proj = atoi(&argv[i][2]);
+    }
   }
-
+  
   int flag_data = 1; // data
   if(datatier==1 || datatier==2) flag_data=0; // overlay, full mc
   
   ExecMon em("starting");
   cout << em("load geometry") << endl;
-
+  
   WireCellSst::GeomDataSource gds(argv[1]);
   std::vector<double> ex = gds.extent();
   cout << "Extent: "
@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
        << " y:" << ex[1]/units::m << " m"
        << " z:" << ex[2]/units::m << " m"
        << endl;
-
+  
   cout << "Pitch: " << gds.pitch(WirePlaneType_t(0)) 
        << " " << gds.pitch(WirePlaneType_t(1)) 
        << " " << gds.pitch(WirePlaneType_t(2))
@@ -80,9 +80,9 @@ int main(int argc, char* argv[])
        << " " << gds.angle(WirePlaneType_t(1)) 
        << " " << gds.angle(WirePlaneType_t(2))
        << endl;
-
-
-
+  
+  
+  
   // test geometry ...
   const GeomWire *uwire = gds.by_planeindex(WirePlaneType_t(0),0);
   const GeomWire *vwire = gds.by_planeindex(WirePlaneType_t(1),0);
@@ -95,14 +95,14 @@ int main(int argc, char* argv[])
   TString filename = argv[2];
   TFile *file = new TFile(filename);
   TTree *Trun = (TTree*)file->Get("Trun");
-
+  
   int run_no, subrun_no, event_no;
   int time_offset;
   int nrebin;
   int frame_length;
   int eve_num;
   float unit_dis;
-
+  
   std::vector<int> *timesliceId = new std::vector<int>;
   std::vector<std::vector<int>> *timesliceChannel = new std::vector<std::vector<int>>;
   std::vector<std::vector<int>> *raw_charge = new std::vector<std::vector<int>>;
@@ -132,9 +132,9 @@ int main(int argc, char* argv[])
   Trun->SetBranchAddress("triggerTime",&triggerTime); 
   
   Trun->GetEntry(0);
-
   
-
+  
+  
   
   //std::cout << nrebin << " " << time_offset << std::endl;
   
@@ -145,11 +145,11 @@ int main(int argc, char* argv[])
   double pitch_v = gds.pitch(WirePlaneType_t(1));
   double pitch_w = gds.pitch(WirePlaneType_t(2));
   double time_slice_width = nrebin * unit_dis * 0.5 * units::mm;
-
+  
   double angle_u = gds.angle(WirePlaneType_t(0));
   double angle_v = gds.angle(WirePlaneType_t(1));
   double angle_w = gds.angle(WirePlaneType_t(2));
-
+  
   //std::cout << angle_u << " " << angle_v << " " << angle_w << std::endl;
   
   mp.set_pitch_u(pitch_u);
@@ -162,10 +162,10 @@ int main(int argc, char* argv[])
   mp.set_first_u_dis(first_u_dis);
   mp.set_first_v_dis(first_v_dis);
   mp.set_first_w_dis(first_w_dis);
-
-
- 
-
+  
+  
+  
+  
   
   std::map<int,std::pair<double,double>> dead_u_index;
   std::map<int,std::pair<double,double>> dead_v_index;
@@ -182,14 +182,14 @@ int main(int argc, char* argv[])
   std::vector<double> *udq_vec = new std::vector<double>;
   std::vector<double> *vdq_vec = new std::vector<double>;
   std::vector<double> *wdq_vec = new std::vector<double>;
-
+  
   std::vector<int> *nwire_u_vec = new  std::vector<int>;
   std::vector<int> *nwire_v_vec = new  std::vector<int>;
   std::vector<int> *nwire_w_vec = new  std::vector<int>;
   std::vector<int> *flag_u_vec = new  std::vector<int>;
   std::vector<int> *flag_v_vec = new  std::vector<int>;
   std::vector<int> *flag_w_vec = new  std::vector<int>;
-
+  
   std::vector<std::vector<int>> *wire_index_u_vec = new std::vector<std::vector<int>>;
   std::vector<std::vector<int>> *wire_index_v_vec = new std::vector<std::vector<int>>;
   std::vector<std::vector<int>> *wire_index_w_vec = new std::vector<std::vector<int>>;
@@ -199,7 +199,7 @@ int main(int argc, char* argv[])
   std::vector<std::vector<double>> *wire_charge_err_u_vec = new std::vector<std::vector<double>>;
   std::vector<std::vector<double>> *wire_charge_err_v_vec = new std::vector<std::vector<double>>;
   std::vector<std::vector<double>> *wire_charge_err_w_vec = new std::vector<std::vector<double>>;
-
+  
 
   TC->SetBranchAddress("cluster_id",&cluster_id_vec);
   TC->SetBranchAddress("time_slice",&time_slice_vec);
@@ -225,18 +225,18 @@ int main(int argc, char* argv[])
   TC->SetBranchAddress("wire_charge_err_u",&wire_charge_err_u_vec);
   TC->SetBranchAddress("wire_charge_err_v",&wire_charge_err_v_vec);
   TC->SetBranchAddress("wire_charge_err_w",&wire_charge_err_w_vec);
-
-
+  
+  
   //load mcell
   
   TTree *TDC = (TTree*)file->Get("TDC");
   std::vector<int> *ntime_slice_vec = new std::vector<int>;
   std::vector<std::vector<int>> *time_slices_vec = new std::vector<std::vector<int>>;
-
+  
   TDC->SetBranchAddress("cluster_id",&cluster_id_vec);
   TDC->SetBranchAddress("ntime_slice",&ntime_slice_vec);
   TDC->SetBranchAddress("time_slice",&time_slices_vec);
-
+  
   TDC->SetBranchAddress("nwire_u",&nwire_u_vec);
   TDC->SetBranchAddress("nwire_v",&nwire_v_vec);
   TDC->SetBranchAddress("nwire_w",&nwire_w_vec);
@@ -246,21 +246,12 @@ int main(int argc, char* argv[])
   TDC->SetBranchAddress("wire_index_u",&wire_index_u_vec);
   TDC->SetBranchAddress("wire_index_v",&wire_index_v_vec);
   TDC->SetBranchAddress("wire_index_w",&wire_index_w_vec);
-
-
+  
+  
   WireCell2dToy::ToyFiducial *fid = new WireCell2dToy::ToyFiducial(3,800,-first_u_dis/pitch_u, -first_v_dis/pitch_v, -first_w_dis/pitch_w,
 								   1./time_slice_width, 1./pitch_u, 1./pitch_v, 1./pitch_w, // slope
 								   angle_u,angle_v,angle_w,// angle
 								   3*units::cm, 117*units::cm, -116*units::cm, 0*units::cm, 1037*units::cm, 0*units::cm, 256*units::cm, flag_data);
-  
-
-  // {
-  //   Point test_p(166.691*units::cm,-104.599*units::cm, 248.05*units::cm);
-  //   // Point test_p(166.691*units::cm,-104.599*units::cm, 248.05*units::cm);
-  //   //Point test_p(50.691*units::cm, 50.599*units::cm, 248.05*units::cm);
-  //   double offset_x = 0.0636516*units::cm;
-  //   fid->inside_fiducial_volume(test_p,offset_x);
-  // }
   
   // load cells ... 
   GeomCellSelection mcells;
@@ -271,101 +262,101 @@ int main(int argc, char* argv[])
   int ident = 0;
   TC->GetEntry(0);
   for (int i=0;i!=cluster_id_vec->size();i++){
-      int cluster_id = cluster_id_vec->at(i);
-      SlimMergeGeomCell *mcell = new SlimMergeGeomCell(ident);
-      int time_slice = time_slice_vec->at(i);
-      std::vector<int> wire_index_u = wire_index_u_vec->at(i);
-      std::vector<int> wire_index_v = wire_index_v_vec->at(i);
-      std::vector<int> wire_index_w = wire_index_w_vec->at(i);
-      std::vector<double> wire_charge_u = wire_charge_u_vec->at(i);
-      std::vector<double> wire_charge_v = wire_charge_v_vec->at(i);
-      std::vector<double> wire_charge_w = wire_charge_w_vec->at(i);
-      std::vector<double> wire_charge_err_u = wire_charge_err_u_vec->at(i);
-      std::vector<double> wire_charge_err_v = wire_charge_err_v_vec->at(i);
-      std::vector<double> wire_charge_err_w = wire_charge_err_w_vec->at(i);
-
-      mcell->SetTimeSlice(time_slice);
-
-      mcell->set_uq(uq_vec->at(i));
-      mcell->set_vq(vq_vec->at(i));
-      mcell->set_wq(wq_vec->at(i));
-
-      mcell->set_udq(udq_vec->at(i));
-      mcell->set_vdq(vdq_vec->at(i));
-      mcell->set_wdq(wdq_vec->at(i));
-
-      mcell->set_q(q_vec->at(i));
-
-      double temp_x = (time_slice*nrebin/2.*unit_dis/10. - frame_length/2.*unit_dis/10.) * units::cm;
-
-      if (flag_u_vec->at(i)==0){
-          mcell->add_bad_planes(WirePlaneType_t(0));
-          for (int j=0;j!=nwire_u_vec->at(i);j++){
-              if (dead_u_index.find(wire_index_u.at(j))==dead_u_index.end()){
-                  dead_u_index[wire_index_u.at(j)] = std::make_pair(temp_x-0.1*units::cm,temp_x+0.1*units::cm);
-              }else{
-                  if (temp_x-0.1*units::cm < dead_u_index[wire_index_u.at(j)].first){
-                      dead_u_index[wire_index_u.at(j)].first = temp_x - 0.1*units::cm;
-                  }else if (temp_x+0.1*units::cm > dead_u_index[wire_index_u.at(j)].second){
-                      dead_u_index[wire_index_u.at(j)].second = temp_x + 0.1*units::cm;
-                  }
-              }
-
-          }
-      }
-      if (flag_v_vec->at(i)==0){
-          mcell->add_bad_planes(WirePlaneType_t(1));
-          for (int j=0;j!=nwire_v_vec->at(i);j++){
-              if (dead_v_index.find(wire_index_v.at(j))==dead_v_index.end()){
-                  dead_v_index[wire_index_v.at(j)] = std::make_pair(temp_x-0.1*units::cm,temp_x+0.1*units::cm);
-              }else{
-                  if (temp_x-0.1*units::cm < dead_v_index[wire_index_v.at(j)].first){
-                      dead_v_index[wire_index_v.at(j)].first = temp_x-0.1*units::cm;
-                  }else if (temp_x+0.1*units::cm > dead_v_index[wire_index_v.at(j)].second){
-                      dead_v_index[wire_index_v.at(j)].second = temp_x + 0.1*units::cm;
-                  }
-              }
-          }
-      }
-      if (flag_w_vec->at(i)==0){
-          mcell->add_bad_planes(WirePlaneType_t(2));
-          for (int j=0;j!=nwire_w_vec->at(i);j++){
-              if (dead_w_index.find(wire_index_w.at(j))==dead_w_index.end()){
-                  dead_w_index[wire_index_w.at(j)] = std::make_pair(temp_x-0.1*units::cm,temp_x+0.1*units::cm);
-              }else{
-                  if (temp_x-0.1*units::cm < dead_w_index[wire_index_w.at(j)].first){
-                      dead_w_index[wire_index_w.at(j)].first = temp_x-0.1*units::cm;
-                  }else if (temp_x+0.1*units::cm > dead_w_index[wire_index_w.at(j)].second){
-                      dead_w_index[wire_index_w.at(j)].second = temp_x + 0.1*units::cm;
-                  }
-              }
-          }
-      }
+    int cluster_id = cluster_id_vec->at(i);
+    SlimMergeGeomCell *mcell = new SlimMergeGeomCell(ident);
+    int time_slice = time_slice_vec->at(i);
+    std::vector<int> wire_index_u = wire_index_u_vec->at(i);
+    std::vector<int> wire_index_v = wire_index_v_vec->at(i);
+    std::vector<int> wire_index_w = wire_index_w_vec->at(i);
+    std::vector<double> wire_charge_u = wire_charge_u_vec->at(i);
+    std::vector<double> wire_charge_v = wire_charge_v_vec->at(i);
+    std::vector<double> wire_charge_w = wire_charge_w_vec->at(i);
+    std::vector<double> wire_charge_err_u = wire_charge_err_u_vec->at(i);
+    std::vector<double> wire_charge_err_v = wire_charge_err_v_vec->at(i);
+    std::vector<double> wire_charge_err_w = wire_charge_err_w_vec->at(i);
+    
+    mcell->SetTimeSlice(time_slice);
+    
+    mcell->set_uq(uq_vec->at(i));
+    mcell->set_vq(vq_vec->at(i));
+    mcell->set_wq(wq_vec->at(i));
+    
+    mcell->set_udq(udq_vec->at(i));
+    mcell->set_vdq(vdq_vec->at(i));
+    mcell->set_wdq(wdq_vec->at(i));
+    
+    mcell->set_q(q_vec->at(i));
+    
+    double temp_x = (time_slice*nrebin/2.*unit_dis/10. - frame_length/2.*unit_dis/10.) * units::cm;
+    
+    if (flag_u_vec->at(i)==0){
+      mcell->add_bad_planes(WirePlaneType_t(0));
       for (int j=0;j!=nwire_u_vec->at(i);j++){
-          const GeomWire *wire = gds.by_planeindex(WirePlaneType_t(0),wire_index_u.at(j));
-          mcell->AddWire(wire,WirePlaneType_t(0),wire_charge_u.at(j),wire_charge_err_u.at(j));
+	if (dead_u_index.find(wire_index_u.at(j))==dead_u_index.end()){
+	  dead_u_index[wire_index_u.at(j)] = std::make_pair(temp_x-0.1*units::cm,temp_x+0.1*units::cm);
+	}else{
+	  if (temp_x-0.1*units::cm < dead_u_index[wire_index_u.at(j)].first){
+	    dead_u_index[wire_index_u.at(j)].first = temp_x - 0.1*units::cm;
+	  }else if (temp_x+0.1*units::cm > dead_u_index[wire_index_u.at(j)].second){
+	    dead_u_index[wire_index_u.at(j)].second = temp_x + 0.1*units::cm;
+	  }
+	}
+	
       }
+    }
+    if (flag_v_vec->at(i)==0){
+      mcell->add_bad_planes(WirePlaneType_t(1));
       for (int j=0;j!=nwire_v_vec->at(i);j++){
-          const GeomWire *wire = gds.by_planeindex(WirePlaneType_t(1),wire_index_v.at(j));
-          mcell->AddWire(wire,WirePlaneType_t(1),wire_charge_v.at(j),wire_charge_err_v.at(j));
+	if (dead_v_index.find(wire_index_v.at(j))==dead_v_index.end()){
+	  dead_v_index[wire_index_v.at(j)] = std::make_pair(temp_x-0.1*units::cm,temp_x+0.1*units::cm);
+	}else{
+	  if (temp_x-0.1*units::cm < dead_v_index[wire_index_v.at(j)].first){
+	    dead_v_index[wire_index_v.at(j)].first = temp_x-0.1*units::cm;
+	  }else if (temp_x+0.1*units::cm > dead_v_index[wire_index_v.at(j)].second){
+	    dead_v_index[wire_index_v.at(j)].second = temp_x + 0.1*units::cm;
+	  }
+	}
       }
+    }
+    if (flag_w_vec->at(i)==0){
+      mcell->add_bad_planes(WirePlaneType_t(2));
       for (int j=0;j!=nwire_w_vec->at(i);j++){
-          const GeomWire *wire = gds.by_planeindex(WirePlaneType_t(2),wire_index_w.at(j));
-          mcell->AddWire(wire,WirePlaneType_t(2),wire_charge_w.at(j),wire_charge_err_w.at(j));
+	if (dead_w_index.find(wire_index_w.at(j))==dead_w_index.end()){
+	  dead_w_index[wire_index_w.at(j)] = std::make_pair(temp_x-0.1*units::cm,temp_x+0.1*units::cm);
+	}else{
+	  if (temp_x-0.1*units::cm < dead_w_index[wire_index_w.at(j)].first){
+	    dead_w_index[wire_index_w.at(j)].first = temp_x-0.1*units::cm;
+	  }else if (temp_x+0.1*units::cm > dead_w_index[wire_index_w.at(j)].second){
+	    dead_w_index[wire_index_w.at(j)].second = temp_x + 0.1*units::cm;
+	  }
+	}
       }
-      mcells.push_back(mcell);
-
+    }
+    for (int j=0;j!=nwire_u_vec->at(i);j++){
+      const GeomWire *wire = gds.by_planeindex(WirePlaneType_t(0),wire_index_u.at(j));
+      mcell->AddWire(wire,WirePlaneType_t(0),wire_charge_u.at(j),wire_charge_err_u.at(j));
+    }
+    for (int j=0;j!=nwire_v_vec->at(i);j++){
+      const GeomWire *wire = gds.by_planeindex(WirePlaneType_t(1),wire_index_v.at(j));
+      mcell->AddWire(wire,WirePlaneType_t(1),wire_charge_v.at(j),wire_charge_err_v.at(j));
+    }
+    for (int j=0;j!=nwire_w_vec->at(i);j++){
+      const GeomWire *wire = gds.by_planeindex(WirePlaneType_t(2),wire_index_w.at(j));
+      mcell->AddWire(wire,WirePlaneType_t(2),wire_charge_w.at(j),wire_charge_err_w.at(j));
+    }
+    mcells.push_back(mcell);
+    
     if (cluster_id != prev_cluster_id){
       cluster = new PR3DCluster(cluster_id);
       live_clusters.push_back(cluster);
     }
     cluster->AddCell(mcell,time_slice);
-
+    
     prev_cluster_id = cluster_id;
     ident++;
   }
   //  std::cout << live_clusters.size() << std::endl;
-
+  
   prev_cluster_id = -1;
   // TDC
   cluster_id_vec->clear();
@@ -378,7 +369,7 @@ int main(int argc, char* argv[])
   flag_u_vec->clear();
   flag_v_vec->clear();
   flag_w_vec->clear();
-
+  
   TDC->GetEntry(0);
   for (int i=0;i!=cluster_id_vec->size();i++){
     int cluster_id = cluster_id_vec->at(i);
@@ -389,7 +380,7 @@ int main(int argc, char* argv[])
     std::vector<int> wire_index_w = wire_index_w_vec->at(i);
     
     mcell->SetTimeSlice(time_slices.at(0));
-
+    
     double temp_x1 = (time_slices.front()*nrebin/2.*unit_dis/10. - frame_length/2.*unit_dis/10.) * units::cm;
     double temp_x2 = (time_slices.back()*nrebin/2.*unit_dis/10. - frame_length/2.*unit_dis/10.) * units::cm;
     // std::cout << temp_x1/units::cm << " " << temp_x2/units::cm << std::endl;
@@ -463,13 +454,6 @@ int main(int argc, char* argv[])
     ident++;
   }
   
-  // std::cout << live_clusters.size() << std::endl;
-  // for (size_t i=0;i!=live_clusters.size();i++){
-  //   std::cout << live_clusters.at(i)->get_cluster_id() << " " 
-  // 	       << live_clusters.at(i)->get_num_mcells() << " "
-  // 	       << live_clusters.at(i)->get_num_time_slices() << std::endl;
-  // }
-  // std::cout << dead_clusters.size() << std::endl;
   for (size_t i=0;i!=dead_clusters.size();i++){
     dead_clusters.at(i)->Remove_duplicated_mcells();
     // std::cout << dead_clusters.at(i)->get_cluster_id() << " " 
@@ -477,17 +461,10 @@ int main(int argc, char* argv[])
     // 	       << dead_clusters.at(i)->get_num_time_slices() << std::endl;
   }
   
-  
- 
-  
-  
   if (timesliceId->size()==0){
-     std::cout << "No points! Quit! " << std::endl;
-     return 0;
-   }
-  
-   
-  cout << em("load clusters from file") << endl;
+    std::cout << "No points! Quit! " << std::endl;
+    return 0;
+  }
   
   // veto 16 channels in U ...
   for (int i=2080; i!=2096;i++){
@@ -495,134 +472,74 @@ int main(int argc, char* argv[])
       dead_u_index[i] = std::make_pair((0*nrebin/2.*unit_dis/10. - frame_length/2.*unit_dis/10.) * units::cm-0.1*units::cm, (2400*nrebin/2.*unit_dis/10. - frame_length/2.*unit_dis/10.) * units::cm+0.1*units::cm);
     }
   }
-  //
-
-   // Start to add X, Y, Z points
-   // form boundaries for the bad cells ... 
-   for (size_t j = 0; j!= dead_clusters.size(); j++){
-     WireCell2dToy::calc_boundary_points_dead(gds,dead_clusters.at(j));
-   }
-   // form sampling points for the normal cells ...
-   DynamicToyPointCloud global_point_cloud(angle_u,angle_v,angle_w);
-   for (size_t i=0; i!=live_clusters.size();i++){
-     WireCell2dToy::calc_sampling_points(gds,live_clusters.at(i),nrebin, frame_length, unit_dis);
-     live_clusters.at(i)->Create_point_cloud();
-     global_point_cloud.AddPoints(live_clusters.at(i),0);
-     //live_clusters.at(i)->Calc_PCA();
-   }
-   cout << em("Add X, Y, Z points") << std::endl;
-
-
-   // create global CT point cloud ...
-   double first_t_dis = live_clusters.at(0)->get_mcells().front()->GetTimeSlice()*time_slice_width - live_clusters.at(0)->get_mcells().front()->get_sampling_points().front().x;
-   double offset_t = first_t_dis/time_slice_width;
-
-   // test the fiducial volume cut 
-   fid->set_offset_t(offset_t);
-   // {
-   //   WireCell::Point p(30.0*units::cm,30*units::cm,30*units::cm);
-   //   WireCell::Point p1(110.0*units::cm,0*units::cm,0*units::cm);
-     
-   //   std::cout << fid->inside_fiducial_volume(p) << " " << fid->inside_fiducial_volume(p1) << std::endl;
-   //   WireCell::Point p2(-100*units::cm, 42.5*units::cm+3*units::cm, 738.4*units::cm);
-   //   std::cout << fid->inside_dead_region(p2) << std::endl;
-     
-   //   // for (int i=0;i!=1000;i++){
-   //   //   for (int j=0;j!=1000;j++){
-   //   // 	 //	 
-   //   // 	 WireCell::Point p2(302.8*units::cm, -116*units::cm + 233*units::cm/1000.*j , 1037*units::cm/1000.*i);
-   //   // 	 if (fid->inside_dead_region(p2))
-   //   // 	   std::cout << "Xin: " << p2.y/units::cm << " " << p2.z/units::cm << std::endl;
-	       	 
-   //   //   }
-   //   // }
-   // }
-			
-
-   
-   
-   ToyCTPointCloud ct_point_cloud(0,2399,2400,4799,4800,8255, // channel range
-				  offset_t, -first_u_dis/pitch_u, -first_v_dis/pitch_v, -first_w_dis/pitch_w, // offset
-				  1./time_slice_width, 1./pitch_u, 1./pitch_v, 1./pitch_w, // slope
-				  angle_u,angle_v,angle_w// angle
-				  );
-   ct_point_cloud.AddPoints(timesliceId,timesliceChannel,raw_charge,raw_charge_err);
-   ct_point_cloud.AddDeadChs(dead_u_index, dead_v_index, dead_w_index);
-   ct_point_cloud.build_kdtree_index();
-
-
-   
-   
-   // // test the usage of this CT point cloud
-   // {
-   //   std::cout << live_clusters.at(0)->get_mcells().front()->get_sampling_points().front().x/units::cm << " " << live_clusters.at(0)->get_mcells().front()->get_sampling_points().front().y/units::cm << " " << live_clusters.at(0)->get_mcells().front()->get_sampling_points().front().z/units::cm << std::endl;
-   //   std::cout << live_clusters.at(0)->get_mcells().front()->GetTimeSlice() << std::endl;
-   //   for (auto it = live_clusters.at(0)->get_mcells().front()->get_uwires().begin(); it!= live_clusters.at(0)->get_mcells().front()->get_uwires().end(); it++){
-   //     std::cout << "U: " << (*it)->index() << " " << live_clusters.at(0)->get_mcells().front()->Get_Wire_Charge(*it) <<std::endl;
-   //   }
-   //   for (auto it = live_clusters.at(0)->get_mcells().front()->get_vwires().begin(); it!= live_clusters.at(0)->get_mcells().front()->get_vwires().end(); it++){
-   //     std::cout << "V: " << 2400+(*it)->index() << " " << live_clusters.at(0)->get_mcells().front()->Get_Wire_Charge(*it) <<std::endl;
-   //   }
-   //   for (auto it = live_clusters.at(0)->get_mcells().front()->get_wwires().begin(); it!= live_clusters.at(0)->get_mcells().front()->get_wwires().end(); it++){
-   //     std::cout << "W: " << 4800+(*it)->index() << " " << live_clusters.at(0)->get_mcells().front()->Get_Wire_Charge(*it) << std::endl;
-   //   }
-
-   //   ct_point_cloud.Print(live_clusters.at(0)->get_mcells().front()->get_sampling_points().front());
-   //   std::cout << ct_point_cloud.get_num_points(0) << " " << ct_point_cloud.get_num_points(1) << " " << ct_point_cloud.get_num_points(2) << std::endl;
-     
-   //   WireCell::CTPointCloud<double> nearby_points = ct_point_cloud.get_closest_points(live_clusters.at(0)->get_mcells().front()->get_sampling_points().front(),1*units::cm,0);
-   //   for (size_t i=0;i!=nearby_points.pts.size();i++){
-   //     std::cout << "U1: " << nearby_points.pts.at(i).channel << " " << nearby_points.pts.at(i).time_slice << " " << nearby_points.pts.at(i).charge << std::endl;
-   //   }
-   //   nearby_points = ct_point_cloud.get_closest_points(live_clusters.at(0)->get_mcells().front()->get_sampling_points().front(),1*units::cm,1);
-   //   for (size_t i=0;i!=nearby_points.pts.size();i++){
-   //     std::cout << "V1: " << nearby_points.pts.at(i).channel << " " << nearby_points.pts.at(i).time_slice << " " << nearby_points.pts.at(i).charge << std::endl;
-   //   }
-   //   nearby_points = ct_point_cloud.get_closest_points(live_clusters.at(0)->get_mcells().front()->get_sampling_points().front(),1*units::cm,2);
-   //   for (size_t i=0;i!=nearby_points.pts.size();i++){
-   //     std::cout << "W1: " << nearby_points.pts.at(i).channel << " " << nearby_points.pts.at(i).time_slice << " " << nearby_points.pts.at(i).charge << std::endl;
-   //   }
-   // }
-   
-   
-   // finish creating global CT point cloud 
-
-   
-   
-   // WireCell2dToy::Clustering_live_dead(live_clusters, dead_clusters);
-   // cerr << em("Clustering live and dead clusters") << std::endl;
-
-   std::map<PR3DCluster*,std::vector<std::pair<PR3DCluster*,double>>> group_clusters = WireCell2dToy::Clustering_jump_gap_cosmics(live_clusters, dead_clusters,dead_u_index, dead_v_index, dead_w_index, global_point_cloud, ct_point_cloud);
-   cout << em("Clustering to jump gap in cosmics") << std::endl;
-   
-   // // need to further cluster things ...
-   // std::map<PR3DCluster*,std::vector<std::pair<PR3DCluster*,double>>> group_clusters =  WireCell2dToy::Clustering_isolated(live_clusters);
-   // cerr << em("Clustering isolated") << std::endl;
-   
-   
-   
+  // Load T_ch_bad tree ...
   
+  
+  
+  cout << em("load clusters from file") << endl;
+  
+  // Start to add X, Y, Z points
+  // form boundaries for the bad cells ... 
+  for (size_t j = 0; j!= dead_clusters.size(); j++){
+    WireCell2dToy::calc_boundary_points_dead(gds,dead_clusters.at(j));
+  }
+  // form sampling points for the normal cells ...
+  DynamicToyPointCloud global_point_cloud(angle_u,angle_v,angle_w);
+  for (size_t i=0; i!=live_clusters.size();i++){
+    WireCell2dToy::calc_sampling_points(gds,live_clusters.at(i),nrebin, frame_length, unit_dis);
+    live_clusters.at(i)->Create_point_cloud();
+    global_point_cloud.AddPoints(live_clusters.at(i),0);
+    //live_clusters.at(i)->Calc_PCA();
+  }
+  cout << em("Add X, Y, Z points") << std::endl;
+  
+  
+  // create global CT point cloud ...
+  double first_t_dis = live_clusters.at(0)->get_mcells().front()->GetTimeSlice()*time_slice_width - live_clusters.at(0)->get_mcells().front()->get_sampling_points().front().x;
+  double offset_t = first_t_dis/time_slice_width;
+  
+  // test the fiducial volume cut 
+  fid->set_offset_t(offset_t);
+  
+  ToyCTPointCloud ct_point_cloud(0,2399,2400,4799,4800,8255, // channel range
+				 offset_t, -first_u_dis/pitch_u, -first_v_dis/pitch_v, -first_w_dis/pitch_w, // offset
+				 1./time_slice_width, 1./pitch_u, 1./pitch_v, 1./pitch_w, // slope
+				 angle_u,angle_v,angle_w// angle
+				 );
+  ct_point_cloud.AddPoints(timesliceId,timesliceChannel,raw_charge,raw_charge_err);
+  ct_point_cloud.AddDeadChs(dead_u_index, dead_v_index, dead_w_index);
+  ct_point_cloud.build_kdtree_index();
    
-   // processing light information
-   bool use_overlay_input = false;
-   if(datatier==1) use_overlay_input = true;
-   bool use_remap_channel = false;
-   if(datatier==0 || datatier==1) use_remap_channel = true;
-   //WireCell2dToy::ToyLightReco uboone_flash(filename,true,use_overlay_input,use_remap_channel);
-   WireCell2dToy::ToyLightReco uboone_flash(filename,true,datatier); //use_overlay_input,use_remap_channel); 
-
-   uboone_flash.load_event_raw(0);
-   cout << em("flash reconstruction") << std::endl;
-
-   // prepare light matching ....
-   WireCell::OpflashSelection& flashes = uboone_flash.get_flashes();
-   for (size_t i=0;i!=flashes.size(); i++){
-     flashes.at(i)->set_flash_id(i);
-   }
-
-
-
-     // form a global map with the current map information
+  // finish creating global CT point cloud 
+  
+  
+  
+  // WireCell2dToy::Clustering_live_dead(live_clusters, dead_clusters);
+  // cerr << em("Clustering live and dead clusters") << std::endl;
+  
+  std::map<PR3DCluster*,std::vector<std::pair<PR3DCluster*,double>>> group_clusters = WireCell2dToy::Clustering_jump_gap_cosmics(live_clusters, dead_clusters,dead_u_index, dead_v_index, dead_w_index, global_point_cloud, ct_point_cloud);
+  cout << em("Clustering to jump gap in cosmics") << std::endl;
+  
+  // processing light information
+  bool use_overlay_input = false;
+  if(datatier==1) use_overlay_input = true;
+  bool use_remap_channel = false;
+  if(datatier==0 || datatier==1) use_remap_channel = true;
+  //WireCell2dToy::ToyLightReco uboone_flash(filename,true,use_overlay_input,use_remap_channel);
+  WireCell2dToy::ToyLightReco uboone_flash(filename,true,datatier); //use_overlay_input,use_remap_channel); 
+  
+  uboone_flash.load_event_raw(0);
+  cout << em("flash reconstruction") << std::endl;
+  
+  // prepare light matching ....
+  WireCell::OpflashSelection& flashes = uboone_flash.get_flashes();
+  for (size_t i=0;i!=flashes.size(); i++){
+    flashes.at(i)->set_flash_id(i);
+  }
+  
+  
+  
+  // form a global map with the current map information
   std::map<int,std::map<const GeomWire*, SMGCSelection > > global_wc_map;
   for (size_t i=0; i!=live_clusters.size();i++){
     PR3DCluster *cluster = live_clusters.at(i);
@@ -679,22 +596,12 @@ int main(int argc, char* argv[])
     }
   }
   
-  //
-
-
-
-   
-   //   cout<<"BUGGGG"<<endl;
-   
-
-   //   std::vector<std::tuple<WireCell::PR3DCluster*, WireCell::Opflash*, double, std::vector<double>>> matched_results = WireCell2dToy::tpc_light_match(time_offset,nrebin,group_clusters,flashes);
    FlashTPCBundleSelection matched_bundles = WireCell2dToy::tpc_light_match(time_offset,nrebin,group_clusters,flashes);
    cout << em("TPC Light Matching") << std::endl;
 
    // create the live clusters ...
-   //std::cout << live_clusters.size() << std::endl;
    live_clusters.clear();
-
+   
    for (auto it = matched_bundles.begin(); it!= matched_bundles.end(); it++){
      FlashTPCBundle *bundle = *it;
      PR3DCluster *main_cluster = bundle->get_main_cluster();
@@ -703,53 +610,35 @@ int main(int argc, char* argv[])
        live_clusters.push_back(*it1);
      }
    }
-   //std::cout << live_clusters.size() << std::endl;
 
    std::map<PR3DCluster*, PR3DCluster*> old_new_cluster_map;
-   
    for (size_t i=0;i!=live_clusters.size();i++){
-
      //if (live_clusters.at(i)->get_cluster_id()!=3) continue;
-
      //std::cout << i << " " << live_clusters.at(i)->get_cluster_id() << " " << live_clusters.at(i)->get_mcells().size() << " " << live_clusters.at(i)->get_num_time_slices() << std::endl;
-     
      live_clusters.at(i)->Create_graph(ct_point_cloud);
-
      std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> wcps = live_clusters.at(i)->get_highest_lowest_wcps();
      // std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> wcps = live_clusters.at(i)->get_extreme_wcps();
-
      // std::cout << wcps.first.x/units::cm << " " << wcps.first.y/units::cm << " " << wcps.first.z/units::cm << " " << wcps.second.x/units::cm << " " << wcps.second.y/units::cm << " " << wcps.second.z/units::cm << std::endl;
-     
      live_clusters.at(i)->dijkstra_shortest_paths(wcps.first);
-
-     //std::cout << "shortest path start point" << std::endl;
-     
      live_clusters.at(i)->cal_shortest_path(wcps.second);
-
+     
      {
        // add dead channels in??? 
        PR3DCluster *new_cluster = WireCell2dToy::Improve_PR3DCluster(live_clusters.at(i),ct_point_cloud, gds);
        WireCell2dToy::calc_sampling_points(gds,new_cluster,nrebin, frame_length, unit_dis);
        new_cluster->Create_point_cloud();
        old_new_cluster_map[live_clusters.at(i)] = new_cluster;
-
+       
        new_cluster->Create_graph(ct_point_cloud);
        std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> new_wcps = new_cluster->get_highest_lowest_wcps();
        new_cluster->dijkstra_shortest_paths(new_wcps.first);
        new_cluster->cal_shortest_path(new_wcps.second);
      }
-     
-     //std::cout << "shortest path end point" << std::endl;
-     
      live_clusters.at(i)->fine_tracking(global_wc_map);
-
      //std::cout << "fine tracking" << std::endl;
-     
      live_clusters.at(i)->collect_charge_trajectory(ct_point_cloud);
-     
      //std::cout << "Collect points" << std::endl;
    }
-
 
    // // do the dQ/dx fitting ... 
    // for (auto it = matched_bundles.begin(); it!= matched_bundles.end(); it++){
@@ -765,12 +654,7 @@ int main(int argc, char* argv[])
    // 	 // }
    //   }
    // }
-
-
-   
    cerr << em("Create Graph in all clusters") << std::endl;
-
-   
    
    TFile *file1 = new TFile(Form("match_%d_%d_%d.root",run_no,subrun_no,event_no),"RECREATE");
    TTree *T_match = new TTree("T_match","T_match");
@@ -854,7 +738,7 @@ int main(int argc, char* argv[])
      event_type = 0;
      if (flash!=0){
        //std::cout << "Flash: " << flash->get_flash_id() << " " << flash->get_time() << std::endl;
-
+       
        // Note, for BNB, flash time is aroudn 4us
        // time offset happened to be 4us ...
        double offset_x = (flash->get_time() - time_offset)*2./nrebin*time_slice_width;
@@ -877,38 +761,7 @@ int main(int argc, char* argv[])
      
      T_match->Fill();
    }
-
-   cerr << em("test TGM") << std::endl;
-
-   
-   // for (auto it = matched_results.begin(); it!=matched_results.end(); it++){
-   //   Opflash *flash = std::get<1>(*it);
-   //   PR3DCluster *main_cluster = std::get<0>(*it);
-   //   if (flash!=0){
-   //     auto it1 = find(flashes.begin(),flashes.end(),flash);
-   //     // flash_id = it1 - flashes.begin();
-   //     flash_id = flash->get_flash_id();
-   //     strength = std::get<2>(*it);
-   //     std::vector<double> temp = std::get<3>(*it);
-   //     for (int i=0;i!=32;i++){
-   //   	 pe_pred[i] = temp.at(i);
-   //   	 pe_meas[i] = flash->get_PE(i);
-   //   	 pe_meas_err[i] = flash->get_PE_err(i);
-   //     }
-   //   }else{
-   //     flash_id = -1;
-   //     strength = 0;
-   //     for (int i=0;i!=32;i++){
-   //   	 pe_pred[i] = 0;
-   //   	 pe_meas[i] = 0;
-   //   	 pe_meas_err[i] = 0.;
-   //     }
-   //   }
-   //   ncluster = main_cluster->get_cluster_id();
-   //   T_match->Fill();
-   //   //ncluster++;
-   // }
-   
+   cerr << em("test TGM") << std::endl;   
    
    TTree *T_bad_ch = (TTree*)file->Get("T_bad_ch");
    if (T_bad_ch!=0){
