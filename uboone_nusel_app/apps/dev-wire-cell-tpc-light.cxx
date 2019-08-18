@@ -14,6 +14,7 @@
 #include "WireCell2dToy/ToyMatching.h"
 #include "WireCell2dToy/ToyFiducial.h"
 #include "WireCell2dToy/ImprovePR3DCluster.h"
+#include "WireCell2dToy/ExamineBundles.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -656,6 +657,12 @@ int main(int argc, char* argv[])
    FlashTPCBundleSelection matched_bundles = WireCell2dToy::tpc_light_match(time_offset,nrebin,group_clusters,flashes);
    cout << em("TPC Light Matching") << std::endl;
 
+   // further merge or split clusters ... protect against over clustering
+   matched_bundles = WireCell2dToy::ExamineBundles(matched_bundles, ct_point_cloud);
+   // finish the further merge ... 
+   cout << em("Examine bundles ") << std::endl;
+   
+   
    // create the live clusters ...
    live_clusters.clear();
    
