@@ -673,36 +673,47 @@ int main(int argc, char* argv[])
      for (auto it1 = bundle->get_other_clusters().begin(); it1!=bundle->get_other_clusters().end();it1++){
        live_clusters.push_back(*it1);
      }
+     // also have to add the original cluster
+     if (bundle->get_orig_cluster()!=0)
+       live_clusters.push_back(bundle->get_orig_cluster());
    }
 
    std::map<PR3DCluster*, PR3DCluster*> old_new_cluster_map;
    for (size_t i=0;i!=live_clusters.size();i++){
-     //if (live_clusters.at(i)->get_cluster_id()!=3) continue;
-     //std::cout << i << " " << live_clusters.at(i)->get_cluster_id() << " " << live_clusters.at(i)->get_mcells().size() << " " << live_clusters.at(i)->get_num_time_slices() << std::endl;
+     // if (live_clusters.at(i)->get_cluster_id()!=34) continue;
+     //  std::cout << i << " " << live_clusters.at(i)->get_cluster_id() << " " << live_clusters.at(i)->get_mcells().size() << " " << live_clusters.at(i)->get_num_time_slices() << std::endl;
      live_clusters.at(i)->Create_graph(ct_point_cloud);
+
      std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> wcps = live_clusters.at(i)->get_highest_lowest_wcps();
      // std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> wcps = live_clusters.at(i)->get_extreme_wcps();
-     // std::cout << wcps.first.x/units::cm << " " << wcps.first.y/units::cm << " " << wcps.first.z/units::cm << " " << wcps.second.x/units::cm << " " << wcps.second.y/units::cm << " " << wcps.second.z/units::cm << std::endl;
+     //std::cout << wcps.first.x/units::cm << " " << wcps.first.y/units::cm << " " << wcps.first.z/units::cm << " " << wcps.second.x/units::cm << " " << wcps.second.y/units::cm << " " << wcps.second.z/units::cm << std::endl;
      live_clusters.at(i)->dijkstra_shortest_paths(wcps.first);
      live_clusters.at(i)->cal_shortest_path(wcps.second);
-     
+
+     //std::cout << "shortest path 1" << std::endl;
      {
        // add dead channels in??? 
        PR3DCluster *new_cluster = WireCell2dToy::Improve_PR3DCluster(live_clusters.at(i),ct_point_cloud, gds);
        WireCell2dToy::calc_sampling_points(gds,new_cluster,nrebin, frame_length, unit_dis);
        new_cluster->Create_point_cloud();
        old_new_cluster_map[live_clusters.at(i)] = new_cluster;
-       
+
+       //std::cout << "new cluster" << std::endl;
        new_cluster->Create_graph(ct_point_cloud);
        std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> new_wcps = new_cluster->get_highest_lowest_wcps();
        new_cluster->dijkstra_shortest_paths(new_wcps.first);
        new_cluster->cal_shortest_path(new_wcps.second);
+       //std::cout << "shortest path 2" << std::endl;
      }
-     live_clusters.at(i)->fine_tracking(global_wc_map);
-     //std::cout << "fine tracking" << std::endl;
+     
+     //  live_clusters.at(i)->fine_tracking(global_wc_map);
+     //  std::cout << "fine tracking" << std::endl;
      live_clusters.at(i)->collect_charge_trajectory(ct_point_cloud);
-     //std::cout << "Collect points" << std::endl;
+     //  std::cout << "Collect points" << std::endl;
    }
+
+
+   
 
    // // do the dQ/dx fitting ... 
    // for (auto it = matched_bundles.begin(); it!= matched_bundles.end(); it++){
@@ -809,12 +820,18 @@ int main(int argc, char* argv[])
        if (fid->check_tgm(bundle,offset_x, ct_point_cloud,old_new_cluster_map)){
 	 event_type |= 1UL << 3; // 3rd bit for TGM
        }else{
-	 if (fid->check_fully_contained(bundle,offset_x, ct_point_cloud,old_new_cluster_map)){
-	   //	   std::cout << "fully contained " << flash->get_flash_id() << "  " << flash_get_time << std::endl;
-	   event_type |= 1UL << 2; // 2nd bit for fully contained 
+	 if (fid->check_tgm(bundle,offset_x, ct_point_cloud,old_new_cluster_map,2)){ // check original main cluster
+	   event_type |= 1UL << 3; // 3rd bit for TGM
+	 }else{
+	   if (fid->check_fully_contained(bundle,offset_x, ct_point_cloud,old_new_cluster_map)){
+	     //	   std::cout << "fully contained " << flash->get_flash_id() << "  " << flash_get_time << std::endl;
+	     event_type |= 1UL << 2; // 2nd bit for fully contained 
+	   }else if (fid->check_fully_contained(bundle,offset_x, ct_point_cloud,old_new_cluster_map, nullptr, 2)){ // check original main cluster
+	     event_type |= 1UL << 2; // 2nd bit for fully contained 
+	   }
 	 }
        }
-
+       
        int temp_flag = fid->check_LM(bundle,cluster_length);
        if (temp_flag==1){
 	 event_type |= 1UL << 4; // 4th bit for low energy ...
@@ -951,7 +968,7 @@ int main(int argc, char* argv[])
        for (size_t j = 0; j!= temp_clusters.size(); j++){
 	 
 	 // show individual clusters ... 
-	 //ncluster = temp_clusters.at(j)->get_cluster_id();
+	 //	 ncluster = temp_clusters.at(j)->get_cluster_id();
 	 
 	 SMGCSelection& mcells = temp_clusters.at(j)->get_mcells();
 	 //ncluster = temp_clusters.at(0)->get_cluster_id();
@@ -983,11 +1000,21 @@ int main(int argc, char* argv[])
      }
        //     ncluster ++;
      }
-   
+
+     live_clusters.clear();
+     for (auto it = matched_bundles.begin(); it!= matched_bundles.end(); it++){
+       FlashTPCBundle *bundle = *it;
+       PR3DCluster *main_cluster = bundle->get_main_cluster();
+       live_clusters.push_back(main_cluster);
+       for (auto it1 = bundle->get_other_clusters().begin(); it1!=bundle->get_other_clusters().end();it1++){
+	 live_clusters.push_back(*it1);
+       }
+     }
+     
      for (size_t j = 0; j!= live_clusters.size(); j++){
        
        // save wcps
-       PR3DCluster *new_cluster = old_new_cluster_map[live_clusters.at(j)];
+       PR3DCluster *new_cluster = live_clusters.at(j);//old_new_cluster_map[live_clusters.at(j)];
        std::list<WCPointCloud<double>::WCPoint>& wcps_list = new_cluster->get_path_wcps();
        //ncluster = -1 * ncluster-100;
        ndf_save = live_clusters.at(j)->get_cluster_id();
