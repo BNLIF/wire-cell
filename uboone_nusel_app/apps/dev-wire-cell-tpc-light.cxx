@@ -674,13 +674,12 @@ int main(int argc, char* argv[])
        live_clusters.push_back(*it1);
      }
      // also have to add the original cluster
-     if (bundle->get_orig_cluster()!=0)
-       live_clusters.push_back(bundle->get_orig_cluster());
+     if (bundle->get_orig_cluster()!=0)  live_clusters.push_back(bundle->get_orig_cluster());
    }
 
    std::map<PR3DCluster*, PR3DCluster*> old_new_cluster_map;
    for (size_t i=0;i!=live_clusters.size();i++){
-     // if (live_clusters.at(i)->get_cluster_id()!=34) continue;
+     //if (live_clusters.at(i)->get_cluster_id()!=34) continue;
      //  std::cout << i << " " << live_clusters.at(i)->get_cluster_id() << " " << live_clusters.at(i)->get_mcells().size() << " " << live_clusters.at(i)->get_num_time_slices() << std::endl;
      live_clusters.at(i)->Create_graph(ct_point_cloud);
 
@@ -706,7 +705,7 @@ int main(int argc, char* argv[])
        //std::cout << "shortest path 2" << std::endl;
      }
      
-     //  live_clusters.at(i)->fine_tracking(global_wc_map);
+     //     live_clusters.at(i)->fine_tracking(global_wc_map);
      //  std::cout << "fine tracking" << std::endl;
      live_clusters.at(i)->collect_charge_trajectory(ct_point_cloud);
      //  std::cout << "Collect points" << std::endl;
