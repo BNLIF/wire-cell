@@ -845,7 +845,7 @@ int main(int argc, char* argv[])
    
    
    if (T_bad_ch!=0){
-     T_bad_ch->CloneTree()->Write();
+     T_bad_ch->CloneTree(-1,"fast");
    }
 
    if (bee_debug!=0){
@@ -1199,7 +1199,7 @@ int main(int argc, char* argv[])
    //   ncluster++;
    // }
    
-   Trun->CloneTree()->Write();
+   Trun->CloneTree(-1,"fast");
 
 
    if (save_light!=0){
@@ -1374,7 +1374,7 @@ int main(int argc, char* argv[])
   }
 
     
-  TDC->CloneTree()->Write();
+  TDC->CloneTree(-1,"fast");
   {
     TTree *TC_n = new TTree("TC","TC");
     TC_n->SetDirectory(file1);

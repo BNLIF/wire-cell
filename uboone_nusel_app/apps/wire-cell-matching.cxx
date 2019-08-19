@@ -783,7 +783,7 @@ int main(int argc, char* argv[])
   cerr << em("test TGM") << std::endl;
   
   // clone TDC tree ... 
-  TDC->CloneTree()->Write();
+  TDC->CloneTree(-1,"fast");
   {
     TTree *TC_n = new TTree("TC","TC");
     TC_n->SetDirectory(file1);
@@ -959,7 +959,7 @@ int main(int argc, char* argv[])
   
 
   if (T_bad_ch!=0){
-    T_bad_ch->CloneTree()->Write();
+    T_bad_ch->CloneTree(-1,"fast");
   }
   
   TTree *t_bad = new TTree("T_bad","T_bad");
@@ -1211,7 +1211,7 @@ int main(int argc, char* argv[])
   }
   
   
-  Trun->CloneTree()->Write();
+  Trun->CloneTree(-1,"fast");
   
   
   // TTree *t1 = new TTree("T_data","T_data");

@@ -1206,7 +1206,7 @@ int main(int argc, char* argv[])
    //   ncluster++;
    // }
    
-   Trun->CloneTree()->Write();
+   Trun->CloneTree(-1,"fast");
 
    
    TTree *t1 = new TTree("T_data","T_data");

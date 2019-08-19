@@ -4288,7 +4288,6 @@ std::cout << "# of good mcell: " << good_mcells.size() << std::endl;
   TDC->Fill();
   }
   
-  // Trun->CloneTree()->Write();
   file->Write();
   file->Close();
 }
