@@ -545,9 +545,9 @@ int main(int argc, char* argv[])
   TFile *file = new TFile(Form("result_%d_%d_%d.root",run_no,subrun_no,event_no),"RECREATE");
 
   if (T_op!=0){
-    T_op->CloneTree()->Write();
+    T_op->CloneTree(-1,"fast");
   }
-  Trun->CloneTree()->Write();
+  Trun->CloneTree(-1,"fast");
   
   Int_t n_cells;
   Int_t n_good_wires;
