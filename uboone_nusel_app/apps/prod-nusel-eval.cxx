@@ -172,7 +172,7 @@ int main(int argc, char* argv[])
   nuFinalState_z.clear();  
   nuFinalState_nelectrons.clear();  
   
-  TFile *file1 = new TFile(Form("nuselEval_%d_%d_%d.root",run_no,subrun_no,event_no),"RECREATE");
+  TFile *file1 = new TFile(Form("nuselEval_old_%d_%d_%d.root",run_no,subrun_no,event_no),"RECREATE");
   TTree *T_true;
   int nufs_pdg;
   double nufs_x, nufs_y, nufs_z, nufs_q, nufs_e;
@@ -547,8 +547,13 @@ int main(int argc, char* argv[])
    std::map<PR3DCluster*,std::vector<std::pair<PR3DCluster*,double>>> group_clusters = WireCell2dToy::Clustering_jump_gap_cosmics(live_clusters, dead_clusters,dead_u_index, dead_v_index, dead_w_index, global_point_cloud, ct_point_cloud);
    cout << em("Clustering to jump gap in cosmics") << std::endl;
    
+   double lowerwindow = 0., upperwindow = 0.;
+   if(datatier==0 && triggerbits==2048){ lowerwindow=3.1875; upperwindow=4.96876; } // BNB
+   if((datatier==0 && triggerbits==512) || datatier==1){ lowerwindow=3.5625; upperwindow=5.34376; } // BNB EXT & overlay
+   if(datatier==2){ lowerwindow=3.1718; upperwindow=4.95306; } // full mc
+   
    WireCell2dToy::ToyLightReco uboone_flash(filename, 1, datatier);
-   uboone_flash.load_event_raw(0);
+   uboone_flash.load_event_raw(0, lowerwindow, upperwindow);
    cout << em("flash reconstruction") << std::endl;
 
    WireCell::OpflashSelection& flashes = uboone_flash.get_flashes();
@@ -680,7 +685,7 @@ int main(int argc, char* argv[])
    float match_completeness=0./* matched/true */, match_completeness_energy=0., match_purity=0./* matched/reco */;
    float match_purity_xz=0, match_purity_xy=0;
    Int_t match_type=0;
-   bool match_notFC_FV=false, match_notFC_SP=false, match_notFC_DC=false, match_isTgm=false, match_isFC;
+   bool match_notFC_FV=false, match_notFC_SP=false, match_notFC_DC=false, match_isTgm=false, match_isFC=false;
 
      T_eval->Branch("run", &run_no);
      T_eval->Branch("subrun", &subrun_no);
@@ -779,10 +784,6 @@ int main(int argc, char* argv[])
    T_match->Branch("ndf",&ndf,"ndf/I");
    T_match->Branch("cluster_length",&cluster_length,"cluster_length/D");
 
-   double lowerwindow = 0., upperwindow = 0.;
-   if(datatier==0 && triggerbits==2048){ lowerwindow=3.1875; upperwindow=4.96876; } // BNB
-   if(datatier==0 && triggerbits==512){ lowerwindow=3.5625; upperwindow=5.34376; } // BNB EXT
-   if(datatier==1 || datatier==2){ lowerwindow=3.1718; upperwindow=4.95306; } // overlay & full mc
    
    bool is_inTime=false;
    for (auto it = matched_bundles.begin(); it!=matched_bundles.end(); it++){
@@ -836,9 +837,13 @@ int main(int argc, char* argv[])
 
        unsigned int fc_breakdown=0;// should be initilized to ZERO
        if (fid->check_fully_contained(bundle,offset_x, ct_point_cloud,old_new_cluster_map, &fc_breakdown)){  
-           match_isFC = true; 
+           match_isFC = true;
+           match_notFC_FV = false;
+           match_notFC_SP = false;
+           match_notFC_DC = false;
        }
        else {
+           match_isFC = false;
            match_notFC_FV = (fc_breakdown>>2) & 1U; // outside fiducial volume
            match_notFC_SP = (fc_breakdown>>1) & 1U; // SP gaps
            match_notFC_DC = (fc_breakdown) & 1U; // dead regions
@@ -1291,7 +1296,7 @@ int main(int argc, char* argv[])
 
   TFile *file2;
   if(port==1){
-    file2 = new TFile(Form("port_%d_%d_%d.root",run_no,subrun_no,event_no),"RECREATE");
+    file2 = new TFile(Form("port_old_%d_%d_%d.root",run_no,subrun_no,event_no),"RECREATE");
 
     TTree *T_port_flash = new TTree("T_port_flash","T_port_flash");
     int f_type;
@@ -1582,7 +1587,7 @@ int main(int argc, char* argv[])
 	  charge_error = proj_cluster_charge_err->at(a).at(i);
 	  T_port_2d->Fill();
       // only collection plane
-	  if(channel>=4800) match_charge += charge;
+	  if(channel>=4800 && main_flag==1) match_charge += charge;
 	} // i
       } // a
     } // it
