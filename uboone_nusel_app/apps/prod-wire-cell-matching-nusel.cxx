@@ -834,9 +834,9 @@ int main(int argc, char* argv[])
   
    /* neutrino selction block start */
    std::vector<int> intime_match_flashid;
-   std::vector<int> event_type_tgm;
+   std::vector<unsigned int> event_type_tgm;
    std::vector<unsigned int> fc_breakdown;
-   std::vector<int> LM_type; // the first (smallest) 2 bits for LM, the next 2 bits for LM_cuts, the last 2 bits for LM_bdt
+   std::vector<unsigned int> LM_type; // the first (smallest) 2 bits for LM, the next 2 bits for LM_cuts, the last 2 bits for LM_bdt
  
    std::vector<float> intime_flash_measPe;
    std::vector<float> intime_flash_predPe;
@@ -903,7 +903,7 @@ int main(int argc, char* argv[])
      if(flash!=0 && flash->get_time()>lowerwindow && flash->get_time()<upperwindow) {
          unsigned int _fc_breakdown=0;
          unsigned int _tgm=0;
-         int _LM_type=0;
+         unsigned int _LM_type=0;
          event_type = 1; // intime flash
          intime_match_flashid.push_back(flash->get_flash_id());
          intime_flash_predPe.push_back(_intime_flash_predPe);
@@ -914,18 +914,18 @@ int main(int argc, char* argv[])
          // time offset happened to be 4us ...
          double offset_x = (flash->get_time() - time_offset)*2./nrebin*time_slice_width;
          if (fid->check_tgm(bundle,offset_x, ct_point_cloud,old_new_cluster_map)){
-             event_type |= 1UL << 3; // 3rd bit for TGM
+             event_type |= 1U << 3; // 3rd bit for TGM
              _tgm=1;
          }else if (fid->check_tgm(bundle,offset_x, ct_point_cloud,old_new_cluster_map,2)){ // check original main cluster
-                 event_type |= 1UL << 3; // 3rd bit for TGM
+                 event_type |= 1U << 3; // 3rd bit for TGM
                  _tgm=1;
          }
          
          if (fid->check_fully_contained(bundle,offset_x, ct_point_cloud,old_new_cluster_map, &_fc_breakdown)){
              //	   std::cout << "fully contained " << flash->get_flash_id() << "  " << flash_get_time << std::endl;
-             event_type |= 1UL << 2; // 2nd bit for fully contained 
+             event_type |= 1U << 2; // 2nd bit for fully contained 
          }else if (fid->check_fully_contained(bundle,offset_x, ct_point_cloud,old_new_cluster_map, &_fc_breakdown, 2)){ // check original main cluster
-             event_type |= 1UL << 2; // 2nd bit for fully contained 
+             event_type |= 1U << 2; // 2nd bit for fully contained 
          }
              
          event_type_tgm.push_back(_tgm);
@@ -934,24 +934,24 @@ int main(int argc, char* argv[])
          
          int temp_flag = fid->check_LM(bundle,cluster_length);
          if (temp_flag==1){
-             event_type |= 1UL<<4; // 4th bit for low energy ...
-             _LM_type |= 1UL;
+             event_type |= 1U<<4; // 4th bit for low energy ...
+             _LM_type |= 1U;
          }else if (temp_flag==2){
-             event_type |= 1UL << 1; // 1st bit for light mismatch ...
-             _LM_type |= 1UL<<1;
+             event_type |= 1U << 1; // 1st bit for light mismatch ...
+             _LM_type |= 1U<<1;
          }
 
          temp_flag = fid->check_LM_cuts(bundle,cluster_length);
          if (temp_flag==1){
-             _LM_type |= 1UL<<2; // 4th bit for low energy ...
+             _LM_type |= 1U<<2; // 4th bit for low energy ...
          }else if (temp_flag==2){
-             _LM_type |= 1UL<<3; // 1st bit for light mismatch ...
+             _LM_type |= 1U<<3; // 1st bit for light mismatch ...
          }
          temp_flag = fid->check_LM_bdt(bundle,cluster_length);
          if (temp_flag==1){
-             _LM_type |= 1UL<<4; // 4th bit for low energy ...
+             _LM_type |= 1U<<4; // 4th bit for low energy ...
          }else if (temp_flag==2){
-             _LM_type |= 1UL<<5; // 1st bit for light mismatch ...
+             _LM_type |= 1U<<5; // 1st bit for light mismatch ...
          } 
          LM_type.push_back(_LM_type);
      }
@@ -969,7 +969,7 @@ int main(int argc, char* argv[])
    bool match_found=false;
    float flash_measPe=0;
    float flash_predPe=0;
-   int match_type=0;
+   unsigned int match_type=0;
    bool match_isFC=false;
    bool match_isTgm=false;
    bool match_notFC_FV=false;
@@ -1799,7 +1799,7 @@ int main(int argc, char* argv[])
    //float flash_measPe=-1;
    //float flash_predPe=-1;
    //bool match_found=false;
-   //int match_type=0;
+   //unsigned int match_type=0;
    //bool match_isFC=false;
    //bool match_isTgm=false;
    //bool match_notFC_FV=false;
@@ -1945,7 +1945,7 @@ int main(int argc, char* argv[])
    T_eval->Branch("flash_measPe", &flash_measPe, "flash_measPe/F");
    T_eval->Branch("flash_predPe", &flash_predPe, "flash_predPe/F");
    T_eval->Branch("match_found", &match_found, "match_found/O");
-   T_eval->Branch("match_type", &match_type, "match_type/I");
+   T_eval->Branch("match_type", &match_type, "match_type/i");
    T_eval->Branch("match_isFC", &match_isFC, "match_isFC/O");
    T_eval->Branch("match_isTgm", &match_isTgm, "match_isTgm/O");
    T_eval->Branch("match_notFC_FV", &match_notFC_FV, "match_notFC_FV/O");
