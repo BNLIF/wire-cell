@@ -444,11 +444,12 @@ int main(int argc, char* argv[])
   }
   
   // veto 16 channels in U ...
-  for (int i=2080; i!=2096;i++){
-    if (dead_u_index.find(i)==dead_u_index.end()){
-      dead_u_index[i] = std::make_pair((0*nrebin/2.*unit_dis/10. - frame_length/2.*unit_dis/10.) * units::cm-0.1*units::cm, (2400*nrebin/2.*unit_dis/10. - frame_length/2.*unit_dis/10.) * units::cm+0.1*units::cm);
-    }
-  }
+  // for (int i=2080; i!=2096;i++){
+  //   if (dead_u_index.find(i)==dead_u_index.end()){
+  //     dead_u_index[i] = std::make_pair((0*nrebin/2.*unit_dis/10. - frame_length/2.*unit_dis/10.) * units::cm-0.1*units::cm, (2400*nrebin/2.*unit_dis/10. - frame_length/2.*unit_dis/10.) * units::cm+0.1*units::cm);
+  //   }
+  // }
+  
   // Load T_ch_bad tree ...
   TTree *T_bad_ch = (TTree*)file->Get("T_bad_ch");
   if (T_bad_ch!=0){

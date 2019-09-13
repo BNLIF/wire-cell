@@ -501,32 +501,54 @@ if(beamspill || beam==-1){
 	hv_raw->SetBinContent(i+1-2400,j+1,0);
       }
     }
-    // U wire plane bad channels
+    int temp_count = 0;
     for (int i=2160;i!=2176;i++){
-      if (uplane_map.find(i)==uplane_map.end()){
-	uplane_map[i] = std::make_pair(0,hv_raw->GetNbinsY()-1);
-	std::cout << "U plane (bad): " << i << " added to bad channel list" << std::endl;
-      }else{
-	uplane_map[i] = std::make_pair(0,hv_raw->GetNbinsY()-1);
-      }
       for (int j=0;j!=hu_decon->GetNbinsY();j++){
-	hu_decon->SetBinContent(i+1,j+1,0);
-	hu_decon_g->SetBinContent(i+1,j+1,0);
+	if (hu_decon->GetBinContent(i+1,j+1)>1000)
+	  temp_count ++;
       }
     }
 
-    for (int i=2080;i!=2096;i++){
-      if (uplane_map.find(i)==uplane_map.end()){
-	uplane_map[i] = std::make_pair(0,hv_raw->GetNbinsY()-1);
-	std::cout << "U plane (bad): " << i << " added to bad channel list" << std::endl;
-      }else{
-	uplane_map[i] = std::make_pair(0,hv_raw->GetNbinsY()-1);
-      }
-      for (int j=0;j!=hu_decon->GetNbinsY();j++){
-	hu_decon->SetBinContent(i+1,j+1,0);
-	hu_decon_g->SetBinContent(i+1,j+1,0);
+    if (temp_count < 10){
+      // U wire plane bad channels
+      for (int i=2160;i!=2176;i++){
+	if (uplane_map.find(i)==uplane_map.end()){
+	  uplane_map[i] = std::make_pair(0,hv_raw->GetNbinsY()-1);
+	  std::cout << "U plane (bad): " << i << " added to bad channel list" << std::endl;
+	}else{
+	  uplane_map[i] = std::make_pair(0,hv_raw->GetNbinsY()-1);
+	}
+	for (int j=0;j!=hu_decon->GetNbinsY();j++){
+	  hu_decon->SetBinContent(i+1,j+1,0);
+	  hu_decon_g->SetBinContent(i+1,j+1,0);
+	}
       }
     }
+
+    temp_count = 0;
+    for (int i=2080;i!=2096;i++){
+      for (int j=0;j!=hu_decon->GetNbinsY();j++){
+	if (hu_decon->GetBinContent(i+1,j+1)>1000)
+	  temp_count ++;
+      }
+    }
+
+    if (temp_count < 10){
+      for (int i=2080;i!=2096;i++){
+	if (uplane_map.find(i)==uplane_map.end()){
+	  uplane_map[i] = std::make_pair(0,hv_raw->GetNbinsY()-1);
+	  std::cout << "U plane (bad): " << i << " added to bad channel list" << std::endl;
+	}else{
+	  uplane_map[i] = std::make_pair(0,hv_raw->GetNbinsY()-1);
+	}
+	for (int j=0;j!=hu_decon->GetNbinsY();j++){
+	  hu_decon->SetBinContent(i+1,j+1,0);
+	  hu_decon_g->SetBinContent(i+1,j+1,0);
+	}
+      }
+    }
+
+    
   }
   
   for (auto it = uplane_map.begin(); it!=uplane_map.end(); it++){
