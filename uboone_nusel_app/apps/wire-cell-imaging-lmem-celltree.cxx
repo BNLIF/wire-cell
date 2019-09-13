@@ -271,6 +271,8 @@ int main(int argc, char* argv[])
   //TFile *file1 = new TFile(root_file);
   TFile *file1 = TFile::Open(root_file);
   TTree *T = (TTree*)file1->Get("/Event/Sim");
+  if (eve_num >= T->GetEntries()) return 0;
+  
   T->SetBranchAddress("eventNo",&event_no);
   T->SetBranchAddress("runNo",&run_no);
   T->SetBranchAddress("subRunNo",&subrun_no);
