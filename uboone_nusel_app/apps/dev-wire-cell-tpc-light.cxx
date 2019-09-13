@@ -570,6 +570,13 @@ int main(int argc, char* argv[])
    
   // finish creating global CT point cloud 
   
+
+  // for (size_t i = 0 ;i!=live_clusters.size();i++){
+  //   ToyPointCloud *pcloud = live_clusters.at(i)->get_point_cloud();
+  //   Point test_p(236.3*units::cm,13.4*units::cm,392.6*units::cm);
+  //   if (pcloud->get_closest_dis(test_p) < 1*units::cm)
+  //     std::cout << i << " " << live_clusters.at(i)->get_cluster_id() << " " << pcloud->get_closest_dis(test_p)/units::cm << std::endl;
+  // }
   
   
   // WireCell2dToy::Clustering_live_dead(live_clusters, dead_clusters);
@@ -577,6 +584,14 @@ int main(int argc, char* argv[])
   
   std::map<PR3DCluster*,std::vector<std::pair<PR3DCluster*,double>>> group_clusters = WireCell2dToy::Clustering_jump_gap_cosmics(live_clusters, dead_clusters,dead_u_index, dead_v_index, dead_w_index, global_point_cloud, ct_point_cloud);
   cout << em("Clustering to jump gap in cosmics") << std::endl;
+
+  // for (auto it = group_clusters.begin(); it!=group_clusters.end(); it++){
+  //   ToyPointCloud *pcloud = it->first->get_point_cloud();
+  //   Point test_p(236.3*units::cm,13.4*units::cm,392.6*units::cm);
+  //   if (pcloud->get_closest_dis(test_p) < 1*units::cm)
+  //     std::cout  << " A " << it->first->get_cluster_id() << " " << pcloud->get_closest_dis(test_p)/units::cm << std::endl;
+  // }
+
   
   // processing light information
   bool use_overlay_input = false;
@@ -655,10 +670,29 @@ int main(int argc, char* argv[])
   }
   
    FlashTPCBundleSelection matched_bundles = WireCell2dToy::tpc_light_match(time_offset,nrebin,group_clusters,flashes);
+
+   //   std::cout << group_clusters.size() << " " << matched_bundles.size() << std::endl;
    cout << em("TPC Light Matching") << std::endl;
 
+   // for (auto it = matched_bundles.begin(); it!= matched_bundles.end(); it++){
+   //   FlashTPCBundle *bundle = *it;
+   //   std::vector<PR3DCluster*> temp_clusters;
+   //   PR3DCluster *main_cluster = bundle->get_main_cluster();
+   //   temp_clusters.push_back(main_cluster);
+   //   for (auto it1 = bundle->get_other_clusters().begin(); it1!=bundle->get_other_clusters().end();it1++){
+   //     temp_clusters.push_back(*it1);
+   //   }
+   //   for (auto it1 = temp_clusters.begin(); it1!=temp_clusters.end();it1++){
+   //     ToyPointCloud *pcloud = (*it1)->get_point_cloud();
+   //     Point test_p(236.3*units::cm,13.4*units::cm,392.6*units::cm);
+   //     if (pcloud->get_closest_dis(test_p) < 1*units::cm)
+   // 	 std::cout  << " B " << (*it1)->get_cluster_id() << " " << pcloud->get_closest_dis(test_p)/units::cm << std::endl;
+   //   }
+   // }
+   
    // further merge or split clusters ... protect against over clustering
    matched_bundles = WireCell2dToy::ExamineBundles(matched_bundles, ct_point_cloud);
+   // std::cout << matched_bundles.size() << std::endl;
    // finish the further merge ... 
    cout << em("Examine bundles ") << std::endl;
    
