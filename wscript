@@ -48,6 +48,13 @@ def configure(cfg):
 
 def build(bld):
     bld.load('find_package', tooldir='waf-tools')
+    for pkg,ext in dict(paal="GLPK_H", pid="GLPK_H").items():
+        have='HAVE_'+ext
+        if have in bld.env:
+            continue
+        if pkg in subdirs:
+            print ('Removing package "%s" due to lack of "%s"'%(pkg,ext))
+            subdirs.remove(pkg)
     bld.recurse(subdirs)
     if bld.env.DOXYGEN and bld.options.doxygen_tarball:
         bld(features="doxygen", doxyfile=bld.path.find_resource('Doxyfile'),
