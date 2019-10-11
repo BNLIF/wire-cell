@@ -59,6 +59,8 @@ int main(int argc, char* argv[])
       save_proj = atoi(&argv[i][2]);
     }
   }
+  bool flag_match_data = true;
+  if (datatier==2) flag_match_data = false;
  
   // currently, no difference between data (overlay cosmic) and MC (overlay nu) 
   // space charge boundaries
@@ -706,7 +708,7 @@ int main(int argc, char* argv[])
     }
   }
   
-   FlashTPCBundleSelection matched_bundles = WireCell2dToy::tpc_light_match(time_offset,nrebin,group_clusters,flashes);
+  FlashTPCBundleSelection matched_bundles = WireCell2dToy::tpc_light_match(time_offset,nrebin,group_clusters,flashes, run_no, flag_match_data);
    cout << em("TPC Light Matching") << std::endl;
 
    // further merge or split clusters ... protect against over clustering

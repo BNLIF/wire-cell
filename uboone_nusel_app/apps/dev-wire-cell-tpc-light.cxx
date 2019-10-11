@@ -60,7 +60,10 @@ int main(int argc, char* argv[])
   }
   
   int flag_data = 1; // data
-  if(datatier==1 || datatier==2) flag_data=0; // overlay, full mc
+  if (datatier==1 || datatier==2) flag_data=0; // overlay, full mc
+  bool flag_match_data = true;
+  if (datatier == 2) flag_match_data = false; // if MC we do not take into account the dead PMT
+
   
   ExecMon em("starting");
   cout << em("load geometry") << endl;
@@ -669,7 +672,7 @@ int main(int argc, char* argv[])
     }
   }
   
-   FlashTPCBundleSelection matched_bundles = WireCell2dToy::tpc_light_match(time_offset,nrebin,group_clusters,flashes);
+  FlashTPCBundleSelection matched_bundles = WireCell2dToy::tpc_light_match(time_offset,nrebin,group_clusters,flashes, run_no, flag_match_data);
 
    //   std::cout << group_clusters.size() << " " << matched_bundles.size() << std::endl;
    cout << em("TPC Light Matching") << std::endl;

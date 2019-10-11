@@ -608,7 +608,7 @@ int main(int argc, char* argv[])
   // }
   // //
    
-  FlashTPCBundleSelection matched_bundles = WireCell2dToy::tpc_light_match(time_offset,nrebin,group_clusters,flashes);
+  FlashTPCBundleSelection matched_bundles = WireCell2dToy::tpc_light_match(time_offset,nrebin,group_clusters,flashes, run_no, true);
   cout << em("TPC Light Matching") << std::endl;
 
   // further merge or split clusters ... protect against over clustering
