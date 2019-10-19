@@ -33,11 +33,12 @@ int main(int argc, char* argv[])
   Int_t event_type;
   Int_t flash_id;
   Double_t flash_time;
+  Double_t cluster_length;
   T_match->SetBranchAddress("tpc_cluster_id",&tpc_cluster_id);
   T_match->SetBranchAddress("flash_id",&flash_id);
   T_match->SetBranchAddress("event_type",&event_type);
   T_match->SetBranchAddress("flash_time",&flash_time);
-
+  T_match->SetBranchAddress("cluster_length",&cluster_length);
   for (int i =0;i!=T_match->GetEntries();i++){
       T_match->GetEntry(i);
       int flag_tgm = (event_type >> 3) & 1U;
@@ -47,6 +48,6 @@ int main(int argc, char* argv[])
       int flag_stm = (event_type >> 5) & 1U;
       int flag_full_detector_dead = (event_type >> 6) & 1U;
       
-      std::cout << runNo << "_" << subRunNo << "_" << eventNo << " " << flash_id << " " << tpc_cluster_id << " " << flash_time << " " << event_type << " " << flag_low_energy << " " << flag_lm << " " << flag_tgm << " " << flag_fully_contained << " " << flag_stm << " " << flag_full_detector_dead << std::endl;
+      std::cout << runNo << "_" << subRunNo << "_" << eventNo << " " << flash_id << " " << tpc_cluster_id << " " << flash_time << " " << event_type << " " << flag_low_energy << " " << flag_lm << " " << flag_tgm << " " << flag_fully_contained << " " << flag_stm << " " << flag_full_detector_dead << " " << cluster_length << std::endl;
   }
 }
