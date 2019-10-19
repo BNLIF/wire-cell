@@ -45,7 +45,8 @@ int main(int argc, char* argv[])
       int flag_lm = (event_type >> 1) & 1U;
       int flag_fully_contained = (event_type >> 2) & 1U;
       int flag_stm = (event_type >> 5) & 1U;
+      int flag_full_detector_dead = (event_type >> 6) & 1U;
       
-      std::cout << runNo << "_" << subRunNo << "_" << eventNo << " " << flash_id << " " << tpc_cluster_id << " " << flash_time << " " << event_type << " " << flag_low_energy << " " << flag_lm << " " << flag_tgm << " " << flag_fully_contained << " " << flag_stm << std::endl;
+      std::cout << runNo << "_" << subRunNo << "_" << eventNo << " " << flash_id << " " << tpc_cluster_id << " " << flash_time << " " << event_type << " " << flag_low_energy << " " << flag_lm << " " << flag_tgm << " " << flag_fully_contained << " " << flag_stm << " " << flag_full_detector_dead << std::endl;
   }
 }

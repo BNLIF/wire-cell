@@ -14,5 +14,14 @@ int main(int argc, char* argv[])
   const char* root_file = argv[1];
   TFile *file1 = new TFile(root_file);
   TTree *T = (TTree*)file1->Get("Trun");
-  std::cout << T->GetEntries() << std::endl;
+  Int_t run_no, subrun_no, event_no;
+  T->SetBranchAddress("runNo",&run_no);
+  T->SetBranchAddress("subRunNo",&subrun_no);
+  T->SetBranchAddress("eventNo",&event_no);
+  for (int i=0;i!=T->GetEntries();i++){
+    T->GetEntry(i);
+    std::cout << run_no << " " << subrun_no << " " << event_no << " " << root_file << " " << i << std::endl; 
+  }
+  
+  //  std::cout << T->GetEntries() << std::endl;
 }
