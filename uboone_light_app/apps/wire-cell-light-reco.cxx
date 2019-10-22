@@ -52,13 +52,15 @@ int main(int argc, char* argv[])
 
   bool use_imagingoutput = false;
   if(imagingoutput==1) use_imagingoutput = true;
+  std::cout << use_imagingoutput << std::endl;
+  
   WireCell2dToy::ToyLightReco uboone_flash(root_file,use_imagingoutput,datatier); 
 
   uboone_flash.load_event_raw(eve_num);
   TFile *file1 = new TFile(root_file);
   TTree *T;
   if(!use_imagingoutput){ T = (TTree*)file1->Get("/Event/Sim"); } // celltree input
-  else{ T = (TTree*)file1->Get("/Trun"); }
+  else{ T = (TTree*)file1->Get("Trun"); }
   TClonesArray* cosmic_hg_wf = new TClonesArray;
   TClonesArray* cosmic_lg_wf = new TClonesArray;
   TClonesArray* beam_hg_wf = new TClonesArray;
@@ -83,16 +85,28 @@ int main(int argc, char* argv[])
   
   T->SetBranchAddress("cosmic_hg_wf",&cosmic_hg_wf);
   T->SetBranchAddress("cosmic_lg_wf",&cosmic_lg_wf);
-  T->SetBranchAddress("beam_hg_wf",&beam_hg_wf);
-  T->SetBranchAddress("beam_lg_wf",&beam_lg_wf);
+
+  if (datatier == 1){
+    T->SetBranchAddress("mixer_beam_hg_wf",&beam_hg_wf);
+    T->SetBranchAddress("mixer_beam_lg_wf",&beam_lg_wf);
+    T->SetBranchAddress("mixer_beam_hg_opch",&beam_hg_opch);
+    T->SetBranchAddress("mixer_beam_lg_opch",&beam_lg_opch);
+    T->SetBranchAddress("mixer_beam_hg_timestamp",&beam_hg_timestamp);
+    T->SetBranchAddress("mixer_beam_lg_timestamp",&beam_lg_timestamp);
+  }else{
+    T->SetBranchAddress("beam_hg_wf",&beam_hg_wf);
+    T->SetBranchAddress("beam_lg_wf",&beam_lg_wf);
+    T->SetBranchAddress("beam_hg_opch",&beam_hg_opch);
+    T->SetBranchAddress("beam_lg_opch",&beam_lg_opch);
+    T->SetBranchAddress("beam_hg_timestamp",&beam_hg_timestamp);
+    T->SetBranchAddress("beam_lg_timestamp",&beam_lg_timestamp);
+  }
   T->SetBranchAddress("cosmic_hg_opch",&cosmic_hg_opch);
   T->SetBranchAddress("cosmic_lg_opch",&cosmic_lg_opch);
-  T->SetBranchAddress("beam_hg_opch",&beam_hg_opch);
-  T->SetBranchAddress("beam_lg_opch",&beam_lg_opch);
+  
   T->SetBranchAddress("cosmic_hg_timestamp",&cosmic_hg_timestamp);
   T->SetBranchAddress("cosmic_lg_timestamp",&cosmic_lg_timestamp);
-  T->SetBranchAddress("beam_hg_timestamp",&beam_hg_timestamp);
-  T->SetBranchAddress("beam_lg_timestamp",&beam_lg_timestamp);
+
   T->SetBranchAddress("op_gain",&op_gain);
   T->SetBranchAddress("op_gainerror",&op_gainerror);
   T->SetBranchAddress("triggerTime",&triggerTime);
