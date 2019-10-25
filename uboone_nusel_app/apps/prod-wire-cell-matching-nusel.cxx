@@ -23,6 +23,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TString.h"
+#include "TDirectory.h"
 
 using namespace WireCell;
 using namespace std;
@@ -30,7 +31,8 @@ using namespace std;
 int main(int argc, char* argv[])
 {
   if (argc < 3) {
-    cerr << "usage: wire-cell-uboone /path/to/ChannelWireGeometry.txt /path/to/imaging.root -d[0,1,2]" << endl;
+    cerr << "Production usage: wire-cell-uboone /path/to/ChannelWireGeometry.txt /path/to/imaging.root -d[0,1,2] ..." << endl;
+    cerr << "Post-production usage: wire-cell-uboone /path/to/ChannelWireGeometry.txt /path/to/imaging.root entry_num -d[0,1,2] ..." << endl;
     return 1;
   }
   TH1::AddDirectory(kFALSE);
@@ -41,6 +43,16 @@ int main(int argc, char* argv[])
   int bee_debug = 0;
   int save_proj = 0;
   
+  bool flag_add_light_yield_err = true;
+
+  int entry_num = 0;
+  bool flag_postprod = false;
+  if (argv[3][0]!='-') {
+	entry_num = atoi(argv[3]);
+	flag_postprod = true;
+  	std::cout << "Post-production Entry: " << entry_num << std::endl;
+  }
+ 
   for(Int_t i = 1; i != argc; i++){
     switch(argv[i][1]){
     case 'c':
@@ -57,6 +69,10 @@ int main(int argc, char* argv[])
       break;
     case 'p':
       save_proj = atoi(&argv[i][2]);
+      break;
+    case 'e':
+      flag_add_light_yield_err = atoi(&argv[i][2]);
+      break;
     }
   }
   bool flag_match_data = true;
@@ -180,7 +196,7 @@ int main(int argc, char* argv[])
     Trun->SetBranchAddress("sedi_trackId",&i_trackId);
     Trun->SetBranchAddress("sedi_energy",&i_energy);
   }
-  Trun->GetEntry(0);
+  Trun->GetEntry(entry_num);
  
   // define singleton ... 
   TPCParams& mp = Singleton<TPCParams>::Instance();
@@ -306,7 +322,7 @@ int main(int argc, char* argv[])
   PR3DCluster *cluster;
   int prev_cluster_id=-1;
   int ident = 0;
-  TC->GetEntry(0);
+  TC->GetEntry(entry_num);
   for (int i=0;i!=cluster_id_vec->size();i++){
     int cluster_id = cluster_id_vec->at(i);
     SlimMergeGeomCell *mcell = new SlimMergeGeomCell(ident);
@@ -416,7 +432,7 @@ int main(int argc, char* argv[])
   flag_v_vec->clear();
   flag_w_vec->clear();
   
-  TDC->GetEntry(0);
+  TDC->GetEntry(entry_num);
   for (int i=0;i!=cluster_id_vec->size();i++){
     int cluster_id = cluster_id_vec->at(i);
     SlimMergeGeomCell *mcell = new SlimMergeGeomCell(ident);
@@ -523,20 +539,37 @@ int main(int argc, char* argv[])
   if (T_bad_ch!=0){
     Int_t chid, plane;
     Int_t start_time,end_time;
+    Int_t runNo=0, subRunNo=0, eventNo=0;
     T_bad_ch->SetBranchAddress("chid",&chid);
     T_bad_ch->SetBranchAddress("plane",&plane);
     T_bad_ch->SetBranchAddress("start_time",&start_time);
     T_bad_ch->SetBranchAddress("end_time",&end_time);
 
-    TBranch* T_bad_ch_run = T_bad_ch->Branch("runNo",&run_no, "runNo/I");
-    TBranch* T_bad_ch_subrun = T_bad_ch->Branch("subRunNo",&subrun_no, "subRunNo/I");
-    TBranch* T_bad_ch_event = T_bad_ch->Branch("eventNo",&event_no, "eventNo/I");
-    
+    TBranch* T_bad_ch_run;
+    TBranch* T_bad_ch_subrun;
+    TBranch* T_bad_ch_event;
+ 
+    if(!flag_postprod){
+      T_bad_ch_run = T_bad_ch->Branch("runNo",&run_no, "runNo/I");
+      T_bad_ch_subrun = T_bad_ch->Branch("subRunNo",&subrun_no, "subRunNo/I");
+      T_bad_ch_event = T_bad_ch->Branch("eventNo",&event_no, "eventNo/I");
+    }
+    if(flag_postprod){
+      T_bad_ch->SetBranchAddress("runNo",&runNo);
+      T_bad_ch->SetBranchAddress("subRunNo",&subRunNo);
+      T_bad_ch->SetBranchAddress("eventNo",&eventNo);
+    }
     for (int i=0;i!=T_bad_ch->GetEntries();i++){
-      T_bad_ch_run->Fill();
-      T_bad_ch_subrun->Fill();
-      T_bad_ch_event->Fill();
+      if(!flag_postprod){
+        T_bad_ch_run->Fill();
+        T_bad_ch_subrun->Fill();
+        T_bad_ch_event->Fill();
+      }
       T_bad_ch->GetEntry(i);
+      if(flag_postprod){
+       if(runNo!=run_no || subRunNo!=subrun_no || eventNo!=event_no)
+	  continue;
+      }
       //cout<<"DEBUG: "<<chid<<" "<<plane<<" "<<start_time<<" "<<end_time<<endl;
       double temp_x1 = (start_time/2.*unit_dis/10. - frame_length/2.*unit_dis/10.) * units::cm;
       double temp_x2 = (end_time/2.*unit_dis/10. - frame_length/2.*unit_dis/10.) * units::cm;
@@ -640,7 +673,7 @@ int main(int argc, char* argv[])
   if(datatier==2){ lowerwindow=3.1718; upperwindow=4.95306; } // full mc
     
   WireCell2dToy::ToyLightReco uboone_flash(filename,true,datatier);  
-  uboone_flash.load_event_raw(0, lowerwindow, upperwindow); // propogate bean window to flash reco patch 
+  uboone_flash.load_event_raw(entry_num, lowerwindow, upperwindow); // propogate bean window to flash reco patch 
   cout << em("flash reconstruction") << std::endl;
   
   // prepare light matching ....
@@ -708,7 +741,7 @@ int main(int argc, char* argv[])
     }
   }
   
-  FlashTPCBundleSelection matched_bundles = WireCell2dToy::tpc_light_match(time_offset,nrebin,group_clusters,flashes, run_no, flag_match_data);
+  FlashTPCBundleSelection matched_bundles = WireCell2dToy::tpc_light_match(time_offset,nrebin,group_clusters,flashes, run_no, flag_match_data, flag_add_light_yield_err); 
    cout << em("TPC Light Matching") << std::endl;
 
    // further merge or split clusters ... protect against over clustering
@@ -1026,7 +1059,7 @@ int main(int argc, char* argv[])
 
    file1->cd();
    if (T_bad_ch!=0){
-     T_bad_ch->CloneTree(-1,"fast");
+     if(!flag_postprod) T_bad_ch->CloneTree(-1,"fast");
    }
 
    if (bee_debug!=0){
@@ -1380,7 +1413,7 @@ int main(int argc, char* argv[])
    //   ncluster++;
    // }
    
-   Trun->CloneTree(-1,"fast");
+   if(!flag_postprod) Trun->CloneTree(-1,"fast");
 
 
    if (save_light!=0){
@@ -1601,7 +1634,7 @@ int main(int argc, char* argv[])
     T_proj->Fill();
   } // save_proj
 
-  TDC->CloneTree(-1,"fast");
+  if(!flag_postprod) TDC->CloneTree(-1,"fast");
   {
     TTree *TC_n = new TTree("TC","TC");
     TC_n->SetDirectory(file1);
@@ -1759,7 +1792,7 @@ int main(int argc, char* argv[])
       
     }
     
-    TC_n->Fill();
+    if(!flag_postprod) TC_n->Fill();
     cluster_id->clear();
     parent_cluster_id->clear();
     nwire_u->clear();
