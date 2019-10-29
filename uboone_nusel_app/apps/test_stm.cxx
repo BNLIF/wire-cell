@@ -25,8 +25,8 @@ int main(int argc, char* argv[])
   double upperwindow = 0;
   
   //enlarge window ... 
-  if(triggerbits==2048) { lowerwindow = 3.0; upperwindow = 5.0; }// bnb  
-  if(triggerbits==512) { lowerwindow = 3.45; upperwindow = 5.45; } // extbnb
+  if((triggerbits>>11) & 1U) { lowerwindow = 3.0; upperwindow = 5.0; }// bnb  
+  if((triggerbits>>9) & 1U) { lowerwindow = 3.45; upperwindow = 5.45; } // extbnb
 
   TTree *T_match = (TTree*)file1->Get("T_match");
   Int_t tpc_cluster_id;

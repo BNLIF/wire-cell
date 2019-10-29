@@ -550,8 +550,8 @@ int main(int argc, char* argv[])
    cout << em("Clustering to jump gap in cosmics") << std::endl;
    
    double lowerwindow = 0., upperwindow = 0.;
-   if(datatier==0 && triggerbits==2048){ lowerwindow=3.1875; upperwindow=4.96876; } // BNB
-   if((datatier==0 && triggerbits==512) || datatier==1){ lowerwindow=3.5625; upperwindow=5.34376; } // BNB EXT & overlay
+   if(datatier==0 && ((triggerbits>>11) & 1U)){ lowerwindow=3.1875; upperwindow=4.96876; } // BNB
+   if((datatier==0 && ((triggerbits>>9) & 1U)) || datatier==1){ lowerwindow=3.5625; upperwindow=5.34376; } // BNB EXT & overlay
    if(datatier==2){ lowerwindow=3.1718; upperwindow=4.95306; } // full mc
    
    WireCell2dToy::ToyLightReco uboone_flash(filename, 1, datatier);

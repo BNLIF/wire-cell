@@ -795,9 +795,10 @@ int main(int argc, char* argv[])
    T_match->Branch("cluster_length",&cluster_length,"cluster_length/D");
 
    double lowerwindow = 0., upperwindow = 0.;
-   if(triggerbits==2048){ lowerwindow=3.1718; upperwindow=4.96876; } // mc
-  //if(triggerbits==2048){ lowerwindow=3.1875; upperwindow=4.96876; } // data
-  if(triggerbits==512){ lowerwindow=3.5625; upperwindow=5.34376; }
+   
+   if((triggerbits>>11) & 1U){ lowerwindow=3.1718; upperwindow=4.96876; } // mc
+   //if(triggerbits==2048){ lowerwindow=3.1875; upperwindow=4.96876; } // data
+   if((triggerbits>>9) & 1U){ lowerwindow=3.5625; upperwindow=5.34376; }
 
    bool is_inTime=false;
    for (auto it = matched_bundles.begin(); it!=matched_bundles.end(); it++){
@@ -1330,9 +1331,9 @@ int main(int argc, char* argv[])
     T_flash->SetBranchAddress("flash_id",&flash_id);
     T_flash->SetBranchAddress("time",&time);
     std::set<int> intime_light_id;
-    if(triggerbits==2048){ lowerwindow=3.1718; upperwindow=4.96876; } // mc
+    if((triggerbits>>11) & 1U){ lowerwindow=3.1718; upperwindow=4.96876; } // mc
     //if(triggerbits==2048){ lowerwindow=3.1875; upperwindow=4.96876; } // data
-    if(triggerbits==512){ lowerwindow=3.5625; upperwindow=5.34376; }
+    if((triggerbits>>9) & 1U){ lowerwindow=3.5625; upperwindow=5.34376; }
     for(int i=0; i<T_flash->GetEntries(); i++){
       T_flash->GetEntry(i);
       if(time>lowerwindow && time<upperwindow){

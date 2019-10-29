@@ -95,8 +95,9 @@ bool flashFilter(const char* file, int eve_num, unsigned int triggerbits)
       //cout<<"Flash time: "<<time<<" Type: "<<type<<endl;
       double lowerwindow = 0;
       double upperwindow = 0;
-      if(triggerbits==2048) { lowerwindow = 3; upperwindow = 5; }// bnb
-      if(triggerbits==512) { lowerwindow = 3.45; upperwindow = 5.45; } // extbnb
+      if((triggerbits>>11) & 1U) { lowerwindow = 3.0; upperwindow = 5.0; }// bnb  
+      if((triggerbits>>9) & 1U) { lowerwindow = 3.45; upperwindow = 5.45; } // extbnb
+     
       if(type == 2 && time > lowerwindow && time < upperwindow)
       {
           beamspill = true;
@@ -140,18 +141,18 @@ int main(int argc, char* argv[])
   //cout << em("Flash filter") <<endl;
   //cout << "Run No: " << run_no << " " << subrun_no << " " << event_no << endl;
   if(beamspill){
-	if(triggerbits==2048){  
+    if((triggerbits>>11) & 1U){  
 	  cout << "BNB Flash time filter: PASS " << argv[1] << endl;
 	}
-	if(triggerbits==512){  
+	if((triggerbits>>9) & 1U){  
       	cout << "extBNB Flash time filter: PASS "<< argv[1] << endl;
 	}
   }
   else{
-	if(triggerbits==2048){  
+	if((triggerbits>>11) & 1U){  
     	cout << "BNB Flash time filter: FAIL " << argv[1]<< endl;
 	}  
-	if(triggerbits==512){  
+	if((triggerbits>>9) & 1U){  
     	cout << "extBNB Flash time filter: FAIL "<< argv[1] << endl;
 	}  
   }

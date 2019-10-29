@@ -101,9 +101,9 @@ int main(int argc, char* argv[])
       double pe = flash->get_total_PE();
       double low = 0, high = 0;
       int type = flash->get_type();
-
-      if(triggerbits==2048){ low = 3.0; high = 5.0; } // bnb
-      if(triggerbits==512){ low = 3.45; high = 5.45; } // ext bnb
+      if((triggerbits>>11) & 1U) { low = 3.0; high = 5.0; }// bnb  
+      if((triggerbits>>9) & 1U) { low = 3.45; high = 5.45; } // extbnb
+     
       if(time > low && time < high && type == 2){ beamspill = true; }
       bermFile<<run_no<<" "<<subrun_no<<" "<<event_no<<" "<<ph<<" "<<mult<<" "<<time<<" "<<pe<<endl;
     }

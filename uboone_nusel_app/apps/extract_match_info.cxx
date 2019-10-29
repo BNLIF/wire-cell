@@ -38,9 +38,9 @@ int main(int argc, char* argv[])
 
   double lowerwindow = 0;
   double upperwindow = 0;
-  
-  if(triggerbits==2048) { lowerwindow = 3.0; upperwindow = 5.0; }// bnb  
-  if(triggerbits==512) { lowerwindow = 3.45; upperwindow = 5.45; } // extbn
+  if((triggerbits>>11) & 1U) { lowerwindow = 3.0; upperwindow = 5.0;}//bnb
+  if((triggerbits>>9) & 1U) { lowerwindow = 3.45; upperwindow = 5.45;} //extbnb
+
   
   // TTree *T_match = (TTree*)file->Get("T_match");
   // std::cout << T_match->GetEntries() << std::endl;

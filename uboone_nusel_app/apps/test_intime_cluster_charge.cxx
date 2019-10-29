@@ -176,8 +176,8 @@ int main(int argc, char* argv[])
 
     double lowerwindow = 0;
     double upperwindow = 0;
-    if(triggerBits==2048) { lowerwindow = 3; upperwindow = 5; }// bnb
-    if(triggerBits==512) { lowerwindow = 3.45; upperwindow = 5.45; } // extbnb
+    if((triggerBits>>11) & 1U) { lowerwindow = 3; upperwindow = 5; }// bnb
+    if((triggerBits>>9) & 1U) { lowerwindow = 3.45; upperwindow = 5.45; } // extbnb
 
     // flash id and time
     TTree *flash = (TTree*)file->Get("T_flash");
