@@ -46,7 +46,7 @@ int main(int argc, char* argv[]){
 
   // sampling points per dimension;
   //int nBinsX=10, nBinsY=20, nBinsZ=100;
-  int nBinsX=1, nBinsY=1, nBinsZ=10;  
+  const int nBinsX=1, nBinsY=1, nBinsZ=10;  
   std::cout<<"nBinsX: "<<nBinsX<<"  nBinsY: "<<nBinsY<<"  nBinsZ: "<<nBinsZ<<std::endl;
   
   // detector active volume (from flashmatchalg.fcl)
