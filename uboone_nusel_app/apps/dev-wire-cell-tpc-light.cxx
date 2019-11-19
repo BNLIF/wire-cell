@@ -768,7 +768,7 @@ int main(int argc, char* argv[])
     if(flash){
       double flash_time = flash->get_time();
       if(flash_time > lowerwindow && flash_time < upperwindow){
-          fid->cosmic_tagger(flashes, &matched_bundles, bundle, &pl, time_offset, nrebin, unit_dis, ct_point_cloud, old_new_cluster_map, run_no, subrun_no, event_no, flag_data, true);
+          fid->cosmic_tagger(flashes, &matched_bundles, bundle, &pl, time_offset, nrebin, unit_dis, ct_point_cloud, old_new_cluster_map, run_no, subrun_no, event_no, flag_data, false);
       }
     }
   }
