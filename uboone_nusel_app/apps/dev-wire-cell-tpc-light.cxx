@@ -681,7 +681,7 @@ int main(int argc, char* argv[])
   }
   
   //FlashTPCBundleSelection matched_bundles = WireCell2dToy::tpc_light_match(time_offset,nrebin,group_clusters,flashes, run_no, flag_match_data);
-  WireCell2dToy::Photon_Library pl(run_no,flag_match_data);
+  WireCell::Photon_Library pl(run_no,flag_match_data);
   FlashTPCBundleSelection matched_bundles = WireCell2dToy::tpc_light_match(time_offset,nrebin,&pl,group_clusters,flashes, run_no, flag_match_data);
 
 

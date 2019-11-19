@@ -609,7 +609,7 @@ int main(int argc, char* argv[])
   // //
    
   //FlashTPCBundleSelection matched_bundles = WireCell2dToy::tpc_light_match(time_offset,nrebin,group_clusters,flashes, run_no, true);
-  WireCell2dToy::Photon_Library pl(run_no,true);
+  WireCell::Photon_Library pl(run_no,true);
   FlashTPCBundleSelection matched_bundles = WireCell2dToy::tpc_light_match(time_offset,nrebin,&pl,group_clusters,flashes, run_no, true);
   cout << em("TPC Light Matching") << std::endl;
 
