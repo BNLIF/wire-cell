@@ -120,6 +120,9 @@ int main(int argc, char* argv[])
   Trun->SetBranchAddress("eve_num",&eve_num);
   Trun->SetBranchAddress("nrebin",&nrebin);
   Trun->SetBranchAddress("time_offset",&time_offset);
+  //triggerbits for Beam window selection
+  unsigned int triggerbits;
+  Trun->SetBranchAddress("triggerBits",&triggerbits); 
   
   Trun->SetBranchAddress("timesliceId",&timesliceId);
   Trun->SetBranchAddress("timesliceChannel",&timesliceChannel);
@@ -604,7 +607,12 @@ int main(int argc, char* argv[])
   //WireCell2dToy::ToyLightReco uboone_flash(filename,true,use_overlay_input,use_remap_channel);
   WireCell2dToy::ToyLightReco uboone_flash(filename,true,datatier); //use_overlay_input,use_remap_channel); 
   
-  uboone_flash.load_event_raw(0);
+  double lowerwindow = 0., upperwindow = 0.;
+  if(datatier==0 && triggerbits==2048){ lowerwindow=3.1875; upperwindow=4.96876; } // BNB
+  if( (datatier==0 && triggerbits==512) || datatier==1 ){ lowerwindow=3.5625; upperwindow=5.34376; } // EXT, overlay
+  if(datatier==2){ lowerwindow=3.1718; upperwindow=4.95306; } // full mc
+
+  uboone_flash.load_event_raw(0,lowerwindow,upperwindow);
   cout << em("flash reconstruction") << std::endl;
   
   // prepare light matching ....
@@ -672,7 +680,10 @@ int main(int argc, char* argv[])
     }
   }
   
-  FlashTPCBundleSelection matched_bundles = WireCell2dToy::tpc_light_match(time_offset,nrebin,group_clusters,flashes, run_no, flag_match_data);
+  //FlashTPCBundleSelection matched_bundles = WireCell2dToy::tpc_light_match(time_offset,nrebin,group_clusters,flashes, run_no, flag_match_data);
+  WireCell2dToy::Photon_Library pl(run_no,flag_match_data);
+  FlashTPCBundleSelection matched_bundles = WireCell2dToy::tpc_light_match(time_offset,nrebin,&pl,group_clusters,flashes, run_no, flag_match_data);
+
 
    //   std::cout << group_clusters.size() << " " << matched_bundles.size() << std::endl;
    cout << em("TPC Light Matching") << std::endl;
@@ -749,7 +760,21 @@ int main(int argc, char* argv[])
    }
 
 
-   
+//Start Cosmic Tagger here ------------------------------------------------------------------------------------------
+
+  for (auto it = matched_bundles.begin(); it!= matched_bundles.end(); it++){
+    FlashTPCBundle *bundle = *it;
+    Opflash* flash = bundle->get_flash();
+    if(flash){
+      double flash_time = flash->get_time();
+      if(flash_time > lowerwindow && flash_time < upperwindow){
+          fid->cosmic_tagger(flashes, &matched_bundles, bundle, &pl, time_offset, nrebin, unit_dis, ct_point_cloud, old_new_cluster_map, run_no, subrun_no, event_no, flag_data, true);
+      }
+    }
+  }
+ 
+//End Cosmic Tagger here ------------------------------------------------------------------------------------------   
+
 
    // // do the dQ/dx fitting ... 
    // for (auto it = matched_bundles.begin(); it!= matched_bundles.end(); it++){

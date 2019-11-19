@@ -665,7 +665,9 @@ int main(int argc, char* argv[])
    
 
    //   std::vector<std::tuple<WireCell::PR3DCluster*, WireCell::Opflash*, double, std::vector<double>>> matched_results = WireCell2dToy::tpc_light_match(time_offset,nrebin,group_clusters,flashes);
-  FlashTPCBundleSelection matched_bundles = WireCell2dToy::tpc_light_match(time_offset,nrebin,group_clusters,flashes, run_no, true); // data
+  //FlashTPCBundleSelection matched_bundles = WireCell2dToy::tpc_light_match(time_offset,nrebin,group_clusters,flashes, run_no, true); // data
+  WireCell2dToy::Photon_Library pl(run_no,true);
+  FlashTPCBundleSelection matched_bundles = WireCell2dToy::tpc_light_match(time_offset,nrebin,&pl,group_clusters,flashes, run_no, true); // data
    cout << em("TPC Light Matching") << std::endl;
 
    // create the live clusters ...
