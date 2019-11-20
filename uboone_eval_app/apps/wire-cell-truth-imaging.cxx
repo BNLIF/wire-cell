@@ -1,61 +1,61 @@
-#include "WireCellSst/GeomDataSource.h"
-#include "WireCellSst/DatauBooNEFrameDataSource.h"
-#include "WireCellSst/ToyuBooNESliceDataSource.h"
-#include "WireCellSst/uBooNESliceDataSource.h"
+#include "WCPSst/GeomDataSource.h"
+#include "WCPSst/DatauBooNEFrameDataSource.h"
+#include "WCPSst/ToyuBooNESliceDataSource.h"
+#include "WCPSst/uBooNESliceDataSource.h"
 
-#include "WireCell2dToy/ToyEventDisplay.h"
-#include "WireCell2dToy/ToyTiling.h"
-#include "WireCell2dToy/BadTiling.h"
-#include "WireCell2dToy/LowmemTiling.h"
-#include "WireCell2dToy/uBooNE_L1SP.h"
-#include "WireCell2dToy/WireCellHolder.h"
+#include "WCP2dToy/ToyEventDisplay.h"
+#include "WCP2dToy/ToyTiling.h"
+#include "WCP2dToy/BadTiling.h"
+#include "WCP2dToy/LowmemTiling.h"
+#include "WCP2dToy/uBooNE_L1SP.h"
+#include "WCP2dToy/WCPHolder.h"
 
-#include "WireCell2dToy/MergeToyTiling.h"
-#include "WireCell2dToy/TruthToyTiling.h"
-#include "WireCell2dToy/SimpleBlobToyTiling.h"
+#include "WCP2dToy/MergeToyTiling.h"
+#include "WCP2dToy/TruthToyTiling.h"
+#include "WCP2dToy/SimpleBlobToyTiling.h"
 
-#include "WireCell2dToy/ChargeSolving.h"
-#include "WireCell2dToy/ToyMatrix.h"
-#include "WireCell2dToy/ToyMatrixExclusive.h"
-#include "WireCell2dToy/ToyMatrixKalman.h"
-#include "WireCell2dToy/ToyMatrixIterate.h"
-#include "WireCell2dToy/ToyMatrixIterate_SingleWire.h"
-#include "WireCell2dToy/ToyMatrixIterate_Only.h"
+#include "WCP2dToy/ChargeSolving.h"
+#include "WCP2dToy/ToyMatrix.h"
+#include "WCP2dToy/ToyMatrixExclusive.h"
+#include "WCP2dToy/ToyMatrixKalman.h"
+#include "WCP2dToy/ToyMatrixIterate.h"
+#include "WCP2dToy/ToyMatrixIterate_SingleWire.h"
+#include "WCP2dToy/ToyMatrixIterate_Only.h"
 
-#include "WireCell2dToy/ToyMatrixMarkov.h"
-#include "WireCell2dToy/ToyMetric.h"
-#include "WireCell2dToy/BlobMetric.h"
-#include "WireCellData/TPCParams.h"
-#include "WireCellData/Singleton.h"
+#include "WCP2dToy/ToyMatrixMarkov.h"
+#include "WCP2dToy/ToyMetric.h"
+#include "WCP2dToy/BlobMetric.h"
+#include "WCPData/TPCParams.h"
+#include "WCPData/Singleton.h"
 
-#include "WireCellData/MergeGeomCell.h"
-#include "WireCellData/MergeGeomWire.h"
+#include "WCPData/MergeGeomCell.h"
+#include "WCPData/MergeGeomWire.h"
 
-#include "WireCellData/Slim3DCluster.h"
-#include "WireCellData/Slim3DDeadCluster.h"
-//#include "WireCellNav/SliceDataSource.h"
+#include "WCPData/Slim3DCluster.h"
+#include "WCPData/Slim3DDeadCluster.h"
+//#include "WCPNav/SliceDataSource.h"
 
 
-#include "WireCellNav/FrameDataSource.h"
-#include "WireCellNav/SimDataSource.h"
-#include "WireCellNav/SliceDataSource.h"
-#include "WireCellSst/Util.h"
-#include "WireCellData/SimTruth.h"
-#include "WireCell2dToy/ToyDepositor.h"
-#include "WireCellNav/GenerativeFDS.h"
-#include "WireCell2dToy/ToySignalSimu.h"
-#include "WireCell2dToy/ToySignalSimuTrue.h"
-#include "WireCell2dToy/DataSignalGaus_ROI.h"
-#include "WireCell2dToy/DataSignalWien_ROI.h"
+#include "WCPNav/FrameDataSource.h"
+#include "WCPNav/SimDataSource.h"
+#include "WCPNav/SliceDataSource.h"
+#include "WCPSst/Util.h"
+#include "WCPData/SimTruth.h"
+#include "WCP2dToy/ToyDepositor.h"
+#include "WCPNav/GenerativeFDS.h"
+#include "WCP2dToy/ToySignalSimu.h"
+#include "WCP2dToy/ToySignalSimuTrue.h"
+#include "WCP2dToy/DataSignalGaus_ROI.h"
+#include "WCP2dToy/DataSignalWien_ROI.h"
 
-#include "WireCell2dToy/uBooNE_Data_2D_Deconvolution.h"
-#include "WireCell2dToy/uBooNE_Data_ROI.h"
-#include "WireCell2dToy/uBooNE_Data_After_ROI.h"
-#include "WireCell2dToy/uBooNE_Data_After_ROI_gaus.h"
-#include "WireCell2dToy/pd_Data_FDS.h"
-#include "WireCell2dToy/uBooNE_Data_Error.h"
-#include "WireCell2dToy/ExecMon.h"
-#include "WireCell2dToy/ToyDataQuality.h"
+#include "WCP2dToy/uBooNE_Data_2D_Deconvolution.h"
+#include "WCP2dToy/uBooNE_Data_ROI.h"
+#include "WCP2dToy/uBooNE_Data_After_ROI.h"
+#include "WCP2dToy/uBooNE_Data_After_ROI_gaus.h"
+#include "WCP2dToy/pd_Data_FDS.h"
+#include "WCP2dToy/uBooNE_Data_Error.h"
+#include "WCP2dToy/ExecMon.h"
+#include "WCP2dToy/ToyDataQuality.h"
 
 
 #include "TApplication.h"
@@ -71,7 +71,7 @@
 #include "TF1.h"
 #include <iostream>
 
-using namespace WireCell;
+using namespace WCP;
 using namespace std;
 
 bool GeomWireSelectionCompare(GeomWireSelection a, GeomWireSelection b) {
@@ -156,7 +156,7 @@ int main(int argc, char* argv[])
   ExecMon em("starting");
   cout << em("load geometry") << endl;
 
-  WireCellSst::GeomDataSource gds(argv[1]);
+  WCPSst::GeomDataSource gds(argv[1]);
   std::vector<double> ex = gds.extent();
   cout << "Extent: "
        << " x:" << ex[0]/units::mm << " mm"
@@ -591,8 +591,8 @@ int main(int argc, char* argv[])
 
   
 
-  //WireCell2dToy::Noisy_Event_ID(hu_decon, hv_decon, hw_decon, uplane_rms, vplane_rms, wplane_rms, uplane_map, vplane_map, wplane_map, hu_decon_g, hv_decon_g, hw_decon_g, nrebin, hv_raw, true);
-  //WireCell2dToy::Organize_Dead_Channels(uplane_map, vplane_map, wplane_map, hv_raw->GetNbinsY()-1,nrebin);
+  //WCP2dToy::Noisy_Event_ID(hu_decon, hv_decon, hw_decon, uplane_rms, vplane_rms, wplane_rms, uplane_map, vplane_map, wplane_map, hu_decon_g, hv_decon_g, hw_decon_g, nrebin, hv_raw, true);
+  //WCP2dToy::Organize_Dead_Channels(uplane_map, vplane_map, wplane_map, hv_raw->GetNbinsY()-1,nrebin);
 
     // loop through U/V/W plane to disable the bad channels completely
   /* for (auto it = uplane_map.begin(); it!=uplane_map.end(); it++){ */
@@ -629,21 +629,21 @@ int main(int argc, char* argv[])
 
   
   
-  WireCell2dToy::pdDataFDS roi_fds(gds,hu_decon,hv_decon,hw_decon,eve_num);
+  WCP2dToy::pdDataFDS roi_fds(gds,hu_decon,hv_decon,hw_decon,eve_num);
   roi_fds.jump(eve_num);
   
   
   
-  //WireCell2dToy::uBooNE_L1SP l1sp(hv_raw,hv_decon,hv_decon_g,nrebin);
+  //WCP2dToy::uBooNE_L1SP l1sp(hv_raw,hv_decon,hv_decon_g,nrebin);
   
-  WireCell2dToy::pdDataFDS roi_gaus_fds(gds,hu_decon_g,hv_decon_g,hw_decon_g,eve_num);
+  WCP2dToy::pdDataFDS roi_gaus_fds(gds,hu_decon_g,hv_decon_g,hw_decon_g,eve_num);
   roi_gaus_fds.jump(eve_num);
 
-  WireCell2dToy::uBooNEDataError error_fds(gds,hu_decon_g, hv_decon_g, hw_decon_g, eve_num, nrebin);
+  WCP2dToy::uBooNEDataError error_fds(gds,hu_decon_g, hv_decon_g, hw_decon_g, eve_num, nrebin);
   error_fds.jump(eve_num);
   
   
-  // WireCellSst::ToyuBooNESliceDataSource sds(roi_fds,roi_gaus_fds,threshold_u, 
+  // WCPSst::ToyuBooNESliceDataSource sds(roi_fds,roi_gaus_fds,threshold_u, 
   // 					    threshold_v, threshold_w, 
   // 					    threshold_ug, 
   // 					    threshold_vg, threshold_wg, 
@@ -651,20 +651,20 @@ int main(int argc, char* argv[])
   // 					    nwire_v, nwire_w,
   // 					    &uplane_rms, &vplane_rms, &wplane_rms); 
 
-  WireCellSst::uBooNESliceDataSource sds(roi_fds,roi_gaus_fds,error_fds,
+  WCPSst::uBooNESliceDataSource sds(roi_fds,roi_gaus_fds,error_fds,
 					 threshold_u, threshold_v, threshold_w,
 					 nwire_u, nwire_v, nwire_w,
 					 &uplane_rms, &vplane_rms, &wplane_rms); 
   
   // sds.jump(100);
   // full_sds.jump(100);
-  // WireCell::Slice slice = sds.get();
-  // WireCell::Slice slice1 = full_sds.get();
-  // WireCell::Slice slice2 = full_sds.get_error();
+  // WCP::Slice slice = sds.get();
+  // WCP::Slice slice1 = full_sds.get();
+  // WCP::Slice slice2 = full_sds.get_error();
 
-  // WireCell::Channel::Group group = slice.group();
-  // WireCell::Channel::Group group1 = slice1.group();
-  // WireCell::Channel::Group group2 = slice2.group();
+  // WCP::Channel::Group group = slice.group();
+  // WCP::Channel::Group group1 = slice1.group();
+  // WCP::Channel::Group group2 = slice2.group();
   // for (int i=0;i!=group.size();i++){
   //   std::cout << group.at(i).second << " " << group1.at(i).second << " " << group2.at(i).second << std::endl;
   // }
@@ -679,14 +679,14 @@ int main(int argc, char* argv[])
   int ncount_t = 0;
   
 
-  // WireCell2dToy::ToyTiling **toytiling = new WireCell2dToy::ToyTiling*[2400];
-  // WireCell2dToy::BadTiling **badtiling = new WireCell2dToy::BadTiling*[2400];
-  // WireCell2dToy::MergeToyTiling **mergetiling = new WireCell2dToy::MergeToyTiling*[2400];
-  // WireCell2dToy::ToyMatrix **toymatrix = new WireCell2dToy::ToyMatrix*[2400];
-  WireCell2dToy::LowmemTiling **lowmemtiling = new WireCell2dToy::LowmemTiling*[2400];
-  WireCell2dToy::ChargeSolving **chargesolver = new WireCell2dToy::ChargeSolving*[2400];
+  // WCP2dToy::ToyTiling **toytiling = new WCP2dToy::ToyTiling*[2400];
+  // WCP2dToy::BadTiling **badtiling = new WCP2dToy::BadTiling*[2400];
+  // WCP2dToy::MergeToyTiling **mergetiling = new WCP2dToy::MergeToyTiling*[2400];
+  // WCP2dToy::ToyMatrix **toymatrix = new WCP2dToy::ToyMatrix*[2400];
+  WCP2dToy::LowmemTiling **lowmemtiling = new WCP2dToy::LowmemTiling*[2400];
+  WCP2dToy::ChargeSolving **chargesolver = new WCP2dToy::ChargeSolving*[2400];
   
-  WireCell2dToy::WireCellHolder WCholder;
+  WCP2dToy::WCPHolder WCholder;
 
   //add in cluster
   Slim3DClusterSet cluster_set, cluster_delset, cluster_set_save;
@@ -775,10 +775,10 @@ int main(int argc, char* argv[])
       std::cout << "Tiling: " << i << std::endl;
 
     sds.jump(i);
-    WireCell::Slice& slice = sds.get();
-    WireCell::Slice& slice_err = sds.get_error();
+    WCP::Slice& slice = sds.get();
+    WCP::Slice& slice_err = sds.get_error();
     
-    lowmemtiling[i] = new WireCell2dToy::LowmemTiling(i,nrebin,gds,WCholder);
+    lowmemtiling[i] = new WCP2dToy::LowmemTiling(i,nrebin,gds,WCholder);
     if (i==start_num){
       lowmemtiling[i]->init_bad_cells(uplane_map,vplane_map,wplane_map);
     }else{
@@ -817,11 +817,11 @@ int main(int argc, char* argv[])
   /*     if (time_slice >= start_num && time_slice <=end_num){ */
 	
 	/* sds.jump(time_slice); */
-	/* WireCell::Slice& slice = sds.get(); */
-	/* WireCell::Slice& slice_err = sds.get_error(); */
+	/* WCP::Slice& slice = sds.get(); */
+	/* WCP::Slice& slice_err = sds.get_error(); */
 	
 	/* // std::cout << lowmemtiling[time_slice]->get_wire_charge_error_map().size() << std::endl; */
-	/* // WireCell::WireChargeMap& wire_charge_err_map = lowmemtiling[time_slice]->get_wire_charge_error_map(); */
+	/* // WCP::WireChargeMap& wire_charge_err_map = lowmemtiling[time_slice]->get_wire_charge_error_map(); */
 	/* // for (auto it1= wire_charge_err_map.begin(); it1 != wire_charge_err_map.end(); it1++){ */
 	/* // 	if ((*it1).second==0) */
 	/* // 	  std::cout << "A: " << (*it1).second << std::endl; */
@@ -829,7 +829,7 @@ int main(int argc, char* argv[])
 	/* //	lowmemtiling[time_slice]->reset_cells(); */
 
 	/* delete lowmemtiling[time_slice]; */
-	/* lowmemtiling[time_slice] = new WireCell2dToy::LowmemTiling(time_slice,nrebin,gds,WCholder); */
+	/* lowmemtiling[time_slice] = new WCP2dToy::LowmemTiling(time_slice,nrebin,gds,WCholder); */
 	/* if (time_slice==start_num){ */
 	  /* lowmemtiling[time_slice]->init_bad_cells(uplane_map,vplane_map,wplane_map); */
 	/* }else{ */
@@ -840,7 +840,7 @@ int main(int argc, char* argv[])
 	/* //std::cout << lowmemtiling[time_slice]->get_two_bad_wire_cells().size() << std::endl; */
 	/* // std::cout << lowmemtiling[time_slice]->get_wire_charge_error_map().size() << std::endl; */
 	/* // { */
-	/* // 	WireCell::WireChargeMap& wire_charge_err_map = lowmemtiling[time_slice]->get_wire_charge_error_map(); */
+	/* // 	WCP::WireChargeMap& wire_charge_err_map = lowmemtiling[time_slice]->get_wire_charge_error_map(); */
 	/* // 	for (auto it1= wire_charge_err_map.begin(); it1 != wire_charge_err_map.end(); it1++){ */
 	/* // 	  if ((*it1).second==0) */
 	/* // 	    std::cout << "B: " << (*it1).second << std::endl; */
@@ -871,7 +871,7 @@ int main(int argc, char* argv[])
   for (int i=start_num;i!=end_num+1;i++){
     
     // form clusters
-    WireCell::GeomCellMap& cell_wires_map = lowmemtiling[i]->get_cell_wires_map();
+    WCP::GeomCellMap& cell_wires_map = lowmemtiling[i]->get_cell_wires_map();
     GeomCellSelection allmcell;
     for (auto it=cell_wires_map.begin(); it!= cell_wires_map.end(); it++){
       SlimMergeGeomCell *mcell = (SlimMergeGeomCell*)it->first;
@@ -1403,7 +1403,7 @@ int main(int argc, char* argv[])
     n_bad_wires = lowmemtiling[i]->get_all_bad_wires().size();
     //n_single_cells = single_cells.size();
     // L1 solving
-    chargesolver[i] = new WireCell2dToy::ChargeSolving(gds, *lowmemtiling[i]);
+    chargesolver[i] = new WCP2dToy::ChargeSolving(gds, *lowmemtiling[i]);
     ndirect_solved = chargesolver[i]->get_ndirect_solved();
     nL1_solved = chargesolver[i]->get_nL1_solved();
     chargesolver[i]->Update_ndf_chi2();
@@ -1489,7 +1489,7 @@ int main(int argc, char* argv[])
     }
   }
   for (int i=start_num;i!=end_num+1;i++){
-    WireCell::GeomCellMap& cell_map = lowmemtiling[i]->get_cell_wires_map();
+    WCP::GeomCellMap& cell_map = lowmemtiling[i]->get_cell_wires_map();
     for (auto it = cell_map.begin(); it!=cell_map.end(); it++){
       SlimMergeGeomCell *mcell = (SlimMergeGeomCell*) it->first;
       bool flag1 = chargesolver[i]->get_mcell_charge(mcell)>300;
@@ -1516,14 +1516,14 @@ int main(int argc, char* argv[])
     //  if (i==1681){
     //   //draw ...
     //   sds.jump(i);
-    //   WireCell::Slice slice = sds.get();
+    //   WCP::Slice slice = sds.get();
     //   TApplication theApp("theApp",&argc,argv);
     //   theApp.SetReturnFromRun(true);
       
     //   TCanvas c1("ToyMC","ToyMC",800,600);
     //   c1.Draw();
       
-    //   WireCell2dToy::ToyEventDisplay display(c1, gds);
+    //   WCP2dToy::ToyEventDisplay display(c1, gds);
     //   display.charge_min = 0;
     //   display.charge_max = 5e4;
       
@@ -1545,7 +1545,7 @@ int main(int argc, char* argv[])
     //   GeomCellSelection single_cells = lowmemtiling[i]->create_single_cells();
       
     //   display.init(0,10.3698,-2.33/2.,2.33/2.);
-    //   display.draw_mc(1,WireCell::PointValueVector(),"colz");
+    //   display.draw_mc(1,WCP::PointValueVector(),"colz");
     //   display.draw_slice(slice,""); // draw wire 
     //   // display.draw_wires(vec1_wires.at(64),"same"); // draw wire 
     //   // // display.draw_bad_region(uplane_map,i,nrebin,0,"same");
@@ -1604,7 +1604,7 @@ int main(int argc, char* argv[])
       // if (i%400==0)
       //   std::cout << "2nd Clustering: " << i << std::endl;
       // form clusters
-      WireCell::GeomCellMap& cell_wires_map = lowmemtiling[i]->get_cell_wires_map();
+      WCP::GeomCellMap& cell_wires_map = lowmemtiling[i]->get_cell_wires_map();
       GeomCellSelection allmcell;
       for (auto it=cell_wires_map.begin(); it!= cell_wires_map.end(); it++){
 	SlimMergeGeomCell *mcell = (SlimMergeGeomCell*)it->first;
@@ -1684,7 +1684,7 @@ int main(int argc, char* argv[])
       // std::cout << "2nd Clustering (bad cells): " << i << std::endl;
       
       // form clusters
-      WireCell::GeomCellMap& cell_wires_map = lowmemtiling[i]->get_cell_wires_map();
+      WCP::GeomCellMap& cell_wires_map = lowmemtiling[i]->get_cell_wires_map();
       GeomCellSelection allmcell;
       for (auto it=cell_wires_map.begin(); it!= cell_wires_map.end(); it++){
 	SlimMergeGeomCell *mcell = (SlimMergeGeomCell*)it->first;
@@ -1765,7 +1765,7 @@ int main(int argc, char* argv[])
       // std::cout << "2nd Clustering (bad cells): " << i << std::endl;
       
       // form clusters
-      WireCell::GeomCellMap& cell_wires_map = lowmemtiling[i]->get_cell_wires_map();
+      WCP::GeomCellMap& cell_wires_map = lowmemtiling[i]->get_cell_wires_map();
       GeomCellSelection allmcell;
       for (auto it=cell_wires_map.begin(); it!= cell_wires_map.end(); it++){
 	SlimMergeGeomCell *mcell = (SlimMergeGeomCell*)it->first;
@@ -1847,7 +1847,7 @@ int main(int argc, char* argv[])
       // std::cout << "2nd Clustering (bad cells): " << i << std::endl;
       
       // form clusters
-      WireCell::GeomCellMap& cell_wires_map = lowmemtiling[i]->get_cell_wires_map();
+      WCP::GeomCellMap& cell_wires_map = lowmemtiling[i]->get_cell_wires_map();
       GeomCellSelection allmcell;
       for (auto it=cell_wires_map.begin(); it!= cell_wires_map.end(); it++){
 	SlimMergeGeomCell *mcell = (SlimMergeGeomCell*)it->first;
@@ -2405,7 +2405,7 @@ int main(int argc, char* argv[])
      }
    }
    for (int i=start_num;i!=end_num+1;i++){
-     WireCell::GeomCellMap& cell_map = lowmemtiling[i]->get_cell_wires_map();
+     WCP::GeomCellMap& cell_map = lowmemtiling[i]->get_cell_wires_map();
      for (auto it = cell_map.begin(); it!=cell_map.end(); it++){
        SlimMergeGeomCell *mcell = (SlimMergeGeomCell*) it->first;
        bool flag1 = chargesolver[i]->get_mcell_charge(mcell)>300;
@@ -2534,7 +2534,7 @@ int main(int argc, char* argv[])
      }
    }
    for (int i=start_num;i!=end_num+1;i++){
-     WireCell::GeomCellMap& cell_map = lowmemtiling[i]->get_cell_wires_map();
+     WCP::GeomCellMap& cell_map = lowmemtiling[i]->get_cell_wires_map();
      for (auto it = cell_map.begin(); it!=cell_map.end(); it++){
        SlimMergeGeomCell *mcell = (SlimMergeGeomCell*) it->first;
        bool flag1 = chargesolver[i]->get_mcell_charge(mcell)>300;
@@ -2561,7 +2561,7 @@ int main(int argc, char* argv[])
      Slim3DClusterSet temp_cluster_set, temp_cluster_delset;
      // 2nd round of clustering
      for (int i=start_num; i!=end_num+1;i++){
-       WireCell::GeomCellMap& cell_wires_map = lowmemtiling[i]->get_cell_wires_map();
+       WCP::GeomCellMap& cell_wires_map = lowmemtiling[i]->get_cell_wires_map();
        GeomCellSelection allmcell;
        for (auto it=cell_wires_map.begin(); it!= cell_wires_map.end(); it++){
 	 SlimMergeGeomCell *mcell = (SlimMergeGeomCell*)it->first;
@@ -2824,8 +2824,8 @@ int main(int argc, char* argv[])
       GeomCellMap cell_wires_map = lowmemtiling[i]->get_cell_wires_map();
       GeomWireMap wire_cells_map = lowmemtiling[i]->get_wire_cells_map();
       GeomCellSelection three_good_wire_cells = lowmemtiling[i]->get_three_good_wire_cells();
-      WireCell::WireChargeMap& wire_charge = lowmemtiling[i]->get_wire_charge_map();
-      WireCell::WireChargeMap& wire_charge_error = lowmemtiling[i]->get_wire_charge_error_map();
+      WCP::WireChargeMap& wire_charge = lowmemtiling[i]->get_wire_charge_map();
+      WCP::WireChargeMap& wire_charge_error = lowmemtiling[i]->get_wire_charge_error_map();
       
       chi2_save = chargesolver[i]->get_chi2();
       ndf_save = chargesolver[i]->get_ndf();
@@ -3019,8 +3019,8 @@ int main(int argc, char* argv[])
 	q = chargesolver[time_slice]->get_mcell_charge(mcell);
 	
 	GeomCellMap& cell_wires_map = lowmemtiling[time_slice]->get_cell_wires_map();
-	WireCell::WireChargeMap& wire_charge = lowmemtiling[time_slice]->get_wire_charge_map();
-	WireCell::WireChargeMap& wire_charge_error = lowmemtiling[time_slice]->get_wire_charge_error_map();
+	WCP::WireChargeMap& wire_charge = lowmemtiling[time_slice]->get_wire_charge_map();
+	WCP::WireChargeMap& wire_charge_error = lowmemtiling[time_slice]->get_wire_charge_error_map();
 	for (auto it1 = cell_wires_map[mcell].begin(); it1!= cell_wires_map[mcell].end(); it1++){
 	  MergeGeomWire *mwire = (MergeGeomWire*)(*it1);
 	  if (mwire->get_allwire().front()->iplane()==0){

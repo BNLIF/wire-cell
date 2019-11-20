@@ -1,4 +1,4 @@
-#include "WireCell2dToy/ToyLightReco.h"
+#include "WCP2dToy/ToyLightReco.h"
 #include "TH1F.h"
 #include "TH2F.h"
 
@@ -6,7 +6,7 @@
 #include <fstream>
 #include <ios>
 
-using namespace WireCell;
+using namespace WCP;
 using namespace std;
 
 int main(int argc, char* argv[])
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
     fileID += myArray[b];
   }
       
-  WireCell2dToy::ToyLightReco uboone_flash(root_file);
+  WCP2dToy::ToyLightReco uboone_flash(root_file);
       
   TFile *file1 = new TFile(root_file);
   TTree *T = (TTree*)file1->Get("/Event/Sim");
@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
 
     uboone_flash.load_event_raw(z);
     bool beamspill = false;
-    WireCell::OpflashSelection& flashes = uboone_flash.get_flashes();
+    WCP::OpflashSelection& flashes = uboone_flash.get_flashes();
 
     unsigned int ph = 10000, mult = 10000;
     if(phmax->size()>0){

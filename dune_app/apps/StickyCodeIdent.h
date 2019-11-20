@@ -1,7 +1,7 @@
 // Created by Carlos (sarastce@mail.uc.edu), 12/12/2018
 #include "TH1F.h"
 
-namespace WireCellDune{
+namespace WCPDune{
 
 
 int StickyCodeIdent(TH1F* hsig){

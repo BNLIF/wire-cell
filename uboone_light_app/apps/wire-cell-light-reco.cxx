@@ -1,12 +1,12 @@
-#include "WireCellSst/GeomDataSource.h"
-#include "WireCell2dToy/ToyLightReco.h"
+#include "WCPSst/GeomDataSource.h"
+#include "WCP2dToy/ToyLightReco.h"
 #include "TH1F.h"
 #include "TH2F.h"
 
 #include <TLeaf.h>
 #include <iostream>
 
-using namespace WireCell;
+using namespace WCP;
 using namespace std;
 
 int main(int argc, char* argv[])
@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
     }
   }
 
-  WireCellSst::GeomDataSource gds(argv[1]);
+  WCPSst::GeomDataSource gds(argv[1]);
   std::vector<double> ex = gds.extent();
   cerr << "Extent: "
        << " x:" << ex[0]/units::mm << " mm"
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
   if(imagingoutput==1) use_imagingoutput = true;
   std::cout << use_imagingoutput << std::endl;
   
-  WireCell2dToy::ToyLightReco uboone_flash(root_file,use_imagingoutput,datatier); 
+  WCP2dToy::ToyLightReco uboone_flash(root_file,use_imagingoutput,datatier); 
 
   uboone_flash.load_event_raw(eve_num);
   TFile *file1 = new TFile(root_file);
@@ -194,7 +194,7 @@ int main(int argc, char* argv[])
   //startT = T->FindBranch("mc_startXYZT")->GetLeaf("mc_startXYZT")->GetValue(7);
   //T_flash->Branch("startT",&startT);
 
-  WireCell::OpflashSelection& flashes = uboone_flash.get_flashes();
+  WCP::OpflashSelection& flashes = uboone_flash.get_flashes();
 
   //std::cout << flashes.size() << std::endl;
   

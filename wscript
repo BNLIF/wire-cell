@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 TOP = '.'
-APPNAME = 'WireCell'
+APPNAME = 'WCP'
 
 # the sequence matters
 subdirs = ['nanoflann',

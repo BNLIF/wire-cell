@@ -1,16 +1,16 @@
-#include "WireCell2dToy/ToyTiling.h"
-#include "WireCell2dToy/ClusterDisplay.h"
-#include "WireCell2dToy/ToyCrawler.h"
-#include "WireCell2dToy/ToyTracking.h"
-#include "WireCellData/TPCParams.h"
-#include "WireCellData/Singleton.h"
+#include "WCP2dToy/ToyTiling.h"
+#include "WCP2dToy/ClusterDisplay.h"
+#include "WCP2dToy/ToyCrawler.h"
+#include "WCP2dToy/ToyTracking.h"
+#include "WCPData/TPCParams.h"
+#include "WCPData/Singleton.h"
 
-#include "WireCellData/MergeGeomCell.h"
-#include "WireCellData/MergeGeomWire.h"
-#include "WireCellData/SpaceCell.h"
-#include "WireCellData/MergeSpaceCell.h"
+#include "WCPData/MergeGeomCell.h"
+#include "WCPData/MergeGeomWire.h"
+#include "WCPData/SpaceCell.h"
+#include "WCPData/MergeSpaceCell.h"
 
-#include "WireCellSst/MCTruth.h"
+#include "WCPSst/MCTruth.h"
 
 #include "TApplication.h"
 #include "TString.h"
@@ -26,7 +26,7 @@
 #include "TVector3.h"
 #include <iostream>
 
-using namespace WireCell;
+using namespace WCP;
 using namespace std;
 
 int main(int argc, char* argv[])
@@ -141,9 +141,9 @@ int main(int argc, char* argv[])
   std::cout << "Singleton: " << mp.get_pitch_u() << " " << mp.get_pitch_v() << " " << mp.get_pitch_w() << " " << mp.get_ts_width() << std::endl;
 
   const int ntime = total_time_bin/nrebin;
-  WireCell2dToy::ToyTiling **toytiling = new WireCell2dToy::ToyTiling*[ntime];
+  WCP2dToy::ToyTiling **toytiling = new WCP2dToy::ToyTiling*[ntime];
   for (int i=0;i!=ntime;i++){
-    toytiling[i] = new WireCell2dToy::ToyTiling();
+    toytiling[i] = new WCP2dToy::ToyTiling();
   }
 
   int time_slice=0;
@@ -300,7 +300,7 @@ int main(int argc, char* argv[])
 
   
   // deal with MC truth ... 
-  WireCellSst::MCTruth *mctruth = new WireCellSst::MCTruth(TMC);
+  WCPSst::MCTruth *mctruth = new WCPSst::MCTruth(TMC);
   //mctruth->GetEntry(0);
 
   // Need the (original) primary vertex to be in the fiducial volume ...
@@ -659,14 +659,14 @@ int main(int argc, char* argv[])
 
   // // do the Toy Crawler
   // std::cout << "Crawling " << std::endl;
-  // WireCell2dToy::ToyCrawler toycrawler(mcells);
-  // //WireCell2dToy::ToyCrawler toycrawler(mcells,1,2); //cosmic tune?
+  // WCP2dToy::ToyCrawler toycrawler(mcells);
+  // //WCP2dToy::ToyCrawler toycrawler(mcells,1,2); //cosmic tune?
 
   // // test
   // std::cout << "Tracking " << std::endl;
-  // WireCell2dToy::ToyTracking toytracking(toycrawler);
+  // WCP2dToy::ToyTracking toytracking(toycrawler);
   // MergeSpaceCellMap& mcells_map = toycrawler.Get_mcells_map();
-  // //WireCell2dToy::ToyTracking toytracking(toycrawler,1); //cosmic tune?
+  // //WCP2dToy::ToyTracking toytracking(toycrawler,1); //cosmic tune?
   // toytracking.IterateMergeTracks(mcells_map);
   
   // //std:cout << mcells.size() << " " << mcells_map.size() << std::endl;
@@ -703,7 +703,7 @@ int main(int argc, char* argv[])
   // TCanvas c1("ToyMC","ToyMC",800,600);
   // c1.Draw();
   
-  // WireCell2dToy::ClusterDisplay display(c1);
+  // WCP2dToy::ClusterDisplay display(c1);
   // shower3D_charge->Draw("p");
 
   // // display.DrawCluster(cells);

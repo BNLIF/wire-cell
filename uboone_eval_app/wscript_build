@@ -1,2 +1,2 @@
 #!/usr/bin/env python
-bld.make_package('WireCelluBooNE_EVAL_APP', use='WireCell2dToy WireCellNav EIGEN WireCellData WireCellSignal WireCellTiling WireCellSst WireCellRess WireCellQuickhull WireCellNanoflann lsp BOOST')
+bld.make_package('WCPuBooNE_EVAL_APP', use='WCP2dToy WCPNav EIGEN WCPData WCPSignal WCPTiling WCPSst WCPRess WCPQuickhull WCPNanoflann lsp BOOST')

@@ -1,8 +1,8 @@
-#include "WireCellSst/GeomDataSource.h"
-#include "WireCellData/TPCParams.h"
-#include "WireCellData/Singleton.h"
+#include "WCPSst/GeomDataSource.h"
+#include "WCPData/TPCParams.h"
+#include "WCPData/Singleton.h"
 
-#include "WireCell2dToy/ToyLibPe.h"
+#include "WCP2dToy/ToyLibPe.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -12,7 +12,7 @@
 #include "TTree.h"
 #include "TString.h"
 
-using namespace WireCell;
+using namespace WCP;
 using namespace std;
 
 int main(int argc, char* argv[]){
@@ -110,7 +110,7 @@ int main(int argc, char* argv[]){
   std::cout<<"first    "<<xSample[1]<<std::endl;
   std::cout<<"second   "<<xSample[2]<<std::endl;
 
-  WireCell2dToy::ToyLibPe simCharge(root_file);
+  WCP2dToy::ToyLibPe simCharge(root_file);
   float shiftX = 0, shiftY = 0, shiftZ = 0;
   TStopwatch tTime;
 

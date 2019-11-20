@@ -1,11 +1,11 @@
-#include "WireCellSst/GeomDataSource.h"
-#include "WireCell2dToy/ToyLightReco.h"
+#include "WCPSst/GeomDataSource.h"
+#include "WCP2dToy/ToyLightReco.h"
 #include "TH1F.h"
 #include "TH2F.h"
 
 #include <iostream>
 
-using namespace WireCell;
+using namespace WCP;
 using namespace std;
 
 int main(int argc, char* argv[])
@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
 
   const char* root_file = argv[2];
 
-  WireCell2dToy::ToyLightReco uboone_flash(root_file);
+  WCP2dToy::ToyLightReco uboone_flash(root_file);
 
   TFile *file1 = new TFile(root_file);
   TTree *T = (TTree*)file1->Get("/Event/Sim");
@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
     T_flash->Branch("l1_fired_pe",&l1_fired_pe);
     
     uboone_flash.load_event_raw(i);
-    WireCell::OpflashSelection& flashes = uboone_flash.get_flashes();
+    WCP::OpflashSelection& flashes = uboone_flash.get_flashes();
     for (auto it = flashes.begin(); it!=flashes.end(); it++){
       fired_channels.clear();
       Opflash *flash = (*it);

@@ -7,7 +7,7 @@
 #include "TMath.h"
 using namespace std;
 
-namespace WireCellDune{
+namespace WCPDune{
 
   //remove pedestal, copied from DatauBooNEFrameDataSource.cxx
 int get_baseline_rms(TH1F* h1, double& retBaseline, double& retRms){
@@ -204,4 +204,4 @@ int judgePlateau(int channel, TH1F* h2,double baseline, double & PlateauStart, d
         return 0;
 }
 
-}//WireCellDune
+}//WCPDune

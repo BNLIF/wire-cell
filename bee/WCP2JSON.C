@@ -1,6 +1,6 @@
 #include "WCReader.cc"
 
-void WireCell2JSON(TString filename, TString option = "truth", TString outfile="wc.json")
+void WCP2JSON(TString filename, TString option = "truth", TString outfile="wc.json")
 {
   //gROOT->Reset();
   //gROOT->ProcessLine(".x loadClasses.C" );

@@ -1,16 +1,16 @@
-#include "WireCellSst/GeomDataSource.h"
-#include "WireCellData/PR3DCluster.h"
-#include "WireCellData/SlimMergeGeomCell.h"
-#include "WireCellData/TPCParams.h"
-#include "WireCellData/Singleton.h"
-#include "WireCellData/ToyCTPointCloud.h"
-#include "WireCell2dToy/ExecMon.h"
-#include "WireCell2dToy/CalcPoints.h"
-#include "WireCell2dToy/ToyClustering.h"
-#include "WireCell2dToy/ToyLightReco.h"
-#include "WireCell2dToy/ToyMatching.h"
-#include "WireCell2dToy/ToyFiducial.h"
-#include "WireCell2dToy/ImprovePR3DCluster.h"
+#include "WCPSst/GeomDataSource.h"
+#include "WCPData/PR3DCluster.h"
+#include "WCPData/SlimMergeGeomCell.h"
+#include "WCPData/TPCParams.h"
+#include "WCPData/Singleton.h"
+#include "WCPData/ToyCTPointCloud.h"
+#include "WCP2dToy/ExecMon.h"
+#include "WCP2dToy/CalcPoints.h"
+#include "WCP2dToy/ToyClustering.h"
+#include "WCP2dToy/ToyLightReco.h"
+#include "WCP2dToy/ToyMatching.h"
+#include "WCP2dToy/ToyFiducial.h"
+#include "WCP2dToy/ImprovePR3DCluster.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -20,7 +20,7 @@
 #include "TTree.h"
 #include "TString.h"
 
-using namespace WireCell;
+using namespace WCP;
 using namespace std;
 
 int main(int argc, char* argv[])
@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
   ExecMon em("starting");
   cout << em("load geometry") << endl;
 
-  WireCellSst::GeomDataSource gds(argv[1]);
+  WCPSst::GeomDataSource gds(argv[1]);
   std::vector<double> ex = gds.extent();
   const GeomWire *uwire = gds.by_planeindex(WirePlaneType_t(0),0);
   const GeomWire *vwire = gds.by_planeindex(WirePlaneType_t(1),0);
@@ -160,7 +160,7 @@ int main(int argc, char* argv[])
 
   int flag_data=1;
   if(datatier==1 || datatier==2){ flag_data=0; } // overlay and full MC
-  WireCell2dToy::ToyFiducial *fid = new WireCell2dToy::ToyFiducial(3,800,-first_u_dis/pitch_u, -first_v_dis/pitch_v, -first_w_dis/pitch_w,
+  WCP2dToy::ToyFiducial *fid = new WCP2dToy::ToyFiducial(3,800,-first_u_dis/pitch_u, -first_v_dis/pitch_v, -first_w_dis/pitch_w,
 								   1./time_slice_width, 1./pitch_u, 1./pitch_v, 1./pitch_w, // slope
 								   angle_u,angle_v,angle_w,// angle
                                    				   3*units::cm, 117*units::cm, -116*units::cm, 0*units::cm, 1037*units::cm, 0*units::cm, 256*units::cm, flag_data);
@@ -212,7 +212,7 @@ int main(int argc, char* argv[])
 	  T_true->Fill();
 
 	  // is fully contained?
-	  WireCell::Point pp(xx*units::cm, yy*units::cm, zz*units::cm);
+	  WCP::Point pp(xx*units::cm, yy*units::cm, zz*units::cm);
 	  if(check_status && !fid->inside_fiducial_volume(pp, 0) && i_energy->at(i)>0.001 /* MeV, dot-like depo */){
 	    truth_isFC = false;
 	    check_status = false;
@@ -501,12 +501,12 @@ int main(int argc, char* argv[])
   // Start to add X, Y, Z points
   // form boundaries for the bad cells ... 
    for (size_t j = 0; j!= dead_clusters.size(); j++){
-     WireCell2dToy::calc_boundary_points_dead(gds,dead_clusters.at(j));
+     WCP2dToy::calc_boundary_points_dead(gds,dead_clusters.at(j));
    }
    // form sampling points for the normal cells ...
    DynamicToyPointCloud global_point_cloud(angle_u,angle_v,angle_w);
    for (size_t i=0; i!=live_clusters.size();i++){
-     WireCell2dToy::calc_sampling_points(gds,live_clusters.at(i),nrebin, frame_length, unit_dis);
+     WCP2dToy::calc_sampling_points(gds,live_clusters.at(i),nrebin, frame_length, unit_dis);
      live_clusters.at(i)->Create_point_cloud();
      global_point_cloud.AddPoints(live_clusters.at(i),0);
    }
@@ -519,17 +519,17 @@ int main(int argc, char* argv[])
    // test the fiducial volume cut 
    // fid->set_offset_t(offset_t);
    // {
-   //   WireCell::Point p(30.0*units::cm,30*units::cm,30*units::cm);
-   //   WireCell::Point p1(110.0*units::cm,0*units::cm,0*units::cm);
+   //   WCP::Point p(30.0*units::cm,30*units::cm,30*units::cm);
+   //   WCP::Point p1(110.0*units::cm,0*units::cm,0*units::cm);
      
    //   std::cout << fid->inside_fiducial_volume(p) << " " << fid->inside_fiducial_volume(p1) << std::endl;
-   //   WireCell::Point p2(-100*units::cm, 42.5*units::cm+3*units::cm, 738.4*units::cm);
+   //   WCP::Point p2(-100*units::cm, 42.5*units::cm+3*units::cm, 738.4*units::cm);
    //   std::cout << fid->inside_dead_region(p2) << std::endl;
      
    //   // for (int i=0;i!=1000;i++){
    //   //   for (int j=0;j!=1000;j++){
    //   // 	 //	 
-   //   // 	 WireCell::Point p2(302.8*units::cm, -116*units::cm + 233*units::cm/1000.*j , 1037*units::cm/1000.*i);
+   //   // 	 WCP::Point p2(302.8*units::cm, -116*units::cm + 233*units::cm/1000.*j , 1037*units::cm/1000.*i);
    //   // 	 if (fid->inside_dead_region(p2))
    //   // 	   std::cout << "Xin: " << p2.y/units::cm << " " << p2.z/units::cm << std::endl;
 	       	 
@@ -546,7 +546,7 @@ int main(int argc, char* argv[])
    ct_point_cloud.AddDeadChs(dead_u_index, dead_v_index, dead_w_index);
    ct_point_cloud.build_kdtree_index();
 
-   std::map<PR3DCluster*,std::vector<std::pair<PR3DCluster*,double>>> group_clusters = WireCell2dToy::Clustering_jump_gap_cosmics(live_clusters, dead_clusters,dead_u_index, dead_v_index, dead_w_index, global_point_cloud, ct_point_cloud);
+   std::map<PR3DCluster*,std::vector<std::pair<PR3DCluster*,double>>> group_clusters = WCP2dToy::Clustering_jump_gap_cosmics(live_clusters, dead_clusters,dead_u_index, dead_v_index, dead_w_index, global_point_cloud, ct_point_cloud);
    cout << em("Clustering to jump gap in cosmics") << std::endl;
    
    double lowerwindow = 0., upperwindow = 0.;
@@ -554,11 +554,11 @@ int main(int argc, char* argv[])
    if((datatier==0 && ((triggerbits>>9) & 1U)) || datatier==1){ lowerwindow=3.5625; upperwindow=5.34376; } // BNB EXT & overlay
    if(datatier==2){ lowerwindow=3.1718; upperwindow=4.95306; } // full mc
    
-   WireCell2dToy::ToyLightReco uboone_flash(filename, 1, datatier);
+   WCP2dToy::ToyLightReco uboone_flash(filename, 1, datatier);
    uboone_flash.load_event_raw(0, lowerwindow, upperwindow);
    cout << em("flash reconstruction") << std::endl;
 
-   WireCell::OpflashSelection& flashes = uboone_flash.get_flashes();
+   WCP::OpflashSelection& flashes = uboone_flash.get_flashes();
    for (size_t i=0;i!=flashes.size(); i++){
      flashes.at(i)->set_flash_id(i);
    }
@@ -620,9 +620,9 @@ int main(int argc, char* argv[])
     }
   }
   
-   //FlashTPCBundleSelection matched_bundles = WireCell2dToy::tpc_light_match(time_offset,nrebin,group_clusters,flashes, run_no, flag_match_data);
-   WireCell::Photon_Library pl(run_no,flag_match_data);
-   FlashTPCBundleSelection matched_bundles = WireCell2dToy::tpc_light_match(time_offset,nrebin,&pl,group_clusters,flashes, run_no, flag_match_data);
+   //FlashTPCBundleSelection matched_bundles = WCP2dToy::tpc_light_match(time_offset,nrebin,group_clusters,flashes, run_no, flag_match_data);
+   WCP::Photon_Library pl(run_no,flag_match_data);
+   FlashTPCBundleSelection matched_bundles = WCP2dToy::tpc_light_match(time_offset,nrebin,&pl,group_clusters,flashes, run_no, flag_match_data);
    cout << em("TPC Light Matching") << std::endl;
 
    // create the live clusters ...
@@ -646,8 +646,8 @@ int main(int argc, char* argv[])
      live_clusters.at(i)->cal_shortest_path(wcps.second);
      {
        // add dead channels in??? 
-       PR3DCluster *new_cluster = WireCell2dToy::Improve_PR3DCluster(live_clusters.at(i),ct_point_cloud, gds);
-       WireCell2dToy::calc_sampling_points(gds,new_cluster,nrebin, frame_length, unit_dis);
+       PR3DCluster *new_cluster = WCP2dToy::Improve_PR3DCluster(live_clusters.at(i),ct_point_cloud, gds);
+       WCP2dToy::calc_sampling_points(gds,new_cluster,nrebin, frame_length, unit_dis);
        new_cluster->Create_point_cloud();
        old_new_cluster_map[live_clusters.at(i)] = new_cluster;
 

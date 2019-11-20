@@ -1,9 +1,9 @@
 /**
  * Example for looping over protoDUNE channels and quality check
  */
-#include "WireCellNav/SliceDataSource.h"
-#include "WireCellSst/FrameDataSource.h"
-#include "WireCellTiling/TileMaker.h"
+#include "WCPNav/SliceDataSource.h"
+#include "WCPSst/FrameDataSource.h"
+#include "WCPTiling/TileMaker.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
   const char* outfile = argv[2];
   TFile* tfile = TFile::Open(infile);
   TTree* tree = dynamic_cast<TTree*>(tfile->Get("/Event/Sim"));
-  WireCellSst::FrameDataSource fds(*tree, "raw");
+  WCPSst::FrameDataSource fds(*tree, "raw");
   int eventNo, runNo;
   tree->SetBranchAddress("eventNo",&eventNo);
   tree->SetBranchAddress("runNo",&runNo);
@@ -112,11 +112,11 @@ int main(int argc, char* argv[])
   	}
   	cout << "FDS: jumping to frame #" << iframe << " eventNo " << eventNo << endl;
 
-    const WireCell::Frame& frame = fds.get();
+    const WCP::Frame& frame = fds.get();
     size_t ntraces = frame.traces.size();
     cout << "protoDUNE::frame.traces.size(): " << ntraces << endl;
     for (size_t ind=0; ind<ntraces; ++ind) {
-      const WireCell::Trace& trace = frame.traces[ind];
+      const WCP::Trace& trace = frame.traces[ind];
       int tbin = trace.tbin;
       int chid = trace.chid;
       int pid = planeid(chid);

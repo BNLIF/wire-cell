@@ -1,45 +1,45 @@
-#include "WireCellNav/DetectorGDS.h"
-#include "WireCellNav/GeomDataSource.h"
-#include "WireCellNav/DetGenerativeFDS.h"
-#include "WireCellNav/FrameDataSource.h"
-#include "WireCell2dToy/ToyDepositor.h"
-#include "WireCellSst/Util.h"
-#include "WireCell2dToy/ToySignalSimu.h"
-#include "WireCell2dToy/ToySignalSimuTrue.h"
-#include "WireCell2dToy/ToySignalGaus.h"
-#include "WireCell2dToy/ToySignalWien.h"
-#include "WireCellSst/ToyuBooNESliceDataSource.h"
-#include "WireCell2dToy/ToyTiling.h"
-#include "WireCell2dToy/TotalTiling.h"
-#include "WireCell2dToy/MergeToyTiling.h"
-#include "WireCell2dToy/TruthToyTiling.h"
-#include "WireCellData/MergeGeomCell.h"
+#include "WCPNav/DetectorGDS.h"
+#include "WCPNav/GeomDataSource.h"
+#include "WCPNav/DetGenerativeFDS.h"
+#include "WCPNav/FrameDataSource.h"
+#include "WCP2dToy/ToyDepositor.h"
+#include "WCPSst/Util.h"
+#include "WCP2dToy/ToySignalSimu.h"
+#include "WCP2dToy/ToySignalSimuTrue.h"
+#include "WCP2dToy/ToySignalGaus.h"
+#include "WCP2dToy/ToySignalWien.h"
+#include "WCPSst/ToyuBooNESliceDataSource.h"
+#include "WCP2dToy/ToyTiling.h"
+#include "WCP2dToy/TotalTiling.h"
+#include "WCP2dToy/MergeToyTiling.h"
+#include "WCP2dToy/TruthToyTiling.h"
+#include "WCPData/MergeGeomCell.h"
 
-#include "WireCell2dToy/ToyEventDisplay.h"
+#include "WCP2dToy/ToyEventDisplay.h"
 
-#include "WireCell2dToy/ToyMatrix.h"
-#include "WireCell2dToy/ToyMatrixExclusive.h"
-#include "WireCell2dToy/ToyMatrixKalman.h"
-#include "WireCell2dToy/ToyMatrixIterate.h"
-#include "WireCell2dToy/ToyMatrixMarkov.h"
-#include "WireCell2dToy/ToyMetric.h"
-#include "WireCellData/TPCParams.h"
-#include "WireCellData/Singleton.h"
-#include "WireCellData/GeomCluster.h"
-#include "WireCellSst/MCTruth.h"
+#include "WCP2dToy/ToyMatrix.h"
+#include "WCP2dToy/ToyMatrixExclusive.h"
+#include "WCP2dToy/ToyMatrixKalman.h"
+#include "WCP2dToy/ToyMatrixIterate.h"
+#include "WCP2dToy/ToyMatrixMarkov.h"
+#include "WCP2dToy/ToyMetric.h"
+#include "WCPData/TPCParams.h"
+#include "WCPData/Singleton.h"
+#include "WCPData/GeomCluster.h"
+#include "WCPSst/MCTruth.h"
 
-#include "WireCellSignal/ElectronicsConfig.h"
-#include "WireCellSignal/ConvolutedResponse.h"
-#include "WireCellSignal/DetGenerativeFDS.h"
-//#include "WireCellSignal/GenerativeFDS.h"
+#include "WCPSignal/ElectronicsConfig.h"
+#include "WCPSignal/ConvolutedResponse.h"
+#include "WCPSignal/DetGenerativeFDS.h"
+//#include "WCPSignal/GenerativeFDS.h"
 
 
-#include "WireCellNav/FrameDataSource.h"
-#include "WireCellNav/GenerativeFDS.h"
-#include "WireCellNav/PepperDepositor.h"
-#include "WireCell2dToy/ToySignalSimu.h"
-#include "WireCell2dToy/DataSignalGaus.h"
-//#include "WireCell2dToy/SimuSignalWien_ROI.h"
+#include "WCPNav/FrameDataSource.h"
+#include "WCPNav/GenerativeFDS.h"
+#include "WCPNav/PepperDepositor.h"
+#include "WCP2dToy/ToySignalSimu.h"
+#include "WCP2dToy/DataSignalGaus.h"
+//#include "WCP2dToy/SimuSignalWien_ROI.h"
 
 #include "TApplication.h"
 #include "TCanvas.h"
@@ -60,8 +60,8 @@
 #include <vector>
 
 //#define MAX_TRACKS 10
-using namespace WireCellSignal;
-using namespace WireCell;
+using namespace WCPSignal;
+using namespace WCP;
 using namespace std;
 
 int main(int argc, char* argv[])
@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
   int nt_off2 = 0;
 
   /*
-  WireCellSst::GeomDataSource gds(argv[1]);
+  WCPSst::GeomDataSource gds(argv[1]);
   std::vector<double> ex = gds.extent();
   cerr << "Extent: "
        << " x:" << ex[0]/units::mm << " mm"
@@ -162,14 +162,14 @@ int main(int argc, char* argv[])
   sst->GetEntry(eve_num);
   
    //save MC truth ...
-  WireCellSst::MCTruth *mctruth = new WireCellSst::MCTruth(root_file);
+  WCPSst::MCTruth *mctruth = new WCPSst::MCTruth(root_file);
   mctruth->GetEntry(eve_num);
   
   std::cout << "Energy: " << mctruth->mc_nu_mom[3] << " CC/NC: " << mctruth->mc_nu_ccnc << " Neutrino: " << mctruth->mc_nu_pdg << std::endl;
   cout << "Run No: " << mctruth->runNo << " " << mctruth->subrunNo << " " << mctruth->eventNo << endl;
   
-  WireCell::FrameDataSource* fds = 0;
-  fds = WireCellSst::make_fds(*tfile);
+  WCP::FrameDataSource* fds = 0;
+  fds = WCPSst::make_fds(*tfile);
   if (!fds) {
     cerr << "ERROR: failed to get FDS from " << root_file << endl;
     return 1;
@@ -177,8 +177,8 @@ int main(int argc, char* argv[])
   
   TH1::AddDirectory(kFALSE);
   
-  WireCell::ToyDepositor *toydep;
-  //WireCell::PepperDepositor *toydep;
+  WCP::ToyDepositor *toydep;
+  //WCP::PepperDepositor *toydep;
 
   Double_t x_center = mctruth->mc_startXYZT[0][0];
   Double_t y_center = mctruth->mc_startXYZT[0][1];
@@ -196,9 +196,9 @@ int main(int argc, char* argv[])
   zmm.second = 180*units::cm;
   qmm.first = 2000;
   qmm.second = 2001;
-  //toydep = new WireCell::PepperDepositor(xmm, ymm, zmm, qmm, 1);
+  //toydep = new WCP::PepperDepositor(xmm, ymm, zmm, qmm, 1);
 
-  toydep = new WireCell::ToyDepositor(fds,0,unit_dis,frame_length);
+  toydep = new WCP::ToyDepositor(fds,0,unit_dis,frame_length);
   cout << "Primary vertex is (" << mctruth->mc_startXYZT[0][0] << "," << mctruth->mc_startXYZT[0][1] << "," << mctruth->mc_startXYZT[0][2] <<")" << endl;
   toydep->translation(x_shift,y_shift,z_shift);
   mctruth->Rotate_Shift(0,0,0, 0,
@@ -208,17 +208,17 @@ int main(int argc, char* argv[])
 
   std::cout << "Points deposited: " << pvv.size() << std::endl;
 
-  WireCellSignal::ElectronicsConfig *conf = new WireCellSignal::ElectronicsConfig();
-  WireCellSignal::ConvolutedResponse *fRsp = new WireCellSignal::ConvolutedResponse(conf, "./signal/dune.root", time_offset, toffset_1, toffset_2);
-  //WireCellSignal::GenerativeFDS gfds(*toydep, gds, conf->NTDC(), max_events, 0.5*1.6*units::millimeter);
-  WireCellSignal::DetGenerativeFDS gfds(*toydep, gds, conf->NTDC(), max_events, 0.5*1.6*units::millimeter);// 3m maximum drift distance
+  WCPSignal::ElectronicsConfig *conf = new WCPSignal::ElectronicsConfig();
+  WCPSignal::ConvolutedResponse *fRsp = new WCPSignal::ConvolutedResponse(conf, "./signal/dune.root", time_offset, toffset_1, toffset_2);
+  //WCPSignal::GenerativeFDS gfds(*toydep, gds, conf->NTDC(), max_events, 0.5*1.6*units::millimeter);
+  WCPSignal::DetGenerativeFDS gfds(*toydep, gds, conf->NTDC(), max_events, 0.5*1.6*units::millimeter);// 3m maximum drift distance
   gfds.SetResponseFunctions(fRsp);
   gfds.jump(eve_num);
   tfile->Close("R");
   delete tfile;
   //return 0;
   cout << "Simulate Raw WaveForm " << endl; 
-  WireCell2dToy::ToySignalSimuFDS simu_fds(gfds,gds,*conf,max_events,toffset_1,toffset_2,1); // time offset among different planes for the time electrons travel among different planes
+  WCP2dToy::ToySignalSimuFDS simu_fds(gfds,gds,*conf,max_events,toffset_1,toffset_2,1); // time offset among different planes for the time electrons travel among different planes
   simu_fds.jump(eve_num);
 
   //return 0;

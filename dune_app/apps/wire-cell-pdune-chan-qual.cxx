@@ -4,10 +4,10 @@
  * sst/GeomDataSource does NOT fit protoDUNE structure, temporarily use a class ChannelGeo
  *
  */
-#include "WireCellNav/SliceDataSource.h"
-#include "WireCellSst/FrameDataSource.h"
-//#include "WireCellSst/pDuneGeomDataSource.h"
-#include "WireCellTiling/TileMaker.h"
+#include "WCPNav/SliceDataSource.h"
+#include "WCPSst/FrameDataSource.h"
+//#include "WCPSst/pDuneGeomDataSource.h"
+#include "WCPTiling/TileMaker.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
     /**
     * start_time = time(0);
     * ifstream geotext(argv[1]);
-    * WireCellSst::pDuneGeomDataSource gds;
+    * WCPSst::pDuneGeomDataSource gds;
     * gds.load(geotext);
     * now = time(0);
     * cerr << "Loaded geometry in " << now - start_time << endl;
@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
     // One of the basic cell tilings
     /**
     * start_time = time(0);
-    * WireCell::TileMaker tiling(gds);
+    * WCP::TileMaker tiling(gds);
     * now = time(0);
     * cerr << "Loaded tiling in " << now - start_time << endl;    
     */
@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
     // open data file to make frame data source
     TFile* tfile = TFile::Open(argv[2]);
     TTree* tree = dynamic_cast<TTree*>(tfile->Get("/Event/Sim"));
-    WireCellSst::FrameDataSource fds(*tree, "raw");
+    WCPSst::FrameDataSource fds(*tree, "raw");
 
     TFile* ofile = new TFile("chan-qual.root","recreate");
     TTree* otree = new TTree("T","T");
@@ -137,7 +137,7 @@ int main(int argc, char* argv[])
     tree->SetBranchAddress("runNo",&runNo);
     
 //    start_time = time(0);
-//    WireCell::SliceDataSource sds(fds);
+//    WCP::SliceDataSource sds(fds);
 //    now = time(0);
 //    cerr << "Loaded slice data source in " << now - start_time << endl;    
     
@@ -159,11 +159,11 @@ int main(int argc, char* argv[])
         t_run = runNo;
         t_event = eventNo;
 
-        const WireCell::Frame& frame = fds.get();
+        const WCP::Frame& frame = fds.get();
         size_t ntraces = frame.traces.size();
         cout << "protoDUNE::frame.traces.size(): " << ntraces << endl;
         for (size_t ind=0; ind<ntraces; ++ind) {
-          const WireCell::Trace& trace = frame.traces[ind];
+          const WCP::Trace& trace = frame.traces[ind];
           int tbin = trace.tbin;
           int chid = trace.chid;
           int nbins = trace.charge.size();
@@ -179,16 +179,16 @@ int main(int argc, char* argv[])
           //cout << "chanId: " << chid << " plane: " << iplane << endl;
 
           // ident ledge & plateau
-          WireCellDune::get_baseline_rms(hCharge, t_baseline, t_rms);
+          WCPDune::get_baseline_rms(hCharge, t_baseline, t_rms);
           double LedgeStart, LedgeEnd, PlateauStart, PlateauStartEnd;
-          t_ledge =  WireCellDune::LedgeIdentify(chid, hCharge, t_baseline, LedgeStart, LedgeEnd);
-          t_plateau = WireCellDune::judgePlateau(chid, hCharge, t_baseline, PlateauStart, PlateauStartEnd);
+          t_ledge =  WCPDune::LedgeIdentify(chid, hCharge, t_baseline, LedgeStart, LedgeEnd);
+          t_plateau = WCPDune::judgePlateau(chid, hCharge, t_baseline, PlateauStart, PlateauStartEnd);
           if(t_ledge) cout << "Found a ledge: run= " << t_run << " event= " << t_event << " channel= " << chid << endl;
           if(t_plateau) cout << "Found a plateau: run= " << t_run << " event= " << t_event << " channel= " << chid << endl;
           t_channel = chid;
 
           // ident sticy code ticks per channel
-          t_nsticky = WireCellDune::StickyCodeIdent(hCharge);
+          t_nsticky = WCPDune::StickyCodeIdent(hCharge);
 
           otree->Fill();
           t_ledge=0; t_plateau=0;
@@ -207,7 +207,7 @@ int main(int argc, char* argv[])
 	//	exit(1); // real code may want to do something less drastic
 	//    }
 
-	//    const WireCell::Slice& slice = sds.get();
+	//    const WCP::Slice& slice = sds.get();
 	//    if (islice%1000 == 1) {
 	//	time_t now = time(0);
 	//	cerr << "slice #" << islice
