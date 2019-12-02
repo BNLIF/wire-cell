@@ -25,8 +25,8 @@ int main(int argc, char* argv[])
   double upperwindow = 0;
   
   //enlarge window ... 
-  if((triggerbits>>11) & 1U) { lowerwindow = 3.0; upperwindow = 5.0; }// bnb  
-  if((triggerbits>>9) & 1U) { lowerwindow = 3.45; upperwindow = 5.45; } // extbnb
+  if((triggerbits>>11) & 1U) { lowerwindow = 3.1625; upperwindow = 4.96875;} // bnb 
+ if((triggerbits>>9) & 1U) { lowerwindow = 3.5375; upperwindow = 5.34375; } //extbnb 
 
   TTree *T_match = (TTree*)file1->Get("T_match");
   Int_t tpc_cluster_id;
@@ -40,14 +40,16 @@ int main(int argc, char* argv[])
   T_match->SetBranchAddress("flash_time",&flash_time);
   T_match->SetBranchAddress("cluster_length",&cluster_length);
   for (int i =0;i!=T_match->GetEntries();i++){
-      T_match->GetEntry(i);
-      int flag_tgm = (event_type >> 3) & 1U;
-      int flag_low_energy = (event_type >> 4) & 1U;
-      int flag_lm = (event_type >> 1) & 1U;
-      int flag_fully_contained = (event_type >> 2) & 1U;
-      int flag_stm = (event_type >> 5) & 1U;
-      int flag_full_detector_dead = (event_type >> 6) & 1U;
-      
-      std::cout << runNo << "_" << subRunNo << "_" << eventNo << " " << flash_id << " " << tpc_cluster_id << " " << flash_time << " " << event_type << " " << flag_low_energy << " " << flag_lm << " " << flag_tgm << " " << flag_fully_contained << " " << flag_stm << " " << flag_full_detector_dead << " " << cluster_length << std::endl;
+    T_match->GetEntry(i);
+    
+    if (flash_time < lowerwindow || flash_time > upperwindow) continue;
+    int flag_tgm = (event_type >> 3) & 1U;
+    int flag_low_energy = (event_type >> 4) & 1U;
+    int flag_lm = (event_type >> 1) & 1U;
+    int flag_fully_contained = (event_type >> 2) & 1U;
+    int flag_stm = (event_type >> 5) & 1U;
+    int flag_full_detector_dead = (event_type >> 6) & 1U;
+    
+    std::cout << runNo << "_" << subRunNo << "_" << eventNo << " " << flash_id << " " << tpc_cluster_id << " " << flash_time << " " << event_type << " " << flag_low_energy << " " << flag_lm << " " << flag_tgm << " " << flag_fully_contained << " " << flag_stm << " " << flag_full_detector_dead << " " << cluster_length << std::endl;
   }
 }
