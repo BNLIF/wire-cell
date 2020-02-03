@@ -324,7 +324,10 @@ int main(int argc, char* argv[])
   int ident = 0;
   TC->GetEntry(entry_num);
   for (int i=0;i!=cluster_id_vec->size();i++){
-    int cluster_id = cluster_id_vec->at(i);
+    /* BYPASS CLUSTERING  */
+    //int cluster_id = cluster_id_vec->at(i);
+    int cluster_id = 0;
+    /* END  */
     SlimMergeGeomCell *mcell = new SlimMergeGeomCell(ident);
     int time_slice = time_slice_vec->at(i);
     std::vector<int> wire_index_u = wire_index_u_vec->at(i);
@@ -637,7 +640,16 @@ int main(int argc, char* argv[])
   }
   cout << em("Add X, Y, Z points") << std::endl;
   
-  
+  /* BYPASS CLUSTERING  */
+  std::cout << "Live cluster size: " << live_clusters.size() << std::endl;
+  if(live_clusters.size()==0)
+  {
+  	TFile* empty_file1 = new TFile(Form("nuselEval_%d_%d_%d.root",run_no,subrun_no,event_no),"RECREATE");
+  	TFile* empty_file2 = new TFile(Form("port_%d_%d_%d.root",run_no,subrun_no,event_no),"RECREATE");
+      	return 0;	
+  }
+  /* END */
+ 
   // create global CT point cloud ...
   double first_t_dis = live_clusters.at(0)->get_mcells().front()->GetTimeSlice()*time_slice_width - live_clusters.at(0)->get_mcells().front()->get_sampling_points().front().x;
   double offset_t = first_t_dis/time_slice_width;
@@ -661,9 +673,17 @@ int main(int argc, char* argv[])
   // WCP2dToy::Clustering_live_dead(live_clusters, dead_clusters);
   // cerr << em("Clustering live and dead clusters") << std::endl;
   
-  std::map<PR3DCluster*,std::vector<std::pair<PR3DCluster*,double>>> group_clusters = WCP2dToy::Clustering_jump_gap_cosmics(live_clusters, dead_clusters,dead_u_index, dead_v_index, dead_w_index, global_point_cloud, ct_point_cloud);
-  cout << em("Clustering to jump gap in cosmics") << std::endl;
+  /* BYPASS CLUSTERING  */
+  //std::map<PR3DCluster*,std::vector<std::pair<PR3DCluster*,double>>> group_clusters = WCP2dToy::Clustering_jump_gap_cosmics(live_clusters, dead_clusters,dead_u_index, dead_v_index, dead_w_index, global_point_cloud, ct_point_cloud);
+  //cout << em("Clustering to jump gap in cosmics") << std::endl;
   
+  std::map<PR3DCluster*,std::vector<std::pair<PR3DCluster*,double>>> group_clusters;
+  PR3DCluster* entire_cluster = live_clusters.at(0);
+  std::vector<std::pair<PR3DCluster*,double> > temp_pair_vec;
+  group_clusters.insert( std::make_pair(entire_cluster, temp_pair_vec) );
+  cout << em("Bypass clustering") << std::endl;
+  /* END */
+ 
   // processing light information
 
   // Beam window for various data sample 
@@ -1929,7 +1949,8 @@ int main(int argc, char* argv[])
                         p_y = ps.at(k).y/units::cm;
                         p_z = ps.at(k).z/units::cm;
                        
-                        if(p_main_flag){
+			/* THIS is to use the whole cluster to do the imaging evaluation */ 
+                        if(p_main_flag==1 || p_main_flag==0){
                             reco_x.push_back(p_x);
                             reco_y.push_back(p_y);
                             reco_z.push_back(p_z);
