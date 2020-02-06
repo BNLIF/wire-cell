@@ -44,6 +44,8 @@ int main(int argc, char* argv[])
   int save_proj = 0;
   
   bool flag_add_light_yield_err = true;
+  
+  bool imaging_eval_flag = false;
 
   int entry_num = 0;
   bool flag_postprod = false;
@@ -72,6 +74,9 @@ int main(int argc, char* argv[])
       break;
     case 'e':
       flag_add_light_yield_err = atoi(&argv[i][2]);
+      break;
+    case 'i':
+      imaging_eval_flag = atoi(&argv[i][2]);
       break;
     }
   }
@@ -528,6 +533,8 @@ int main(int argc, char* argv[])
   
   if (timesliceId->size()==0){
     std::cout << "No points! Quit! " << std::endl;
+    TFile* empty_file1 = new TFile(Form("nuselEval_%d_%d_%d.root",run_no,subrun_no,event_no),"RECREATE");
+    TFile* empty_file2 = new TFile(Form("port_%d_%d_%d.root",run_no,subrun_no,event_no),"RECREATE");
     return 0;
   }
   
@@ -1950,7 +1957,7 @@ int main(int argc, char* argv[])
                         p_z = ps.at(k).z/units::cm;
                        
 			/* THIS is to use the whole cluster to do the imaging evaluation */ 
-                        if(p_main_flag==1 || p_main_flag==0){
+                        if(imaging_eval_flag || p_main_flag){
                             reco_x.push_back(p_x);
                             reco_y.push_back(p_y);
                             reco_z.push_back(p_z);

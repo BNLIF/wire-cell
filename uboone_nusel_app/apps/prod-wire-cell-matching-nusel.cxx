@@ -44,6 +44,7 @@ int main(int argc, char* argv[])
   int save_proj = 0;
   
   bool flag_add_light_yield_err = true;
+  bool imaging_eval_flag = false;
 
   int entry_num = 0;
   bool flag_postprod = false;
@@ -72,6 +73,9 @@ int main(int argc, char* argv[])
       break;
     case 'e':
       flag_add_light_yield_err = atoi(&argv[i][2]);
+      break;
+    case 'i':
+      imaging_eval_flag = atoi(&argv[i][2]);
       break;
     }
   }
@@ -1929,7 +1933,7 @@ int main(int argc, char* argv[])
                         p_y = ps.at(k).y/units::cm;
                         p_z = ps.at(k).z/units::cm;
                        
-                        if(p_main_flag){
+                        if(imaging_eval_flag || p_main_flag){
                             reco_x.push_back(p_x);
                             reco_y.push_back(p_y);
                             reco_z.push_back(p_z);
