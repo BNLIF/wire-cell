@@ -66,6 +66,7 @@ public:
     void DumpMC();
     void DumpDeadArea();
     void DumpOp();
+    void DumpVtx();
 
     void print_vector(ostream& out, vector<double>& v, TString desc, bool end=false);
     void print_vector_vector(ostream& out, vector<vector<double> >& vv, TString desc, bool end=false);

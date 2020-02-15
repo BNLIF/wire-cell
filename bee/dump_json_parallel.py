@@ -23,7 +23,7 @@ def main(filename, options):
     list_of_files = glob.glob(to_glob)
     list_of_files.sort(key=lambda x: int(x[x.rfind('_')+1:x.rfind('.')]))
     # print list_of_files
-    # root -b -q 'WCP2JSON.C("shower3D_data_0.root","rec_simple", "1.json")'
+    # root -b -q 'WireCell2JSON.C("shower3D_data_0.root","rec_simple", "1.json")'
     try:
         os.mkdir('data')
     except OSError:
@@ -36,7 +36,7 @@ def main(filename, options):
         os.mkdir('data/'+str_i)
         filename = list_of_files[i]
         for rec in options:
-            cmd = "root -b -q -l 'WCP2JSON.C(\"%s\", \"%s\", \"%s\")'" % (
+            cmd = "root -b -q -l loadClasses.C 'WireCell2JSON.C(\"%s\", \"%s\", \"%s\")'" % (
                 filename,
                 rec,
                 'data/'+str_i+'/'+str_i+'-'+rec+'.json')
@@ -49,7 +49,7 @@ def main(filename, options):
     # [t.join() for t in threads]
     nCores = multiprocessing.cpu_count()
     print 'total cpu: ', nCores
-    pool = multiprocessing.Pool(nCores*4)
+    pool = multiprocessing.Pool(nCores*5)
     for cmd in inputs:
         pool.apply_async(os.system, args=(cmd,))
     pool.close()

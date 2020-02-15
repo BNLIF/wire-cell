@@ -208,8 +208,8 @@ void WCReader::DumpOp()
 void WCReader::DumpSpacePoints(TString option)
 {
     double x=0, y=0, z=0, q=0, nq=1;
-    int cluster_id=0;
-    vector<double> vx, vy, vz, vq, vnq, vcluster_id;
+    int cluster_id=0, real_cluster_id=0;
+    vector<double> vx, vy, vz, vq, vnq, vcluster_id, vreal_cluster_id;
     TTree * t = 0;
 
     if (option == "truth" || option == "true") {
@@ -235,8 +235,11 @@ void WCReader::DumpSpacePoints(TString option)
         t->SetBranchAddress("x", &x);
         t->SetBranchAddress("y", &y);
         t->SetBranchAddress("z", &z);
-	//        if (! (option.Contains("simple") ||  option.Contains("cluster")) ) {
-	if (t->GetBranch("q") ) {
+
+        // if (! (option.Contains("simple") ||  option.Contains("cluster")) ) {
+        //     t->SetBranchAddress("q", &q);
+        // }
+        if (t->GetBranch("q")) {
             t->SetBranchAddress("q", &q);
         }
         if (option.Contains("charge")) {
@@ -244,6 +247,9 @@ void WCReader::DumpSpacePoints(TString option)
         }
         if (option.Contains("cluster")) {
             t->SetBranchAddress("cluster_id", &cluster_id);
+            if (t->GetBranch("real_cluster_id")) {
+                t->SetBranchAddress("real_cluster_id", &real_cluster_id);
+            }
         }
         int nPoints = t->GetEntries();
         for (int i=0; i<nPoints; i++) {
@@ -254,6 +260,7 @@ void WCReader::DumpSpacePoints(TString option)
             vq.push_back(q);
             vnq.push_back(nq);
             vcluster_id.push_back(cluster_id);
+            vreal_cluster_id.push_back(real_cluster_id);
         }
     }
 
@@ -269,9 +276,76 @@ void WCReader::DumpSpacePoints(TString option)
     print_vector(jsonFile, vq, "q");
     print_vector(jsonFile, vnq, "nq");
     print_vector(jsonFile, vcluster_id, "cluster_id");
+    print_vector(jsonFile, vreal_cluster_id, "real_cluster_id");
 
 
     jsonFile << '"' << "type" << '"' << ":" << '"' << option << '"' << "," << endl;
+
+    // always dump runinfo in the end
+    DumpRunInfo();
+
+    jsonFile << "}" << endl;
+
+}
+
+//----------------------------------------------------------------
+void WCReader::DumpVtx()
+{
+    double x=0, y=0, z=0;
+    int type = -1;
+    // 1: Steiner-inspired graph
+    // 2: Steiner terminals
+    // 3: end point (extreme point, connecting to one object)
+    // 4: kink (connecting to two objects
+    // 5: vertex (connecting to three or more objects)
+    int flag_main = -1;
+    int cluster_id=0;
+    vector<int> *sub_cluster_ids = new std::vector<int>;
+
+    vector<double> vx, vy, vz, vtype, vflag_main, vcluster_id;
+    vector<vector<double> > vsub_cluster_ids;
+    TTree * t = (TTree*)rootFile->Get("T_vtx");
+
+    if (t) {
+        t->SetBranchAddress("x", &x);
+        t->SetBranchAddress("y", &y);
+        t->SetBranchAddress("z", &z);
+        t->SetBranchAddress("type", &type);
+        t->SetBranchAddress("flag_main", &flag_main);
+        t->SetBranchAddress("cluster_id", &cluster_id);
+        t->SetBranchAddress("sub_cluster_ids", &sub_cluster_ids);
+        
+        int nPoints = t->GetEntries();
+        for (int i=0; i<nPoints; i++) {
+            t->GetEntry(i);
+            vx.push_back(x);
+            vy.push_back(y);
+            vz.push_back(z);
+            vtype.push_back(type);
+            vflag_main.push_back(flag_main);
+            vcluster_id.push_back(cluster_id);
+
+            vsub_cluster_ids.push_back(vector<double>());
+            int size = sub_cluster_ids->size();
+            for (int j=0; j<size; j++) {
+                vsub_cluster_ids.at(j).push_back( sub_cluster_ids->at(j) );
+            }
+        }
+    }
+
+    jsonFile << "{" << endl;
+
+    jsonFile << fixed << setprecision(1);
+
+    print_vector(jsonFile, vx, "x");
+    print_vector(jsonFile, vy, "y");
+    print_vector(jsonFile, vz, "z");
+
+    jsonFile << fixed << setprecision(0);
+    print_vector(jsonFile, vtype, "type");
+    print_vector(jsonFile, vflag_main, "flag_main");
+    print_vector(jsonFile, vcluster_id, "cluster_id");
+    print_vector_vector(jsonFile, vsub_cluster_ids, "sub_cluster_ids");
 
     // always dump runinfo in the end
     DumpRunInfo();
