@@ -329,7 +329,7 @@ void WCReader::DumpVtx()
             vsub_cluster_ids.push_back(vector<double>());
             int size = sub_cluster_ids->size();
             for (int j=0; j<size; j++) {
-                vsub_cluster_ids.at(j).push_back( sub_cluster_ids->at(j) );
+	      vsub_cluster_ids.back().push_back( sub_cluster_ids->at(j) );
             }
         }
     }
