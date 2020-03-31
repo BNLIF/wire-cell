@@ -253,14 +253,15 @@ void WCReader::DumpSpacePoints(TString option)
         }
         int nPoints = t->GetEntries();
         for (int i=0; i<nPoints; i++) {
-            t->GetEntry(i);
-            vx.push_back(x);
-            vy.push_back(y);
-            vz.push_back(z);
-            vq.push_back(q);
-            vnq.push_back(nq);
-            vcluster_id.push_back(cluster_id);
-            vreal_cluster_id.push_back(real_cluster_id);
+	  t->GetEntry(i);
+	  if (q<0) q = 1;
+	  vx.push_back(x);
+	  vy.push_back(y);
+	  vz.push_back(z);
+	  vq.push_back(q);
+	  vnq.push_back(nq);
+	  vcluster_id.push_back(cluster_id);
+	  vreal_cluster_id.push_back(real_cluster_id);
         }
     }
 
