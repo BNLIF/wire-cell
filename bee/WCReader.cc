@@ -505,8 +505,8 @@ void WCReader::DumpMCJSON(ostream& out)
 bool WCReader::KeepMC(int i)
 {
     double e = KE(mc_startMomentum[i])*1000;
-    double thresh_KE_em = 5.; // MeV
-    double thresh_KE_np = 10; // MeV
+    double thresh_KE_em = 0.; // MeV  original 5
+    double thresh_KE_np = 0; // MeV   original 10
     if (mc_pdg[i]==22 || mc_pdg[i]==11 || mc_pdg[i]==-11) {
         if (e>=thresh_KE_em) return true;
         else return false;
