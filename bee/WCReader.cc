@@ -245,9 +245,11 @@ void WCReader::DumpSpacePoints(TString option)
         if (option.Contains("charge")) {
             t->SetBranchAddress("nq", &nq);
         }
+	bool flag_real_cluster_id = false;
         if (t->GetBranch("cluster_id")) {
             t->SetBranchAddress("cluster_id", &cluster_id);
             if (t->GetBranch("real_cluster_id")) {
+	      flag_real_cluster_id = true;
                 t->SetBranchAddress("real_cluster_id", &real_cluster_id);
             }
         }
@@ -261,7 +263,11 @@ void WCReader::DumpSpacePoints(TString option)
 	  vq.push_back(q);
 	  vnq.push_back(nq);
 	  vcluster_id.push_back(cluster_id);
-	  vreal_cluster_id.push_back(real_cluster_id);
+	  
+	  if (flag_real_cluster_id)
+	    vreal_cluster_id.push_back(real_cluster_id);
+	  else
+	    vreal_cluster_id.push_back(cluster_id);
         }
     }
 
