@@ -24,7 +24,7 @@ WCReader::WCReader(const char* filename, const char* jsonFileName)
     dbPDG = new TDatabasePDG();
     mc_daughters = new std::vector<std::vector<int> >;  // daughters id of this track; vector
     thresh_KE = 1; // MeV
-
+ 
     rootFile = new TFile(filename);
 
     jsonFile.open(jsonFileName);
