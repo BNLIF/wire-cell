@@ -371,13 +371,13 @@ void InitBDT_r2()
     //    TCut mycut_b = "pio_mip_id==0&&pio_filled==1&&pio_flag_pio==1"; // 859 events
 
     TCut mycut_s = "pio_filled==1 && pio_flag_pio==0 "; // 308 / 265054, adding pi0 50
-    TCut mycut_b = "pio_filled==1 && pio_flag_pio==0 && (pio_2_v_flag==0 || pio_2_v_bdt<0)"; // 9828/471479, adding mip_id 340
+    TCut mycut_b = "pio_filled==1 && pio_flag_pio==0 && (pio_2_v_flag==0 || pio_2_v_bdt<0)"; // 3794/471479, adding mip_id 340
     
     dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
         "nTrain_Signal=200000:"
-        "nTrain_Background=7000:"
+        "nTrain_Background=3200:"
 	"nTest_Signal=65054:"
-        "nTest_Background=1828:"
+        "nTest_Background=594:"
         "SplitMode=Random:"
         "NormMode=NumEvents:"
         "!V" );
