@@ -340,9 +340,9 @@ void InitBDT_r1()
     
     dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
         "nTrain_Signal=20000:"
-        "nTrain_Background=1100:"
+        "nTrain_Background=1300:"
 	"nTest_Signal=10000:"
-        "nTest_Background=290:"
+        "nTest_Background=191:"
         "SplitMode=Random:"
         "NormMode=NumEvents:"
         "!V" );
@@ -355,7 +355,7 @@ void InitBDT_r1()
     // BDTF: allow usage of fisher discriminant for node splitting
     factory->BookMethod(dataloader, TMVA::Types::kBDT, "BDT",
         "!H:!V:"
-       	"VarTransform=D,P,U,G,D,N:"
+       	"VarTransform=P,U,G,D,N:"
         "NTrees=850:"
         "MinNodeSize=2.5%:"
         "MaxDepth=3:"
@@ -406,13 +406,13 @@ void InitBDT_r2()
 
     // Apply additional cuts on the signal and background samples (can be different)
     TCut mycut_s = "1>0 "; // 
-    TCut mycut_b = "br3_5_v_flag == 0 || br3_5_v_bdt < -0.05"; //  2411
+    TCut mycut_b = "br3_5_v_flag == 0 || br3_5_v_bdt < -0.0"; //  3034
     
     dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
         "nTrain_Signal=20000:"
-        "nTrain_Background=1200:"
+        "nTrain_Background=2700:"
 	"nTest_Signal=10000:"
-        "nTest_Background=300:"
+        "nTest_Background=334:"
         "SplitMode=Random:"
         "NormMode=NumEvents:"
         "!V" );
