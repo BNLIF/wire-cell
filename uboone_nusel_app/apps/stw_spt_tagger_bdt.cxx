@@ -45,6 +45,14 @@ void convert_file(){
   TTree *sig = (TTree*)file->Get("sig");
   TTree *bkg = (TTree*)file->Get("bkg");
 
+  
+  int run, event;
+
+  sig->SetBranchAddress("run",&run);
+  sig->SetBranchAddress("event",&event);
+
+  bkg->SetBranchAddress("run",&run);
+  bkg->SetBranchAddress("event",&event);
 
   float trueEdep;
   float weight;
@@ -143,6 +151,13 @@ void convert_file(){
   Tbkg->Branch("weight",&weight,"data/F");
   Tbkg->Branch("lowEweight",&lowEweight,"data/F");
   Tbkg->Branch("nueTag",&nueTag,"data/I");
+
+  Tsig->Branch("run",&run,"data/I");
+  Tsig->Branch("event",&event,"data/I");
+
+  Tbkg->Branch("run",&run,"data/I");
+  Tbkg->Branch("event",&event,"data/I");
+
   
   float stw_1_energy_f;
   float stw_1_dis_f;
@@ -222,7 +237,7 @@ void convert_file(){
     spt_angle_beam_f = spt_angle_beam;
     spt_angle_vertical_f = spt_angle_vertical;
     spt_max_dQ_dx_f = spt_max_dQ_dx;
-    spt_angle_beam_1_f = spt_angle_beam;
+    spt_angle_beam_1_f = spt_angle_beam_1;
     spt_angle_drift_f = spt_angle_drift;
     spt_angle_drift_1_f = spt_angle_drift_1;
     spt_num_valid_tracks_f = spt_num_valid_tracks;
@@ -249,7 +264,7 @@ void convert_file(){
     spt_angle_beam_f = spt_angle_beam;
     spt_angle_vertical_f = spt_angle_vertical;
     spt_max_dQ_dx_f = spt_max_dQ_dx;
-    spt_angle_beam_1_f = spt_angle_beam;
+    spt_angle_beam_1_f = spt_angle_beam_1;
     spt_angle_drift_f = spt_angle_drift;
     spt_angle_drift_1_f = spt_angle_drift_1;
     spt_num_valid_tracks_f = spt_num_valid_tracks;
@@ -486,13 +501,13 @@ void InitBDT_r2()
   //    TCut mycut_b = "pio_mip_id==0&&pio_filled==1&&pio_flag_pio==1"; // 859 events
   
   TCut mycut_s = "1>0"; // 422/44194
-  TCut mycut_b = "stw_1_flag ==0 || spt_flag==0 || stw_spt_bdt <-0.1"; // 2297/21070
+  TCut mycut_b = "stw_1_flag ==0 || spt_flag==0 || stw_spt_bdt <-0.1"; // 2181/21070
   
   dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
 					  "nTrain_Signal=20000:"
-					  "nTrain_Background=2000:"
+					  "nTrain_Background=1900:"
 					  "nTest_Signal=10000:"
-					  "nTest_Background=297:"
+					  "nTest_Background=281:"
 					  "SplitMode=Random:"
 					  "NormMode=NumEvents:"
 					  "!V" );
@@ -528,6 +543,13 @@ void TestEvaluate_r1()
   TTree *sig = (TTree*)file->Get("sig");
   TTree *bkg = (TTree*)file->Get("bkg");
 
+   int run, event;
+  sig->SetBranchAddress("run",&run);
+  sig->SetBranchAddress("event",&event);
+
+  bkg->SetBranchAddress("run",&run);
+  bkg->SetBranchAddress("event",&event);
+  
   float trueEdep;
   float weight;
   float lowEweight;
@@ -614,7 +636,13 @@ void TestEvaluate_r1()
   TTree *Tbkg = new TTree("bkg","bkg");
   Tsig->SetDirectory(new_file);
   Tbkg->SetDirectory(new_file);
+  
+  Tsig->Branch("run",&run,"data/I");
+  Tsig->Branch("event",&event,"data/I");
 
+  Tbkg->Branch("run",&run,"data/I");
+  Tbkg->Branch("event",&event,"data/I");
+  
   Tsig->Branch("trueEdep",&trueEdep,"data/F");
   Tsig->Branch("weight",&weight,"data/F");
   Tsig->Branch("lowEweight",&lowEweight,"data/F");
@@ -732,6 +760,14 @@ void TestEvaluate_r2()
   float weight;
   float lowEweight;
   Int_t nueTag;
+
+   int run, event;
+  sig->SetBranchAddress("run",&run);
+  sig->SetBranchAddress("event",&event);
+
+  bkg->SetBranchAddress("run",&run);
+  bkg->SetBranchAddress("event",&event);
+
   
   sig->SetBranchAddress("trueEdep",&trueEdep);
   sig->SetBranchAddress("weight",&weight);
@@ -824,7 +860,12 @@ void TestEvaluate_r2()
   Tbkg->Branch("weight",&weight,"data/F");
   Tbkg->Branch("lowEweight",&lowEweight,"data/F");
   Tbkg->Branch("nueTag",&nueTag,"data/I");
-  
+
+   Tsig->Branch("run",&run,"data/I");
+  Tsig->Branch("event",&event,"data/I");
+
+  Tbkg->Branch("run",&run,"data/I");
+  Tbkg->Branch("event",&event,"data/I");
   
    Tsig->Branch("stw_1_energy",&stw_1_energy,"stw_1_energy/F");
   Tsig->Branch("stw_1_dis",&stw_1_dis,"stw_1_dis/F");

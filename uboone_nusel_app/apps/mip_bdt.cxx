@@ -583,7 +583,7 @@ void InitBDT_r2()
 					    "nTrain_Signal=30000:"
 					    "nTrain_Background=9000:"
 					    "nTest_Signal=10000:"
-					    "nTest_Background=1467:"
+					    "nTest_Background=1392:"
 					    "SplitMode=Random:"
 					    "NormMode=NumEvents:"
 					    "!V" );
