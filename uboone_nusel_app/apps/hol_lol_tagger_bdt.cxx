@@ -537,7 +537,7 @@ void TestEvaluate(TString filename)
   sig->SetBranchAddress("hol_1_n_valid_tracks", &hol_1_n_valid_tracks);
   sig->SetBranchAddress("hol_1_min_angle", &hol_1_min_angle);
   sig->SetBranchAddress("hol_1_energy", &hol_1_energy);
-  sig->SetBranchAddress("hol_1_all_shower", &hol_1_flag_all_shower);
+  sig->SetBranchAddress("hol_1_flag_all_shower", &hol_1_flag_all_shower);
   sig->SetBranchAddress("hol_1_min_length", &hol_1_min_length);
   sig->SetBranchAddress("hol_1_flag", &hol_1_flag);
   
