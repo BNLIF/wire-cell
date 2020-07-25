@@ -29,12 +29,11 @@ TMVA::DataLoader *dataloader = 0;
 
 void Run_r1();
 void InitBDT_r1();
-void TestEvaluate_r1();
+void TestEvaluate(TString filename);
 
 
 void Run_r2();
 void InitBDT_r2();
-void TestEvaluate_r2();
 
 
 void convert_file();
@@ -69,6 +68,21 @@ void convert_file(){
   bkg->SetBranchAddress("lowEweight",&lowEweight);
   bkg->SetBranchAddress("nueTag",&nueTag);
 
+   int truth_inFV;
+  int truth_CC;
+  int truth_nue;
+  int truth_cosmic;
+
+  sig->SetBranchAddress("truth_inFV",&truth_inFV);
+  sig->SetBranchAddress("truth_CC",&truth_CC);
+  sig->SetBranchAddress("truth_nue",&truth_nue);
+  sig->SetBranchAddress("truth_cosmic",&truth_cosmic);
+
+  bkg->SetBranchAddress("truth_inFV",&truth_inFV);
+  bkg->SetBranchAddress("truth_CC",&truth_CC);
+  bkg->SetBranchAddress("truth_nue",&truth_nue);
+  bkg->SetBranchAddress("truth_cosmic",&truth_cosmic);
+  
   // shower to wall
   double stw_1_energy;
   double stw_1_dis;
@@ -158,6 +172,16 @@ void convert_file(){
   Tbkg->Branch("run",&run,"data/I");
   Tbkg->Branch("event",&event,"data/I");
 
+  Tsig->Branch("truth_inFV",&truth_inFV,"data/I");
+  Tsig->Branch("truth_CC",&truth_CC,"data/I");
+  Tsig->Branch("truth_nue",&truth_nue,"data/I");
+  Tsig->Branch("truth_cosmic",&truth_cosmic,"data/I");
+
+  Tbkg->Branch("truth_inFV",&truth_inFV,"data/I");
+  Tbkg->Branch("truth_CC",&truth_CC,"data/I");
+  Tbkg->Branch("truth_nue",&truth_nue,"data/I");
+  Tbkg->Branch("truth_cosmic",&truth_cosmic,"data/I");
+  
   
   float stw_1_energy_f;
   float stw_1_dis_f;
@@ -309,7 +333,7 @@ void Run_r2(){
     delete factory;
     delete dataloader;
 
-    TestEvaluate_r2();
+    TestEvaluate("round_2.root");
 
     // Launch the GUI for the root macros
     if (!gROOT->IsBatch()) TMVA::TMVAGui( output->GetName() );
@@ -346,7 +370,7 @@ void Run_r1()
     delete factory;
     delete dataloader;
 
-    TestEvaluate_r1();
+    TestEvaluate("round_1.root");
 
     // Launch the GUI for the root macros
     if (!gROOT->IsBatch()) TMVA::TMVAGui( output->GetName() );
@@ -419,13 +443,13 @@ void InitBDT_r1()
     // Apply additional cuts on the signal and background samples (can be different)
       
     TCut mycut_s = "1>0"; // 82 (stw) + 342 (spt) or 422 (total)/44194
-    TCut mycut_b = "spt_flag ==0 || stw_1_flag == 0"; // 404 (stw) + 1305 (spt) or 1663 (total)/21070
+    TCut mycut_b = "(spt_flag ==0 || stw_1_flag == 0) && (!(truth_nue==1 && truth_CC==1))"; // 404 (stw) + 1305 (spt) or 1663 (total)/21070
     
     dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
 					    "nTrain_Signal=20000:"
 					    "nTrain_Background=1400:"
 					    "nTest_Signal=10000:"
-					    "nTest_Background=263:"
+					    "nTest_Background=211:"
 					    "SplitMode=Random:"
 					    "NormMode=NumEvents:"
 					    "!V" );
@@ -501,13 +525,13 @@ void InitBDT_r2()
   //    TCut mycut_b = "pio_mip_id==0&&pio_filled==1&&pio_flag_pio==1"; // 859 events
   
   TCut mycut_s = "1>0"; // 422/44194
-  TCut mycut_b = "stw_1_flag ==0 || spt_flag==0 || stw_spt_bdt <-0.1"; // 2181/21070
+  TCut mycut_b = "(stw_1_flag ==0 || spt_flag==0 || stw_spt_bdt <-0.1) && (!(truth_nue==1 && truth_CC==1))"; // 2181/21070
   
   dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
 					  "nTrain_Signal=20000:"
-					  "nTrain_Background=1900:"
+					  "nTrain_Background=1800:"
 					  "nTest_Signal=10000:"
-					  "nTest_Background=281:"
+					  "nTest_Background=293:"
 					  "SplitMode=Random:"
 					  "NormMode=NumEvents:"
 					  "!V" );
@@ -533,7 +557,7 @@ void InitBDT_r2()
 }
 
 
-void TestEvaluate_r1()
+void TestEvaluate(TString filename)
 {
   
 
@@ -629,9 +653,22 @@ void TestEvaluate_r1()
   bkg->SetBranchAddress("stw_1_num_valid_tracks",&stw_1_num_valid_tracks);
   bkg->SetBranchAddress("stw_1_flag",&stw_1_flag);
 
+   int truth_inFV;
+  int truth_CC;
+  int truth_nue;
+  int truth_cosmic;
+
+  sig->SetBranchAddress("truth_inFV",&truth_inFV);
+  sig->SetBranchAddress("truth_CC",&truth_CC);
+  sig->SetBranchAddress("truth_nue",&truth_nue);
+  sig->SetBranchAddress("truth_cosmic",&truth_cosmic);
+
+  bkg->SetBranchAddress("truth_inFV",&truth_inFV);
+  bkg->SetBranchAddress("truth_CC",&truth_CC);
+  bkg->SetBranchAddress("truth_nue",&truth_nue);
+  bkg->SetBranchAddress("truth_cosmic",&truth_cosmic);
   
-  
-  TFile *new_file = new TFile("round_1.root","RECREATE");
+  TFile *new_file = new TFile(filename,"RECREATE");
   TTree *Tsig = new TTree("sig","sig");
   TTree *Tbkg = new TTree("bkg","bkg");
   Tsig->SetDirectory(new_file);
@@ -653,6 +690,16 @@ void TestEvaluate_r1()
   Tbkg->Branch("lowEweight",&lowEweight,"data/F");
   Tbkg->Branch("nueTag",&nueTag,"data/I");
   
+  Tsig->Branch("truth_inFV",&truth_inFV,"data/I");
+  Tsig->Branch("truth_CC",&truth_CC,"data/I");
+  Tsig->Branch("truth_nue",&truth_nue,"data/I");
+  Tsig->Branch("truth_cosmic",&truth_cosmic,"data/I");
+
+  Tbkg->Branch("truth_inFV",&truth_inFV,"data/I");
+  Tbkg->Branch("truth_CC",&truth_CC,"data/I");
+  Tbkg->Branch("truth_nue",&truth_nue,"data/I");
+  Tbkg->Branch("truth_cosmic",&truth_cosmic,"data/I");
+
   
   Tsig->Branch("stw_1_energy",&stw_1_energy,"stw_1_energy/F");
   Tsig->Branch("stw_1_dis",&stw_1_dis,"stw_1_dis/F");
@@ -745,217 +792,7 @@ void TestEvaluate_r1()
 
 
 
-void TestEvaluate_r2()
-{
 
-   
-
-  Float_t bdt_value = 0;
-    
-  TFile *file = new TFile("reduced.root");
-  TTree *sig = (TTree*)file->Get("sig");
-  TTree *bkg = (TTree*)file->Get("bkg");
-
-  float trueEdep;
-  float weight;
-  float lowEweight;
-  Int_t nueTag;
-
-   int run, event;
-  sig->SetBranchAddress("run",&run);
-  sig->SetBranchAddress("event",&event);
-
-  bkg->SetBranchAddress("run",&run);
-  bkg->SetBranchAddress("event",&event);
-
-  
-  sig->SetBranchAddress("trueEdep",&trueEdep);
-  sig->SetBranchAddress("weight",&weight);
-  sig->SetBranchAddress("lowEweight",&lowEweight);
-  sig->SetBranchAddress("nueTag",&nueTag);
-  
-  bkg->SetBranchAddress("trueEdep",&trueEdep);
-  bkg->SetBranchAddress("weight",&weight);
-  bkg->SetBranchAddress("lowEweight",&lowEweight);
-  bkg->SetBranchAddress("nueTag",&nueTag);
-
-
-  float stw_1_energy;
-  float stw_1_dis;
-  float stw_1_dQ_dx;
-  float stw_1_flag_single_shower;
-  float stw_1_n_pi0;
-  float stw_1_num_valid_tracks;
-  float stw_1_flag;
-  float spt_shower_main_length;
-  float spt_shower_total_length;
-  float spt_angle_beam;
-  float spt_angle_vertical;
-  float spt_max_dQ_dx;
-  float spt_angle_beam_1;
-  float spt_angle_drift;
-  float spt_angle_drift_1;
-  float spt_num_valid_tracks;
-  float spt_n_vtx_segs;
-  float spt_max_length;
-  float spt_flag;
-
-  sig->SetBranchAddress("spt_shower_main_length", &spt_shower_main_length);
-  sig->SetBranchAddress("spt_shower_total_length", &spt_shower_total_length);
-  sig->SetBranchAddress("spt_angle_beam", &spt_angle_beam);
-  sig->SetBranchAddress("spt_angle_vertical", &spt_angle_vertical);
-  sig->SetBranchAddress("spt_max_dQ_dx", &spt_max_dQ_dx);
-  sig->SetBranchAddress("spt_angle_beam_1", &spt_angle_beam_1);
-  sig->SetBranchAddress("spt_angle_drift", &spt_angle_drift);
-  sig->SetBranchAddress("spt_angle_drift_1", &spt_angle_drift_1);
-  sig->SetBranchAddress("spt_num_valid_tracks", &spt_num_valid_tracks);
-  sig->SetBranchAddress("spt_n_vtx_segs", &spt_n_vtx_segs);
-  sig->SetBranchAddress("spt_max_length", &spt_max_length);
-  sig->SetBranchAddress("spt_flag", &spt_flag);
-  
-  sig->SetBranchAddress("stw_1_energy",&stw_1_energy);
-  sig->SetBranchAddress("stw_1_dis",&stw_1_dis);
-  sig->SetBranchAddress("stw_1_dQ_dx",&stw_1_dQ_dx);
-  sig->SetBranchAddress("stw_1_flag_single_shower",&stw_1_flag_single_shower);
-  sig->SetBranchAddress("stw_1_n_pi0",&stw_1_n_pi0);
-  sig->SetBranchAddress("stw_1_num_valid_tracks",&stw_1_num_valid_tracks);
-  sig->SetBranchAddress("stw_1_flag",&stw_1_flag);
-  
-
-  bkg->SetBranchAddress("spt_shower_main_length", &spt_shower_main_length);
-  bkg->SetBranchAddress("spt_shower_total_length", &spt_shower_total_length);
-  bkg->SetBranchAddress("spt_angle_beam", &spt_angle_beam);
-  bkg->SetBranchAddress("spt_angle_vertical", &spt_angle_vertical);
-  bkg->SetBranchAddress("spt_max_dQ_dx", &spt_max_dQ_dx);
-  bkg->SetBranchAddress("spt_angle_beam_1", &spt_angle_beam_1);
-  bkg->SetBranchAddress("spt_angle_drift", &spt_angle_drift);
-  bkg->SetBranchAddress("spt_angle_drift_1", &spt_angle_drift_1);
-  bkg->SetBranchAddress("spt_num_valid_tracks", &spt_num_valid_tracks);
-  bkg->SetBranchAddress("spt_n_vtx_segs", &spt_n_vtx_segs);
-  bkg->SetBranchAddress("spt_max_length", &spt_max_length);
-  bkg->SetBranchAddress("spt_flag", &spt_flag);
-  
-  bkg->SetBranchAddress("stw_1_energy",&stw_1_energy);
-  bkg->SetBranchAddress("stw_1_dis",&stw_1_dis);
-  bkg->SetBranchAddress("stw_1_dQ_dx",&stw_1_dQ_dx);
-  bkg->SetBranchAddress("stw_1_flag_single_shower",&stw_1_flag_single_shower);
-  bkg->SetBranchAddress("stw_1_n_pi0",&stw_1_n_pi0);
-  bkg->SetBranchAddress("stw_1_num_valid_tracks",&stw_1_num_valid_tracks);
-  bkg->SetBranchAddress("stw_1_flag",&stw_1_flag);
-
-  
-  
-  TFile *new_file = new TFile("round_2.root","RECREATE");
-  TTree *Tsig = new TTree("sig","sig");
-  TTree *Tbkg = new TTree("bkg","bkg");
-  Tsig->SetDirectory(new_file);
-  Tbkg->SetDirectory(new_file);
-
-  Tsig->Branch("trueEdep",&trueEdep,"data/F");
-  Tsig->Branch("weight",&weight,"data/F");
-  Tsig->Branch("lowEweight",&lowEweight,"data/F");
-  Tsig->Branch("nueTag",&nueTag,"data/I");
-
-  Tbkg->Branch("trueEdep",&trueEdep,"data/F");
-  Tbkg->Branch("weight",&weight,"data/F");
-  Tbkg->Branch("lowEweight",&lowEweight,"data/F");
-  Tbkg->Branch("nueTag",&nueTag,"data/I");
-
-   Tsig->Branch("run",&run,"data/I");
-  Tsig->Branch("event",&event,"data/I");
-
-  Tbkg->Branch("run",&run,"data/I");
-  Tbkg->Branch("event",&event,"data/I");
-  
-   Tsig->Branch("stw_1_energy",&stw_1_energy,"stw_1_energy/F");
-  Tsig->Branch("stw_1_dis",&stw_1_dis,"stw_1_dis/F");
-  Tsig->Branch("stw_1_dQ_dx",&stw_1_dQ_dx,"stw_1_dQ_dx/F");
-  Tsig->Branch("stw_1_flag_single_shower",&stw_1_flag_single_shower,"stw_1_flag_single_shower/F");
-  Tsig->Branch("stw_1_n_pi0",&stw_1_n_pi0,"stw_1_n_pi0/F");
-  Tsig->Branch("stw_1_num_valid_tracks",&stw_1_num_valid_tracks,"stw_1_num_valid_tracks/F");
-  Tsig->Branch("stw_1_flag",&stw_1_flag,"stw_1_flag/F");
-
-  Tsig->Branch("spt_shower_main_length", &spt_shower_main_length, "spt_shower_main_length/F");
-  Tsig->Branch("spt_shower_total_length", &spt_shower_total_length, "spt_shower_total_length/F");
-  Tsig->Branch("spt_angle_beam", &spt_angle_beam, "spt_angle_beam/F");
-  Tsig->Branch("spt_angle_vertical", &spt_angle_vertical, "spt_angle_vertical/F");
-  Tsig->Branch("spt_max_dQ_dx", &spt_max_dQ_dx, "spt_max_dQ_dx/F");
-  Tsig->Branch("spt_angle_beam_1", &spt_angle_beam_1, "spt_angle_beam_1/F");
-  Tsig->Branch("spt_angle_drift", &spt_angle_drift, "spt_angle_drift/F");
-  Tsig->Branch("spt_angle_drift_1", &spt_angle_drift_1, "spt_angle_drift_1/F");
-  Tsig->Branch("spt_num_valid_tracks", &spt_num_valid_tracks, "spt_num_valid_tracks/F");
-  Tsig->Branch("spt_n_vtx_segs", &spt_n_vtx_segs, "spt_n_vtx_segs/F");
-  Tsig->Branch("spt_max_length", &spt_max_length, "spt_max_length/F");
-  Tsig->Branch("spt_flag", &spt_flag, "spt_flag/F");
-  
-  Tbkg->Branch("stw_1_energy",&stw_1_energy,"stw_1_energy/F");
-  Tbkg->Branch("stw_1_dis",&stw_1_dis,"stw_1_dis/F");
-  Tbkg->Branch("stw_1_dQ_dx",&stw_1_dQ_dx,"stw_1_dQ_dx/F");
-  Tbkg->Branch("stw_1_flag_single_shower",&stw_1_flag_single_shower,"stw_1_flag_single_shower/F");
-  Tbkg->Branch("stw_1_n_pi0",&stw_1_n_pi0,"stw_1_n_pi0/F");
-  Tbkg->Branch("stw_1_num_valid_tracks",&stw_1_num_valid_tracks,"stw_1_num_valid_tracks/F");
-  Tbkg->Branch("stw_1_flag",&stw_1_flag,"stw_1_flag/F");
-
-  Tbkg->Branch("spt_shower_main_length", &spt_shower_main_length, "spt_shower_main_length/F");
-  Tbkg->Branch("spt_shower_total_length", &spt_shower_total_length, "spt_shower_total_length/F");
-  Tbkg->Branch("spt_angle_beam", &spt_angle_beam, "spt_angle_beam/F");
-  Tbkg->Branch("spt_angle_vertical", &spt_angle_vertical, "spt_angle_vertical/F");
-  Tbkg->Branch("spt_max_dQ_dx", &spt_max_dQ_dx, "spt_max_dQ_dx/F");
-  Tbkg->Branch("spt_angle_beam_1", &spt_angle_beam_1, "spt_angle_beam_1/F");
-  Tbkg->Branch("spt_angle_drift", &spt_angle_drift, "spt_angle_drift/F");
-  Tbkg->Branch("spt_angle_drift_1", &spt_angle_drift_1, "spt_angle_drift_1/F");
-  Tbkg->Branch("spt_num_valid_tracks", &spt_num_valid_tracks, "spt_num_valid_tracks/F");
-  Tbkg->Branch("spt_n_vtx_segs", &spt_n_vtx_segs, "spt_n_vtx_segs/F");
-  Tbkg->Branch("spt_max_length", &spt_max_length, "spt_max_length/F");
-  Tbkg->Branch("spt_flag", &spt_flag, "spt_flag/F");
-
-  Tsig->Branch("stw_spt_bdt", &bdt_value,"data/F");
-  Tbkg->Branch("stw_spt_bdt", &bdt_value,"data/F");
-
-  
-  TMVA::Reader *reader = new TMVA::Reader();
-  reader->AddVariable("stw_1_energy",&stw_1_energy);
-  reader->AddVariable("stw_1_dis",&stw_1_dis);
-  reader->AddVariable("stw_1_dQ_dx",&stw_1_dQ_dx);
-  reader->AddVariable("stw_1_flag_single_shower",&stw_1_flag_single_shower);
-  reader->AddVariable("stw_1_n_pi0",&stw_1_n_pi0);
-  reader->AddVariable("stw_1_num_valid_tracks",&stw_1_num_valid_tracks);
-  
-  reader->AddVariable("spt_shower_main_length",&spt_shower_main_length);
-  reader->AddVariable("spt_shower_total_length",&spt_shower_total_length);
-  reader->AddVariable("spt_angle_beam",&spt_angle_beam);
-  reader->AddVariable("spt_angle_vertical",&spt_angle_vertical);
-  reader->AddVariable("spt_max_dQ_dx",&spt_max_dQ_dx);
-  reader->AddVariable("spt_angle_beam_1",&spt_angle_beam_1);
-  reader->AddVariable("spt_angle_drift",&spt_angle_drift);
-  reader->AddVariable("spt_angle_drift_1",&spt_angle_drift_1);
-  reader->AddVariable("spt_num_valid_tracks",&spt_num_valid_tracks);
-  reader->AddVariable("spt_n_vtx_segs",&spt_n_vtx_segs);
-  reader->AddVariable("spt_max_length",&spt_max_length);
-  
-  
-  reader->BookMVA( "MyBDT", "dataset/weights/Test_BDT.weights.xml");
-
-
-  for (Int_t i=0;i!=sig->GetEntries();i++){
-    sig->GetEntry(i);
-    bdt_value = reader->EvaluateMVA("MyBDT");
-    Tsig->Fill();
-  }
-  
-  for (Int_t i=0;i!=bkg->GetEntries();i++){
-    bkg->GetEntry(i);
-    bdt_value = reader->EvaluateMVA("MyBDT");
-    Tbkg->Fill();
-  }
-
-  new_file->Write();
-  new_file->Close();
-  
-
-
-  
-}
 
 
 

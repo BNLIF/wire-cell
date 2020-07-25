@@ -68,6 +68,21 @@ void convert_file(){
   bkg->SetBranchAddress("lowEweight",&lowEweight);
   bkg->SetBranchAddress("nueTag",&nueTag);
 
+  int truth_inFV;
+  int truth_CC;
+  int truth_nue;
+  int truth_cosmic;
+
+  sig->SetBranchAddress("truth_inFV",&truth_inFV);
+  sig->SetBranchAddress("truth_CC",&truth_CC);
+  sig->SetBranchAddress("truth_nue",&truth_nue);
+  sig->SetBranchAddress("truth_cosmic",&truth_cosmic);
+
+  bkg->SetBranchAddress("truth_inFV",&truth_inFV);
+  bkg->SetBranchAddress("truth_CC",&truth_CC);
+  bkg->SetBranchAddress("truth_nue",&truth_nue);
+  bkg->SetBranchAddress("truth_cosmic",&truth_cosmic);
+  
   std::vector<double> *lol_2_v_length= new std::vector<double>;
   std::vector<double> *lol_2_v_angle= new std::vector<double>;
   std::vector<int> *lol_2_v_type= new std::vector<int>;
@@ -102,6 +117,15 @@ void convert_file(){
   Tsig->SetDirectory(new_file);
   Tbkg->SetDirectory(new_file);
   
+  Tsig->Branch("truth_inFV",&truth_inFV,"data/I");
+  Tsig->Branch("truth_CC",&truth_CC,"data/I");
+  Tsig->Branch("truth_nue",&truth_nue,"data/I");
+  Tsig->Branch("truth_cosmic",&truth_cosmic,"data/I");
+
+  Tbkg->Branch("truth_inFV",&truth_inFV,"data/I");
+  Tbkg->Branch("truth_CC",&truth_CC,"data/I");
+  Tbkg->Branch("truth_nue",&truth_nue,"data/I");
+  Tbkg->Branch("truth_cosmic",&truth_cosmic,"data/I");
   
 
   Tsig->Branch("run",&run,"data/I");
@@ -305,13 +329,13 @@ void InitBDT_r1()
     // Apply additional cuts on the signal and background samples (can be different)
 
     TCut mycut_s = "1>0"; // 56 / 71857, adding pi0 50
-    TCut mycut_b = "lol_2_v_flag==0 "; // 378/35104, adding mip_id 340
+    TCut mycut_b = "lol_2_v_flag==0 && (!(truth_nue==1 && truth_CC==1))"; // 372/35104, adding mip_id 340
     
     dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
         "nTrain_Signal=30000:"
         "nTrain_Background=330:"
 	"nTest_Signal=15000:"
-        "nTest_Background=48:"
+        "nTest_Background=42:"
         "SplitMode=Random:"
         "NormMode=NumEvents:"
         "!V" );
@@ -373,13 +397,13 @@ void InitBDT_r2()
     // Apply additional cuts on the signal and background samples (can be different)
 
     TCut mycut_s = "1>0"; // 2 / 97209, adding pi0 50
-    TCut mycut_b = "lol_2_v_flag==0 || lol_2_v_bdt < 0.05"; // 120/40640, adding mip_id 340
+    TCut mycut_b = "(lol_2_v_flag==0 || lol_2_v_bdt < 0.05) && (!(truth_nue==1 && truth_CC==1))"; // 557
     
     dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
         "nTrain_Signal=30000:"
         "nTrain_Background=500:"
 	"nTest_Signal=15000:"
-        "nTest_Background=59:"
+        "nTest_Background=57:"
         "SplitMode=Random:"
         "NormMode=NumEvents:"
         "!V" );
@@ -446,6 +470,20 @@ void TestEvaluate(TString filename)
   bkg->SetBranchAddress("lowEweight",&lowEweight);
   bkg->SetBranchAddress("nueTag",&nueTag);
 
+  int truth_inFV;
+  int truth_CC;
+  int truth_nue;
+  int truth_cosmic;
+
+  sig->SetBranchAddress("truth_inFV",&truth_inFV);
+  sig->SetBranchAddress("truth_CC",&truth_CC);
+  sig->SetBranchAddress("truth_nue",&truth_nue);
+  sig->SetBranchAddress("truth_cosmic",&truth_cosmic);
+
+  bkg->SetBranchAddress("truth_inFV",&truth_inFV);
+  bkg->SetBranchAddress("truth_CC",&truth_CC);
+  bkg->SetBranchAddress("truth_nue",&truth_nue);
+  bkg->SetBranchAddress("truth_cosmic",&truth_cosmic);
 
    sig->SetBranchAddress("lol_2_v_length",&lol_2_v_length);
   sig->SetBranchAddress("lol_2_v_angle",&lol_2_v_angle);
@@ -488,6 +526,15 @@ void TestEvaluate(TString filename)
   Tbkg->Branch("run",&run,"data/I");
   Tbkg->Branch("event",&event,"data/I");
 
+  Tsig->Branch("truth_inFV",&truth_inFV,"data/I");
+  Tsig->Branch("truth_CC",&truth_CC,"data/I");
+  Tsig->Branch("truth_nue",&truth_nue,"data/I");
+  Tsig->Branch("truth_cosmic",&truth_cosmic,"data/I");
+
+  Tbkg->Branch("truth_inFV",&truth_inFV,"data/I");
+  Tbkg->Branch("truth_CC",&truth_CC,"data/I");
+  Tbkg->Branch("truth_nue",&truth_nue,"data/I");
+  Tbkg->Branch("truth_cosmic",&truth_cosmic,"data/I");
   
   Tsig->Branch("lol_2_v_length",&lol_2_v_length,"data/F");
   Tsig->Branch("lol_2_v_angle",&lol_2_v_angle,"data/F");

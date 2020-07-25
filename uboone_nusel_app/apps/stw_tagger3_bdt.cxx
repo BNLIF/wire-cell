@@ -92,6 +92,33 @@ void convert_file(){
   TTree *Tbkg = new TTree("bkg","bkg");
   Tsig->SetDirectory(new_file);
   Tbkg->SetDirectory(new_file);
+
+  int truth_inFV;
+  int truth_CC;
+  int truth_nue;
+  int truth_cosmic;
+
+  sig->SetBranchAddress("truth_inFV",&truth_inFV);
+  sig->SetBranchAddress("truth_CC",&truth_CC);
+  sig->SetBranchAddress("truth_nue",&truth_nue);
+  sig->SetBranchAddress("truth_cosmic",&truth_cosmic);
+
+  bkg->SetBranchAddress("truth_inFV",&truth_inFV);
+  bkg->SetBranchAddress("truth_CC",&truth_CC);
+  bkg->SetBranchAddress("truth_nue",&truth_nue);
+  bkg->SetBranchAddress("truth_cosmic",&truth_cosmic);
+
+
+Tsig->Branch("truth_inFV",&truth_inFV,"data/I");
+  Tsig->Branch("truth_CC",&truth_CC,"data/I");
+  Tsig->Branch("truth_nue",&truth_nue,"data/I");
+  Tsig->Branch("truth_cosmic",&truth_cosmic,"data/I");
+
+  Tbkg->Branch("truth_inFV",&truth_inFV,"data/I");
+  Tbkg->Branch("truth_CC",&truth_CC,"data/I");
+  Tbkg->Branch("truth_nue",&truth_nue,"data/I");
+  Tbkg->Branch("truth_cosmic",&truth_cosmic,"data/I");
+
   
   Tsig->Branch("run",&run,"data/I");
   Tsig->Branch("event",&event,"data/I");
@@ -269,11 +296,11 @@ void InitBDT_r1()
     // Apply additional cuts on the signal and background samples (can be different)
 
     TCut mycut_s = "1>0"; // 3 / 238661, adding pi0 50
-    TCut mycut_b = "stw_3_v_flag==0 "; // 267/48407, adding mip_id 340
+    TCut mycut_b = "stw_3_v_flag==0 && (!(truth_nue==1 && truth_CC==1))"; // 257/48407, adding mip_id 340
     
     dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
         "nTrain_Signal=30000:"
-        "nTrain_Background=220:"
+        "nTrain_Background=210:"
 	"nTest_Signal=15000:"
         "nTest_Background=47:"
         "SplitMode=Random:"
@@ -332,13 +359,13 @@ void InitBDT_r2()
     // Apply additional cuts on the signal and background samples (can be different)
 
     TCut mycut_s = "1>0"; // 3 / 238661, adding pi0 50
-    TCut mycut_b = "stw_3_v_flag==0 || stw_3_v_bdt < 0"; // 1119/48407, adding mip_id 340
+    TCut mycut_b = "(stw_3_v_flag==0 || stw_3_v_bdt < 0) && (!(truth_nue==1 && truth_CC==1))"; // 1119/48407, adding mip_id 340
     
     dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
         "nTrain_Signal=30000:"
-        "nTrain_Background=900:"
+        "nTrain_Background=700:"
 	"nTest_Signal=15000:"
-        "nTest_Background=219:"
+        "nTest_Background=123:"
         "SplitMode=Random:"
         "NormMode=NumEvents:"
         "!V" );
@@ -419,6 +446,33 @@ void TestEvaluate(TString filename)
   TTree *Tbkg = new TTree("bkg","bkg");
   Tsig->SetDirectory(new_file);
   Tbkg->SetDirectory(new_file);
+
+  int truth_inFV;
+  int truth_CC;
+  int truth_nue;
+  int truth_cosmic;
+
+  sig->SetBranchAddress("truth_inFV",&truth_inFV);
+  sig->SetBranchAddress("truth_CC",&truth_CC);
+  sig->SetBranchAddress("truth_nue",&truth_nue);
+  sig->SetBranchAddress("truth_cosmic",&truth_cosmic);
+
+  bkg->SetBranchAddress("truth_inFV",&truth_inFV);
+  bkg->SetBranchAddress("truth_CC",&truth_CC);
+  bkg->SetBranchAddress("truth_nue",&truth_nue);
+  bkg->SetBranchAddress("truth_cosmic",&truth_cosmic);
+
+
+Tsig->Branch("truth_inFV",&truth_inFV,"data/I");
+  Tsig->Branch("truth_CC",&truth_CC,"data/I");
+  Tsig->Branch("truth_nue",&truth_nue,"data/I");
+  Tsig->Branch("truth_cosmic",&truth_cosmic,"data/I");
+
+  Tbkg->Branch("truth_inFV",&truth_inFV,"data/I");
+  Tbkg->Branch("truth_CC",&truth_CC,"data/I");
+  Tbkg->Branch("truth_nue",&truth_nue,"data/I");
+  Tbkg->Branch("truth_cosmic",&truth_cosmic,"data/I");
+
   
   Tsig->Branch("trueEdep",&trueEdep,"data/F");
   Tsig->Branch("weight",&weight,"data/F");

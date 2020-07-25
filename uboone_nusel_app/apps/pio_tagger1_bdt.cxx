@@ -29,12 +29,12 @@ TMVA::DataLoader *dataloader = 0;
 
 void Run_r1();
 void InitBDT_r1();
-void TestEvaluate_r1();
+void TestEvaluate(TString filename);
 
 
 void Run_r2();
 void InitBDT_r2();
-void TestEvaluate_r2();
+
 
 
 void convert_file();
@@ -81,7 +81,20 @@ void convert_file(){
   sig->SetBranchAddress("lowEweight",&lowEweight);
   sig->SetBranchAddress("nueTag",&nueTag);
   
-    
+     int truth_inFV;
+  int truth_CC;
+  int truth_nue;
+  int truth_cosmic;
+
+  sig->SetBranchAddress("truth_inFV",&truth_inFV);
+  sig->SetBranchAddress("truth_CC",&truth_CC);
+  sig->SetBranchAddress("truth_nue",&truth_nue);
+  sig->SetBranchAddress("truth_cosmic",&truth_cosmic);
+
+  bkg->SetBranchAddress("truth_inFV",&truth_inFV);
+  bkg->SetBranchAddress("truth_CC",&truth_CC);
+  bkg->SetBranchAddress("truth_nue",&truth_nue);
+  bkg->SetBranchAddress("truth_cosmic",&truth_cosmic);
   
 
   bkg->SetBranchAddress("trueEdep",&trueEdep);
@@ -130,6 +143,17 @@ void convert_file(){
   Tsig->Branch("pio_mip_id",&pio_mip_id_f,"pio_mip_id/F");
   Tsig->Branch("pio_filled",&pio_filled_f,"pio_filled/F");
   Tsig->Branch("pio_flag_pio",&pio_flag_pio_f,"pio_flag_pio/F");
+
+  Tsig->Branch("truth_inFV",&truth_inFV,"data/I");
+  Tsig->Branch("truth_CC",&truth_CC,"data/I");
+  Tsig->Branch("truth_nue",&truth_nue,"data/I");
+  Tsig->Branch("truth_cosmic",&truth_cosmic,"data/I");
+
+  Tbkg->Branch("truth_inFV",&truth_inFV,"data/I");
+  Tbkg->Branch("truth_CC",&truth_CC,"data/I");
+  Tbkg->Branch("truth_nue",&truth_nue,"data/I");
+  Tbkg->Branch("truth_cosmic",&truth_cosmic,"data/I");
+
   
   Tsig->Branch("pio_1_flag",&pio_1_flag_f,"pio_1_flag/F");
   Tsig->Branch("pio_1_mass",&pio_1_mass_f,"pio_1_mass/F");
@@ -231,7 +255,7 @@ void Run_r2(){
     delete factory;
     delete dataloader;
 
-    TestEvaluate_r2();
+    TestEvaluate("round_2.root");
 
     // Launch the GUI for the root macros
     if (!gROOT->IsBatch()) TMVA::TMVAGui( output->GetName() );
@@ -268,7 +292,7 @@ void Run_r1()
     delete factory;
     delete dataloader;
 
-    TestEvaluate_r1();
+    TestEvaluate("round_1.root");
 
     // Launch the GUI for the root macros
     if (!gROOT->IsBatch()) TMVA::TMVAGui( output->GetName() );
@@ -313,13 +337,13 @@ void InitBDT_r1()
     //    TCut mycut_b = "pio_mip_id==0&&pio_filled==1&&pio_flag_pio==1"; // 859 events
 
     TCut mycut_s = "pio_filled==1&&pio_flag_pio==1"; // 6141 events  rejected 1143
-    TCut mycut_b = "pio_filled==1&&pio_flag_pio==1"; // 4091 events   rejected 2892
+    TCut mycut_b = "pio_filled==1&&pio_flag_pio==1 && (!(truth_nue==1 && truth_CC==1))"; // 3960 events   rejected 2892
     
     dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
         "nTrain_Signal=5000:"
-        "nTrain_Background=3500:"
+        "nTrain_Background=3400:"
 	"nTest_Signal=1141:"
-        "nTest_Background=591:"
+        "nTest_Background=560:"
         "SplitMode=Random:"
         "NormMode=NumEvents:"
         "!V" );
@@ -413,7 +437,7 @@ void InitBDT_r2()
 }
 
 
-void TestEvaluate_r1()
+void TestEvaluate(TString filename)
 {
   float pio_flag;
   float pio_mip_id;
@@ -435,6 +459,20 @@ void TestEvaluate_r1()
   TTree *bkg = (TTree*)file->Get("bkg");
 
 
+  int truth_inFV;
+  int truth_CC;
+  int truth_nue;
+  int truth_cosmic;
+
+  sig->SetBranchAddress("truth_inFV",&truth_inFV);
+  sig->SetBranchAddress("truth_CC",&truth_CC);
+  sig->SetBranchAddress("truth_nue",&truth_nue);
+  sig->SetBranchAddress("truth_cosmic",&truth_cosmic);
+
+  bkg->SetBranchAddress("truth_inFV",&truth_inFV);
+  bkg->SetBranchAddress("truth_CC",&truth_CC);
+  bkg->SetBranchAddress("truth_nue",&truth_nue);
+  bkg->SetBranchAddress("truth_cosmic",&truth_cosmic);
   
   float trueEdep;
   float weight;
@@ -498,6 +536,17 @@ void TestEvaluate_r1()
   Tbkg->Branch("weight",&weight,"data/F");
   Tbkg->Branch("lowEweight",&lowEweight,"data/F");
   Tbkg->Branch("nueTag",&nueTag,"data/I");
+
+  Tsig->Branch("truth_inFV",&truth_inFV,"data/I");
+  Tsig->Branch("truth_CC",&truth_CC,"data/I");
+  Tsig->Branch("truth_nue",&truth_nue,"data/I");
+  Tsig->Branch("truth_cosmic",&truth_cosmic,"data/I");
+
+  Tbkg->Branch("truth_inFV",&truth_inFV,"data/I");
+  Tbkg->Branch("truth_CC",&truth_CC,"data/I");
+  Tbkg->Branch("truth_nue",&truth_nue,"data/I");
+  Tbkg->Branch("truth_cosmic",&truth_cosmic,"data/I");
+
   
   Tsig->Branch("pio_flag",&pio_flag,"pio_flag/F");
   Tsig->Branch("pio_mip_id",&pio_mip_id,"pio_mip_id/F");
@@ -560,149 +609,6 @@ void TestEvaluate_r1()
   
 }
 
-
-
-void TestEvaluate_r2()
-{
-  Float_t mip_quality_energy = 200;
-  Float_t mip_quality_overlap = 0;
-  Float_t mip_quality_n_showers = 0;
-  Float_t mip_quality_n_tracks = 0;
-  Float_t mip_quality_flag_inside_pi0= 0;
-  Float_t mip_quality_n_pi0_showers = 0;
-  Float_t mip_quality_shortest_length = 0;
-  Float_t mip_quality_shortest_angle = 0;
-  Float_t mip_quality_acc_length = 0;
-  Float_t mip_quality_flag_proton = 0;
-  Float_t bdt_value = 0;
-  Float_t mip_quality_filled;
-  Float_t mip_quality_flag;
-  
-  TFile *file = new TFile("reduced.root");
-  TTree *sig = (TTree*)file->Get("sig");
-  TTree *bkg = (TTree*)file->Get("bkg");
-  
-  float trueEdep;
-  float weight;
-  float lowEweight;
-  Int_t nueTag;
-  
-  sig->SetBranchAddress("trueEdep",&trueEdep);
-  sig->SetBranchAddress("weight",&weight);
-  sig->SetBranchAddress("lowEweight",&lowEweight);
-  sig->SetBranchAddress("nueTag",&nueTag);
-  
-  sig->SetBranchAddress("mip_quality_flag",&mip_quality_flag);
-  sig->SetBranchAddress("mip_quality_energy",&mip_quality_energy);
-  sig->SetBranchAddress("mip_quality_overlap",&mip_quality_overlap);
-  sig->SetBranchAddress("mip_quality_n_showers",&mip_quality_n_showers);
-  sig->SetBranchAddress("mip_quality_n_tracks",&mip_quality_n_tracks);
-  sig->SetBranchAddress("mip_quality_flag_inside_pi0",&mip_quality_flag_inside_pi0);
-  sig->SetBranchAddress("mip_quality_n_pi0_showers",&mip_quality_n_pi0_showers);
-  sig->SetBranchAddress("mip_quality_shortest_length",&mip_quality_shortest_length);
-  sig->SetBranchAddress("mip_quality_acc_length",&mip_quality_acc_length);
-  sig->SetBranchAddress("mip_quality_shortest_angle",&mip_quality_shortest_angle);
-  sig->SetBranchAddress("mip_quality_flag_proton",&mip_quality_flag_proton);
-  sig->SetBranchAddress("mip_quality_filled",&mip_quality_filled);
-
-  bkg->SetBranchAddress("mip_quality_flag",&mip_quality_flag);
-  bkg->SetBranchAddress("mip_quality_energy",&mip_quality_energy);
-  bkg->SetBranchAddress("mip_quality_overlap",&mip_quality_overlap);
-  bkg->SetBranchAddress("mip_quality_n_showers",&mip_quality_n_showers);
-  bkg->SetBranchAddress("mip_quality_n_tracks",&mip_quality_n_tracks);
-  bkg->SetBranchAddress("mip_quality_flag_inside_pi0",&mip_quality_flag_inside_pi0);
-  bkg->SetBranchAddress("mip_quality_n_pi0_showers",&mip_quality_n_pi0_showers);
-  bkg->SetBranchAddress("mip_quality_shortest_length",&mip_quality_shortest_length);
-  bkg->SetBranchAddress("mip_quality_acc_length",&mip_quality_acc_length);
-  bkg->SetBranchAddress("mip_quality_shortest_angle",&mip_quality_shortest_angle);
-  bkg->SetBranchAddress("mip_quality_flag_proton",&mip_quality_flag_proton);
-  bkg->SetBranchAddress("mip_quality_filled",&mip_quality_filled);
-
-  bkg->SetBranchAddress("trueEdep",&trueEdep);
-  bkg->SetBranchAddress("weight",&weight);
-  bkg->SetBranchAddress("lowEweight",&lowEweight);
-  bkg->SetBranchAddress("nueTag",&nueTag);
-
-  
-  TFile *new_file = new TFile("round_2.root","RECREATE");
-  TTree *Tsig = new TTree("sig","sig");
-  TTree *Tbkg = new TTree("bkg","bkg");
-  Tsig->SetDirectory(new_file);
-  Tbkg->SetDirectory(new_file);
-  
-  Tsig->Branch("mip_quality_flag",&mip_quality_flag,"data/F");
-  Tsig->Branch("mip_quality_energy",&mip_quality_energy,"data/F");
-  Tsig->Branch("mip_quality_overlap",&mip_quality_overlap,"data/F");
-  Tsig->Branch("mip_quality_n_showers",&mip_quality_n_showers,"data/F");
-  Tsig->Branch("mip_quality_n_tracks",&mip_quality_n_tracks,"data/F");
-  Tsig->Branch("mip_quality_flag_inside_pi0",&mip_quality_flag_inside_pi0,"data/F");
-  Tsig->Branch("mip_quality_n_pi0_showers",&mip_quality_n_pi0_showers,"data/F");
-  Tsig->Branch("mip_quality_shortest_length",&mip_quality_shortest_length,"data/F");
-  Tsig->Branch("mip_quality_acc_length",&mip_quality_acc_length,"data/F");
-  Tsig->Branch("mip_quality_shortest_angle",&mip_quality_shortest_angle,"data/F");
-  Tsig->Branch("mip_quality_flag_proton",&mip_quality_flag_proton,"data/F");
-  Tsig->Branch("mip_quality_filled",&mip_quality_filled,"data/F");
-  Tsig->Branch("mip_quality_bdt",&bdt_value,"data/F");
-
-  Tsig->Branch("trueEdep",&trueEdep,"data/F");
-  Tsig->Branch("weight",&weight,"data/F");
-  Tsig->Branch("lowEweight",&lowEweight,"data/F");
-  Tsig->Branch("nueTag",&nueTag,"data/I");
-
-  
-  Tbkg->Branch("mip_quality_flag",&mip_quality_flag,"data/F");
-  Tbkg->Branch("mip_quality_energy",&mip_quality_energy,"data/F");
-  Tbkg->Branch("mip_quality_overlap",&mip_quality_overlap,"data/F");
-  Tbkg->Branch("mip_quality_n_showers",&mip_quality_n_showers,"data/F");
-  Tbkg->Branch("mip_quality_n_tracks",&mip_quality_n_tracks,"data/F");
-  Tbkg->Branch("mip_quality_flag_inside_pi0",&mip_quality_flag_inside_pi0,"data/F");
-  Tbkg->Branch("mip_quality_n_pi0_showers",&mip_quality_n_pi0_showers,"data/F");
-  Tbkg->Branch("mip_quality_shortest_length",&mip_quality_shortest_length,"data/F");
-  Tbkg->Branch("mip_quality_acc_length",&mip_quality_acc_length,"data/F");
-  Tbkg->Branch("mip_quality_shortest_angle",&mip_quality_shortest_angle,"data/F");
-  Tbkg->Branch("mip_quality_flag_proton",&mip_quality_flag_proton,"data/F");
-  Tbkg->Branch("mip_quality_filled",&mip_quality_filled,"data/F");
-  Tbkg->Branch("mip_quality_bdt",&bdt_value,"data/F");
-
-  Tbkg->Branch("trueEdep",&trueEdep,"data/F");
-  Tbkg->Branch("weight",&weight,"data/F");
-  Tbkg->Branch("lowEweight",&lowEweight,"data/F");
-  Tbkg->Branch("nueTag",&nueTag,"data/I");
-  
-  
-  TMVA::Reader *reader = new TMVA::Reader();
-  reader->AddVariable("mip_quality_energy",&mip_quality_energy);
-  reader->AddVariable("mip_quality_overlap",&mip_quality_overlap);
-  reader->AddVariable("mip_quality_n_showers",&mip_quality_n_showers);
-  reader->AddVariable("mip_quality_n_tracks",&mip_quality_n_tracks);
-  reader->AddVariable("mip_quality_flag_inside_pi0",&mip_quality_flag_inside_pi0);
-  reader->AddVariable("mip_quality_n_pi0_showers",&mip_quality_n_pi0_showers);
-  reader->AddVariable("mip_quality_shortest_length",&mip_quality_shortest_length);
-  reader->AddVariable("mip_quality_acc_length",&mip_quality_acc_length);
-  reader->AddVariable("mip_quality_shortest_angle",&mip_quality_shortest_angle);
-  reader->AddVariable("mip_quality_flag_proton",&mip_quality_flag_proton);
-  reader->BookMVA( "MyBDT", "dataset/weights/Test_BDT.weights.xml");
-
-
-  
-  for (Int_t i=0;i!=sig->GetEntries();i++){
-    sig->GetEntry(i);
-    bdt_value = reader->EvaluateMVA("MyBDT");
-    Tsig->Fill();
-  }
-  
-  for (Int_t i=0;i!=bkg->GetEntries();i++){
-    bkg->GetEntry(i);
-    bdt_value = reader->EvaluateMVA("MyBDT");
-    Tbkg->Fill();
-  }
-
-  new_file->Write();
-  new_file->Close();
-  
-
-  
-}
 
 
 

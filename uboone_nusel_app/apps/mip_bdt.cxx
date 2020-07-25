@@ -58,6 +58,21 @@ void convert_file(){
   bkg->SetBranchAddress("lowEweight",&lowEweight);
   bkg->SetBranchAddress("nueTag",&nueTag);
 
+  int truth_inFV;
+  int truth_CC;
+  int truth_nue;
+  int truth_cosmic;
+
+  sig->SetBranchAddress("truth_inFV",&truth_inFV);
+  sig->SetBranchAddress("truth_CC",&truth_CC);
+  sig->SetBranchAddress("truth_nue",&truth_nue);
+  sig->SetBranchAddress("truth_cosmic",&truth_cosmic);
+
+  bkg->SetBranchAddress("truth_inFV",&truth_inFV);
+  bkg->SetBranchAddress("truth_CC",&truth_CC);
+  bkg->SetBranchAddress("truth_nue",&truth_nue);
+  bkg->SetBranchAddress("truth_cosmic",&truth_cosmic);
+  
    // mip identification
   int mip_flag;
   double mip_energy;
@@ -173,6 +188,17 @@ void convert_file(){
   Tbkg->Branch("weight",&weight,"data/F");
   Tbkg->Branch("lowEweight",&lowEweight,"data/F");
   Tbkg->Branch("nueTag",&nueTag,"data/I");
+
+
+  Tsig->Branch("truth_inFV",&truth_inFV,"data/I");
+  Tsig->Branch("truth_CC",&truth_CC,"data/I");
+  Tsig->Branch("truth_nue",&truth_nue,"data/I");
+  Tsig->Branch("truth_cosmic",&truth_cosmic,"data/I");
+
+  Tbkg->Branch("truth_inFV",&truth_inFV,"data/I");
+  Tbkg->Branch("truth_CC",&truth_CC,"data/I");
+  Tbkg->Branch("truth_nue",&truth_nue,"data/I");
+  Tbkg->Branch("truth_cosmic",&truth_cosmic,"data/I");
   
   float mip_flag_f;
   float mip_energy_f;
@@ -488,16 +514,26 @@ void InitBDT_r1()
     // Apply additional cuts on the signal and background samples (can be different)
       
     TCut mycut_s = "1>0"; //  4911/44194
-    TCut mycut_b = "mip_flag == 0"; //  8033/21070
+    // TCut mycut_b = "nueTag==1"; //  
     
+    // dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
+    // 					    "nTrain_Signal=30000:"
+    // 					    "nTrain_Background=700:"
+    // 					    "nTest_Signal=10000:"
+    // 					    "nTest_Background=112:"
+    // 					    "SplitMode=Random:"
+    // 					    "NormMode=NumEvents:"
+    // 					    "!V" );
+    
+    TCut mycut_b = "mip_flag == 0 &&  (!(truth_nue==1 && truth_CC==1))"; //  7938/21070
     dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
-					    "nTrain_Signal=30000:"
-					    "nTrain_Background=7000:"
-					    "nTest_Signal=10000:"
-					    "nTest_Background=1033:"
-					    "SplitMode=Random:"
-					    "NormMode=NumEvents:"
-					    "!V" );
+    					    "nTrain_Signal=30000:"
+    					    "nTrain_Background=7000:"
+    					    "nTest_Signal=10000:"
+    					    "nTest_Background=938:"
+    					    "SplitMode=Random:"
+    					    "NormMode=NumEvents:"
+    					    "!V" );
   
   // variations of BDTs
   // BDT: uses Adaptive Boost
@@ -577,13 +613,13 @@ void InitBDT_r2()
     // Apply additional cuts on the signal and background samples (can be different)
       
     TCut mycut_s = "1>0"; // 
-    TCut mycut_b = "mip_flag == 0 || mip_bdt < -0.05"; // 10467
+    TCut mycut_b = "(mip_flag == 0 || mip_bdt < -0.05) && (!(truth_nue==1 && truth_CC==1))"; // 10360
     
     dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
 					    "nTrain_Signal=30000:"
 					    "nTrain_Background=9000:"
 					    "nTest_Signal=10000:"
-					    "nTest_Background=1392:"
+					    "nTest_Background=1360:"
 					    "SplitMode=Random:"
 					    "NormMode=NumEvents:"
 					    "!V" );
@@ -635,6 +671,22 @@ void TestEvaluate(TString filename)
   bkg->SetBranchAddress("lowEweight",&lowEweight);
   bkg->SetBranchAddress("nueTag",&nueTag);
 
+
+  int truth_inFV;
+  int truth_CC;
+  int truth_nue;
+  int truth_cosmic;
+
+  sig->SetBranchAddress("truth_inFV",&truth_inFV);
+  sig->SetBranchAddress("truth_CC",&truth_CC);
+  sig->SetBranchAddress("truth_nue",&truth_nue);
+  sig->SetBranchAddress("truth_cosmic",&truth_cosmic);
+
+  bkg->SetBranchAddress("truth_inFV",&truth_inFV);
+  bkg->SetBranchAddress("truth_CC",&truth_CC);
+  bkg->SetBranchAddress("truth_nue",&truth_nue);
+  bkg->SetBranchAddress("truth_cosmic",&truth_cosmic);
+  
   float mip_flag;
   float mip_energy;
   float mip_n_end_reduction;    
@@ -750,6 +802,15 @@ void TestEvaluate(TString filename)
   Tbkg->Branch("lowEweight",&lowEweight,"data/F");
   Tbkg->Branch("nueTag",&nueTag,"data/I");
   
+  Tsig->Branch("truth_inFV",&truth_inFV,"data/I");
+  Tsig->Branch("truth_CC",&truth_CC,"data/I");
+  Tsig->Branch("truth_nue",&truth_nue,"data/I");
+  Tsig->Branch("truth_cosmic",&truth_cosmic,"data/I");
+
+  Tbkg->Branch("truth_inFV",&truth_inFV,"data/I");
+  Tbkg->Branch("truth_CC",&truth_CC,"data/I");
+  Tbkg->Branch("truth_nue",&truth_nue,"data/I");
+  Tbkg->Branch("truth_cosmic",&truth_cosmic,"data/I");
   
   Tsig->Branch("mip_flag",&mip_flag,"mip_flag/F");
   Tsig->Branch("mip_energy",&mip_energy,"mip_energy/F");

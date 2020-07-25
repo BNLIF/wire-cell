@@ -29,12 +29,12 @@ TMVA::DataLoader *dataloader = 0;
 
 void Run_r1();
 void InitBDT_r1();
-void TestEvaluate_r1();
+void TestEvaluate(TString filename);
 
 
 void Run_r2();
 void InitBDT_r2();
-void TestEvaluate_r2();
+
 
 
 void convert_file();
@@ -68,6 +68,21 @@ void convert_file(){
   bkg->SetBranchAddress("lowEweight",&lowEweight);
   bkg->SetBranchAddress("nueTag",&nueTag);
 
+  int truth_inFV;
+  int truth_CC;
+  int truth_nue;
+  int truth_cosmic;
+
+  sig->SetBranchAddress("truth_inFV",&truth_inFV);
+  sig->SetBranchAddress("truth_CC",&truth_CC);
+  sig->SetBranchAddress("truth_nue",&truth_nue);
+  sig->SetBranchAddress("truth_cosmic",&truth_cosmic);
+
+  bkg->SetBranchAddress("truth_inFV",&truth_inFV);
+  bkg->SetBranchAddress("truth_CC",&truth_CC);
+  bkg->SetBranchAddress("truth_nue",&truth_nue);
+  bkg->SetBranchAddress("truth_cosmic",&truth_cosmic);
+  
   std::vector<double> *sig_2_v_energy= new std::vector<double>;
   std::vector<double> *sig_2_v_shower_angle= new std::vector<double>;
   std::vector<int> *sig_2_v_flag_single_shower= new std::vector<int>;
@@ -95,7 +110,15 @@ void convert_file(){
   Tsig->SetDirectory(new_file);
   Tbkg->SetDirectory(new_file);
 
+  Tsig->Branch("truth_inFV",&truth_inFV,"data/I");
+  Tsig->Branch("truth_CC",&truth_CC,"data/I");
+  Tsig->Branch("truth_nue",&truth_nue,"data/I");
+  Tsig->Branch("truth_cosmic",&truth_cosmic,"data/I");
 
+  Tbkg->Branch("truth_inFV",&truth_inFV,"data/I");
+  Tbkg->Branch("truth_CC",&truth_CC,"data/I");
+  Tbkg->Branch("truth_nue",&truth_nue,"data/I");
+  Tbkg->Branch("truth_cosmic",&truth_cosmic,"data/I");
   
   
   Tsig->Branch("run",&run,"data/I");
@@ -207,7 +230,7 @@ void Run_r2(){
     delete factory;
     delete dataloader;
 
-    TestEvaluate_r2();
+    TestEvaluate("round_2.root");
 
     // Launch the GUI for the root macros
     if (!gROOT->IsBatch()) TMVA::TMVAGui( output->GetName() );
@@ -244,7 +267,7 @@ void Run_r1()
     delete factory;
     delete dataloader;
 
-    TestEvaluate_r1();
+    TestEvaluate("round_1.root");
 
     // Launch the GUI for the root macros
     if (!gROOT->IsBatch()) TMVA::TMVAGui( output->GetName() );
@@ -287,13 +310,13 @@ void InitBDT_r2(){
 
     // Apply additional cuts on the signal and background samples (can be different)
     TCut mycut_s = "1>0 "; // 106 / 44194,
-    TCut mycut_b = "sig_2_v_flag==0 || sig_2_v_bdt < 0.1"; // 1363/21070, adding mip_id 340
+    TCut mycut_b = "(sig_2_v_flag==0 || sig_2_v_bdt < 0.1) && (!(truth_nue==1 && truth_CC==1))"; // 1375/21070, adding mip_id 340
     
     dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
         "nTrain_Signal=20000:"
         "nTrain_Background=1200:"
 	"nTest_Signal=10000:"
-        "nTest_Background=163:"
+        "nTest_Background=175:"
         "SplitMode=Random:"
         "NormMode=NumEvents:"
         "!V" );
@@ -356,13 +379,13 @@ void InitBDT_r1()
 
     // Apply additional cuts on the signal and background samples (can be different)
     TCut mycut_s = "1>0 "; // 106 / 44194,
-    TCut mycut_b = "sig_2_v_flag==0 "; // 780/21070, adding mip_id 340
+    TCut mycut_b = "sig_2_v_flag==0 && (!(truth_nue==1 && truth_CC==1))"; // 768/21070, adding mip_id 340
     
     dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
         "nTrain_Signal=20000:"
         "nTrain_Background=600:"
 	"nTest_Signal=10000:"
-        "nTest_Background=180:"
+        "nTest_Background=168:"
         "SplitMode=Random:"
         "NormMode=NumEvents:"
         "!V" );
@@ -389,7 +412,7 @@ void InitBDT_r1()
 }
 
 
-void TestEvaluate_r1()
+void TestEvaluate(TString filename)
 {
  
   Float_t bdt_value = 0;
@@ -420,6 +443,23 @@ void TestEvaluate_r1()
   bkg->SetBranchAddress("lowEweight",&lowEweight);
   bkg->SetBranchAddress("nueTag",&nueTag);
 
+   int truth_inFV;
+  int truth_CC;
+  int truth_nue;
+  int truth_cosmic;
+
+  sig->SetBranchAddress("truth_inFV",&truth_inFV);
+  sig->SetBranchAddress("truth_CC",&truth_CC);
+  sig->SetBranchAddress("truth_nue",&truth_nue);
+  sig->SetBranchAddress("truth_cosmic",&truth_cosmic);
+
+  bkg->SetBranchAddress("truth_inFV",&truth_inFV);
+  bkg->SetBranchAddress("truth_CC",&truth_CC);
+  bkg->SetBranchAddress("truth_nue",&truth_nue);
+  bkg->SetBranchAddress("truth_cosmic",&truth_cosmic);
+
+
+  
   float sig_2_v_energy;
   float sig_2_v_shower_angle;
   float sig_2_v_flag_single_shower;
@@ -442,7 +482,7 @@ void TestEvaluate_r1()
   bkg->SetBranchAddress("sig_2_v_flag",&sig_2_v_flag);
   
   
-  TFile *new_file = new TFile("round_1.root","RECREATE");
+  TFile *new_file = new TFile(filename,"RECREATE");
   TTree *Tsig = new TTree("sig","sig");
   TTree *Tbkg = new TTree("bkg","bkg");
   Tsig->SetDirectory(new_file);
@@ -465,6 +505,17 @@ void TestEvaluate_r1()
   Tbkg->Branch("run",&run,"data/I");
   Tbkg->Branch("event",&event,"data/I");
 
+  Tsig->Branch("truth_inFV",&truth_inFV,"data/I");
+  Tsig->Branch("truth_CC",&truth_CC,"data/I");
+  Tsig->Branch("truth_nue",&truth_nue,"data/I");
+  Tsig->Branch("truth_cosmic",&truth_cosmic,"data/I");
+
+  Tbkg->Branch("truth_inFV",&truth_inFV,"data/I");
+  Tbkg->Branch("truth_CC",&truth_CC,"data/I");
+  Tbkg->Branch("truth_nue",&truth_nue,"data/I");
+  Tbkg->Branch("truth_cosmic",&truth_cosmic,"data/I");
+
+  
   // float sig_2_v_energy;
   // float sig_2_v_shower_angle;
   // float sig_2_v_flag_single_shower;
@@ -518,132 +569,7 @@ void TestEvaluate_r1()
 
 
 
-void TestEvaluate_r2()
-{
-  
-  Float_t bdt_value = 0;
-    
-  TFile *file = new TFile("reduced.root");
-  TTree *sig = (TTree*)file->Get("sig");
-  TTree *bkg = (TTree*)file->Get("bkg");
 
-  int run, event;
-  sig->SetBranchAddress("run",&run);
-  sig->SetBranchAddress("event",&event);
-
-  bkg->SetBranchAddress("run",&run);
-  bkg->SetBranchAddress("event",&event);
-  
-  float trueEdep;
-  float weight;
-  float lowEweight;
-  Int_t nueTag;
-  
-  sig->SetBranchAddress("trueEdep",&trueEdep);
-  sig->SetBranchAddress("weight",&weight);
-  sig->SetBranchAddress("lowEweight",&lowEweight);
-  sig->SetBranchAddress("nueTag",&nueTag);
-  
-  bkg->SetBranchAddress("trueEdep",&trueEdep);
-  bkg->SetBranchAddress("weight",&weight);
-  bkg->SetBranchAddress("lowEweight",&lowEweight);
-  bkg->SetBranchAddress("nueTag",&nueTag);
-
-  float sig_2_v_energy;
-  float sig_2_v_shower_angle;
-  float sig_2_v_flag_single_shower;
-  float sig_2_v_medium_dQ_dx;
-  float sig_2_v_start_dQ_dx;
-  float sig_2_v_flag;
-
-  sig->SetBranchAddress("sig_2_v_energy",&sig_2_v_energy);
-  sig->SetBranchAddress("sig_2_v_shower_angle",&sig_2_v_shower_angle);
-  sig->SetBranchAddress("sig_2_v_flag_single_shower",&sig_2_v_flag_single_shower);
-  sig->SetBranchAddress("sig_2_v_medium_dQ_dx",&sig_2_v_medium_dQ_dx);
-  sig->SetBranchAddress("sig_2_v_start_dQ_dx",&sig_2_v_start_dQ_dx);
-  sig->SetBranchAddress("sig_2_v_flag",&sig_2_v_flag);
-
-  bkg->SetBranchAddress("sig_2_v_energy",&sig_2_v_energy);
-  bkg->SetBranchAddress("sig_2_v_shower_angle",&sig_2_v_shower_angle);
-  bkg->SetBranchAddress("sig_2_v_flag_single_shower",&sig_2_v_flag_single_shower);
-  bkg->SetBranchAddress("sig_2_v_medium_dQ_dx",&sig_2_v_medium_dQ_dx);
-  bkg->SetBranchAddress("sig_2_v_start_dQ_dx",&sig_2_v_start_dQ_dx);
-  bkg->SetBranchAddress("sig_2_v_flag",&sig_2_v_flag);
-  
-  
-  TFile *new_file = new TFile("round_2.root","RECREATE");
-  TTree *Tsig = new TTree("sig","sig");
-  TTree *Tbkg = new TTree("bkg","bkg");
-  Tsig->SetDirectory(new_file);
-  Tbkg->SetDirectory(new_file);
-  
- 
-  Tsig->Branch("trueEdep",&trueEdep,"data/F");
-  Tsig->Branch("weight",&weight,"data/F");
-  Tsig->Branch("lowEweight",&lowEweight,"data/F");
-  Tsig->Branch("nueTag",&nueTag,"data/I");
- 
-  Tbkg->Branch("trueEdep",&trueEdep,"data/F");
-  Tbkg->Branch("weight",&weight,"data/F");
-  Tbkg->Branch("lowEweight",&lowEweight,"data/F");
-  Tbkg->Branch("nueTag",&nueTag,"data/I");
-  
-  Tsig->Branch("run",&run,"data/I");
-  Tsig->Branch("event",&event,"data/I");
-
-  Tbkg->Branch("run",&run,"data/I");
-  Tbkg->Branch("event",&event,"data/I");
-
-  // float sig_2_v_energy;
-  // float sig_2_v_shower_angle;
-  // float sig_2_v_flag_single_shower;
-  // float sig_2_v_medium_dQ_dx;
-  // float sig_2_v_start_dQ_dx;
-  // float sig_2_v_flag;
-  
-  Tsig->Branch("sig_2_v_energy",&sig_2_v_energy,"data/F");
-  Tsig->Branch("sig_2_v_flag_single_shower",&sig_2_v_flag_single_shower,"data/F");
-  Tsig->Branch("sig_2_v_shower_angle",&sig_2_v_shower_angle,"data/F");
-  Tsig->Branch("sig_2_v_medium_dQ_dx",&sig_2_v_medium_dQ_dx,"data/F");
-  Tsig->Branch("sig_2_v_start_dQ_dx",&sig_2_v_start_dQ_dx,"data/F");
-  Tsig->Branch("sig_2_v_flag",&sig_2_v_flag,"data/F");
-  Tsig->Branch("sig_2_v_bdt",&bdt_value,"data/F");
-  
-  Tbkg->Branch("sig_2_v_energy",&sig_2_v_energy,"data/F");
-  Tbkg->Branch("sig_2_v_flag_single_shower",&sig_2_v_flag_single_shower,"data/F");
-  Tbkg->Branch("sig_2_v_shower_angle",&sig_2_v_shower_angle,"data/F");
-  Tbkg->Branch("sig_2_v_medium_dQ_dx",&sig_2_v_medium_dQ_dx,"data/F");
-  Tbkg->Branch("sig_2_v_start_dQ_dx",&sig_2_v_start_dQ_dx,"data/F");
-  Tbkg->Branch("sig_2_v_flag",&sig_2_v_flag,"data/F");
-  Tbkg->Branch("sig_2_v_bdt",&bdt_value,"data/F");
-  
-  TMVA::Reader *reader = new TMVA::Reader();
-  reader->AddVariable("sig_2_v_energy",&sig_2_v_energy);
-  reader->AddVariable("sig_2_v_shower_angle",&sig_2_v_shower_angle);
-  reader->AddVariable("sig_2_v_flag_single_shower",&sig_2_v_flag_single_shower);
-  reader->AddVariable("sig_2_v_medium_dQ_dx",&sig_2_v_medium_dQ_dx);  
-  reader->AddVariable("sig_2_v_start_dQ_dx",&sig_2_v_start_dQ_dx);
-  reader->BookMVA( "MyBDT", "dataset/weights/Test_BDT.weights.xml");
-
-
-  for (Int_t i=0;i!=sig->GetEntries();i++){
-    sig->GetEntry(i);
-    bdt_value = reader->EvaluateMVA("MyBDT");
-    Tsig->Fill();
-  }
-  
-  for (Int_t i=0;i!=bkg->GetEntries();i++){
-    bkg->GetEntry(i);
-    bdt_value = reader->EvaluateMVA("MyBDT");
-    Tbkg->Fill();
-  }
-
-  new_file->Write();
-  new_file->Close();
-  
-
-  
-}
 
 
 
