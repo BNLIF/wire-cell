@@ -4,7 +4,8 @@ TOP = '.'
 APPNAME = 'WCP'
 
 # the sequence matters
-subdirs = ['nanoflann',
+subdirs = [
+           'nanoflann',
            'quickhull',
            'data',
            'ress',
@@ -26,7 +27,8 @@ subdirs = ['nanoflann',
            'uboone_light_app',
            'uboone_nusel_app',
            'uboone_eval_app',
-           'dune_app', 
+           'dune_app',
+           'pyutil'
 ]
 
 def options(opt):
