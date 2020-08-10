@@ -58,3 +58,6 @@
 [submodule "pid"]
 	path = pid
 	url = https://github.com/BNLIF/wire-cell-pid.git
+[submodule "pyutil"]
+	path = pyutil
+	url = git@github.com:BNLIF/wire-cell-pyutil.git
