@@ -1,1 +1,9 @@
-waf --prefix=../wcp_install --build-debug=-ggdb3 --boost-includes=$WC_EXTERNALS/include --boost-libs=$WC_EXTERNALS/lib --boost-mt --with-root=$WC_EXTERNALS --with-fftw-include=$WC_EXTERNALS/include --with-fftw-lib=$WC_EXTERNALS/lib --with-eigen=$WC_EXTERNALS --with-glpk --with-glpk-include=/usr/include --with-glpk-lib=/usr/lib/x86_64-linux-gnu clean configure
+#initial commands ...
+source ~/.cshrc
+source ~/wire-cell/wcp_tcsh
+conda activate scn 
+
+# configuration code ...
+waf --prefix=../wcp_install --build-debug=-ggdb3 --boost-includes=$WC_EXTERNALS/include --boost-libs=$WC_EXTERNALS/lib --boost-mt --with-root=$WC_EXTERNALS --with-fftw-include=$WC_EXTERNALS/include --with-fftw-lib=$WC_EXTERNALS/lib --with-eigen=$WC_EXTERNALS --with-glpk --with-glpk-include=/usr/include --with-glpk-lib=/usr/lib/x86_64-linux-gnu --with-python=/home/xqian/anaconda3/envs/scn --with-python-include=/home/xqian/anaconda3/envs/scn/include/python2.7 --with-python-lib=/home/xqian/anaconda3/envs/scn/lib clean configure
+
+
