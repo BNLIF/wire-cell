@@ -61,3 +61,6 @@
 [submodule "pyutil"]
 	path = pyutil
 	url = git@github.com:BNLIF/wire-cell-pyutil.git
+[submodule "pyinf"]
+	path = pyinf
+	url = git@github.com:BNLIF/wire-cell-pyinf.git
