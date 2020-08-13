@@ -28,7 +28,8 @@ subdirs = [
            'uboone_nusel_app',
            'uboone_eval_app',
            'dune_app',
-           'pyutil'
+           'pyutil',
+           'pyinf'
 ]
 
 def options(opt):
