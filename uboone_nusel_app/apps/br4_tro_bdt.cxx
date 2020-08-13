@@ -227,7 +227,7 @@ void convert_file(){
   Tsig->Branch("br4_1_energy", &br4_1_energy_f,"br4_1_energy/F");
   Tsig->Branch("br4_1_flag_avoid_muon_check", &br4_1_flag_avoid_muon_check_f,"br4_1_flag_avoid_muon_check/F");
   Tsig->Branch("br4_1_n_vtx_segs", &br4_1_n_vtx_segs_f,"br4_1_n_vtx_segs/F");
-  Tsig->Branch("br4_1_br4_1_n_main_segs", &br4_1_n_main_segs_f,"br4_1_n_main_segs/F");
+  Tsig->Branch("br4_1_n_main_segs", &br4_1_n_main_segs_f,"br4_1_n_main_segs/F");
     
   Tsig->Branch("br4_2_ratio_45", &br4_2_ratio_45_f,"br4_2_ratio_45/F");
   Tsig->Branch("br4_2_ratio_35", &br4_2_ratio_35_f,"br4_2_ratio_35/F");
@@ -250,7 +250,7 @@ void convert_file(){
   Tbkg->Branch("br4_1_energy", &br4_1_energy_f,"br4_1_energy/F");
   Tbkg->Branch("br4_1_flag_avoid_muon_check", &br4_1_flag_avoid_muon_check_f,"br4_1_flag_avoid_muon_check/F");
   Tbkg->Branch("br4_1_n_vtx_segs", &br4_1_n_vtx_segs_f,"br4_1_n_vtx_segs/F");
-  Tbkg->Branch("br4_1_br4_1_n_main_segs", &br4_1_n_main_segs_f,"br4_1_n_main_segs/F");
+  Tbkg->Branch("br4_1_n_main_segs", &br4_1_n_main_segs_f,"br4_1_n_main_segs/F");
     
   Tbkg->Branch("br4_2_ratio_45", &br4_2_ratio_45_f,"br4_2_ratio_45/F");
   Tbkg->Branch("br4_2_ratio_35", &br4_2_ratio_35_f,"br4_2_ratio_35/F");
@@ -661,7 +661,7 @@ void TestEvaluate(TString filename)
   sig->SetBranchAddress("br4_1_energy", &br4_1_energy);
   sig->SetBranchAddress("br4_1_flag_avoid_muon_check", &br4_1_flag_avoid_muon_check);
   sig->SetBranchAddress("br4_1_n_vtx_segs", &br4_1_n_vtx_segs);
-  sig->SetBranchAddress("br4_1_br4_1_n_main_segs", &br4_1_n_main_segs);
+  sig->SetBranchAddress("br4_1_n_main_segs", &br4_1_n_main_segs);
     
   sig->SetBranchAddress("br4_2_ratio_45", &br4_2_ratio_45);
   sig->SetBranchAddress("br4_2_ratio_35", &br4_2_ratio_35);
@@ -683,7 +683,7 @@ void TestEvaluate(TString filename)
   bkg->SetBranchAddress("br4_1_energy", &br4_1_energy);
   bkg->SetBranchAddress("br4_1_flag_avoid_muon_check", &br4_1_flag_avoid_muon_check);
   bkg->SetBranchAddress("br4_1_n_vtx_segs", &br4_1_n_vtx_segs);
-  bkg->SetBranchAddress("br4_1_br4_1_n_main_segs", &br4_1_n_main_segs);
+  bkg->SetBranchAddress("br4_1_n_main_segs", &br4_1_n_main_segs);
     
   bkg->SetBranchAddress("br4_2_ratio_45", &br4_2_ratio_45);
   bkg->SetBranchAddress("br4_2_ratio_35", &br4_2_ratio_35);
@@ -743,7 +743,7 @@ void TestEvaluate(TString filename)
   Tsig->Branch("br4_1_energy", &br4_1_energy,"br4_1_energy/F");
   Tsig->Branch("br4_1_flag_avoid_muon_check", &br4_1_flag_avoid_muon_check,"br4_1_flag_avoid_muon_check/F");
   Tsig->Branch("br4_1_n_vtx_segs", &br4_1_n_vtx_segs,"br4_1_n_vtx_segs/F");
-  Tsig->Branch("br4_1_br4_1_n_main_segs", &br4_1_n_main_segs,"br4_1_n_main_segs/F");
+  Tsig->Branch("br4_1_n_main_segs", &br4_1_n_main_segs,"br4_1_n_main_segs/F");
     
   Tsig->Branch("br4_2_ratio_45", &br4_2_ratio_45,"br4_2_ratio_45/F");
   Tsig->Branch("br4_2_ratio_35", &br4_2_ratio_35,"br4_2_ratio_35/F");
@@ -766,7 +766,7 @@ void TestEvaluate(TString filename)
   Tbkg->Branch("br4_1_energy", &br4_1_energy,"br4_1_energy/F");
   Tbkg->Branch("br4_1_flag_avoid_muon_check", &br4_1_flag_avoid_muon_check,"br4_1_flag_avoid_muon_check/F");
   Tbkg->Branch("br4_1_n_vtx_segs", &br4_1_n_vtx_segs,"br4_1_n_vtx_segs/F");
-  Tbkg->Branch("br4_1_br4_1_n_main_segs", &br4_1_n_main_segs,"br4_1_n_main_segs/F");
+  Tbkg->Branch("br4_1_n_main_segs", &br4_1_n_main_segs,"br4_1_n_main_segs/F");
     
   Tbkg->Branch("br4_2_ratio_45", &br4_2_ratio_45,"br4_2_ratio_45/F");
   Tbkg->Branch("br4_2_ratio_35", &br4_2_ratio_35,"br4_2_ratio_35/F");
