@@ -195,6 +195,8 @@ int main(int argc, char* argv[])
   }else if (save_file==2){
     std::cout << "Save file for pattern recognition, one entry for all cells/dead channels of one event. Recommended for large data production and file merging." << std::endl;
   }
+
+  double eventTime;
   
   // if (two_plane)
   //   cout << "Enable Two Plane Reconstruction " << endl; 
@@ -276,7 +278,8 @@ int main(int argc, char* argv[])
   T->SetBranchAddress("eventNo",&event_no);
   T->SetBranchAddress("runNo",&run_no);
   T->SetBranchAddress("subRunNo",&subrun_no);
-
+  T->SetBranchAddress("eventTime",&eventTime);
+  
   // std::vector<int> *badChannelList = new std::vector<int>;
   // T->SetBranchAddress("badChannelList",&badChannelList);
 
@@ -1034,7 +1037,8 @@ if(beamspill || beam==-1){
   Trun->Branch("eventNo",&event_no,"eventNo/I");
   Trun->Branch("runNo",&run_no,"runNo/I");
   Trun->Branch("subRunNo",&subrun_no,"runRunNo/I");
-
+  Trun->Branch("eventTime",&eventTime,"eventTime/D");
+  
   Trun->Branch("unit_dis",&unit_dis,"unit_dis/F");
   Trun->Branch("toffset_uv",&toffset_1,"toffset_uv/F");
   Trun->Branch("toffset_uw",&toffset_2,"toffset_uw/F");

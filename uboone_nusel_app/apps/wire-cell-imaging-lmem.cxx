@@ -139,6 +139,8 @@ int main(int argc, char* argv[])
   }else if (save_file==0){
     std::cout << "Save file for pattern recognition. " << std::endl;
   }
+
+
   
   // if (two_plane)
   //   cout << "Enable Two Plane Reconstruction " << endl; 
@@ -237,7 +239,6 @@ int main(int argc, char* argv[])
   Trun->SetBranchAddress("threshold_vg",&threshold_vg);
   Trun->SetBranchAddress("threshold_wg",&threshold_wg);
   Trun->SetBranchAddress("time_offset",&time_offset);
-  
   Trun->GetEntry(0);
 
   TTree *T_op = (TTree*)file1->Get("T_op");

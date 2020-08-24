@@ -81,6 +81,8 @@ int main(int argc, char* argv[])
     }
   }
   bool flag_match_data = true;
+  bool flag_timestamp = false;
+  
   if (datatier==2) flag_match_data = false;
  
   // currently, no difference between data (overlay cosmic) and MC (overlay nu) 
@@ -123,7 +125,7 @@ int main(int argc, char* argv[])
   TString filename = argv[2];
   TFile *file = TFile::Open(filename); // enable xrootd fast streaming
   TTree *Trun = (TTree*)file->Get("Trun");
-  
+  double eventTime;
   int run_no, subrun_no, event_no;
   int time_offset;
   int nrebin;
@@ -139,6 +141,7 @@ int main(int argc, char* argv[])
   Trun->SetBranchAddress("eventNo",&event_no);
   Trun->SetBranchAddress("runNo",&run_no);
   Trun->SetBranchAddress("subRunNo",&subrun_no);
+  Trun->SetBranchAddress("eventTime",&eventTime);
   Trun->SetBranchAddress("unit_dis",&unit_dis);
   Trun->SetBranchAddress("frame_length",&frame_length);
   Trun->SetBranchAddress("eve_num",&eve_num);
@@ -769,8 +772,8 @@ int main(int argc, char* argv[])
   }
   
   //FlashTPCBundleSelection matched_bundles = WCP2dToy::tpc_light_match(time_offset,nrebin,group_clusters,flashes, run_no, flag_match_data, flag_add_light_yield_err);
-  WCP::Photon_Library pl(run_no,flag_match_data,flag_add_light_yield_err);
-  FlashTPCBundleSelection matched_bundles = WCP2dToy::tpc_light_match(time_offset,nrebin,&pl,group_clusters,flashes, run_no, flag_match_data, flag_add_light_yield_err);
+  WCP::Photon_Library pl(eventTime,run_no,flag_match_data,flag_add_light_yield_err);
+  FlashTPCBundleSelection matched_bundles = WCP2dToy::tpc_light_match(eventTime,time_offset,nrebin,&pl,group_clusters,flashes, run_no, flag_match_data, flag_add_light_yield_err);
   cout << em("TPC Light Matching") << std::endl;
 
    // further merge or split clusters ... protect against over clustering

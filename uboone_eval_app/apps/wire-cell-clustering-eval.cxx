@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
        break;
      }
   }
-  
+  bool flag_timestamp = false;
   
   ExecMon em("starting");
   cout << em("load geometry") << endl;
@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
   TTree *Trun = (TTree*)file->Get("Trun");
   //TTree *T_track = (TTree*)file->Get("T_track");
   //TTree *T_true = (TTree*)file->Get("T_true");
-
+  double eventTime;
   int run_no, subrun_no, event_no;
   int time_offset;
   int nrebin;
@@ -98,6 +98,7 @@ int main(int argc, char* argv[])
   Trun->SetBranchAddress("eventNo",&event_no);
   Trun->SetBranchAddress("runNo",&run_no);
   Trun->SetBranchAddress("subRunNo",&subrun_no);
+  Trun->SetBranchAddress("eventTime",&eventTime);
   Trun->SetBranchAddress("unit_dis",&unit_dis);
   Trun->SetBranchAddress("frame_length",&frame_length);
   Trun->SetBranchAddress("eve_num",&eve_num);
@@ -666,8 +667,8 @@ int main(int argc, char* argv[])
      //   cout<<"BUGGGG"<<endl;
      //   std::vector<std::tuple<WCP::PR3DCluster*, WCP::Opflash*, double, std::vector<double>>> matched_results = WCP2dToy::tpc_light_match(time_offset,nrebin,group_clusters,flashes);
   //FlashTPCBundleSelection matched_bundles = WCP2dToy::tpc_light_match(time_offset,nrebin,group_clusters,flashes, run_no, false); // assume MC is used for this application
-  WCP::Photon_Library pl(run_no,false);
-  FlashTPCBundleSelection matched_bundles = WCP2dToy::tpc_light_match(time_offset,nrebin,&pl,group_clusters,flashes, run_no, false); // assume MC is used for this application
+  WCP::Photon_Library pl(eventTime,run_no,false);
+  FlashTPCBundleSelection matched_bundles = WCP2dToy::tpc_light_match(eventTime,time_offset,nrebin,&pl,group_clusters,flashes, run_no, false); // assume MC is used for this application
      
      // create the live clusters ...
      //std::cout << live_clusters.size() << std::endl;
