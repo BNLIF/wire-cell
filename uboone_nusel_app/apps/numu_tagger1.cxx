@@ -62,7 +62,6 @@ void convert_file(){
   std::vector<float> *numu_cc_1_n_daughter_tracks= new std::vector<float>;
   std::vector<float> *numu_cc_1_n_daughter_all= new std::vector<float>;
   
-  
   tree0->SetBranchAddress("cosmict_flag_1",&cosmict_flag_1);
   tree0->SetBranchAddress("numu_cc_flag_1",&numu_cc_flag_1);
   tree0->SetBranchAddress("numu_cc_1_particle_type",&numu_cc_1_particle_type);
