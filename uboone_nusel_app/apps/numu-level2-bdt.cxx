@@ -175,6 +175,8 @@ void Run_r1();
 void InitBDT_r1();
 void TestEvaluate(TString filename);
 
+void compare_score(TString filename);
+
 float cal_cosmict_2_4_bdt(float default_val,numuInfo& tagger_info, TMVA::Reader& reader);
 float cal_cosmict_3_5_bdt(float default_val,numuInfo& tagger_info, TMVA::Reader& reader);
 float cal_cosmict_6_bdt(float default_val,numuInfo& tagger_info, TMVA::Reader& reader);
@@ -1148,6 +1150,244 @@ void TestEvaluate(TString filename){
   new_file->Close();
 }
 
+void compare_score(TString filename){
+  std::cout << filename << std::endl;
+  TFile *file = new TFile(filename);
+  TTree *T = (TTree*)file->Get("T_tagger");
+
+  numuInfo tagger_info;
+  
+  tagger_info.numu_cc_flag_1 = new std::vector<float>;
+  tagger_info.numu_cc_1_particle_type= new std::vector<float>;
+  tagger_info.numu_cc_1_length= new std::vector<float>;
+  tagger_info.numu_cc_1_medium_dQ_dx= new std::vector<float>;
+  tagger_info.numu_cc_1_dQ_dx_cut= new std::vector<float>;
+  tagger_info.numu_cc_1_direct_length= new std::vector<float>;
+  tagger_info.numu_cc_1_n_daughter_tracks= new std::vector<float>;
+  tagger_info.numu_cc_1_n_daughter_all= new std::vector<float>;
+
+  tagger_info.numu_cc_flag_2 = new std::vector<float>;
+  tagger_info.numu_cc_2_length = new std::vector<float>;
+  tagger_info.numu_cc_2_total_length = new std::vector<float>;
+  tagger_info.numu_cc_2_n_daughter_tracks = new std::vector<float>;
+  tagger_info.numu_cc_2_n_daughter_all = new std::vector<float>;
+
+  tagger_info.cosmict_flag_10= new std::vector<float>;  // front upstream (dirt)
+  tagger_info.cosmict_10_flag_inside= new std::vector<float> ;
+  tagger_info.cosmict_10_vtx_z= new std::vector<float>;
+  tagger_info.cosmict_10_flag_shower= new std::vector<float>;
+  tagger_info.cosmict_10_flag_dir_weak= new std::vector<float>;
+  tagger_info.cosmict_10_angle_beam= new std::vector<float>;
+  tagger_info.cosmict_10_length= new std::vector<float>;
+
+  set_tree_address(T, tagger_info);
+
+  T->SetBranchAddress("cosmict_2_4_score",&tagger_info.cosmict_2_4_score);
+  T->SetBranchAddress("cosmict_3_5_score",&tagger_info.cosmict_3_5_score);
+  T->SetBranchAddress("cosmict_6_score",&tagger_info.cosmict_6_score);
+  T->SetBranchAddress("cosmict_7_score",&tagger_info.cosmict_7_score);
+  T->SetBranchAddress("cosmict_8_score",&tagger_info.cosmict_8_score);
+  T->SetBranchAddress("cosmict_10_score",&tagger_info.cosmict_10_score);
+  T->SetBranchAddress("numu_1_score",&tagger_info.numu_1_score);
+  T->SetBranchAddress("numu_2_score",&tagger_info.numu_2_score);
+  T->SetBranchAddress("numu_3_score",&tagger_info.numu_3_score);
+  T->SetBranchAddress("numu_score",&tagger_info.numu_score);
+
+
+  float cosmict_2_4_score;
+  float cosmict_3_5_score;
+  float cosmict_6_score;
+  float cosmict_7_score;
+  float cosmict_8_score;
+  float cosmict_10_score;
+  float numu_1_score;
+  float numu_2_score;
+  float numu_3_score;
+  float numu_score;
+
+    //numu reader
+  TMVA::Reader reader_numu_1;
+  
+  float numu_cc_flag_1;
+  float numu_cc_1_particle_type;
+  float numu_cc_1_length;
+  float numu_cc_1_medium_dQ_dx;
+  float numu_cc_1_dQ_dx_cut;
+  float numu_cc_1_direct_length;
+  float numu_cc_1_n_daughter_tracks;
+  float numu_cc_1_n_daughter_all;
+  
+  reader_numu_1.AddVariable("numu_cc_1_particle_type",&numu_cc_1_particle_type);
+  reader_numu_1.AddVariable("numu_cc_1_length",&numu_cc_1_length);
+  reader_numu_1.AddVariable("numu_cc_1_medium_dQ_dx",&numu_cc_1_medium_dQ_dx);
+  reader_numu_1.AddVariable("numu_cc_1_dQ_dx_cut",&numu_cc_1_dQ_dx_cut);
+  reader_numu_1.AddVariable("numu_cc_1_direct_length",&numu_cc_1_direct_length);
+  reader_numu_1.AddVariable("numu_cc_1_n_daughter_tracks",&numu_cc_1_n_daughter_tracks);
+  reader_numu_1.AddVariable("numu_cc_1_n_daughter_all",&numu_cc_1_n_daughter_all);
+      
+  reader_numu_1.BookMVA( "MyBDT", "weights/numu_tagger1.weights.xml");
+
+
+  TMVA::Reader reader_numu_2;
+  float numu_cc_2_length;
+  float numu_cc_2_total_length;
+  float numu_cc_2_n_daughter_tracks;
+  float numu_cc_2_n_daughter_all;
+  
+  reader_numu_2.AddVariable("numu_cc_2_length",&numu_cc_2_length);
+  reader_numu_2.AddVariable("numu_cc_2_total_length",&numu_cc_2_total_length);
+  reader_numu_2.AddVariable("numu_cc_2_n_daughter_tracks",&numu_cc_2_n_daughter_tracks);
+  reader_numu_2.AddVariable("numu_cc_2_n_daughter_all",&numu_cc_2_n_daughter_all);
+  
+  reader_numu_2.BookMVA( "MyBDT", "weights/numu_tagger2.weights.xml");
+
+
+  TMVA::Reader reader_numu_3;
+  reader_numu_3.AddVariable( "numu_cc_3_particle_type", &tagger_info.numu_cc_3_particle_type);
+  reader_numu_3.AddVariable( "numu_cc_3_max_length", &tagger_info.numu_cc_3_max_length);
+  reader_numu_3.AddVariable( "numu_cc_3_acc_track_length", &tagger_info.numu_cc_3_acc_track_length);
+  reader_numu_3.AddVariable( "numu_cc_3_max_length_all", &tagger_info.numu_cc_3_max_length_all);
+  reader_numu_3.AddVariable( "numu_cc_3_max_muon_length", &tagger_info.numu_cc_3_max_muon_length);
+  reader_numu_3.AddVariable( "numu_cc_3_n_daughter_tracks", &tagger_info.numu_cc_3_n_daughter_tracks);
+  reader_numu_3.AddVariable( "numu_cc_3_n_daughter_all", &tagger_info.numu_cc_3_n_daughter_all);
+    
+  reader_numu_3.BookMVA( "MyBDT", "weights/numu_tagger3.weights.xml");
+
+  TMVA::Reader reader_cosmict_2_4;
+  reader_cosmict_2_4.AddVariable( "cosmict_2_particle_type", &tagger_info.cosmict_2_particle_type);
+  reader_cosmict_2_4.AddVariable( "cosmict_2_n_muon_tracks", &tagger_info.cosmict_2_n_muon_tracks);
+  reader_cosmict_2_4.AddVariable( "cosmict_2_total_shower_length", &tagger_info.cosmict_2_total_shower_length);
+  reader_cosmict_2_4.AddVariable( "cosmict_2_flag_inside", &tagger_info.cosmict_2_flag_inside);
+  reader_cosmict_2_4.AddVariable( "cosmict_2_angle_beam", &tagger_info.cosmict_2_angle_beam);
+  reader_cosmict_2_4.AddVariable( "cosmict_2_flag_dir_weak", &tagger_info.cosmict_2_flag_dir_weak);
+  reader_cosmict_2_4.AddVariable( "cosmict_2_dQ_dx_end", &tagger_info.cosmict_2_dQ_dx_end);
+  reader_cosmict_2_4.AddVariable( "cosmict_2_dQ_dx_front", &tagger_info.cosmict_2_dQ_dx_front);
+  reader_cosmict_2_4.AddVariable( "cosmict_2_theta", &tagger_info.cosmict_2_theta);
+  reader_cosmict_2_4.AddVariable( "cosmict_2_phi", &tagger_info.cosmict_2_phi);
+  reader_cosmict_2_4.AddVariable( "cosmict_2_valid_tracks", &tagger_info.cosmict_2_valid_tracks);
+  reader_cosmict_2_4.AddVariable( "cosmict_4_flag_inside", &tagger_info.cosmict_4_flag_inside);
+  reader_cosmict_2_4.AddVariable( "cosmict_4_connected_showers",  &tagger_info.cosmict_4_connected_showers);
+  reader_cosmict_2_4.BookMVA( "MyBDT", "weights/cos_tagger_2_4.weights.xml");
+
+
+  TMVA::Reader reader_cosmict_3_5;
+  reader_cosmict_3_5.AddVariable( "cosmict_3_flag_inside", &tagger_info.cosmict_3_flag_inside);
+  reader_cosmict_3_5.AddVariable( "cosmict_3_angle_beam", &tagger_info.cosmict_3_angle_beam);
+  reader_cosmict_3_5.AddVariable( "cosmict_3_flag_dir_weak", &tagger_info.cosmict_3_flag_dir_weak);
+  reader_cosmict_3_5.AddVariable( "cosmict_3_dQ_dx_end", &tagger_info.cosmict_3_dQ_dx_end);
+  reader_cosmict_3_5.AddVariable( "cosmict_3_dQ_dx_front", &tagger_info.cosmict_3_dQ_dx_front);
+  reader_cosmict_3_5.AddVariable( "cosmict_3_theta", &tagger_info.cosmict_3_theta);
+  reader_cosmict_3_5.AddVariable( "cosmict_3_phi", &tagger_info.cosmict_3_phi);
+  reader_cosmict_3_5.AddVariable( "cosmict_3_valid_tracks", &tagger_info.cosmict_3_valid_tracks);
+  reader_cosmict_3_5.AddVariable( "cosmict_5_connected_showers", &tagger_info.cosmict_5_connected_showers);
+  reader_cosmict_3_5.BookMVA( "MyBDT", "weights/cos_tagger_3_5.weights.xml");
+
+  TMVA::Reader reader_cosmict_6;
+  reader_cosmict_6.AddVariable( "cosmict_6_flag_dir_weak", &tagger_info.cosmict_6_flag_dir_weak);
+  reader_cosmict_6.AddVariable( "cosmict_6_flag_inside", &tagger_info.cosmict_6_flag_inside);
+  reader_cosmict_6.AddVariable( "cosmict_6_angle", &tagger_info.cosmict_6_angle);
+  reader_cosmict_6.BookMVA( "MyBDT", "weights/cos_tagger_6.weights.xml");
+
+  TMVA::Reader reader_cosmict_7;
+  reader_cosmict_7.AddVariable( "cosmict_7_flag_sec", &tagger_info.cosmict_7_flag_sec);
+  reader_cosmict_7.AddVariable( "cosmict_7_n_muon_tracks", &tagger_info.cosmict_7_n_muon_tracks);
+  reader_cosmict_7.AddVariable( "cosmict_7_total_shower_length", &tagger_info.cosmict_7_total_shower_length);
+  reader_cosmict_7.AddVariable( "cosmict_7_flag_inside", &tagger_info.cosmict_7_flag_inside);
+  reader_cosmict_7.AddVariable( "cosmict_7_angle_beam", &tagger_info.cosmict_7_angle_beam);
+  reader_cosmict_7.AddVariable( "cosmict_7_flag_dir_weak", &tagger_info.cosmict_7_flag_dir_weak);
+  reader_cosmict_7.AddVariable( "cosmict_7_dQ_dx_end", &tagger_info.cosmict_7_dQ_dx_end);
+  reader_cosmict_7.AddVariable( "cosmict_7_dQ_dx_front", &tagger_info.cosmict_7_dQ_dx_front);
+  reader_cosmict_7.AddVariable( "cosmict_7_theta", &tagger_info.cosmict_7_theta);
+  reader_cosmict_7.AddVariable( "cosmict_7_phi", &tagger_info.cosmict_7_phi);
+  reader_cosmict_7.BookMVA( "MyBDT", "weights/cos_tagger_7.weights.xml");
+  
+  TMVA::Reader reader_cosmict_8;
+  reader_cosmict_8.AddVariable( "cosmict_8_flag_out", &tagger_info.cosmict_8_flag_out);
+  reader_cosmict_8.AddVariable( "cosmict_8_muon_length", &tagger_info.cosmict_8_muon_length);
+  reader_cosmict_8.AddVariable( "cosmict_8_acc_length", &tagger_info.cosmict_8_acc_length);
+  reader_cosmict_8.BookMVA( "MyBDT", "weights/cos_tagger_8.weights.xml");
+
+  TMVA::Reader reader_cosmict_10;
+  float cosmict_10_vtx_z;
+  float cosmict_10_flag_shower;
+  float cosmict_10_flag_dir_weak;
+  float cosmict_10_angle_beam;
+  float cosmict_10_length;
+  
+  reader_cosmict_10.AddVariable("cosmict_10_vtx_z",&cosmict_10_vtx_z);
+  reader_cosmict_10.AddVariable("cosmict_10_flag_shower",&cosmict_10_flag_shower);
+  reader_cosmict_10.AddVariable("cosmict_10_flag_dir_weak",&cosmict_10_flag_dir_weak);
+  reader_cosmict_10.AddVariable("cosmict_10_angle_beam",&cosmict_10_angle_beam);
+  reader_cosmict_10.AddVariable("cosmict_10_length",&cosmict_10_length);
+      
+  reader_cosmict_10.BookMVA( "MyBDT", "weights/cos_tagger_10.weights.xml");
+
+  TMVA::Reader *reader = new TMVA::Reader();
+  reader->AddVariable("cosmict_flag_1",&tagger_info.cosmict_flag_1);
+  reader->AddVariable("cosmict_flag_9",&tagger_info.cosmict_flag_9);
+  reader->AddVariable("cosmic_flag",&tagger_info.cosmic_flag);
+  reader->AddVariable("cosmic_filled",&tagger_info.cosmic_filled);
+  reader->AddVariable("cosmict_2_4_score",&cosmict_2_4_score);
+  reader->AddVariable("cosmict_3_5_score",&cosmict_3_5_score);
+  reader->AddVariable("cosmict_6_score",&cosmict_6_score);
+  reader->AddVariable("cosmict_7_score",&cosmict_7_score);
+  reader->AddVariable("cosmict_8_score",&cosmict_8_score);
+  reader->AddVariable("cosmict_10_score",&cosmict_10_score);
+  reader->AddVariable("numu_1_score",&numu_1_score);
+  reader->AddVariable("numu_2_score",&numu_2_score);
+  reader->AddVariable("numu_3_score",&numu_3_score);
+  reader->BookMVA( "MyBDT", "dataset/weights/Test_BDT.weights.xml");
+  
+  for (size_t i=0;i!=T->GetEntries();i++){
+    T->GetEntry(i);
+
+     numu_1_score = cal_numu_1_bdt(-0.4,tagger_info, reader_numu_1, numu_cc_flag_1,
+    					      numu_cc_1_particle_type,
+    					      numu_cc_1_length,
+    					      numu_cc_1_medium_dQ_dx,
+    					      numu_cc_1_dQ_dx_cut,
+    					      numu_cc_1_direct_length,
+    					      numu_cc_1_n_daughter_tracks,
+    					      numu_cc_1_n_daughter_all);
+    numu_2_score = cal_numu_2_bdt(-0.1,tagger_info,reader_numu_2,
+					      numu_cc_2_length,
+					      numu_cc_2_total_length,
+					      numu_cc_2_n_daughter_tracks,
+					      numu_cc_2_n_daughter_all);
+    numu_3_score = cal_numu_3_bdt(-0.2,tagger_info, reader_numu_3);
+
+    cosmict_2_4_score = cal_cosmict_2_4_bdt(0.3, tagger_info, reader_cosmict_2_4);
+    cosmict_3_5_score = cal_cosmict_3_5_bdt(0.5, tagger_info, reader_cosmict_3_5);
+
+    cosmict_6_score = cal_cosmict_6_bdt(0.15, tagger_info, reader_cosmict_6);
+    cosmict_7_score = cal_cosmict_7_bdt(0.3, tagger_info, reader_cosmict_7);
+    cosmict_8_score = cal_cosmict_8_bdt(0.15, tagger_info, reader_cosmict_8);
+
+    cosmict_10_score = cal_cosmict_10_bdt(0.7, tagger_info, reader_cosmict_10,
+						      cosmict_10_vtx_z,
+						      cosmict_10_flag_shower,
+						      cosmict_10_flag_dir_weak,
+						      cosmict_10_angle_beam,
+						      cosmict_10_length);
+
+    numu_score = reader->EvaluateMVA("MyBDT");
+    
+    std::cout << "cosmict_2_4_score: " << tagger_info.cosmict_2_4_score << " " << cosmict_2_4_score << std::endl;
+    std::cout << "cosmict_3_5_score: " << tagger_info.cosmict_3_5_score << " " << cosmict_3_5_score << std::endl;
+    std::cout << "cosmict_6_score: " << tagger_info.cosmict_6_score << " " << cosmict_6_score << std::endl;
+    std::cout << "cosmict_7_score: " << tagger_info.cosmict_7_score << " " << cosmict_7_score << std::endl;
+    std::cout << "cosmict_8_score: " << tagger_info.cosmict_8_score << " " << cosmict_8_score << std::endl;
+    std::cout << "cosmict_10_score: " << tagger_info.cosmict_10_score << " " << cosmict_10_score << std::endl;
+    std::cout << "numu_1_score: " << tagger_info.numu_1_score << " " <<numu_1_score << " " << std::endl;
+    std::cout << "numu_2_score: " << tagger_info.numu_2_score << " " << numu_2_score << std::endl;
+    std::cout << "numu_3_score: " << tagger_info.numu_3_score << " " << numu_3_score << std::endl;
+    std::cout << "numu_score: " << tagger_info.numu_score << " " << numu_score << std::endl;
+    
+  }
+    
+  
+  
+}
 
 int main( int argc, char** argv )
 {
@@ -1174,6 +1414,10 @@ int main( int argc, char** argv )
   }else if (process == 4){
     std::cout << "Validating BDT in ROOT TMVA " << std::endl;
     convert_file(2); // calculate first round BDT scores ...
+  }else if (process == 5){
+    TString filename = argv[1];
+    compare_score(filename);
+    //    std::cout << filename << std::endl;
   }
   
   return 1;
