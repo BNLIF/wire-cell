@@ -591,7 +591,7 @@ if(beamspill || beam==-1){
   int tpc_status = WCP2dToy::Noisy_Event_ID(hu_decon, hv_decon, hw_decon, uplane_rms, vplane_rms, wplane_rms, uplane_map, vplane_map, wplane_map, hu_decon_g, hv_decon_g, hw_decon_g, nrebin, hv_raw, true);
   WCP2dToy::Organize_Dead_Channels(uplane_map, vplane_map, wplane_map, hv_raw->GetNbinsY()-1,nrebin);
 
-    // loop through U/V/W plane to disable the bad channels completely
+  // loop through U/V/W plane to disable the bad channels completely
   for (auto it = uplane_map.begin(); it!=uplane_map.end(); it++){
     int ch = it->first;
     int start = it->second.first/nrebin;
@@ -1083,7 +1083,7 @@ if(beamspill || beam==-1){
     // save all the mcells as a function of time slice
     // give each mcell an index number as part of the graph ...
     SMGCSelection all_mcells;
-    std::map<SlimMergeGeomCell*, int> map_mcell_index;
+    std::map<SlimMergeGeomCell*, int, WCP::GeomCellComparep> map_mcell_index;
     std::map<int, SMGCSelection> map_time_mcells;
     for (int i=start_num;i!=end_num+1;i++){
       WCP::GeomCellMap cell_wires_map = lowmemtiling[i]->get_cell_wires_map();
@@ -1740,8 +1740,8 @@ if(beamspill || beam==-1){
   // }
   // std::cout << nc_mcells << std::endl;
   // label merge cells according to connectivities, going through clusters ..
-  std::map<const GeomCell*, GeomCellSelection> front_cell_map;
-  std::map<const GeomCell*, GeomCellSelection> back_cell_map;
+  std::map<const GeomCell*, GeomCellSelection, WCP::GeomCellComparep> front_cell_map;
+  std::map<const GeomCell*, GeomCellSelection, WCP::GeomCellComparep> back_cell_map;
   for (auto it = cluster_set.begin();it!=cluster_set.end();it++){
     (*it)->Form_maps(2, front_cell_map,back_cell_map);
   }
@@ -1771,7 +1771,7 @@ if(beamspill || beam==-1){
     chargesolver[i]->L1_resolve(9,3);
   }
 
-  std::set<SlimMergeGeomCell*> potential_good_mcells, good_mcells;
+  std::set<SlimMergeGeomCell*, WCP::GeomCellComparep> potential_good_mcells, good_mcells;
   for (auto it = front_cell_map.begin(); it!=front_cell_map.end();it++){
     SlimMergeGeomCell *mcell1 = (SlimMergeGeomCell*) it->first;
     int time_slice1 = mcell1->GetTimeSlice();
@@ -1819,7 +1819,7 @@ if(beamspill || beam==-1){
   
   // removel absolute can be removed ...
   // completely overlapped with the good three-wire-cells ... 
-  std::set<SlimMergeGeomCell*> potential_bad_mcells;
+  std::set<SlimMergeGeomCell*, WCP::GeomCellComparep> potential_bad_mcells;
   if (no_dead_channel!=1){
     for (int i=start_num; i!=end_num+1;i++){
       GeomCellSelection mcells = lowmemtiling[i]->local_deghosting(potential_good_mcells,good_mcells,false);
@@ -1916,7 +1916,7 @@ if(beamspill || beam==-1){
     // save all the mcells as a function of time slice
     // give each mcell an index number as part of the graph ...
     SMGCSelection all_mcells;
-    std::map<SlimMergeGeomCell*, int> map_mcell_index;
+    std::map<SlimMergeGeomCell*, int,  WCP::GeomCellComparep> map_mcell_index;
     std::map<int, SMGCSelection> map_time_mcells;
     for (int i=start_num;i!=end_num+1;i++){
       WCP::GeomCellMap cell_wires_map = lowmemtiling[i]->get_cell_wires_map();
@@ -1996,7 +1996,7 @@ if(beamspill || beam==-1){
     // save all the mcells as a function of time slice
     // give each mcell an index number as part of the graph ...
     SMGCSelection all_mcells;
-    std::map<SlimMergeGeomCell*, int> map_mcell_index;
+    std::map<SlimMergeGeomCell*, int, WCP::GeomCellComparep> map_mcell_index;
     std::map<int, SMGCSelection> map_time_mcells;
     for (int i=start_num;i!=end_num+1;i++){
       WCP::GeomCellMap cell_wires_map = lowmemtiling[i]->get_cell_wires_map();
@@ -2076,7 +2076,7 @@ if(beamspill || beam==-1){
     // save all the mcells as a function of time slice
     // give each mcell an index number as part of the graph ...
     SMGCSelection all_mcells;
-    std::map<SlimMergeGeomCell*, int> map_mcell_index;
+    std::map<SlimMergeGeomCell*, int, WCP::GeomCellComparep> map_mcell_index;
     std::map<int, SMGCSelection> map_time_mcells;
     for (int i=start_num;i!=end_num+1;i++){
       WCP::GeomCellMap cell_wires_map = lowmemtiling[i]->get_cell_wires_map();
@@ -2156,7 +2156,7 @@ if(beamspill || beam==-1){
     // save all the mcells as a function of time slice
     // give each mcell an index number as part of the graph ...
     SMGCSelection all_mcells;
-    std::map<SlimMergeGeomCell*, int> map_mcell_index;
+    std::map<SlimMergeGeomCell*, int, WCP::GeomCellComparep> map_mcell_index;
     std::map<int, SMGCSelection> map_time_mcells;
     for (int i=start_num;i!=end_num+1;i++){
       WCP::GeomCellMap cell_wires_map = lowmemtiling[i]->get_cell_wires_map();
@@ -3082,7 +3082,7 @@ if(beamspill || beam==-1){
      }
 
 
-     std::map<SlimMergeGeomCell*, double> map_mcell_charge;
+     std::map<SlimMergeGeomCell*, double, WCP::GeomCellComparep> map_mcell_charge;
      for (auto it = potential_good_mcells.begin(); it!=potential_good_mcells.end();it++){
        map_mcell_charge[*it] = chargesolver[(*it)->GetTimeSlice()]->get_mcell_charge(*it);
      }
@@ -3308,7 +3308,7 @@ std::cout << "# of good mcell: " << good_mcells.size() << std::endl;
     // save all the mcells as a function of time slice
     // give each mcell an index number as part of the graph ...
     SMGCSelection all_mcells;
-    std::map<SlimMergeGeomCell*, int> map_mcell_index;
+    std::map<SlimMergeGeomCell*, int, WCP::GeomCellComparep> map_mcell_index;
     std::map<int, SMGCSelection> map_time_mcells;
     for (int i=start_num;i!=end_num+1;i++){
       WCP::GeomCellMap cell_wires_map = lowmemtiling[i]->get_cell_wires_map();

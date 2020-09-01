@@ -1832,8 +1832,8 @@ if(beamspill || beam==-1){
   // }
   // std::cout << nc_mcells << std::endl;
   // label merge cells according to connectivities, going through clusters ..
-  std::map<const GeomCell*, GeomCellSelection> front_cell_map;
-  std::map<const GeomCell*, GeomCellSelection> back_cell_map;
+  std::map<const GeomCell*, GeomCellSelection, WCP::GeomCellComparep> front_cell_map;
+  std::map<const GeomCell*, GeomCellSelection, WCP::GeomCellComparep> back_cell_map;
   for (auto it = cluster_set.begin();it!=cluster_set.end();it++){
     (*it)->Form_maps(2, front_cell_map,back_cell_map);
   }
@@ -1863,7 +1863,7 @@ if(beamspill || beam==-1){
     chargesolver[i]->L1_resolve(9,3);
   }
 
-  std::set<SlimMergeGeomCell*> potential_good_mcells, good_mcells;
+  std::set<SlimMergeGeomCell*, WCP::GeomCellComparep> potential_good_mcells, good_mcells;
   for (auto it = front_cell_map.begin(); it!=front_cell_map.end();it++){
     SlimMergeGeomCell *mcell1 = (SlimMergeGeomCell*) it->first;
     int time_slice1 = mcell1->GetTimeSlice();
@@ -1911,7 +1911,7 @@ if(beamspill || beam==-1){
   
   // removel absolute can be removed ...
   // completely overlapped with the good three-wire-cells ... 
-  std::set<SlimMergeGeomCell*> potential_bad_mcells;
+  std::set<SlimMergeGeomCell*, WCP::GeomCellComparep> potential_bad_mcells;
   if (no_dead_channel!=1){
     for (int i=start_num; i!=end_num+1;i++){
       GeomCellSelection mcells = lowmemtiling[i]->local_deghosting(potential_good_mcells,good_mcells,false);
@@ -2849,7 +2849,7 @@ if(beamspill || beam==-1){
      }
 
 
-     std::map<SlimMergeGeomCell*, double> map_mcell_charge;
+     std::map<SlimMergeGeomCell*, double, WCP::GeomCellComparep> map_mcell_charge;
      for (auto it = potential_good_mcells.begin(); it!=potential_good_mcells.end();it++){
        map_mcell_charge[*it] = chargesolver[(*it)->GetTimeSlice()]->get_mcell_charge(*it);
      }

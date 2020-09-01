@@ -28,6 +28,14 @@ int main(int argc, char* argv[])
   if((triggerbits>>11) & 1U) { lowerwindow=3.1875; upperwindow=4.96876;} // bnb 
   if((triggerbits>>9) & 1U) { lowerwindow=3.5625; upperwindow=5.34376; } //extbnb 
 
+
+  float energy_nu = 0;
+  TTree *T_kine = (TTree*)file1->Get("T_kine");
+  if (T_kine !=0){
+    T_kine->SetBranchAddress("kine_reco_Enu",&energy_nu);
+    T_kine->GetEntry(0);
+  }
+  
   TTree *T_match = (TTree*)file1->Get("T_match");
   Int_t tpc_cluster_id;
   Int_t event_type;
@@ -50,7 +58,7 @@ int main(int argc, char* argv[])
 
     
     
-    std::cout << runNo << "_" << subRunNo << "_" << eventNo << " " << flash_id << " " << tpc_cluster_id << " " << flash_time << " " << event_type << " " << flag_cosmic << " " << flag_numu << " " << flag_nc << " " << flag_long_muon << " " << flag_nue <<  std::endl;
+    std::cout << runNo << "_" << subRunNo << "_" << eventNo << " " << flash_id << " " << tpc_cluster_id << " " << flash_time << " " << event_type << " " << flag_cosmic << " " << flag_numu << " " << flag_nc << " " << flag_long_muon << " " << flag_nue <<  " " << energy_nu << std::endl;
    
   }
 }
