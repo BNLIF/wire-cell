@@ -687,7 +687,8 @@ int main(int argc, char* argv[])
   //std::map<PR3DCluster*,std::vector<std::pair<PR3DCluster*,double>>> group_clusters = WCP2dToy::Clustering_jump_gap_cosmics(live_clusters, dead_clusters,dead_u_index, dead_v_index, dead_w_index, global_point_cloud, ct_point_cloud);
   //cout << em("Clustering to jump gap in cosmics") << std::endl;
   
-  std::map<PR3DCluster*,std::vector<std::pair<PR3DCluster*,double>>> group_clusters;
+
+  map_cluster_cluster_vec group_clusters;
   PR3DCluster* entire_cluster = live_clusters.at(0);
   std::vector<std::pair<PR3DCluster*,double> > temp_pair_vec;
   group_clusters.insert( std::make_pair(entire_cluster, temp_pair_vec) );

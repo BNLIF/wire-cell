@@ -673,7 +673,7 @@ int main(int argc, char* argv[])
   // WCP2dToy::Clustering_live_dead(live_clusters, dead_clusters);
   // cerr << em("Clustering live and dead clusters") << std::endl;
   
-  std::map<PR3DCluster*,std::vector<std::pair<PR3DCluster*,double>>> group_clusters = WCP2dToy::Clustering_jump_gap_cosmics(live_clusters, dead_clusters,dead_u_index, dead_v_index, dead_w_index, global_point_cloud, ct_point_cloud);
+  map_cluster_cluster_vec  group_clusters = WCP2dToy::Clustering_jump_gap_cosmics(live_clusters, dead_clusters,dead_u_index, dead_v_index, dead_w_index, global_point_cloud, ct_point_cloud);
   cout << em("Clustering to jump gap in cosmics") << std::endl;
   
   // processing light information
@@ -1004,6 +1004,9 @@ int main(int argc, char* argv[])
          LM_type.push_back(_LM_type);
      }
      /* Neutrino selection block3 end*/
+
+     if (flash_id !=-1)
+       std::cout << flash_id << " " << ncluster << " " << group_clusters.size() << " " << event_type << std::endl;
      
      T_match->Fill();
    }
