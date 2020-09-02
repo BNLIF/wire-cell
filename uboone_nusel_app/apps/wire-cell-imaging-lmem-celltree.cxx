@@ -238,6 +238,8 @@ int main(int argc, char* argv[])
   int eve_num = atoi(argv[3]);
   int nrebin = 4;
 
+  int slim3dcluster_id = 0;
+  
   TPCParams& mp = Singleton<TPCParams>::Instance();
   
   double pitch_u = gds.pitch(WirePlaneType_t(0));
@@ -1139,7 +1141,7 @@ if(beamspill || beam==-1){
     std::vector<int>::size_type i;
     for (i=0;i!=component.size(); ++i){
       if (cluster_vec.at(component.at(i))==0){
-  	Slim3DCluster *cluster = new Slim3DCluster(*all_mcells.at(i));
+  	Slim3DCluster *cluster = new Slim3DCluster(slim3dcluster_id,*all_mcells.at(i)); slim3dcluster_id++;
   	cluster_vec.at(component.at(i)) = cluster;
       }else{
   	cluster_vec.at(component.at(i))->DirectAddCell(*all_mcells.at(i));
@@ -1267,9 +1269,9 @@ if(beamspill || beam==-1){
   int nmcell_deleted = 0;
   int nmcell_before = 0, nmcell_after = 0;
   
-  std::map<Projected2DCluster*, std::vector<Slim3DCluster*>> u_2D_3D_clus_map;
-  std::map<Projected2DCluster*, std::vector<Slim3DCluster*>> v_2D_3D_clus_map;
-  std::map<Projected2DCluster*, std::vector<Slim3DCluster*>> w_2D_3D_clus_map;
+  std::map<Projected2DCluster*, std::vector<Slim3DCluster*>, Projected2DClusterComparep> u_2D_3D_clus_map;
+  std::map<Projected2DCluster*, std::vector<Slim3DCluster*>, Projected2DClusterComparep> v_2D_3D_clus_map;
+  std::map<Projected2DCluster*, std::vector<Slim3DCluster*>, Projected2DClusterComparep> w_2D_3D_clus_map;
 
     
   if (no_dead_channel!=1){
@@ -1974,7 +1976,7 @@ if(beamspill || beam==-1){
     std::vector<int>::size_type i;
     for (i=0;i!=component.size(); ++i){
       if (cluster_vec.at(component.at(i))==0){
-  	Slim3DCluster *cluster = new Slim3DCluster(*all_mcells.at(i));
+  	Slim3DCluster *cluster = new Slim3DCluster(slim3dcluster_id, *all_mcells.at(i)); slim3dcluster_id++;
   	cluster_vec.at(component.at(i)) = cluster;
       }else{
   	cluster_vec.at(component.at(i))->DirectAddCell(*all_mcells.at(i));
@@ -1986,6 +1988,7 @@ if(beamspill || beam==-1){
       num_mcells += (*it)->get_allcell().size();
     }
 
+    //    std::cout << num_mcells << " " << all_mcells.size() << " " << num1 << " " << cluster_vec.size() << std::endl;
     // std::cout << num_mcells << " " << all_mcells.size() << std::endl;
     
     std::copy(cluster_vec.begin(), cluster_vec.end(), std::inserter(cluster_set, cluster_set.end()));
@@ -2055,7 +2058,7 @@ if(beamspill || beam==-1){
     std::vector<int>::size_type i;
     for (i=0;i!=component.size(); ++i){
       if (cluster_vec.at(component.at(i))==0){
-  	Slim3DCluster *cluster = new Slim3DCluster(*all_mcells.at(i));
+  	Slim3DCluster *cluster = new Slim3DCluster(slim3dcluster_id, *all_mcells.at(i)); slim3dcluster_id++;
   	cluster_vec.at(component.at(i)) = cluster;
       }else{
   	cluster_vec.at(component.at(i))->DirectAddCell(*all_mcells.at(i));
@@ -2067,6 +2070,7 @@ if(beamspill || beam==-1){
       num_mcells += (*it)->get_allcell().size();
     }
 
+    //    std::cout << num_mcells << " " << all_mcells.size() << " " << num1 << " " << cluster_vec.size() << std::endl;
     // std::cout << num_mcells << " " << all_mcells.size() << std::endl;
     
     std::copy(cluster_vec.begin(), cluster_vec.end(), std::inserter(cluster_set, cluster_set.end()));
@@ -2135,7 +2139,7 @@ if(beamspill || beam==-1){
     std::vector<int>::size_type i;
     for (i=0;i!=component.size(); ++i){
       if (cluster_vec.at(component.at(i))==0){
-  	Slim3DCluster *cluster = new Slim3DCluster(*all_mcells.at(i));
+  	Slim3DCluster *cluster = new Slim3DCluster(slim3dcluster_id, *all_mcells.at(i)); slim3dcluster_id++;
   	cluster_vec.at(component.at(i)) = cluster;
       }else{
   	cluster_vec.at(component.at(i))->DirectAddCell(*all_mcells.at(i));
@@ -2147,6 +2151,7 @@ if(beamspill || beam==-1){
       num_mcells += (*it)->get_allcell().size();
     }
 
+    //    std::cout << num_mcells << " " << all_mcells.size() << " " << num1 << " " << cluster_vec.size() << std::endl;
     // std::cout << num_mcells << " " << all_mcells.size() << std::endl;
     
     std::copy(cluster_vec.begin(), cluster_vec.end(), std::inserter(cluster_set, cluster_set.end()));
@@ -2215,7 +2220,7 @@ if(beamspill || beam==-1){
     std::vector<int>::size_type i;
     for (i=0;i!=component.size(); ++i){
       if (cluster_vec.at(component.at(i))==0){
-  	Slim3DCluster *cluster = new Slim3DCluster(*all_mcells.at(i));
+  	Slim3DCluster *cluster = new Slim3DCluster(slim3dcluster_id, *all_mcells.at(i)); slim3dcluster_id++;
   	cluster_vec.at(component.at(i)) = cluster;
       }else{
   	cluster_vec.at(component.at(i))->DirectAddCell(*all_mcells.at(i));
@@ -2227,7 +2232,7 @@ if(beamspill || beam==-1){
       num_mcells += (*it)->get_allcell().size();
     }
 
-    // std::cout << num_mcells << " " << all_mcells.size() << std::endl;
+    // std::cout << num_mcells << " " << all_mcells.size() << " " << num1 << " " << cluster_vec.size() << std::endl;
     
     std::copy(cluster_vec.begin(), cluster_vec.end(), std::inserter(cluster_set, cluster_set.end()));
   }
@@ -3366,7 +3371,7 @@ std::cout << "# of good mcell: " << good_mcells.size() << std::endl;
     std::vector<int>::size_type i;
     for (i=0;i!=component.size(); ++i){
       if (cluster_vec.at(component.at(i))==0){
-  	Slim3DCluster *cluster = new Slim3DCluster(*all_mcells.at(i));
+  	Slim3DCluster *cluster = new Slim3DCluster(slim3dcluster_id,*all_mcells.at(i)); slim3dcluster_id++;
   	cluster_vec.at(component.at(i)) = cluster;
       }else{
   	cluster_vec.at(component.at(i))->DirectAddCell(*all_mcells.at(i));
@@ -3553,7 +3558,7 @@ std::cout << "# of good mcell: " << good_mcells.size() << std::endl;
       GeomCellSelection& allmcell = lowmemtiling[i]->get_two_bad_wire_cells();
       if (lowmemtiling[i]->get_regen_two_bad_wire_cells() || dead_cluster_set.empty()){
 	if (dead_cluster_set.empty()){
-	  Slim3DDeadCluster *cluster = new Slim3DDeadCluster(*((SlimMergeGeomCell*)allmcell[0]),i);
+	  Slim3DDeadCluster *cluster = new Slim3DDeadCluster(slim3dcluster_id, *((SlimMergeGeomCell*)allmcell[0]),i); slim3dcluster_id++;
 	  dead_cluster_set.insert(cluster);
 	}
 	for (int j=0;j<allmcell.size();j++){
@@ -3582,7 +3587,7 @@ std::cout << "# of good mcell: " << good_mcells.size() << std::endl;
 	  }
 	  
 	  if (flag==0){
-	    Slim3DDeadCluster *cluster = new Slim3DDeadCluster(*((SlimMergeGeomCell*)allmcell[j]),i);
+	    Slim3DDeadCluster *cluster = new Slim3DDeadCluster(slim3dcluster_id, *((SlimMergeGeomCell*)allmcell[j]),i); slim3dcluster_id++;
 	    dead_cluster_set.insert(cluster);
 	  }
 	}

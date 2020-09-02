@@ -191,7 +191,8 @@ int main(int argc, char* argv[])
   int max_events = 100;
   int eve_num = 0;
   int nrebin = 4;
-
+  int slim3dcluster_id = 0;
+  
   TPCParams& mp = Singleton<TPCParams>::Instance();
   
   double pitch_u = gds.pitch(WirePlaneType_t(0));
@@ -890,7 +891,7 @@ int main(int argc, char* argv[])
     if (cluster_set.empty()){
       // if cluster is empty, just insert all the mcell, each as a cluster
       for (int j=0;j!=allmcell.size();j++){
-	Slim3DCluster *cluster = new Slim3DCluster(*((SlimMergeGeomCell*)allmcell[j]));
+	Slim3DCluster *cluster = new Slim3DCluster(slim3dcluster_id,*((SlimMergeGeomCell*)allmcell[j])); slim3dcluster_id++;
 	cluster_set.insert(cluster);
       }
     }else{
@@ -919,7 +920,7 @@ int main(int argc, char* argv[])
 	}
 	
 	if (flag==0){
-	  Slim3DCluster *cluster = new Slim3DCluster(*((SlimMergeGeomCell*)allmcell[j]));
+	  Slim3DCluster *cluster = new Slim3DCluster(slim3dcluster_id,*((SlimMergeGeomCell*)allmcell[j])); slim3dcluster_id++;
 	  cluster_set.insert(cluster);
 	}
       }
@@ -1623,7 +1624,7 @@ int main(int argc, char* argv[])
       if (temp_cluster_set.empty()){
 	// if cluster is empty, just insert all the mcell, each as a cluster
 	for (int j=0;j!=allmcell.size();j++){
-	  Slim3DCluster *cluster = new Slim3DCluster(*((SlimMergeGeomCell*)allmcell[j]));
+	  Slim3DCluster *cluster = new Slim3DCluster(slim3dcluster_id, *((SlimMergeGeomCell*)allmcell[j])); slim3dcluster_id++;
 	  temp_cluster_set.insert(cluster);
 	}
       }else{
@@ -1654,7 +1655,7 @@ int main(int argc, char* argv[])
 	  }
 	  
 	  if (flag==0){
-	    Slim3DCluster *cluster = new Slim3DCluster(*((SlimMergeGeomCell*)allmcell[j]));
+	    Slim3DCluster *cluster = new Slim3DCluster(slim3dcluster_id, *((SlimMergeGeomCell*)allmcell[j])); slim3dcluster_id++;
 	    temp_cluster_set.insert(cluster);
 	  }
 	}
@@ -1703,7 +1704,7 @@ int main(int argc, char* argv[])
       if (temp_cluster_set.empty()){
 	// if cluster is empty, just insert all the mcell, each as a cluster
 	for (int j=0;j!=allmcell.size();j++){
-	  Slim3DCluster *cluster = new Slim3DCluster(*((SlimMergeGeomCell*)allmcell[j]));
+	  Slim3DCluster *cluster = new Slim3DCluster(slim3dcluster_id, *((SlimMergeGeomCell*)allmcell[j])); slim3dcluster_id++;
 	  temp_cluster_set.insert(cluster);
 	}
       }else{
@@ -1734,7 +1735,7 @@ int main(int argc, char* argv[])
 	  }
 	  
 	  if (flag==0){
-	    Slim3DCluster *cluster = new Slim3DCluster(*((SlimMergeGeomCell*)allmcell[j]));
+	    Slim3DCluster *cluster = new Slim3DCluster(slim3dcluster_id, *((SlimMergeGeomCell*)allmcell[j])); slim3dcluster_id++;
 	    temp_cluster_set.insert(cluster);
 	  }
 	}
@@ -1784,7 +1785,7 @@ int main(int argc, char* argv[])
       if (temp_cluster_set.empty()){
 	// if cluster is empty, just insert all the mcell, each as a cluster
 	for (int j=0;j!=allmcell.size();j++){
-	  Slim3DCluster *cluster = new Slim3DCluster(*((SlimMergeGeomCell*)allmcell[j]));
+	  Slim3DCluster *cluster = new Slim3DCluster(slim3dcluster_id, *((SlimMergeGeomCell*)allmcell[j])); slim3dcluster_id++;
 	  temp_cluster_set.insert(cluster);
 	}
       }else{
@@ -1815,7 +1816,7 @@ int main(int argc, char* argv[])
 	  }
 	  
 	  if (flag==0){
-	    Slim3DCluster *cluster = new Slim3DCluster(*((SlimMergeGeomCell*)allmcell[j]));
+	    Slim3DCluster *cluster = new Slim3DCluster(slim3dcluster_id, *((SlimMergeGeomCell*)allmcell[j])); slim3dcluster_id++;
 	    temp_cluster_set.insert(cluster);
 	  }
 	}
@@ -1866,7 +1867,7 @@ int main(int argc, char* argv[])
       if (temp_cluster_set.empty()){
 	// if cluster is empty, just insert all the mcell, each as a cluster
 	for (int j=0;j!=allmcell.size();j++){
-	  Slim3DCluster *cluster = new Slim3DCluster(*((SlimMergeGeomCell*)allmcell[j]));
+	  Slim3DCluster *cluster = new Slim3DCluster(slim3dcluster_id, *((SlimMergeGeomCell*)allmcell[j])); slim3dcluster_id++;
 	  temp_cluster_set.insert(cluster);
 	}
       }else{
@@ -1897,7 +1898,7 @@ int main(int argc, char* argv[])
 	  }
 	  
 	  if (flag==0){
-	    Slim3DCluster *cluster = new Slim3DCluster(*((SlimMergeGeomCell*)allmcell[j]));
+	    Slim3DCluster *cluster = new Slim3DCluster(slim3dcluster_id, *((SlimMergeGeomCell*)allmcell[j])); slim3dcluster_id ++;
 	    temp_cluster_set.insert(cluster);
 	  }
 	}
@@ -2581,7 +2582,7 @@ int main(int argc, char* argv[])
        if (temp_cluster_set.empty()){
 	 // if cluster is empty, just insert all the mcell, each as a cluster
 	 for (int j=0;j!=allmcell.size();j++){
-	   Slim3DCluster *cluster = new Slim3DCluster(*((SlimMergeGeomCell*)allmcell[j]));
+	   Slim3DCluster *cluster = new Slim3DCluster(slim3dcluster_id, *((SlimMergeGeomCell*)allmcell[j])); slim3dcluster_id++;
 	   temp_cluster_set.insert(cluster);
 	 }
        }else{
@@ -2611,7 +2612,7 @@ int main(int argc, char* argv[])
 	   }
 	   
 	   if (flag==0){
-	     Slim3DCluster *cluster = new Slim3DCluster(*((SlimMergeGeomCell*)allmcell[j]));
+	     Slim3DCluster *cluster = new Slim3DCluster(slim3dcluster_id, *((SlimMergeGeomCell*)allmcell[j])); slim3dcluster_id ++;
 	     temp_cluster_set.insert(cluster);
 	   }
 	 }
@@ -2693,7 +2694,7 @@ int main(int argc, char* argv[])
     GeomCellSelection& allmcell = lowmemtiling[i]->get_two_bad_wire_cells();
     if (lowmemtiling[i]->get_regen_two_bad_wire_cells() || dead_cluster_set.empty()){
       if (dead_region && dead_cluster_set.empty()){
-	Slim3DDeadCluster *cluster = new Slim3DDeadCluster(*((SlimMergeGeomCell*)allmcell[0]),i);
+	Slim3DDeadCluster *cluster = new Slim3DDeadCluster(slim3dcluster_id, *((SlimMergeGeomCell*)allmcell[0]),i); slim3dcluster_id ++;
 	dead_cluster_set.insert(cluster);
       }
       for (int j=0;j<allmcell.size();j++){
@@ -2722,7 +2723,7 @@ int main(int argc, char* argv[])
 	}
 	
 	if (flag==0){
-	  Slim3DDeadCluster *cluster = new Slim3DDeadCluster(*((SlimMergeGeomCell*)allmcell[j]),i);
+	  Slim3DDeadCluster *cluster = new Slim3DDeadCluster(slim3dcluster_id, *((SlimMergeGeomCell*)allmcell[j]),i); slim3dcluster_id++;
 	  dead_cluster_set.insert(cluster);
 	}
       }
