@@ -1090,8 +1090,12 @@ if(beamspill || beam==-1){
     for (int i=start_num;i!=end_num+1;i++){
       WCP::GeomCellMap cell_wires_map = lowmemtiling[i]->get_cell_wires_map();
       SMGCSelection temp_mcells;
+
       for (auto it=cell_wires_map.begin(); it!= cell_wires_map.end(); it++){
   	SlimMergeGeomCell *mcell = (SlimMergeGeomCell*)it->first;
+
+	//	std::cout << i << " kkk " << mcell->ident() << " " << mcell->GetIdent() << " " << mcell->get_uwires().size() << " " << mcell->get_vwires().size() << " " << mcell->get_wwires().size() << std::endl;
+	
   	map_mcell_index[mcell] = all_mcells.size();
   	all_mcells.push_back(mcell);
   	temp_mcells.push_back(mcell);
@@ -1159,75 +1163,6 @@ if(beamspill || beam==-1){
   }
 
 
-  // //old clustering alg.
-  // for (int i=start_num;i!=end_num+1;i++){
-      
-  //   // form clusters
-  //   WCP::GeomCellMap cell_wires_map = lowmemtiling[i]->get_cell_wires_map();
-  //   GeomCellSelection allmcell;
-  //   for (auto it=cell_wires_map.begin(); it!= cell_wires_map.end(); it++){
-  //     SlimMergeGeomCell *mcell = (SlimMergeGeomCell*)it->first;
-      
-  //     allmcell.push_back(mcell);
-  //   }
-    
-  //   if (cluster_set.empty()){
-  //     // if cluster is empty, just insert all the mcell, each as a cluster
-  //     for (int j=0;j!=allmcell.size();j++){
-  // 	Slim3DCluster *cluster = new Slim3DCluster(*((SlimMergeGeomCell*)allmcell[j]));
-  // 	cluster_set.insert(cluster);
-  //     }
-  //   }else{
-  //     for (int j=0;j!=allmcell.size();j++){
-  // 	int flag = 0;
-  // 	int flag_save = 0;
-  // 	Slim3DCluster *cluster_save = 0;
-  // 	cluster_delset.clear();
-
-  // 	// loop through merged cell
-  // 	for (auto it = cluster_set.begin();it!=cluster_set.end();it++){
-  // 	  //loop through clusters
-	  
-  // 	  flag += (*it)->AddCell(*((SlimMergeGeomCell*)allmcell[j]),2);
-  // 	  if (flag==1 && flag != flag_save){
-  // 	    cluster_save = *it;
-  // 	  }else if (flag>1 && flag != flag_save){
-  // 	    cluster_save->MergeCluster(*(*it));
-  // 	    cluster_delset.insert(*it);
-  // 	  }
-  // 	  flag_save = flag;
-  	  
-  // 	}
-	
-  // 	for (auto it = cluster_delset.begin();it!=cluster_delset.end();it++){
-  // 	  cluster_set.erase(*it);
-  // 	  delete (*it);
-  // 	}
-	
-  // 	if (flag==0){
-  // 	  Slim3DCluster *cluster = new Slim3DCluster(*((SlimMergeGeomCell*)allmcell[j]));
-  // 	  cluster_set.insert(cluster);
-  // 	}
-  //     }
-
-      
-  //   }
-    
-  //   for (auto it = cluster_set.begin();it!=cluster_set.end();it++){
-  //     std::set<SlimMergeGeomCell*>&  abc = ((*it)->get_ordercell()).back();
-  //     if (i - (*abc.begin())->GetTimeSlice()>1){
-  // 	cluster_set_save.insert(*it);
-  // 	cluster_set.erase(*it);
-  //     }
-  //   }
-  // }
-  // for (auto it = cluster_set.begin();it!=cluster_set.end();it++){
-  //   cluster_set_save.insert(*it);
-  // }
-  // cluster_set = cluster_set_save;
-  // cluster_set_save.clear();
-
-  // // old clustering alg. 
 
   if (no_dead_channel==1){
     int temp_nmcell_before = 0;
@@ -1241,8 +1176,9 @@ if(beamspill || beam==-1){
   }
   cout << em("finish initial clustering") << " " << cluster_set.size() << endl;
 
+  std::set<SlimMergeGeomCell*, WCP::GeomCellComparep> potential_good_mcells, good_mcells;
   
-
+  
   Int_t cluster1_ID, cluster2_ID;
   Int_t plane_no;
   Int_t cluster1_wire, cluster2_wire;
@@ -1273,7 +1209,8 @@ if(beamspill || beam==-1){
   std::map<Projected2DCluster*, std::vector<Slim3DCluster*>, Projected2DClusterComparep> v_2D_3D_clus_map;
   std::map<Projected2DCluster*, std::vector<Slim3DCluster*>, Projected2DClusterComparep> w_2D_3D_clus_map;
 
-    
+
+  
   if (no_dead_channel!=1){
 
     // first round only deal with the absolute match ... 
@@ -1421,7 +1358,7 @@ if(beamspill || beam==-1){
     // T_2Dcluster->Branch("common_charge",&common_charge,"common_charge/F");
     // T_2Dcluster->Branch("value",&value,"value/I");
     
-  
+ 
     std::cout << cluster_set.size() << " " << u_2D_3D_clus_map.size() << " " << v_2D_3D_clus_map.size() << " " << w_2D_3D_clus_map.size() << std::endl;
     {
       std::vector<Projected2DCluster*> to_be_removed;
@@ -1695,6 +1632,7 @@ if(beamspill || beam==-1){
     
     cout << em("finish 1st round of deghosting") << endl;
   }
+ 
   
   for (int i=start_num;i!=end_num+1;i++){
     if (i%400==0)
@@ -1730,6 +1668,7 @@ if(beamspill || beam==-1){
   }
   // cout << em("finish 1st round of solving") << endl;
 
+  
   // Int_t nc_mcells = 0;
   // for (int i=start_num; i!=end_num+1;i++){
   //   GeomCellMap cell_wires_map = lowmemtiling[i]->get_cell_wires_map();
@@ -1747,7 +1686,7 @@ if(beamspill || beam==-1){
   for (auto it = cluster_set.begin();it!=cluster_set.end();it++){
     (*it)->Form_maps(2, front_cell_map,back_cell_map);
   }
-  // std::cout << front_cell_map.size() << " " << back_cell_map.size() << std::endl;
+  //  std::cout << front_cell_map.size() << " Xin " << back_cell_map.size() << std::endl;
 
   // repeat solving by changing the weight // getting weight ...
 
@@ -1772,8 +1711,8 @@ if(beamspill || beam==-1){
       std::cout << "1st Solving with connectivity: " << i << std::endl;
     chargesolver[i]->L1_resolve(9,3);
   }
-
-  std::set<SlimMergeGeomCell*, WCP::GeomCellComparep> potential_good_mcells, good_mcells;
+  
+  
   for (auto it = front_cell_map.begin(); it!=front_cell_map.end();it++){
     SlimMergeGeomCell *mcell1 = (SlimMergeGeomCell*) it->first;
     int time_slice1 = mcell1->GetTimeSlice();
@@ -1824,10 +1763,14 @@ if(beamspill || beam==-1){
   std::set<SlimMergeGeomCell*, WCP::GeomCellComparep> potential_bad_mcells;
   if (no_dead_channel!=1){
     for (int i=start_num; i!=end_num+1;i++){
+
+     
       GeomCellSelection mcells = lowmemtiling[i]->local_deghosting(potential_good_mcells,good_mcells,false);
       for (auto it = mcells.begin(); it!=mcells.end(); it++){
-	potential_bad_mcells.insert((SlimMergeGeomCell*)(*it));
+       	potential_bad_mcells.insert((SlimMergeGeomCell*)(*it));
       }
+
+      
       //  if (i==1681){
       //   //draw ...
       //   sds.jump(i);
@@ -1901,6 +1844,7 @@ if(beamspill || beam==-1){
     // std::cout << nc_mcells << std::endl;
     cout << em("finish 1st round of solving with connectivities") << endl;
   }
+
   
   // delete clusters here ... 
   for (auto it = cluster_set.begin();it!=cluster_set.end();it++){
@@ -2238,347 +2182,12 @@ if(beamspill || beam==-1){
   }
 
 
-  //    // old alg
-  // {
-  //   Slim3DClusterSet temp_cluster_set, temp_cluster_delset, temp_cluster_set_save;
-  //   // 2nd round of clustering
-  //   for (int i=start_num; i!=end_num+1;i++){
-  //     // if (i%400==0)
-  //     //   std::cout << "2nd Clustering: " << i << std::endl;
-  //     // form clusters
-  //     WCP::GeomCellMap& cell_wires_map = lowmemtiling[i]->get_cell_wires_map();
-  //     GeomCellSelection allmcell;
-  //     for (auto it=cell_wires_map.begin(); it!= cell_wires_map.end(); it++){
-  // 	SlimMergeGeomCell *mcell = (SlimMergeGeomCell*)it->first;
 
-	
-	
-  // 	if (potential_good_mcells.find(mcell)!=potential_good_mcells.end() && potential_bad_mcells.find(mcell)==potential_bad_mcells.end()){
-  // 	  // if (i==2387){
-  // 	  //   int this_time_slice = mcell->GetTimeSlice();
-  // 	  //   GeomWireSelection uwires = mcell->get_uwires();
-  // 	  //   GeomWireSelection vwires = mcell->get_vwires();
-  // 	  //   GeomWireSelection wwires = mcell->get_wwires();
-  // 	  //   std::cout << this_time_slice << " " << uwires.front()->index() << " " << uwires.back()->index() << " " << vwires.front()->index()+2400 << " " << vwires.back()->index()+2400 << " " << wwires.front()->index()+4800 << " " << wwires.back()->index()+4800 << " "  << std::endl;
-  // 	  // }
-  // 	  allmcell.push_back(mcell);
-  // 	}
-  //     }
-  //     if (temp_cluster_set.empty()){
-  // 	// if cluster is empty, just insert all the mcell, each as a cluster
-  // 	for (int j=0;j!=allmcell.size();j++){
-  // 	  Slim3DCluster *cluster = new Slim3DCluster(*((SlimMergeGeomCell*)allmcell[j]));
-  // 	  temp_cluster_set.insert(cluster);
-  // 	}
-  //     }else{
-  // 	for (int j=0;j!=allmcell.size();j++){
-  // 	  int flag = 0;
-  // 	  int flag_save = 0;
-  // 	  Slim3DCluster *cluster_save = 0;
-  // 	  temp_cluster_delset.clear();
-	  
-  // 	  // loop through merged cell
-  // 	  for (auto it = temp_cluster_set.begin();it!=temp_cluster_set.end();it++){
-  // 	    //loop through clusters
-	    
-  // 	    flag += (*it)->AddCell(*((SlimMergeGeomCell*)allmcell[j]),2);
-  // 	    if (flag==1 && flag != flag_save){
-  // 	      cluster_save = *it;
-  // 	    }else if (flag>1 && flag != flag_save){
-  // 	      cluster_save->MergeCluster(*(*it));
-  // 	      temp_cluster_delset.insert(*it);
-  // 	    }
-  // 	    flag_save = flag;
-	    
-  // 	  }
-	  
-  // 	  for (auto it = temp_cluster_delset.begin();it!=temp_cluster_delset.end();it++){
-  // 	    temp_cluster_set.erase(*it);
-  // 	    delete (*it);
-  // 	  }
-	  
-  // 	  if (flag==0){
-  // 	    Slim3DCluster *cluster = new Slim3DCluster(*((SlimMergeGeomCell*)allmcell[j]));
-  // 	    temp_cluster_set.insert(cluster);
-  // 	  }
-  // 	}
-	
-  // 	// int ncount_mcell_cluster = 0;
-  // 	// for (auto it = temp_cluster_set.begin();it!=temp_cluster_set.end();it++){
-  // 	// 	ncount_mcell_cluster += (*it)->get_allcell().size();
-  // 	// }
-  // 	// ncount_mcell += allmcell.size();
-  // 	// cout << i << " " << allmcell.size()  << " " << temp_cluster_set.size()  << endl;
-  //     }
-  //     for (auto it = temp_cluster_set.begin();it!=temp_cluster_set.end();it++){
-  // 	std::set<SlimMergeGeomCell*>&  abc = ((*it)->get_ordercell()).back();
-  // 	if (i - (*abc.begin())->GetTimeSlice()>1){
-  // 	  temp_cluster_set_save.insert(*it);
-  // 	  temp_cluster_set.erase(*it);
-  // 	}
-  //     }
-  //   }
-
-  //   for (auto it = temp_cluster_set.begin();it!=temp_cluster_set.end();it++){
-  //     temp_cluster_set_save.insert(*it);
-  //   }
-  //   temp_cluster_set = temp_cluster_set_save;
-  //   temp_cluster_set_save.clear();
-    
-  //   for (auto it = temp_cluster_set.begin(); it!= temp_cluster_set.end(); it++){
-  //     cluster_set.insert(*it);
-  //   }
-  // }
-
-  // {
-  //   Slim3DClusterSet temp_cluster_set, temp_cluster_delset, temp_cluster_set_save;
-  //   for (int i=start_num; i!=end_num+1;i++){
-  //     //    if (i%400==0)
-  //     // std::cout << "2nd Clustering (bad cells): " << i << std::endl;
-      
-  //     // form clusters
-  //     WCP::GeomCellMap& cell_wires_map = lowmemtiling[i]->get_cell_wires_map();
-  //     GeomCellSelection allmcell;
-  //     for (auto it=cell_wires_map.begin(); it!= cell_wires_map.end(); it++){
-  // 	SlimMergeGeomCell *mcell = (SlimMergeGeomCell*)it->first;
-  // 	if (potential_good_mcells.find(mcell)!=potential_good_mcells.end() && potential_bad_mcells.find(mcell)!=potential_bad_mcells.end())
-  // 	  allmcell.push_back(mcell);
-  //     }
-  //     if (temp_cluster_set.empty()){
-  // 	// if cluster is empty, just insert all the mcell, each as a cluster
-  // 	for (int j=0;j!=allmcell.size();j++){
-  // 	  Slim3DCluster *cluster = new Slim3DCluster(*((SlimMergeGeomCell*)allmcell[j]));
-  // 	  temp_cluster_set.insert(cluster);
-  // 	}
-  //     }else{
-  // 	for (int j=0;j!=allmcell.size();j++){
-  // 	  int flag = 0;
-  // 	  int flag_save = 0;
-  // 	  Slim3DCluster *cluster_save = 0;
-  // 	  temp_cluster_delset.clear();
-	  
-  // 	  // loop through merged cell
-  // 	  for (auto it = temp_cluster_set.begin();it!=temp_cluster_set.end();it++){
-  // 	    //loop through clusters
-	    
-  // 	    flag += (*it)->AddCell(*((SlimMergeGeomCell*)allmcell[j]),2);
-  // 	    if (flag==1 && flag != flag_save){
-  // 	      cluster_save = *it;
-  // 	    }else if (flag>1 && flag != flag_save){
-  // 	      cluster_save->MergeCluster(*(*it));
-  // 	      temp_cluster_delset.insert(*it);
-  // 	    }
-  // 	    flag_save = flag;
-	    
-  // 	  }
-	  
-  // 	  for (auto it = temp_cluster_delset.begin();it!=temp_cluster_delset.end();it++){
-  // 	    temp_cluster_set.erase(*it);
-  // 	    delete (*it);
-  // 	  }
-	  
-  // 	  if (flag==0){
-  // 	    Slim3DCluster *cluster = new Slim3DCluster(*((SlimMergeGeomCell*)allmcell[j]));
-  // 	    temp_cluster_set.insert(cluster);
-  // 	  }
-  // 	}
-	
-  // 	// int ncount_mcell_cluster = 0;
-  // 	// for (auto it = temp_cluster_set.begin();it!=temp_cluster_set.end();it++){
-  // 	// 	ncount_mcell_cluster += (*it)->get_allcell().size();
-  // 	// }
-  // 	// ncount_mcell += allmcell.size();
-  // 	// cout << i << " " << allmcell.size()  << " " << temp_cluster_set.size()  << endl;
-  //     }
-
-  //     for (auto it = temp_cluster_set.begin();it!=temp_cluster_set.end();it++){
-  // 	std::set<SlimMergeGeomCell*>&  abc = ((*it)->get_ordercell()).back();
-  // 	if (i - (*abc.begin())->GetTimeSlice()>1){
-  // 	  temp_cluster_set_save.insert(*it);
-  // 	  temp_cluster_set.erase(*it);
-  // 	}
-  //     }
-  //   }
-
-  //   for (auto it = temp_cluster_set.begin();it!=temp_cluster_set.end();it++){
-  //     temp_cluster_set_save.insert(*it);
-  //   }
-  //   temp_cluster_set = temp_cluster_set_save;
-  //   temp_cluster_set_save.clear();
-    
-  //   for (auto it = temp_cluster_set.begin(); it!= temp_cluster_set.end(); it++){
-  //     cluster_set.insert(*it);
-  //   }
-  // }
-
-  // {
-  //   Slim3DClusterSet temp_cluster_set, temp_cluster_delset, temp_cluster_set_save;
-  //   for (int i=start_num; i!=end_num+1;i++){
-  //     //    if (i%400==0)
-  //     // std::cout << "2nd Clustering (bad cells): " << i << std::endl;
-      
-  //     // form clusters
-  //     WCP::GeomCellMap& cell_wires_map = lowmemtiling[i]->get_cell_wires_map();
-  //     GeomCellSelection allmcell;
-  //     for (auto it=cell_wires_map.begin(); it!= cell_wires_map.end(); it++){
-  // 	SlimMergeGeomCell *mcell = (SlimMergeGeomCell*)it->first;
-  // 	if (potential_good_mcells.find(mcell)==potential_good_mcells.end() && potential_bad_mcells.find(mcell)==potential_bad_mcells.end())
-  // 	  allmcell.push_back(mcell);
-  //     }
-  //     if (temp_cluster_set.empty()){
-  // 	// if cluster is empty, just insert all the mcell, each as a cluster
-  // 	for (int j=0;j!=allmcell.size();j++){
-  // 	  Slim3DCluster *cluster = new Slim3DCluster(*((SlimMergeGeomCell*)allmcell[j]));
-  // 	  temp_cluster_set.insert(cluster);
-  // 	}
-  //     }else{
-  // 	for (int j=0;j!=allmcell.size();j++){
-  // 	  int flag = 0;
-  // 	  int flag_save = 0;
-  // 	  Slim3DCluster *cluster_save = 0;
-  // 	  temp_cluster_delset.clear();
-	  
-  // 	  // loop through merged cell
-  // 	  for (auto it = temp_cluster_set.begin();it!=temp_cluster_set.end();it++){
-  // 	    //loop through clusters
-	    
-  // 	    flag += (*it)->AddCell(*((SlimMergeGeomCell*)allmcell[j]),2);
-  // 	    if (flag==1 && flag != flag_save){
-  // 	      cluster_save = *it;
-  // 	    }else if (flag>1 && flag != flag_save){
-  // 	      cluster_save->MergeCluster(*(*it));
-  // 	      temp_cluster_delset.insert(*it);
-  // 	    }
-  // 	    flag_save = flag;
-	    
-  // 	  }
-	  
-  // 	  for (auto it = temp_cluster_delset.begin();it!=temp_cluster_delset.end();it++){
-  // 	    temp_cluster_set.erase(*it);
-  // 	    delete (*it);
-  // 	  }
-	  
-  // 	  if (flag==0){
-  // 	    Slim3DCluster *cluster = new Slim3DCluster(*((SlimMergeGeomCell*)allmcell[j]));
-  // 	    temp_cluster_set.insert(cluster);
-  // 	  }
-  // 	}
-
-  // 	// int ncount_mcell_cluster = 0;
-  // 	// for (auto it = temp_cluster_set.begin();it!=temp_cluster_set.end();it++){
-  // 	// 	ncount_mcell_cluster += (*it)->get_allcell().size();
-  // 	// }
-  // 	// ncount_mcell += allmcell.size();
-  // 	// cout << i << " " << allmcell.size()  << " " << temp_cluster_set.size()  << endl;
-  //     }
-
-  //     for (auto it = temp_cluster_set.begin();it!=temp_cluster_set.end();it++){
-  // 	std::set<SlimMergeGeomCell*>&  abc = ((*it)->get_ordercell()).back();
-  // 	if (i - (*abc.begin())->GetTimeSlice()>1){
-  // 	  temp_cluster_set_save.insert(*it);
-  // 	  temp_cluster_set.erase(*it);
-  // 	}
-  //     }
-  //   }
-
-  //   for (auto it = temp_cluster_set.begin();it!=temp_cluster_set.end();it++){
-  //     temp_cluster_set_save.insert(*it);
-  //   }
-  //   temp_cluster_set = temp_cluster_set_save;
-  //   temp_cluster_set_save.clear();
-    
-  //   for (auto it = temp_cluster_set.begin(); it!= temp_cluster_set.end(); it++){
-  //     cluster_set.insert(*it);
-  //   }
-  // }
-
-  // {
-  //   Slim3DClusterSet temp_cluster_set, temp_cluster_delset, temp_cluster_set_save;
-    
-  //   for (int i=start_num; i!=end_num+1;i++){
-  //     //    if (i%400==0)
-  //     // std::cout << "2nd Clustering (bad cells): " << i << std::endl;
-      
-  //     // form clusters
-  //     WCP::GeomCellMap& cell_wires_map = lowmemtiling[i]->get_cell_wires_map();
-  //     GeomCellSelection allmcell;
-  //     for (auto it=cell_wires_map.begin(); it!= cell_wires_map.end(); it++){
-  // 	SlimMergeGeomCell *mcell = (SlimMergeGeomCell*)it->first;
-  // 	if (potential_good_mcells.find(mcell)==potential_good_mcells.end() && potential_bad_mcells.find(mcell)!=potential_bad_mcells.end())
-  // 	  allmcell.push_back(mcell);
-  //     }
-  //     if (temp_cluster_set.empty()){
-  // 	// if cluster is empty, just insert all the mcell, each as a cluster
-  // 	for (int j=0;j!=allmcell.size();j++){
-  // 	  Slim3DCluster *cluster = new Slim3DCluster(*((SlimMergeGeomCell*)allmcell[j]));
-  // 	  temp_cluster_set.insert(cluster);
-  // 	}
-  //     }else{
-  // 	for (int j=0;j!=allmcell.size();j++){
-  // 	  int flag = 0;
-  // 	  int flag_save = 0;
-  // 	  Slim3DCluster *cluster_save = 0;
-  // 	  temp_cluster_delset.clear();
-	  
-  // 	  // loop through merged cell
-  // 	  for (auto it = temp_cluster_set.begin();it!=temp_cluster_set.end();it++){
-  // 	    //loop through clusters
-	    
-  // 	    flag += (*it)->AddCell(*((SlimMergeGeomCell*)allmcell[j]),2);
-  // 	    if (flag==1 && flag != flag_save){
-  // 	      cluster_save = *it;
-  // 	    }else if (flag>1 && flag != flag_save){
-  // 	      cluster_save->MergeCluster(*(*it));
-  // 	      temp_cluster_delset.insert(*it);
-  // 	    }
-  // 	    flag_save = flag;
-	    
-  // 	  }
-	  
-  // 	  for (auto it = temp_cluster_delset.begin();it!=temp_cluster_delset.end();it++){
-  // 	    temp_cluster_set.erase(*it);
-  // 	    delete (*it);
-  // 	  }
-	  
-  // 	  if (flag==0){
-  // 	    Slim3DCluster *cluster = new Slim3DCluster(*((SlimMergeGeomCell*)allmcell[j]));
-  // 	    temp_cluster_set.insert(cluster);
-  // 	  }
-  // 	}
-	
-  // 	// int ncount_mcell_cluster = 0;
-  // 	// for (auto it = temp_cluster_set.begin();it!=temp_cluster_set.end();it++){
-  // 	// 	ncount_mcell_cluster += (*it)->get_allcell().size();
-  // 	// }
-  // 	// ncount_mcell += allmcell.size();
-  // 	// cout << i << " " << allmcell.size()  << " " << temp_cluster_set.size()  << endl;
-  //     }
-
-  //     for (auto it = temp_cluster_set.begin();it!=temp_cluster_set.end();it++){
-  // 	std::set<SlimMergeGeomCell*>&  abc = ((*it)->get_ordercell()).back();
-  // 	if (i - (*abc.begin())->GetTimeSlice()>1){
-  // 	  temp_cluster_set_save.insert(*it);
-  // 	  temp_cluster_set.erase(*it);
-  // 	}
-  //     }
-  //   }
-
-  //   for (auto it = temp_cluster_set.begin();it!=temp_cluster_set.end();it++){
-  //     temp_cluster_set_save.insert(*it);
-  //   }
-  //   temp_cluster_set = temp_cluster_set_save;
-  //   temp_cluster_set_save.clear();
-    
-  //   for (auto it = temp_cluster_set.begin(); it!= temp_cluster_set.end(); it++){
-  //     cluster_set.insert(*it);
-  //   }
-  // }
-  // // old clustering alg. 
 
 
   cout << "Cluster #: " << cluster_set.size() << std::endl;
-  
- 
+    
+   
  
   if (no_dead_channel!=1){
     for (auto it = cluster_set.begin();it!=cluster_set.end();it++){
@@ -2824,6 +2433,7 @@ if(beamspill || beam==-1){
     
     
     std::cout << cluster_set.size() << " " << u_2D_3D_clus_map.size() << " " << v_2D_3D_clus_map.size() << " " << w_2D_3D_clus_map.size() << std::endl;
+
     
     //label the cluster ...
     for (auto it = u_2D_3D_clus_map.begin(); it!= u_2D_3D_clus_map.end(); it++){
@@ -2968,14 +2578,17 @@ if(beamspill || beam==-1){
 	      << std::endl;
     
     cout << em("finish 2nd round of clustering and deghosting") << std::endl;
+    
   }
 
+  
   for (int i=start_num;i!=end_num+1;i++){
     if (i%400==0)
       std::cout << "2nd Solving: " << i << std::endl;
     // tiling after the firs round of deghosting ... 
     lowmemtiling[i]->MergeWires();
     // create individual cells ...
+    
     //GeomCellSelection single_cells = lowmemtiling[i]->create_single_cells();
     time_slice = i;
     n_cells = lowmemtiling[i]->get_cell_wires_map().size();//get_all_cell_centers().size();
@@ -2985,6 +2598,8 @@ if(beamspill || beam==-1){
     // L1 solving
     chargesolver[i]->clear_connectivity();
     chargesolver[i]->L1_resolve(9,1);
+
+    
     
     ndirect_solved = chargesolver[i]->get_ndirect_solved();
     nL1_solved = chargesolver[i]->get_nL1_solved();
@@ -3079,7 +2694,7 @@ if(beamspill || beam==-1){
    }
    
    cout << em("finish the 2nd round of solving") << std::endl;
-   
+      
    if (no_dead_channel!=1){
      nmcell_before = 0;
      for (int i=start_num;i!=end_num+1;i++){
@@ -3387,7 +3002,7 @@ std::cout << "# of good mcell: " << good_mcells.size() << std::endl;
     
     std::copy(cluster_vec.begin(), cluster_vec.end(), std::inserter(cluster_set, cluster_set.end()));
   }
-  
+    
   
   // {
   //   Slim3DClusterSet temp_cluster_set, temp_cluster_delset;
@@ -3453,15 +3068,15 @@ std::cout << "# of good mcell: " << good_mcells.size() << std::endl;
   // }
   // // old clustering alg.
 
-    if (no_dead_channel==1){
-  nmcell_before = 0;
-  for (int i=start_num;i!=end_num+1;i++){
-    // re-establish map ...
-    lowmemtiling[i]->re_establish_maps();
-    nmcell_before += lowmemtiling[i]->get_cell_wires_map().size();
+  if (no_dead_channel==1){
+    nmcell_before = 0;
+    for (int i=start_num;i!=end_num+1;i++){
+      // re-establish map ...
+      lowmemtiling[i]->re_establish_maps();
+      nmcell_before += lowmemtiling[i]->get_cell_wires_map().size();
+    }
+    std::cout << "Cluster #: " << cluster_set.size() << " " << nmcell_before << std::endl;
   }
-  std::cout << "Cluster #: " << cluster_set.size() << " " << nmcell_before << std::endl;
- }
   // save cluster into the output file ... 
   Double_t x,y,z,q,nq;
   //save cluster
@@ -3551,7 +3166,8 @@ std::cout << "# of good mcell: " << good_mcells.size() << std::endl;
 
   
   cout << em("finish the local deghosting ... ") << std::endl;
-
+  
+  
   if (no_dead_channel!=1){
     // try to group the dead cells ...
     for (int i=start_num;i!=end_num+1;i++){

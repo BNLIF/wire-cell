@@ -1005,8 +1005,8 @@ int main(int argc, char* argv[])
      }
      /* Neutrino selection block3 end*/
 
-     if (flash_id !=-1)
-       std::cout << flash_id << " " << ncluster << " " << group_clusters.size() << " " << event_type << std::endl;
+     // if (flash_id !=-1)
+     //   std::cout << flash_id << " " << ncluster << " " << group_clusters.size() << " " << event_type << std::endl;
      
      T_match->Fill();
    }

@@ -767,7 +767,7 @@ int main(int argc, char* argv[])
     }
     
     for (auto it = cluster_set.begin();it!=cluster_set.end();it++){
-      std::set<SlimMergeGeomCell*>&  abc = ((*it)->get_ordercell()).back();
+      SMGCSet&  abc = ((*it)->get_ordercell()).back();
       if (i - (*abc.begin())->GetTimeSlice()>1){
 	cluster_set_save.insert(*it);
 	cluster_set.erase(*it);
@@ -1502,7 +1502,7 @@ int main(int argc, char* argv[])
       }
       
       for (auto it = temp_cluster_set.begin();it!=temp_cluster_set.end();it++){
-	std::set<SlimMergeGeomCell*>&  abc = ((*it)->get_ordercell()).back();
+	SMGCSet&  abc = ((*it)->get_ordercell()).back();
 	if (i - (*abc.begin())->GetTimeSlice()>1){
 	  temp_cluster_set_save.insert(*it);
 	  temp_cluster_set.erase(*it);
@@ -1582,7 +1582,7 @@ int main(int argc, char* argv[])
       }
 
       for (auto it = temp_cluster_set.begin();it!=temp_cluster_set.end();it++){
-	std::set<SlimMergeGeomCell*>&  abc = ((*it)->get_ordercell()).back();
+	SMGCSet&  abc = ((*it)->get_ordercell()).back();
 	if (i - (*abc.begin())->GetTimeSlice()>1){
 	  temp_cluster_set_save.insert(*it);
 	  temp_cluster_set.erase(*it);
@@ -1663,7 +1663,7 @@ int main(int argc, char* argv[])
       }
 
       for (auto it = temp_cluster_set.begin();it!=temp_cluster_set.end();it++){
-	std::set<SlimMergeGeomCell*>&  abc = ((*it)->get_ordercell()).back();
+	SMGCSet&  abc = ((*it)->get_ordercell()).back();
 	if (i - (*abc.begin())->GetTimeSlice()>1){
 	  temp_cluster_set_save.insert(*it);
 	  temp_cluster_set.erase(*it);
@@ -1746,7 +1746,7 @@ int main(int argc, char* argv[])
 
 
       for (auto it = temp_cluster_set.begin();it!=temp_cluster_set.end();it++){
-	std::set<SlimMergeGeomCell*>&  abc = ((*it)->get_ordercell()).back();
+	SMGCSet&  abc = ((*it)->get_ordercell()).back();
 	if (i - (*abc.begin())->GetTimeSlice()>1){
 	  temp_cluster_set_save.insert(*it);
 	  temp_cluster_set.erase(*it);

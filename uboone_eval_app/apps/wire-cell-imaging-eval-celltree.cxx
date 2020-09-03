@@ -1308,7 +1308,7 @@ if(beamspill || beam==-1){
     // // display.draw_cells_charge(toytiling[i]->get_allcell(),"Fsame");
     //  theApp.Run();
     for (auto it = cluster_set.begin();it!=cluster_set.end();it++){
-      std::set<SlimMergeGeomCell*>&  abc = ((*it)->get_ordercell()).back();
+      SMGCSet& abc = ((*it)->get_ordercell()).back();
       if (i - (*abc.begin())->GetTimeSlice()>1){
 	cluster_set_save.insert(*it);
 	cluster_set.erase(*it);
@@ -2076,7 +2076,7 @@ if(beamspill || beam==-1){
 	// cout << i << " " << allmcell.size()  << " " << temp_cluster_set.size()  << endl;
       }
       for (auto it = temp_cluster_set.begin();it!=temp_cluster_set.end();it++){
-	std::set<SlimMergeGeomCell*>&  abc = ((*it)->get_ordercell()).back();
+	SMGCSet&  abc = ((*it)->get_ordercell()).back();
 	if (i - (*abc.begin())->GetTimeSlice()>1){
 	  temp_cluster_set_save.insert(*it);
 	  temp_cluster_set.erase(*it);
@@ -2157,7 +2157,7 @@ if(beamspill || beam==-1){
       }
 
       for (auto it = temp_cluster_set.begin();it!=temp_cluster_set.end();it++){
-	std::set<SlimMergeGeomCell*>&  abc = ((*it)->get_ordercell()).back();
+	SMGCSet&  abc = ((*it)->get_ordercell()).back();
 	if (i - (*abc.begin())->GetTimeSlice()>1){
 	  temp_cluster_set_save.insert(*it);
 	  temp_cluster_set.erase(*it);
@@ -2238,7 +2238,7 @@ if(beamspill || beam==-1){
       }
 
       for (auto it = temp_cluster_set.begin();it!=temp_cluster_set.end();it++){
-	std::set<SlimMergeGeomCell*>&  abc = ((*it)->get_ordercell()).back();
+	SMGCSet&  abc = ((*it)->get_ordercell()).back();
 	if (i - (*abc.begin())->GetTimeSlice()>1){
 	  temp_cluster_set_save.insert(*it);
 	  temp_cluster_set.erase(*it);
@@ -2320,7 +2320,7 @@ if(beamspill || beam==-1){
       }
 
       for (auto it = temp_cluster_set.begin();it!=temp_cluster_set.end();it++){
-	std::set<SlimMergeGeomCell*>&  abc = ((*it)->get_ordercell()).back();
+	SMGCSet&  abc = ((*it)->get_ordercell()).back();
 	if (i - (*abc.begin())->GetTimeSlice()>1){
 	  temp_cluster_set_save.insert(*it);
 	  temp_cluster_set.erase(*it);
