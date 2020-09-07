@@ -41,7 +41,7 @@ void convert_file();
 
 
 void convert_file(){
-  TFile *file = new TFile("bdtfile_0718.root");
+  TFile *file = new TFile("bdt.root");
   TTree *sig = (TTree*)file->Get("sig");
   TTree *bkg = (TTree*)file->Get("bkg");
 
@@ -56,41 +56,41 @@ void convert_file(){
   float trueEdep;
   float weight;
   float lowEweight;
-  Int_t nueTag;
+  //Int_t nueTag;
 
-  sig->SetBranchAddress("trueEdep",&trueEdep);
+  sig->SetBranchAddress("truth_energyInside",&trueEdep);
   sig->SetBranchAddress("weight",&weight);
   sig->SetBranchAddress("lowEweight",&lowEweight);
-  sig->SetBranchAddress("nueTag",&nueTag);
+  //  sig->SetBranchAddress("nueTag",&nueTag);
     
-  bkg->SetBranchAddress("trueEdep",&trueEdep);
+  bkg->SetBranchAddress("truth_energyInside",&trueEdep);
   bkg->SetBranchAddress("weight",&weight);
   bkg->SetBranchAddress("lowEweight",&lowEweight);
-  bkg->SetBranchAddress("nueTag",&nueTag);
+  //bkg->SetBranchAddress("nueTag",&nueTag);
 
-  int truth_inFV;
-  int truth_CC;
-  int truth_nue;
-  int truth_cosmic;
+  // int truth_inFV;
+  // int truth_CC;
+  // int truth_nue;
+  // int truth_cosmic;
 
-  sig->SetBranchAddress("truth_inFV",&truth_inFV);
-  sig->SetBranchAddress("truth_CC",&truth_CC);
-  sig->SetBranchAddress("truth_nue",&truth_nue);
-  sig->SetBranchAddress("truth_cosmic",&truth_cosmic);
+  // sig->SetBranchAddress("truth_inFV",&truth_inFV);
+  // sig->SetBranchAddress("truth_CC",&truth_CC);
+  // sig->SetBranchAddress("truth_nue",&truth_nue);
+  // sig->SetBranchAddress("truth_cosmic",&truth_cosmic);
 
-  bkg->SetBranchAddress("truth_inFV",&truth_inFV);
-  bkg->SetBranchAddress("truth_CC",&truth_CC);
-  bkg->SetBranchAddress("truth_nue",&truth_nue);
-  bkg->SetBranchAddress("truth_cosmic",&truth_cosmic);
+  // bkg->SetBranchAddress("truth_inFV",&truth_inFV);
+  // bkg->SetBranchAddress("truth_CC",&truth_CC);
+  // bkg->SetBranchAddress("truth_nue",&truth_nue);
+  // bkg->SetBranchAddress("truth_cosmic",&truth_cosmic);
   
-  std::vector<double> *lol_2_v_length= new std::vector<double>;
-  std::vector<double> *lol_2_v_angle= new std::vector<double>;
-  std::vector<int> *lol_2_v_type= new std::vector<int>;
-  std::vector<int> *lol_2_v_vtx_n_segs= new std::vector<int>;
-  std::vector<double> *lol_2_v_energy= new std::vector<double>;
-  std::vector<double> *lol_2_v_shower_main_length= new std::vector<double>;
-  std::vector<int> *lol_2_v_flag_dir_weak= new std::vector<int>;
-  std::vector<int> *lol_2_v_flag = new std::vector<int>;
+  std::vector<float> *lol_2_v_length= new std::vector<float>;
+  std::vector<float> *lol_2_v_angle= new std::vector<float>;
+  std::vector<float> *lol_2_v_type= new std::vector<float>;
+  std::vector<float> *lol_2_v_vtx_n_segs= new std::vector<float>;
+  std::vector<float> *lol_2_v_energy= new std::vector<float>;
+  std::vector<float> *lol_2_v_shower_main_length= new std::vector<float>;
+  std::vector<float> *lol_2_v_flag_dir_weak= new std::vector<float>;
+  std::vector<float> *lol_2_v_flag = new std::vector<float>;
   
   sig->SetBranchAddress("lol_2_v_length",&lol_2_v_length);
   sig->SetBranchAddress("lol_2_v_angle",&lol_2_v_angle);
@@ -117,15 +117,15 @@ void convert_file(){
   Tsig->SetDirectory(new_file);
   Tbkg->SetDirectory(new_file);
   
-  Tsig->Branch("truth_inFV",&truth_inFV,"data/I");
-  Tsig->Branch("truth_CC",&truth_CC,"data/I");
-  Tsig->Branch("truth_nue",&truth_nue,"data/I");
-  Tsig->Branch("truth_cosmic",&truth_cosmic,"data/I");
+  // Tsig->Branch("truth_inFV",&truth_inFV,"data/I");
+  // Tsig->Branch("truth_CC",&truth_CC,"data/I");
+  // Tsig->Branch("truth_nue",&truth_nue,"data/I");
+  // Tsig->Branch("truth_cosmic",&truth_cosmic,"data/I");
 
-  Tbkg->Branch("truth_inFV",&truth_inFV,"data/I");
-  Tbkg->Branch("truth_CC",&truth_CC,"data/I");
-  Tbkg->Branch("truth_nue",&truth_nue,"data/I");
-  Tbkg->Branch("truth_cosmic",&truth_cosmic,"data/I");
+  // Tbkg->Branch("truth_inFV",&truth_inFV,"data/I");
+  // Tbkg->Branch("truth_CC",&truth_CC,"data/I");
+  // Tbkg->Branch("truth_nue",&truth_nue,"data/I");
+  // Tbkg->Branch("truth_cosmic",&truth_cosmic,"data/I");
   
 
   Tsig->Branch("run",&run,"data/I");
@@ -137,12 +137,12 @@ void convert_file(){
   Tsig->Branch("trueEdep",&trueEdep,"data/F");
   Tsig->Branch("weight",&weight,"data/F");
   Tsig->Branch("lowEweight",&lowEweight,"data/F");
-  Tsig->Branch("nueTag",&nueTag,"data/I");
+  //  Tsig->Branch("nueTag",&nueTag,"data/I");
     
   Tbkg->Branch("trueEdep",&trueEdep,"data/F");
   Tbkg->Branch("weight",&weight,"data/F");
   Tbkg->Branch("lowEweight",&lowEweight,"data/F");
-  Tbkg->Branch("nueTag",&nueTag,"data/I");
+  // Tbkg->Branch("nueTag",&nueTag,"data/I");
 
 
   float lol_2_v_length_f;
@@ -323,13 +323,13 @@ void InitBDT_r1()
     dataloader->AddSignalTree(signalTree, 1.0); // can add the global event weight
     dataloader->AddBackgroundTree( backgroundTree, 1.0);
     // Set individual event weights (the variables must exist in the original TTree)
-    dataloader->SetSignalWeightExpression( "weight * lowEweight" );
+    dataloader->SetSignalWeightExpression( "weight " );
     dataloader->SetBackgroundWeightExpression( "weight " );
 
     // Apply additional cuts on the signal and background samples (can be different)
 
     TCut mycut_s = "1>0"; // 56 / 71857, adding pi0 50
-    TCut mycut_b = "lol_2_v_flag==0 && (!(truth_nue==1 && truth_CC==1))"; // 372/35104, adding mip_id 340
+    TCut mycut_b = "lol_2_v_flag==0 "; // 372/35104, adding mip_id 340
     
     dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
         "nTrain_Signal=30000:"
@@ -391,13 +391,13 @@ void InitBDT_r2()
     dataloader->AddSignalTree(signalTree, 1.0); // can add the global event weight
     dataloader->AddBackgroundTree( backgroundTree, 1.0);
     // Set individual event weights (the variables must exist in the original TTree)
-    dataloader->SetSignalWeightExpression( "weight * lowEweight" );
+    dataloader->SetSignalWeightExpression( "weight " );
     dataloader->SetBackgroundWeightExpression( "weight " );
 
     // Apply additional cuts on the signal and background samples (can be different)
 
     TCut mycut_s = "1>0"; // 2 / 97209, adding pi0 50
-    TCut mycut_b = "(lol_2_v_flag==0 || lol_2_v_bdt < 0.05) && (!(truth_nue==1 && truth_CC==1))"; // 557
+    TCut mycut_b = "(lol_2_v_flag==0 || lol_2_v_bdt < 0.05) "; // 557
     
     dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
         "nTrain_Signal=30000:"
@@ -458,32 +458,32 @@ void TestEvaluate(TString filename)
   float trueEdep;
   float weight;
   float lowEweight;
-  Int_t nueTag;
+  //  Int_t nueTag;
   
   sig->SetBranchAddress("trueEdep",&trueEdep);
   sig->SetBranchAddress("weight",&weight);
   sig->SetBranchAddress("lowEweight",&lowEweight);
-  sig->SetBranchAddress("nueTag",&nueTag);
+  // sig->SetBranchAddress("nueTag",&nueTag);
   
   bkg->SetBranchAddress("trueEdep",&trueEdep);
   bkg->SetBranchAddress("weight",&weight);
   bkg->SetBranchAddress("lowEweight",&lowEweight);
-  bkg->SetBranchAddress("nueTag",&nueTag);
+  // bkg->SetBranchAddress("nueTag",&nueTag);
 
-  int truth_inFV;
-  int truth_CC;
-  int truth_nue;
-  int truth_cosmic;
+  // int truth_inFV;
+  // int truth_CC;
+  // int truth_nue;
+  // int truth_cosmic;
 
-  sig->SetBranchAddress("truth_inFV",&truth_inFV);
-  sig->SetBranchAddress("truth_CC",&truth_CC);
-  sig->SetBranchAddress("truth_nue",&truth_nue);
-  sig->SetBranchAddress("truth_cosmic",&truth_cosmic);
+  // sig->SetBranchAddress("truth_inFV",&truth_inFV);
+  // sig->SetBranchAddress("truth_CC",&truth_CC);
+  // sig->SetBranchAddress("truth_nue",&truth_nue);
+  // sig->SetBranchAddress("truth_cosmic",&truth_cosmic);
 
-  bkg->SetBranchAddress("truth_inFV",&truth_inFV);
-  bkg->SetBranchAddress("truth_CC",&truth_CC);
-  bkg->SetBranchAddress("truth_nue",&truth_nue);
-  bkg->SetBranchAddress("truth_cosmic",&truth_cosmic);
+  // bkg->SetBranchAddress("truth_inFV",&truth_inFV);
+  // bkg->SetBranchAddress("truth_CC",&truth_CC);
+  // bkg->SetBranchAddress("truth_nue",&truth_nue);
+  // bkg->SetBranchAddress("truth_cosmic",&truth_cosmic);
 
    sig->SetBranchAddress("lol_2_v_length",&lol_2_v_length);
   sig->SetBranchAddress("lol_2_v_angle",&lol_2_v_angle);
@@ -513,12 +513,12 @@ void TestEvaluate(TString filename)
   Tsig->Branch("trueEdep",&trueEdep,"data/F");
   Tsig->Branch("weight",&weight,"data/F");
   Tsig->Branch("lowEweight",&lowEweight,"data/F");
-  Tsig->Branch("nueTag",&nueTag,"data/I");
+  //  Tsig->Branch("nueTag",&nueTag,"data/I");
  
   Tbkg->Branch("trueEdep",&trueEdep,"data/F");
   Tbkg->Branch("weight",&weight,"data/F");
   Tbkg->Branch("lowEweight",&lowEweight,"data/F");
-  Tbkg->Branch("nueTag",&nueTag,"data/I");
+  //Tbkg->Branch("nueTag",&nueTag,"data/I");
   
   Tsig->Branch("run",&run,"data/I");
   Tsig->Branch("event",&event,"data/I");
@@ -526,15 +526,15 @@ void TestEvaluate(TString filename)
   Tbkg->Branch("run",&run,"data/I");
   Tbkg->Branch("event",&event,"data/I");
 
-  Tsig->Branch("truth_inFV",&truth_inFV,"data/I");
-  Tsig->Branch("truth_CC",&truth_CC,"data/I");
-  Tsig->Branch("truth_nue",&truth_nue,"data/I");
-  Tsig->Branch("truth_cosmic",&truth_cosmic,"data/I");
+  // Tsig->Branch("truth_inFV",&truth_inFV,"data/I");
+  // Tsig->Branch("truth_CC",&truth_CC,"data/I");
+  // Tsig->Branch("truth_nue",&truth_nue,"data/I");
+  // Tsig->Branch("truth_cosmic",&truth_cosmic,"data/I");
 
-  Tbkg->Branch("truth_inFV",&truth_inFV,"data/I");
-  Tbkg->Branch("truth_CC",&truth_CC,"data/I");
-  Tbkg->Branch("truth_nue",&truth_nue,"data/I");
-  Tbkg->Branch("truth_cosmic",&truth_cosmic,"data/I");
+  // Tbkg->Branch("truth_inFV",&truth_inFV,"data/I");
+  // Tbkg->Branch("truth_CC",&truth_CC,"data/I");
+  // Tbkg->Branch("truth_nue",&truth_nue,"data/I");
+  // Tbkg->Branch("truth_cosmic",&truth_cosmic,"data/I");
   
   Tsig->Branch("lol_2_v_length",&lol_2_v_length,"data/F");
   Tsig->Branch("lol_2_v_angle",&lol_2_v_angle,"data/F");

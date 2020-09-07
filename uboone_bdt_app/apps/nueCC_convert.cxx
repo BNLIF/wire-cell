@@ -312,12 +312,13 @@ int main( int argc, char** argv )
     t1->GetEntry(i);
 
     if (std::isnan(tagger.weight_cv) || std::isnan(tagger.weight_spline) || std::isinf(tagger.weight_cv) || std::isinf(tagger.weight_spline)) continue;
-    
+
+    // also need to exclude the NC nu-electron elastic scattering 
     
     tagger.weight = tagger.weight_spline * tagger.weight_cv * (pot_1*1.0/pot_2);
     tagger.lowEweight = 1;
 
-    if (tagger.truth_isCC==1 && abs(tagger.truth_nuPdg)==12 ) continue;
+    if (tagger.truth_isCC==1 && abs(tagger.truth_nuPdg)==12 || tagger.truth_nuIntType==1098 ) continue;
     
     Tbkg->Fill();
   }

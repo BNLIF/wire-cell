@@ -730,6 +730,7 @@
     float truth_vtxInside;
     float truth_nuPdg;
     float truth_nuEnergy;
+    float truth_nuIntType;
     float truth_energyInside;
     float weight_spline;
     float weight_cv;
@@ -1435,6 +1436,7 @@ void set_tree_address(TTree *tree0, TaggerInfo& tagger_info){
   tree0->SetBranchAddress("truth_vtxInside",&tagger_info.truth_vtxInside);
   tree0->SetBranchAddress("truth_nuPdg",&tagger_info.truth_nuPdg);
   tree0->SetBranchAddress("truth_nuEnergy",&tagger_info.truth_nuEnergy);
+  tree0->SetBranchAddress("truth_nuIntType",&tagger_info.truth_nuIntType);
   tree0->SetBranchAddress("truth_energyInside",&tagger_info.truth_energyInside);
   tree0->SetBranchAddress("weight_spline",&tagger_info.weight_spline);
   tree0->SetBranchAddress("weight_cv",&tagger_info.weight_cv);
@@ -2131,6 +2133,7 @@ void put_tree_address(TTree *T_tagger, TaggerInfo& tagger_info){
     T_tagger->Branch("truth_vtxInside",&tagger_info.truth_vtxInside,"data/F");
     T_tagger->Branch("truth_nuPdg",&tagger_info.truth_nuPdg,"data/F");
     T_tagger->Branch("truth_nuEnergy",&tagger_info.truth_nuEnergy,"data/F");
+    T_tagger->Branch("truth_nuIntType",&tagger_info.truth_nuIntType,"data/F");
     T_tagger->Branch("truth_energyInside",&tagger_info.truth_energyInside,"data/F");
     T_tagger->Branch("weight_spline",&tagger_info.weight_spline,"data/F");
     T_tagger->Branch("weight_cv",&tagger_info.weight_cv,"data/F");
