@@ -40,13 +40,11 @@ void convert_file();
 
 
 void convert_file(){
- TFile *file0 = new TFile("T_tagger_overlayBNB_signal_1-7.root"); // sig x1
- TFile *file1 = new TFile("T_tagger_overlayBNB_background.root"); // bkg x1
- TFile *file2 = new TFile("T_tagger_extBNB_0-9.root"); // bkg x0.45
+ TFile *file0 = new TFile("bdt.root"); // sig x1
+
  
- TTree *tree0 = (TTree*)file0->Get("T_tagger");
- TTree *tree1 = (TTree*)file1->Get("T_tagger");
- TTree *tree2 = (TTree*)file2->Get("T_tagger");
+ TTree *sig = (TTree*)file0->Get("sig");
+ TTree *bkg = (TTree*)file0->Get("bkg");
 
  float cosmict_flag_1;
  
@@ -70,72 +68,55 @@ void convert_file(){
  float cosmict_4_angle_beam;
  float cosmict_4_connected_showers;  // need to be careful about the nueCC ...
 
- tree0->SetBranchAddress("cosmict_flag_1",&cosmict_flag_1);
+ sig->SetBranchAddress("cosmict_flag_1",&cosmict_flag_1);
  
- tree0->SetBranchAddress("cosmict_flag_2", &cosmict_flag_2);
- tree0->SetBranchAddress("cosmict_2_filled", &cosmict_2_filled);
- tree0->SetBranchAddress("cosmict_2_particle_type", &cosmict_2_particle_type);
- tree0->SetBranchAddress("cosmict_2_n_muon_tracks", &cosmict_2_n_muon_tracks);
- tree0->SetBranchAddress("cosmict_2_total_shower_length", &cosmict_2_total_shower_length);
- tree0->SetBranchAddress("cosmict_2_flag_inside", &cosmict_2_flag_inside);
- tree0->SetBranchAddress("cosmict_2_angle_beam", &cosmict_2_angle_beam);
- tree0->SetBranchAddress("cosmict_2_flag_dir_weak", &cosmict_2_flag_dir_weak);
- tree0->SetBranchAddress("cosmict_2_dQ_dx_end", &cosmict_2_dQ_dx_end);
- tree0->SetBranchAddress("cosmict_2_dQ_dx_front", &cosmict_2_dQ_dx_front);
- tree0->SetBranchAddress("cosmict_2_theta", &cosmict_2_theta);
- tree0->SetBranchAddress("cosmict_2_phi", &cosmict_2_phi);
- tree0->SetBranchAddress("cosmict_2_valid_tracks", &cosmict_2_valid_tracks);
+ sig->SetBranchAddress("cosmict_flag_2", &cosmict_flag_2);
+ sig->SetBranchAddress("cosmict_2_filled", &cosmict_2_filled);
+ sig->SetBranchAddress("cosmict_2_particle_type", &cosmict_2_particle_type);
+ sig->SetBranchAddress("cosmict_2_n_muon_tracks", &cosmict_2_n_muon_tracks);
+ sig->SetBranchAddress("cosmict_2_total_shower_length", &cosmict_2_total_shower_length);
+ sig->SetBranchAddress("cosmict_2_flag_inside", &cosmict_2_flag_inside);
+ sig->SetBranchAddress("cosmict_2_angle_beam", &cosmict_2_angle_beam);
+ sig->SetBranchAddress("cosmict_2_flag_dir_weak", &cosmict_2_flag_dir_weak);
+ sig->SetBranchAddress("cosmict_2_dQ_dx_end", &cosmict_2_dQ_dx_end);
+ sig->SetBranchAddress("cosmict_2_dQ_dx_front", &cosmict_2_dQ_dx_front);
+ sig->SetBranchAddress("cosmict_2_theta", &cosmict_2_theta);
+ sig->SetBranchAddress("cosmict_2_phi", &cosmict_2_phi);
+ sig->SetBranchAddress("cosmict_2_valid_tracks", &cosmict_2_valid_tracks);
 
- tree0->SetBranchAddress("cosmict_flag_4",&cosmict_flag_4);
- tree0->SetBranchAddress("cosmict_4_filled",&cosmict_4_filled);
- tree0->SetBranchAddress("cosmict_4_flag_inside",&cosmict_4_flag_inside);
- tree0->SetBranchAddress("cosmict_4_angle_beam",&cosmict_4_angle_beam);
- tree0->SetBranchAddress("cosmict_4_connected_showers",&cosmict_4_connected_showers);
+ sig->SetBranchAddress("cosmict_flag_4",&cosmict_flag_4);
+ sig->SetBranchAddress("cosmict_4_filled",&cosmict_4_filled);
+ sig->SetBranchAddress("cosmict_4_flag_inside",&cosmict_4_flag_inside);
+ sig->SetBranchAddress("cosmict_4_angle_beam",&cosmict_4_angle_beam);
+ sig->SetBranchAddress("cosmict_4_connected_showers",&cosmict_4_connected_showers);
 
  
- tree1->SetBranchAddress("cosmict_flag_1",&cosmict_flag_1);
+ bkg->SetBranchAddress("cosmict_flag_1",&cosmict_flag_1);
  
- tree1->SetBranchAddress("cosmict_flag_2", &cosmict_flag_2);
- tree1->SetBranchAddress("cosmict_2_filled", &cosmict_2_filled);
- tree1->SetBranchAddress("cosmict_2_particle_type", &cosmict_2_particle_type);
- tree1->SetBranchAddress("cosmict_2_n_muon_tracks", &cosmict_2_n_muon_tracks);
- tree1->SetBranchAddress("cosmict_2_total_shower_length", &cosmict_2_total_shower_length);
- tree1->SetBranchAddress("cosmict_2_flag_inside", &cosmict_2_flag_inside);
- tree1->SetBranchAddress("cosmict_2_angle_beam", &cosmict_2_angle_beam);
- tree1->SetBranchAddress("cosmict_2_flag_dir_weak", &cosmict_2_flag_dir_weak);
- tree1->SetBranchAddress("cosmict_2_dQ_dx_end", &cosmict_2_dQ_dx_end);
- tree1->SetBranchAddress("cosmict_2_dQ_dx_front", &cosmict_2_dQ_dx_front);
- tree1->SetBranchAddress("cosmict_2_theta", &cosmict_2_theta);
- tree1->SetBranchAddress("cosmict_2_phi", &cosmict_2_phi);
- tree1->SetBranchAddress("cosmict_2_valid_tracks", &cosmict_2_valid_tracks);
+ bkg->SetBranchAddress("cosmict_flag_2", &cosmict_flag_2);
+ bkg->SetBranchAddress("cosmict_2_filled", &cosmict_2_filled);
+ bkg->SetBranchAddress("cosmict_2_particle_type", &cosmict_2_particle_type);
+ bkg->SetBranchAddress("cosmict_2_n_muon_tracks", &cosmict_2_n_muon_tracks);
+ bkg->SetBranchAddress("cosmict_2_total_shower_length", &cosmict_2_total_shower_length);
+ bkg->SetBranchAddress("cosmict_2_flag_inside", &cosmict_2_flag_inside);
+ bkg->SetBranchAddress("cosmict_2_angle_beam", &cosmict_2_angle_beam);
+ bkg->SetBranchAddress("cosmict_2_flag_dir_weak", &cosmict_2_flag_dir_weak);
+ bkg->SetBranchAddress("cosmict_2_dQ_dx_end", &cosmict_2_dQ_dx_end);
+ bkg->SetBranchAddress("cosmict_2_dQ_dx_front", &cosmict_2_dQ_dx_front);
+ bkg->SetBranchAddress("cosmict_2_theta", &cosmict_2_theta);
+ bkg->SetBranchAddress("cosmict_2_phi", &cosmict_2_phi);
+ bkg->SetBranchAddress("cosmict_2_valid_tracks", &cosmict_2_valid_tracks);
 
- tree1->SetBranchAddress("cosmict_flag_4",&cosmict_flag_4);
- tree1->SetBranchAddress("cosmict_4_filled",&cosmict_4_filled);
- tree1->SetBranchAddress("cosmict_4_flag_inside",&cosmict_4_flag_inside);
- tree1->SetBranchAddress("cosmict_4_angle_beam",&cosmict_4_angle_beam);
- tree1->SetBranchAddress("cosmict_4_connected_showers",&cosmict_4_connected_showers);
+ bkg->SetBranchAddress("cosmict_flag_4",&cosmict_flag_4);
+ bkg->SetBranchAddress("cosmict_4_filled",&cosmict_4_filled);
+ bkg->SetBranchAddress("cosmict_4_flag_inside",&cosmict_4_flag_inside);
+ bkg->SetBranchAddress("cosmict_4_angle_beam",&cosmict_4_angle_beam);
+ bkg->SetBranchAddress("cosmict_4_connected_showers",&cosmict_4_connected_showers);
 
- tree2->SetBranchAddress("cosmict_flag_1",&cosmict_flag_1);
- 
- tree2->SetBranchAddress("cosmict_flag_2", &cosmict_flag_2);
- tree2->SetBranchAddress("cosmict_2_filled", &cosmict_2_filled);
- tree2->SetBranchAddress("cosmict_2_particle_type", &cosmict_2_particle_type);
- tree2->SetBranchAddress("cosmict_2_n_muon_tracks", &cosmict_2_n_muon_tracks);
- tree2->SetBranchAddress("cosmict_2_total_shower_length", &cosmict_2_total_shower_length);
- tree2->SetBranchAddress("cosmict_2_flag_inside", &cosmict_2_flag_inside);
- tree2->SetBranchAddress("cosmict_2_angle_beam", &cosmict_2_angle_beam);
- tree2->SetBranchAddress("cosmict_2_flag_dir_weak", &cosmict_2_flag_dir_weak);
- tree2->SetBranchAddress("cosmict_2_dQ_dx_end", &cosmict_2_dQ_dx_end);
- tree2->SetBranchAddress("cosmict_2_dQ_dx_front", &cosmict_2_dQ_dx_front);
- tree2->SetBranchAddress("cosmict_2_theta", &cosmict_2_theta);
- tree2->SetBranchAddress("cosmict_2_phi", &cosmict_2_phi);
- tree2->SetBranchAddress("cosmict_2_valid_tracks", &cosmict_2_valid_tracks);
+ float weight;
+ sig->SetBranchAddress("weight",&weight);
+ bkg->SetBranchAddress("weight",&weight);
 
- tree2->SetBranchAddress("cosmict_flag_4",&cosmict_flag_4);
- tree2->SetBranchAddress("cosmict_4_filled",&cosmict_4_filled);
- tree2->SetBranchAddress("cosmict_4_flag_inside",&cosmict_4_flag_inside);
- tree2->SetBranchAddress("cosmict_4_angle_beam",&cosmict_4_angle_beam);
- tree2->SetBranchAddress("cosmict_4_connected_showers",&cosmict_4_connected_showers);
 
  TFile *new_file = new TFile("round_0.root","RECREATE");
  TTree *Stree = new TTree("TreeS","signal tree");
@@ -143,7 +124,7 @@ void convert_file(){
  Stree->SetDirectory(new_file);
  Btree->SetDirectory(new_file);
 
- float weight;
+
 
  Stree->Branch("weight",&weight,"weight/F");
  
@@ -195,9 +176,9 @@ void convert_file(){
  Btree->Branch("cosmict_4_angle_beam",&cosmict_4_angle_beam,"cosmict_4_angle_beam/F");
  Btree->Branch("cosmict_4_connected_showers",&cosmict_4_connected_showers,"cosmict_4_connected_showers/F");
 
- for (Int_t i=0;i!=tree0->GetEntries();i++){
-    tree0->GetEntry(i);
-    weight = 1.0;
+ for (Int_t i=0;i!=sig->GetEntries();i++){
+    sig->GetEntry(i);
+
 
     if (std::isnan(cosmict_2_angle_beam)) cosmict_2_angle_beam = 0;
     if (std::isnan(cosmict_2_theta)) cosmict_2_theta = 0;
@@ -207,9 +188,9 @@ void convert_file(){
     Stree->Fill();
  }
 
- for (Int_t i=0;i!=tree1->GetEntries();i++){
-   tree1->GetEntry(i);
-   weight = 1;
+ for (Int_t i=0;i!=bkg->GetEntries();i++){
+   bkg->GetEntry(i);
+
    
    if (std::isnan(cosmict_2_angle_beam)) cosmict_2_angle_beam = 0;
     if (std::isnan(cosmict_2_theta)) cosmict_2_theta = 0;
@@ -218,16 +199,7 @@ void convert_file(){
    Btree->Fill();
  }
 
- for (Int_t i=0;i!=tree2->GetEntries();i++){
-    tree2->GetEntry(i);
-    weight = 0.45;
 
-    if (std::isnan(cosmict_2_angle_beam)) cosmict_2_angle_beam = 0;
-    if (std::isnan(cosmict_2_theta)) cosmict_2_theta = 0;
-    if (std::isnan(cosmict_2_phi)) cosmict_2_phi = 0;
-    
-    Btree->Fill();
- }
 
  cout << "signal tree entries: " << Stree->GetEntries() << " / " << Stree->GetEntries("cosmict_2_filled>0 && cosmict_flag_1==0")<< endl;
  cout << "background tree entries: " << Btree->GetEntries() << " / " << Btree->GetEntries("cosmict_2_filled>0 && (cosmict_flag_2>0 || cosmict_flag_4 > 0)&& cosmict_flag_1==0")<< endl;

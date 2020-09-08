@@ -41,13 +41,11 @@ void convert_file();
 
 void convert_file(){
   
-  TFile *file0 = new TFile("T_tagger_overlayBNB_signal_1-7.root"); // sig x1
-  TFile *file1 = new TFile("T_tagger_overlayBNB_background.root"); // bkg x1
-  TFile *file2 = new TFile("T_tagger_extBNB_0-9.root"); // bkg x0.45
+  TFile *file0 = new TFile("bdt.root"); // sig x1
   
-  TTree *tree0 = (TTree*)file0->Get("T_tagger");
-  TTree *tree1 = (TTree*)file1->Get("T_tagger");
-  TTree *tree2 = (TTree*)file2->Get("T_tagger");
+  TTree *sig = (TTree*)file0->Get("sig");
+  TTree *bkg = (TTree*)file0->Get("bkg");
+
 
   float cosmict_flag_1;
 
@@ -62,33 +60,27 @@ void convert_file(){
   std::vector<float> *cosmict_10_angle_beam= new std::vector<float>;
   std::vector<float> *cosmict_10_length= new std::vector<float>;
   
-  tree0->SetBranchAddress("cosmict_flag_1",&cosmict_flag_1);
-  tree0->SetBranchAddress("cosmict_flag_10",&cosmict_flag_10);
-  tree0->SetBranchAddress("cosmict_10_flag_inside",&cosmict_10_flag_inside);
-  tree0->SetBranchAddress("cosmict_10_vtx_z",&cosmict_10_vtx_z);
-  tree0->SetBranchAddress("cosmict_10_flag_shower",&cosmict_10_flag_shower);
-  tree0->SetBranchAddress("cosmict_10_flag_dir_weak",&cosmict_10_flag_dir_weak);
-  tree0->SetBranchAddress("cosmict_10_angle_beam",&cosmict_10_angle_beam);
-  tree0->SetBranchAddress("cosmict_10_length",&cosmict_10_length);
+  sig->SetBranchAddress("cosmict_flag_1",&cosmict_flag_1);
+  sig->SetBranchAddress("cosmict_flag_10",&cosmict_flag_10);
+  sig->SetBranchAddress("cosmict_10_flag_inside",&cosmict_10_flag_inside);
+  sig->SetBranchAddress("cosmict_10_vtx_z",&cosmict_10_vtx_z);
+  sig->SetBranchAddress("cosmict_10_flag_shower",&cosmict_10_flag_shower);
+  sig->SetBranchAddress("cosmict_10_flag_dir_weak",&cosmict_10_flag_dir_weak);
+  sig->SetBranchAddress("cosmict_10_angle_beam",&cosmict_10_angle_beam);
+  sig->SetBranchAddress("cosmict_10_length",&cosmict_10_length);
 
-  tree1->SetBranchAddress("cosmict_flag_1",&cosmict_flag_1);
-  tree1->SetBranchAddress("cosmict_flag_10",&cosmict_flag_10);
-  tree1->SetBranchAddress("cosmict_10_flag_inside",&cosmict_10_flag_inside);
-  tree1->SetBranchAddress("cosmict_10_vtx_z",&cosmict_10_vtx_z);
-  tree1->SetBranchAddress("cosmict_10_flag_shower",&cosmict_10_flag_shower);
-  tree1->SetBranchAddress("cosmict_10_flag_dir_weak",&cosmict_10_flag_dir_weak);
-  tree1->SetBranchAddress("cosmict_10_angle_beam",&cosmict_10_angle_beam);
-  tree1->SetBranchAddress("cosmict_10_length",&cosmict_10_length);
+  bkg->SetBranchAddress("cosmict_flag_1",&cosmict_flag_1);
+  bkg->SetBranchAddress("cosmict_flag_10",&cosmict_flag_10);
+  bkg->SetBranchAddress("cosmict_10_flag_inside",&cosmict_10_flag_inside);
+  bkg->SetBranchAddress("cosmict_10_vtx_z",&cosmict_10_vtx_z);
+  bkg->SetBranchAddress("cosmict_10_flag_shower",&cosmict_10_flag_shower);
+  bkg->SetBranchAddress("cosmict_10_flag_dir_weak",&cosmict_10_flag_dir_weak);
+  bkg->SetBranchAddress("cosmict_10_angle_beam",&cosmict_10_angle_beam);
+  bkg->SetBranchAddress("cosmict_10_length",&cosmict_10_length);
 
-  tree2->SetBranchAddress("cosmict_flag_1",&cosmict_flag_1);
-  tree2->SetBranchAddress("cosmict_flag_10",&cosmict_flag_10);
-  tree2->SetBranchAddress("cosmict_10_flag_inside",&cosmict_10_flag_inside);
-  tree2->SetBranchAddress("cosmict_10_vtx_z",&cosmict_10_vtx_z);
-  tree2->SetBranchAddress("cosmict_10_flag_shower",&cosmict_10_flag_shower);
-  tree2->SetBranchAddress("cosmict_10_flag_dir_weak",&cosmict_10_flag_dir_weak);
-  tree2->SetBranchAddress("cosmict_10_angle_beam",&cosmict_10_angle_beam);
-  tree2->SetBranchAddress("cosmict_10_length",&cosmict_10_length);
-  
+  float weight;
+  sig->SetBranchAddress("weight",&weight);
+  bkg->SetBranchAddress("weight",&weight);
   
   TFile *new_file = new TFile("round_0.root","RECREATE");
   TTree *Tsig = new TTree("sig","sig");
@@ -127,14 +119,13 @@ void convert_file(){
   Tbkg->Branch("cosmict_10_angle_beam",&cosmict_10_angle_beam_f,"data/F");
   Tbkg->Branch("cosmict_10_length",&cosmict_10_length_f,"data/F");
 
-  float weight;
+ 
   Tsig->Branch("weight",&weight,"data/F");
   Tbkg->Branch("weight",&weight,"data/F");
   
-  for (Int_t i=0;i!=tree0->GetEntries();i++){
-    tree0->GetEntry(i);
+  for (Int_t i=0;i!=sig->GetEntries();i++){
+    sig->GetEntry(i);
     
-    weight = 1;
     for (size_t j=0;j!=cosmict_flag_10->size();j++){
 
       cosmict_flag_10_f = cosmict_flag_10->at(j);
@@ -154,10 +145,9 @@ void convert_file(){
     
   }
 
-  for (Int_t i=0;i!=tree1->GetEntries();i++){
-    tree1->GetEntry(i);
+  for (Int_t i=0;i!=bkg->GetEntries();i++){
+    bkg->GetEntry(i);
     
-    weight = 1;
     for (size_t j=0;j!=cosmict_flag_10->size();j++){
 
       cosmict_flag_10_f = cosmict_flag_10->at(j);
@@ -177,30 +167,10 @@ void convert_file(){
     
   }
 
-  for (Int_t i=0;i!=tree2->GetEntries();i++){
-    tree2->GetEntry(i);
-    
-    weight = 0.45;
-    for (size_t j=0;j!=cosmict_flag_10->size();j++){
-
-      cosmict_flag_10_f = cosmict_flag_10->at(j);
-      cosmict_10_flag_inside_f = cosmict_10_flag_inside->at(j);
-      cosmict_10_vtx_z_f = cosmict_10_vtx_z->at(j);
-      cosmict_10_flag_shower_f = cosmict_10_flag_shower->at(j);
-      cosmict_10_flag_dir_weak_f = cosmict_10_flag_dir_weak->at(j);
-      cosmict_10_angle_beam_f = cosmict_10_angle_beam->at(j);
-      cosmict_10_length_f = cosmict_10_length->at(j);
-
-      if (std::isnan(cosmict_10_angle_beam_f)) cosmict_10_angle_beam_f = 0;
-      
-      Tsig->Fill();
-    }
-    
-    event_no ++;
-  }
+  
   
   cout << "signal tree entries: " << Tsig->GetEntries() << " / " << Tsig->GetEntries("cosmict_flag_1==0")<< endl;
- cout << "background tree entries: " << Tbkg->GetEntries() << " / " << Tbkg->GetEntries(" (cosmict_flag_10==1)&& cosmict_flag_1==0")<< endl;
+  cout << "background tree entries: " << Tbkg->GetEntries() << " / " << Tbkg->GetEntries(" (cosmict_flag_10==1)&& cosmict_flag_1==0")<< endl;
   
   new_file->Write();
   new_file->Close();

@@ -40,13 +40,12 @@ void convert_file();
 
 
 void convert_file(){
- TFile *file0 = new TFile("T_tagger_overlayBNB_signal_1-7.root"); // sig x1
- TFile *file1 = new TFile("T_tagger_overlayBNB_background.root"); // bkg x1
- TFile *file2 = new TFile("T_tagger_extBNB_0-9.root"); // bkg x0.45
+ TFile *file0 = new TFile("bdt.root"); // sig x1
+
  
- TTree *tree0 = (TTree*)file0->Get("T_tagger");
- TTree *tree1 = (TTree*)file1->Get("T_tagger");
- TTree *tree2 = (TTree*)file2->Get("T_tagger");
+ TTree *sig = (TTree*)file0->Get("sig");
+ TTree *bkg = (TTree*)file0->Get("bkg");
+
 
  float cosmict_flag_1;
 
@@ -59,38 +58,33 @@ void convert_file(){
  float numu_cc_3_n_daughter_tracks;
  float numu_cc_3_n_daughter_all;
  
- tree0->SetBranchAddress("cosmict_flag_1",&cosmict_flag_1);
+ sig->SetBranchAddress("cosmict_flag_1",&cosmict_flag_1);
  
- tree0->SetBranchAddress("numu_cc_flag_3",&numu_cc_flag_3);
- tree0->SetBranchAddress("numu_cc_3_particle_type",&numu_cc_3_particle_type);
- tree0->SetBranchAddress("numu_cc_3_max_length",&numu_cc_3_max_length);
- tree0->SetBranchAddress("numu_cc_3_track_length",&numu_cc_3_acc_track_length);
- tree0->SetBranchAddress("numu_cc_3_max_length_all",&numu_cc_3_max_length_all);
- tree0->SetBranchAddress("numu_cc_3_max_muon_length",&numu_cc_3_max_muon_length);
- tree0->SetBranchAddress("numu_cc_3_n_daughter_tracks",&numu_cc_3_n_daughter_tracks);
- tree0->SetBranchAddress("numu_cc_3_n_daughter_all",&numu_cc_3_n_daughter_all);
+ sig->SetBranchAddress("numu_cc_flag_3",&numu_cc_flag_3);
+ sig->SetBranchAddress("numu_cc_3_particle_type",&numu_cc_3_particle_type);
+ sig->SetBranchAddress("numu_cc_3_max_length",&numu_cc_3_max_length);
+ sig->SetBranchAddress("numu_cc_3_track_length",&numu_cc_3_acc_track_length);
+ sig->SetBranchAddress("numu_cc_3_max_length_all",&numu_cc_3_max_length_all);
+ sig->SetBranchAddress("numu_cc_3_max_muon_length",&numu_cc_3_max_muon_length);
+ sig->SetBranchAddress("numu_cc_3_n_daughter_tracks",&numu_cc_3_n_daughter_tracks);
+ sig->SetBranchAddress("numu_cc_3_n_daughter_all",&numu_cc_3_n_daughter_all);
 
- tree1->SetBranchAddress("cosmict_flag_1",&cosmict_flag_1);
+ bkg->SetBranchAddress("cosmict_flag_1",&cosmict_flag_1);
  
- tree1->SetBranchAddress("numu_cc_flag_3",&numu_cc_flag_3);
- tree1->SetBranchAddress("numu_cc_3_particle_type",&numu_cc_3_particle_type);
- tree1->SetBranchAddress("numu_cc_3_max_length",&numu_cc_3_max_length);
- tree1->SetBranchAddress("numu_cc_3_track_length",&numu_cc_3_acc_track_length);
- tree1->SetBranchAddress("numu_cc_3_max_length_all",&numu_cc_3_max_length_all);
- tree1->SetBranchAddress("numu_cc_3_max_muon_length",&numu_cc_3_max_muon_length);
- tree1->SetBranchAddress("numu_cc_3_n_daughter_tracks",&numu_cc_3_n_daughter_tracks);
- tree1->SetBranchAddress("numu_cc_3_n_daughter_all",&numu_cc_3_n_daughter_all);
+ bkg->SetBranchAddress("numu_cc_flag_3",&numu_cc_flag_3);
+ bkg->SetBranchAddress("numu_cc_3_particle_type",&numu_cc_3_particle_type);
+ bkg->SetBranchAddress("numu_cc_3_max_length",&numu_cc_3_max_length);
+ bkg->SetBranchAddress("numu_cc_3_track_length",&numu_cc_3_acc_track_length);
+ bkg->SetBranchAddress("numu_cc_3_max_length_all",&numu_cc_3_max_length_all);
+ bkg->SetBranchAddress("numu_cc_3_max_muon_length",&numu_cc_3_max_muon_length);
+ bkg->SetBranchAddress("numu_cc_3_n_daughter_tracks",&numu_cc_3_n_daughter_tracks);
+ bkg->SetBranchAddress("numu_cc_3_n_daughter_all",&numu_cc_3_n_daughter_all);
 
- tree2->SetBranchAddress("cosmict_flag_1",&cosmict_flag_1);
- 
- tree2->SetBranchAddress("numu_cc_flag_3",&numu_cc_flag_3);
- tree2->SetBranchAddress("numu_cc_3_particle_type",&numu_cc_3_particle_type);
- tree2->SetBranchAddress("numu_cc_3_max_length",&numu_cc_3_max_length);
- tree2->SetBranchAddress("numu_cc_3_track_length",&numu_cc_3_acc_track_length);
- tree2->SetBranchAddress("numu_cc_3_max_length_all",&numu_cc_3_max_length_all);
- tree2->SetBranchAddress("numu_cc_3_max_muon_length",&numu_cc_3_max_muon_length);
- tree2->SetBranchAddress("numu_cc_3_n_daughter_tracks",&numu_cc_3_n_daughter_tracks);
- tree2->SetBranchAddress("numu_cc_3_n_daughter_all",&numu_cc_3_n_daughter_all);
+
+
+ float weight;
+ sig->SetBranchAddress("weight",&weight);
+ bkg->SetBranchAddress("weight",&weight);
  
  TFile *new_file = new TFile("round_0.root","RECREATE");
  TTree *Stree = new TTree("TreeS","signal tree");
@@ -98,7 +92,7 @@ void convert_file(){
  Stree->SetDirectory(new_file);
  Btree->SetDirectory(new_file);
 
- float weight;
+
 
  Stree->Branch("weight",&weight,"weight/F");
  Btree->Branch("weight",&weight,"weight/F");
@@ -127,30 +121,23 @@ void convert_file(){
  Btree->Branch("numu_cc_3_n_daughter_all",&numu_cc_3_n_daughter_all,"numu_cc_3_n_daughter_all/F");
 
  
- for (Int_t i=0;i!=tree0->GetEntries();i++){
-    tree0->GetEntry(i);
-    weight = 1.0;
+ for (Int_t i=0;i!=sig->GetEntries();i++){
+    sig->GetEntry(i);
+
 
      
     Stree->Fill();
  }
 
- for (Int_t i=0;i!=tree1->GetEntries();i++){
-   tree1->GetEntry(i);
-   weight = 1;
+ for (Int_t i=0;i!=bkg->GetEntries();i++){
+   bkg->GetEntry(i);
+
    
     
    Btree->Fill();
  }
 
- for (Int_t i=0;i!=tree2->GetEntries();i++){
-    tree2->GetEntry(i);
-    weight = 0.45;
-
  
-    
-    Btree->Fill();
- }
 
  cout << "signal tree entries: " << Stree->GetEntries() << " / " << Stree->GetEntries("cosmict_flag_1==0")<< endl;
  cout << "background tree entries: " << Btree->GetEntries() << " / " << Btree->GetEntries(" (numu_cc_flag_3==0 )&& cosmict_flag_1==0")<< endl;

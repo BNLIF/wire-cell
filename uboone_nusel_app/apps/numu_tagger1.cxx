@@ -41,13 +41,12 @@ void convert_file();
 
 void convert_file(){
   
-  TFile *file0 = new TFile("T_tagger_overlayBNB_signal_1-7.root"); // sig x1
-  TFile *file1 = new TFile("T_tagger_overlayBNB_background.root"); // bkg x1
-  TFile *file2 = new TFile("T_tagger_extBNB_0-9.root"); // bkg x0.45
+  TFile *file0 = new TFile("bdt.root"); // sig x1
+
   
-  TTree *tree0 = (TTree*)file0->Get("T_tagger");
-  TTree *tree1 = (TTree*)file1->Get("T_tagger");
-  TTree *tree2 = (TTree*)file2->Get("T_tagger");
+  TTree *sig = (TTree*)file0->Get("sig");
+  TTree *bkg = (TTree*)file0->Get("bkg");
+  
 
   float cosmict_flag_1;
 
@@ -62,40 +61,32 @@ void convert_file(){
   std::vector<float> *numu_cc_1_n_daughter_tracks= new std::vector<float>;
   std::vector<float> *numu_cc_1_n_daughter_all= new std::vector<float>;
   
-  tree0->SetBranchAddress("cosmict_flag_1",&cosmict_flag_1);
-  tree0->SetBranchAddress("numu_cc_flag_1",&numu_cc_flag_1);
-  tree0->SetBranchAddress("numu_cc_1_particle_type",&numu_cc_1_particle_type);
-  tree0->SetBranchAddress("numu_cc_1_length",&numu_cc_1_length);
-  tree0->SetBranchAddress("numu_cc_1_medium_dQ_dx",&numu_cc_1_medium_dQ_dx);
-  tree0->SetBranchAddress("numu_cc_1_dQ_dx_cut",&numu_cc_1_dQ_dx_cut);
-  tree0->SetBranchAddress("numu_cc_1_direct_length",&numu_cc_1_direct_length);
-  tree0->SetBranchAddress("numu_cc_1_n_daughter_tracks",&numu_cc_1_n_daughter_tracks);
-  tree0->SetBranchAddress("numu_cc_1_n_daughter_all",&numu_cc_1_n_daughter_all);
+  sig->SetBranchAddress("cosmict_flag_1",&cosmict_flag_1);
+  sig->SetBranchAddress("numu_cc_flag_1",&numu_cc_flag_1);
+  sig->SetBranchAddress("numu_cc_1_particle_type",&numu_cc_1_particle_type);
+  sig->SetBranchAddress("numu_cc_1_length",&numu_cc_1_length);
+  sig->SetBranchAddress("numu_cc_1_medium_dQ_dx",&numu_cc_1_medium_dQ_dx);
+  sig->SetBranchAddress("numu_cc_1_dQ_dx_cut",&numu_cc_1_dQ_dx_cut);
+  sig->SetBranchAddress("numu_cc_1_direct_length",&numu_cc_1_direct_length);
+  sig->SetBranchAddress("numu_cc_1_n_daughter_tracks",&numu_cc_1_n_daughter_tracks);
+  sig->SetBranchAddress("numu_cc_1_n_daughter_all",&numu_cc_1_n_daughter_all);
 
   
-  tree1->SetBranchAddress("cosmict_flag_1",&cosmict_flag_1);
-  tree1->SetBranchAddress("numu_cc_flag_1",&numu_cc_flag_1);
-  tree1->SetBranchAddress("numu_cc_1_particle_type",&numu_cc_1_particle_type);
-  tree1->SetBranchAddress("numu_cc_1_length",&numu_cc_1_length);
-  tree1->SetBranchAddress("numu_cc_1_medium_dQ_dx",&numu_cc_1_medium_dQ_dx);
-  tree1->SetBranchAddress("numu_cc_1_dQ_dx_cut",&numu_cc_1_dQ_dx_cut);
-  tree1->SetBranchAddress("numu_cc_1_direct_length",&numu_cc_1_direct_length);
-  tree1->SetBranchAddress("numu_cc_1_n_daughter_tracks",&numu_cc_1_n_daughter_tracks);
-  tree1->SetBranchAddress("numu_cc_1_n_daughter_all",&numu_cc_1_n_daughter_all);
+  bkg->SetBranchAddress("cosmict_flag_1",&cosmict_flag_1);
+  bkg->SetBranchAddress("numu_cc_flag_1",&numu_cc_flag_1);
+  bkg->SetBranchAddress("numu_cc_1_particle_type",&numu_cc_1_particle_type);
+  bkg->SetBranchAddress("numu_cc_1_length",&numu_cc_1_length);
+  bkg->SetBranchAddress("numu_cc_1_medium_dQ_dx",&numu_cc_1_medium_dQ_dx);
+  bkg->SetBranchAddress("numu_cc_1_dQ_dx_cut",&numu_cc_1_dQ_dx_cut);
+  bkg->SetBranchAddress("numu_cc_1_direct_length",&numu_cc_1_direct_length);
+  bkg->SetBranchAddress("numu_cc_1_n_daughter_tracks",&numu_cc_1_n_daughter_tracks);
+  bkg->SetBranchAddress("numu_cc_1_n_daughter_all",&numu_cc_1_n_daughter_all);
 
   
-  tree2->SetBranchAddress("cosmict_flag_1",&cosmict_flag_1);
-  tree2->SetBranchAddress("numu_cc_flag_1",&numu_cc_flag_1);
-  tree2->SetBranchAddress("numu_cc_1_particle_type",&numu_cc_1_particle_type);
-  tree2->SetBranchAddress("numu_cc_1_length",&numu_cc_1_length);
-  tree2->SetBranchAddress("numu_cc_1_medium_dQ_dx",&numu_cc_1_medium_dQ_dx);
-  tree2->SetBranchAddress("numu_cc_1_dQ_dx_cut",&numu_cc_1_dQ_dx_cut);
-  tree2->SetBranchAddress("numu_cc_1_direct_length",&numu_cc_1_direct_length);
-  tree2->SetBranchAddress("numu_cc_1_n_daughter_tracks",&numu_cc_1_n_daughter_tracks);
-  tree2->SetBranchAddress("numu_cc_1_n_daughter_all",&numu_cc_1_n_daughter_all);
-
-  
-  
+ 
+  float weight;
+  sig->SetBranchAddress("weight",&weight);
+  bkg->SetBranchAddress("weight",&weight);
 
   
   
@@ -140,14 +131,13 @@ void convert_file(){
   Tbkg->Branch("numu_cc_1_n_daughter_all",&numu_cc_1_n_daughter_all_f,"data/F");
 
   
-  float weight;
+
   Tsig->Branch("weight",&weight,"data/F");
   Tbkg->Branch("weight",&weight,"data/F");
   
-  for (Int_t i=0;i!=tree0->GetEntries();i++){
-    tree0->GetEntry(i);
+  for (Int_t i=0;i!=sig->GetEntries();i++){
+    sig->GetEntry(i);
     
-    weight = 1;
     for (size_t j=0;j!=numu_cc_flag_1->size();j++){
       
       numu_cc_flag_1_f = numu_cc_flag_1->at(j);
@@ -168,10 +158,10 @@ void convert_file(){
     
   }
 
-  for (Int_t i=0;i!=tree1->GetEntries();i++){
-    tree1->GetEntry(i);
+  for (Int_t i=0;i!=bkg->GetEntries();i++){
+    bkg->GetEntry(i);
     
-    weight = 1;
+
     for (size_t j=0;j!=numu_cc_flag_1->size();j++){
       
       numu_cc_flag_1_f = numu_cc_flag_1->at(j);
@@ -192,28 +182,7 @@ void convert_file(){
     
   }
 
-  for (Int_t i=0;i!=tree2->GetEntries();i++){
-    tree2->GetEntry(i);
-    
-    weight = 0.45;
-    for (size_t j=0;j!=numu_cc_flag_1->size();j++){
-      
-      numu_cc_flag_1_f = numu_cc_flag_1->at(j);
-      numu_cc_1_particle_type_f = numu_cc_1_particle_type->at(j);
-      numu_cc_1_length_f = numu_cc_1_length->at(j);
-      numu_cc_1_medium_dQ_dx_f = numu_cc_1_medium_dQ_dx->at(j);
-      numu_cc_1_dQ_dx_cut_f = numu_cc_1_dQ_dx_cut->at(j);
-      numu_cc_1_direct_length_f = numu_cc_1_direct_length->at(j);
-      numu_cc_1_n_daughter_tracks_f = numu_cc_1_n_daughter_tracks->at(j);
-      numu_cc_1_n_daughter_all_f = numu_cc_1_n_daughter_all->at(j);
-    
-      if (std::isinf(numu_cc_1_dQ_dx_cut_f))  numu_cc_1_dQ_dx_cut_f = 10;
-      
-      Tsig->Fill();
-    }
-    
-    event_no ++;
-  }
+
   
   cout << "signal tree entries: " << Tsig->GetEntries() << " / " << Tsig->GetEntries("(numu_cc_flag_1 == 1) && cosmict_flag_1==0")<< endl;
  cout << "background tree entries: " << Tbkg->GetEntries() << " / " << Tbkg->GetEntries(" cosmict_flag_1==0")<< endl;

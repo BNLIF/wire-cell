@@ -548,13 +548,10 @@ float cal_numu_3_bdt(float default_val,numuInfo& tagger_info,TMVA::Reader& reade
 }
 
 void merge_files(){
-  TFile *file0 = new TFile("T_tagger_overlayBNB_signal_1-7.root"); // sig x1
-  TFile *file1 = new TFile("T_tagger_overlayBNB_background.root"); // bkg x1
-  TFile *file2 = new TFile("T_tagger_extBNB_0-9.root"); // bkg x0.45
+  TFile *file0 = new TFile("bdt.root"); // sig x1
   
-  TTree *tree0 = (TTree*)file0->Get("T_tagger");
-  TTree *tree1 = (TTree*)file1->Get("T_tagger");
-  TTree *tree2 = (TTree*)file2->Get("T_tagger");
+  TTree *tree0 = (TTree*)file0->Get("sig");
+  TTree *tree1 = (TTree*)file0->Get("bkg");
 
   numuInfo tagger_info;
 
@@ -584,8 +581,9 @@ void merge_files(){
   
   set_tree_address(tree0, tagger_info);
   set_tree_address(tree1, tagger_info);
-  set_tree_address(tree2, tagger_info);
-
+  
+  tree0->SetBranchAddress("weight",&tagger_info.weight);
+  tree1->SetBranchAddress("weight",&tagger_info.weight);
   
   
   TFile *new_file = new TFile("merge.root","RECREATE");
@@ -604,23 +602,17 @@ void merge_files(){
   for (Int_t i=0;i!=tree0->GetEntries();i++){
     tree0->GetEntry(i);
     
-    tagger_info.weight = 1;
     Tsig->Fill();
   }
   
   for (Int_t i=0;i!=tree1->GetEntries();i++){
     tree1->GetEntry(i);
     
-    tagger_info.weight = 1;
+
     Tbkg->Fill();
   }
   
-  for (Int_t i=0;i!=tree2->GetEntries();i++){
-    tree2->GetEntry(i);
-    
-    tagger_info.weight = 0.45;
-    Tbkg->Fill();
-  }
+
 
   cout << "signal tree entries: " << Tsig->GetEntries() << endl;
   cout << "background tree entries: " << Tbkg->GetEntries() << endl;
