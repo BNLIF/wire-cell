@@ -272,16 +272,49 @@ int main( int argc, char** argv )
   tagger.numu_cc_2_n_daughter_tracks = new std::vector<float>;
   tagger.numu_cc_2_n_daughter_all = new std::vector<float>;
   
-  // Now read a file and set address ...
-  TFile *file1 = new TFile("run3_intrinsic_nue_part1_POT3.0E22.root");
-  TTree *t0 = (TTree*)file1->Get("bdt");
-  set_tree_address(t0, tagger);
-  double pot_1 = 3e22;
-
-  TFile *file2 = new TFile("run3_bnb_nu_POT1.0E20.root");
-  TTree *t1 = (TTree*)file2->Get("bdt");
+  // intrinsic nueCC
+  TFile *file1 = new TFile("run1_intrinsic_nue_POT1.2E23.root");
+  TTree *t1 = (TTree*)file1->Get("bdt");
   set_tree_address(t1, tagger);
-  double pot_2 = 1e20;
+  double pot_1 = 1.2e23/2.;
+
+  TFile *file2 = new TFile("run3_intrinsic_nue_POT8.3E22.root");
+  TTree *t2 = (TTree*)file2->Get("bdt");
+  set_tree_address(t2, tagger);
+  double pot_2 = 8.3e22/2.;
+
+  // intrinsic nueCC lowE patch
+  TFile *file3 = new TFile("run1_intrinsic_nue_LowE_POT6.1E23.root");
+  TTree *t3 = (TTree*)file3->Get("bdt");
+  set_tree_address(t3, tagger);
+  double pot_3 = 6.1e23/2.;
+
+  TFile *file4 = new TFile("run3_intrinsic_nue_LowE_POT6.0E23.root");
+  TTree *t4 = (TTree*)file4->Get("bdt");
+  set_tree_address(t4, tagger);
+  double pot_4 = 6.0e23/2.;
+
+  // nu overlay
+  TFile *file5 = new TFile("run1_bnb_nu_POT1.2E21.root");
+  TTree *t5 = (TTree*)file5->Get("bdt");
+  set_tree_address(t5, tagger);
+  double pot_5 = 1.2e21/2.;
+
+  TFile *file6 = new TFile("run3_bnb_nu_POT1.2E21.root");
+  TTree *t6 = (TTree*)file6->Get("bdt");
+  set_tree_address(t6, tagger);
+  double pot_6 = 1.21e21/2.;
+  
+  // EXTBNB
+  TFile *file7 = new TFile("run1_ext_bnb_C1_gt10_wcp_v00_14_00_POT1.2E20.root");
+  TTree *t7 = (TTree*)file7->Get("bdt");
+  set_tree_address(t7, tagger);
+  double pot_7 = 1.2e20/2.;
+
+  TFile *file8 = new TFile("run3_ext_bnb_F_G1_POT1.9E20.root");
+  TTree *t8 = (TTree*)file8->Get("bdt");
+  set_tree_address(t8, tagger);
+  double pot_8 = 1.92e20/2.;
 
   
   TFile *new_file = new TFile("bdt.root","RECREATE");
@@ -293,14 +326,47 @@ int main( int argc, char** argv )
   put_tree_address(Tbkg, tagger);
 
   // signal, intrinsic nue ...
-  for (Int_t i=0;i!=t0->GetEntries();i++){
-    t0->GetEntry(i);
+  for (Int_t i=0;i!=t1->GetEntries();i++){
+    t1->GetEntry(i);
 
+    // weight corrupted ...
     if (std::isnan(tagger.weight_cv) || std::isnan(tagger.weight_spline) || std::isinf(tagger.weight_cv) || std::isinf(tagger.weight_spline)) continue;
+    // no EM showers ...
     if (tagger.br_filled!=1) continue;
-			       
+    // odd sub-run number ...
+    if (tagger.subrun %2 == 1) continue;
+
+    
+    
     tagger.weight = tagger.weight_spline * tagger.weight_cv * (1 + tagger.weight_lee);
     tagger.lowEweight = (1. + 5 * tagger.weight_lee)/(1. + tagger.weight_lee);
+
+    // scale intrinsic nue higher ...
+    if (tagger.truth_nuEnergy > 400) tagger.weight *= (pot_1+pot_2+pot_3+pot_4)/(pot_1+pot_2);
+    
+    if (tagger.nuvtx_diff < 1 && tagger.showervtx_diff < 1 && tagger.truth_isCC == 1 &&
+	abs(tagger.truth_nuPdg)==12 && tagger.truth_vtxInside == 1){
+      Tsig->Fill();
+    }
+  }
+  
+  for (Int_t i=0;i!=t2->GetEntries();i++){
+    t2->GetEntry(i);
+
+    // weight corrupted ...
+    if (std::isnan(tagger.weight_cv) || std::isnan(tagger.weight_spline) || std::isinf(tagger.weight_cv) || std::isinf(tagger.weight_spline)) continue;
+    // no EM showers ...
+    if (tagger.br_filled!=1) continue;
+    // odd sub-run number ...
+    if (tagger.subrun %2 == 1) continue;
+
+    
+    
+    tagger.weight = tagger.weight_spline * tagger.weight_cv * (1 + tagger.weight_lee);
+    tagger.lowEweight = (1. + 5 * tagger.weight_lee)/(1. + tagger.weight_lee);
+
+    // scale intrinsic nue higher ...
+    if (tagger.truth_nuEnergy > 400) tagger.weight *= (pot_1+pot_2+pot_3+pot_4)/(pot_1+pot_2);
     
     if (tagger.nuvtx_diff < 1 && tagger.showervtx_diff < 1 && tagger.truth_isCC == 1 &&
 	abs(tagger.truth_nuPdg)==12 && tagger.truth_vtxInside == 1){
@@ -308,22 +374,131 @@ int main( int argc, char** argv )
     }
   }
 
-  // background
-  for (Int_t i=0;i!=t1->GetEntries();i++){
-    t1->GetEntry(i);
+  // low energy patch ...
+  for (Int_t i=0;i!=t3->GetEntries();i++){
+    t3->GetEntry(i);
+
+    // weight corrupted ...
+    if (std::isnan(tagger.weight_cv) || std::isnan(tagger.weight_spline) || std::isinf(tagger.weight_cv) || std::isinf(tagger.weight_spline)) continue;
+    // no EM showers ...
+    if (tagger.br_filled!=1) continue;
+    // odd sub-run number ...
+    if (tagger.subrun %2 == 1) continue;
+
+    
+    
+    tagger.weight = tagger.weight_spline * tagger.weight_cv * (1 + tagger.weight_lee);
+    tagger.lowEweight = (1. + 5 * tagger.weight_lee)/(1. + tagger.weight_lee);
+
+        
+    
+    if (tagger.nuvtx_diff < 1 && tagger.showervtx_diff < 1 && tagger.truth_isCC == 1 &&
+	abs(tagger.truth_nuPdg)==12 && tagger.truth_vtxInside == 1){
+      Tsig->Fill();
+    }
+  }
+
+  for (Int_t i=0;i!=t4->GetEntries();i++){
+    t4->GetEntry(i);
+
+    // weight corrupted ...
+    if (std::isnan(tagger.weight_cv) || std::isnan(tagger.weight_spline) || std::isinf(tagger.weight_cv) || std::isinf(tagger.weight_spline)) continue;
+    // no EM showers ...
+    if (tagger.br_filled!=1) continue;
+    // odd sub-run number ...
+    if (tagger.subrun %2 == 1) continue;
+
+    
+    
+    tagger.weight = tagger.weight_spline * tagger.weight_cv * (1 + tagger.weight_lee);
+    tagger.lowEweight = (1. + 5 * tagger.weight_lee)/(1. + tagger.weight_lee);
+   
+    
+    if (tagger.nuvtx_diff < 1 && tagger.showervtx_diff < 1 && tagger.truth_isCC == 1 &&
+	abs(tagger.truth_nuPdg)==12 && tagger.truth_vtxInside == 1){
+      Tsig->Fill();
+    }
+  }
+  
+  
+  
+  
+
+  // background  numu overlay ...
+  for (Int_t i=0;i!=t5->GetEntries();i++){
+    t5->GetEntry(i);
 
     if (std::isnan(tagger.weight_cv) || std::isnan(tagger.weight_spline) || std::isinf(tagger.weight_cv) || std::isinf(tagger.weight_spline)) continue;
-
+    // require EM shower ...
     if (tagger.br_filled!=1) continue;
-    // also need to exclude the NC nu-electron elastic scattering 
+    // only use even subrun number to train ...
+    if (tagger.subrun %2 == 1) continue;
     
-    tagger.weight = tagger.weight_spline * tagger.weight_cv * (pot_1*1.0/pot_2);
-    tagger.lowEweight = 1;
-
+    // also need to exclude the NC nu-electron elastic scattering 
     if (tagger.truth_isCC==1 && abs(tagger.truth_nuPdg)==12 || tagger.truth_nuIntType==1098 ) continue;
+    
+    tagger.weight = tagger.weight_spline * tagger.weight_cv * (pot_1+pot_2+pot_3+pot_4)/(pot_5+pot_6);
+    tagger.lowEweight = 1;
     
     Tbkg->Fill();
   }
+
+  for (Int_t i=0;i!=t6->GetEntries();i++){
+    t6->GetEntry(i);
+
+    if (std::isnan(tagger.weight_cv) || std::isnan(tagger.weight_spline) || std::isinf(tagger.weight_cv) || std::isinf(tagger.weight_spline)) continue;
+    // require EM shower ...
+    if (tagger.br_filled!=1) continue;
+    // only use even subrun number to train ...
+    if (tagger.subrun %2 == 1) continue;
+    
+    // also need to exclude the NC nu-electron elastic scattering 
+    if (tagger.truth_isCC==1 && abs(tagger.truth_nuPdg)==12 || tagger.truth_nuIntType==1098 ) continue;
+    
+    tagger.weight = tagger.weight_spline * tagger.weight_cv * (pot_1+pot_2+pot_3+pot_4)/(pot_5+pot_6);
+    tagger.lowEweight = 1;
+    
+    Tbkg->Fill();
+  }
+
+
+  // EXT background 
+  for (Int_t i=0;i!=t7->GetEntries();i++){
+    t7->GetEntry(i);
+
+    //    if (std::isnan(tagger.weight_cv) || std::isnan(tagger.weight_spline) || std::isinf(tagger.weight_cv) || std::isinf(tagger.weight_spline)) continue;
+    // require EM shower ...
+    if (tagger.br_filled!=1) continue;
+    // only use even subrun number to train ...
+    if (tagger.subrun %2 == 1) continue;
+    
+    // also need to exclude the NC nu-electron elastic scattering 
+    //if (tagger.truth_isCC==1 && abs(tagger.truth_nuPdg)==12 || tagger.truth_nuIntType==1098 ) continue;
+    
+    tagger.weight = (pot_1+pot_2+pot_3+pot_4)/(pot_7+pot_8);
+    tagger.lowEweight = 1;
+    
+    Tbkg->Fill();
+  }
+
+  for (Int_t i=0;i!=t8->GetEntries();i++){
+    t8->GetEntry(i);
+
+    //    if (std::isnan(tagger.weight_cv) || std::isnan(tagger.weight_spline) || std::isinf(tagger.weight_cv) || std::isinf(tagger.weight_spline)) continue;
+    // require EM shower ...
+    if (tagger.br_filled!=1) continue;
+    // only use even subrun number to train ...
+    if (tagger.subrun %2 == 1) continue;
+    
+    // also need to exclude the NC nu-electron elastic scattering 
+    //if (tagger.truth_isCC==1 && abs(tagger.truth_nuPdg)==12 || tagger.truth_nuIntType==1098 ) continue;
+    
+    tagger.weight = (pot_1+pot_2+pot_3+pot_4)/(pot_7+pot_8);
+    tagger.lowEweight = 1;
+    
+    Tbkg->Fill();
+  }
+  
   
   new_file->Write();
   new_file->Close();
