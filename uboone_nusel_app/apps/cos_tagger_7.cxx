@@ -277,14 +277,14 @@ void InitBDT_r1()
   dataloader->SetBackgroundWeightExpression( "weight" );
 
   // Apply additional cuts on the signal and background samples (can be different)
-  TCut mycut_s = "cosmict_7_filled>0 && cosmict_flag_1==0"; // 
-  TCut mycut_b = "cosmict_7_filled>0 && (cosmict_flag_7>0 ) && cosmict_flag_1==0"; // 
+  TCut mycut_s = "cosmict_7_filled>0 && cosmict_flag_1==0"; // 34340
+  TCut mycut_b = "cosmict_7_filled>0 && (cosmict_flag_7>0 ) && cosmict_flag_1==0"; //  2642
     
   dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
-					  "nTrain_Signal=4000:"
-					  "nTrain_Background=528:"
-					  "nTest_Signal=516:"
-					  "nTest_Background=100:"
+					  "nTrain_Signal=20000:"
+					  "nTrain_Background=2200:"
+					  "nTest_Signal=4000:"
+					  "nTest_Background=442:"
 					  "SplitMode=Random:"
 					  "NormMode=NumEvents:"
 					  "!V" );
@@ -347,13 +347,13 @@ void InitBDT_r2()
 
     // Apply additional cuts on the signal and background samples (can be different)
     TCut mycut_s = "cosmict_7_filled>0 && cosmict_flag_1==0"; // 
-    TCut mycut_b = "cosmict_7_filled>0 && (cosmict_flag_7>0  || cosmict_7_bdt < 0.2) && cosmict_flag_1==0"; // 
+    TCut mycut_b = "cosmict_7_filled>0 && (cosmict_flag_7>0  || cosmict_7_bdt < 0.1) && cosmict_flag_1==0"; // 3382
 
       dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
-					  "nTrain_Signal=4000:"
-					  "nTrain_Background=650:"
-					  "nTest_Signal=516:"
-					  "nTest_Background=113:"
+					  "nTrain_Signal=20000:"
+					  "nTrain_Background=2800:"
+					  "nTest_Signal=4000:"
+					  "nTest_Background=582:"
 					  "SplitMode=Random:"
 					  "NormMode=NumEvents:"
 					  "!V" );

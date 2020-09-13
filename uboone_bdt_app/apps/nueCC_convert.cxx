@@ -297,7 +297,8 @@ int main( int argc, char** argv )
     t0->GetEntry(i);
 
     if (std::isnan(tagger.weight_cv) || std::isnan(tagger.weight_spline) || std::isinf(tagger.weight_cv) || std::isinf(tagger.weight_spline)) continue;
-    
+    if (tagger.br_filled!=1) continue;
+			       
     tagger.weight = tagger.weight_spline * tagger.weight_cv * (1 + tagger.weight_lee);
     tagger.lowEweight = (1. + 5 * tagger.weight_lee)/(1. + tagger.weight_lee);
     
@@ -313,6 +314,7 @@ int main( int argc, char** argv )
 
     if (std::isnan(tagger.weight_cv) || std::isnan(tagger.weight_spline) || std::isinf(tagger.weight_cv) || std::isinf(tagger.weight_spline)) continue;
 
+    if (tagger.br_filled!=1) continue;
     // also need to exclude the NC nu-electron elastic scattering 
     
     tagger.weight = tagger.weight_spline * tagger.weight_cv * (pot_1*1.0/pot_2);

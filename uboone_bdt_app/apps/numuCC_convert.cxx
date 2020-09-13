@@ -273,10 +273,25 @@ int main( int argc, char** argv )
   tagger.numu_cc_2_n_daughter_all = new std::vector<float>;
   
   // Now read a file and set address ...
-  TFile *file2 = new TFile("run3_bnb_nu_POT1.0E20.root");
-  TTree *t1 = (TTree*)file2->Get("bdt");
-  set_tree_address(t1, tagger);
-  double pot_2 = 1e20;
+  TFile *file2 = new TFile("run1_bnb_nu_POT1.2E21.root");
+  TTree *t2 = (TTree*)file2->Get("bdt");
+  set_tree_address(t2, tagger);
+  double pot_2 = 6e20;
+
+  TFile *file3 = new TFile("run3_bnb_nu_POT1.2E21.root");
+  TTree *t3 = (TTree*)file3->Get("bdt");
+  set_tree_address(t3, tagger);
+  double pot_3 = 6e20;
+
+  TFile *file4 = new TFile("run1_ext_bnb_C1_gt10_wcp_v00_14_00_POT1.2E20.root");
+  TTree *t4 = (TTree*)file4->Get("bdt");
+  set_tree_address(t4, tagger);
+  double pot_4 = 1.2e20/2.;
+
+  TFile *file5 = new TFile("run3_ext_bnb_F_G1_POT1.9E20.root");
+  TTree *t5 = (TTree*)file5->Get("bdt");
+  set_tree_address(t5, tagger);
+  double pot_5 = 1.9e20/2.;
 
   
   TFile *new_file = new TFile("bdt.root","RECREATE");
@@ -288,11 +303,18 @@ int main( int argc, char** argv )
   put_tree_address(Tbkg, tagger);
 
   
-  for (Int_t i=0;i!=t1->GetEntries();i++){
-    t1->GetEntry(i);
+  for (Int_t i=0;i!=t2->GetEntries();i++){
+    t2->GetEntry(i);
 
+    // weight not good ...
     if (std::isnan(tagger.weight_cv) || std::isnan(tagger.weight_spline) || std::isinf(tagger.weight_cv) || std::isinf(tagger.weight_spline)) continue;
-        
+
+    // effectively generic neutrino selection
+    if (tagger.kine_reco_Enu == 0) continue;
+
+    // odd sub run number ...
+    if (tagger.subrun %2 == 1) continue;
+    
     tagger.weight = tagger.weight_spline * tagger.weight_cv ;
     tagger.lowEweight = 1;
     
@@ -302,6 +324,70 @@ int main( int argc, char** argv )
       Tbkg->Fill();
     }
   }
+
+
+  for (Int_t i=0;i!=t3->GetEntries();i++){
+    t3->GetEntry(i);
+
+    // weight not good ...
+    if (std::isnan(tagger.weight_cv) || std::isnan(tagger.weight_spline) || std::isinf(tagger.weight_cv) || std::isinf(tagger.weight_spline)) continue;
+
+    // effectively generic neutrino selection
+    if (tagger.kine_reco_Enu == 0) continue;
+
+    // odd sub run number skip ...
+    if (tagger.subrun %2 == 1) continue;
+    
+    tagger.weight = tagger.weight_spline * tagger.weight_cv ;
+    tagger.lowEweight = 1;
+    
+    if (tagger.truth_isCC==1 && abs(tagger.truth_nuPdg)==14 && tagger.truth_vtxInside ==1  ) {
+      Tsig->Fill(); 
+    }else{
+      Tbkg->Fill();
+    }
+  }
+
+  // run 1 ext
+  for (Int_t i=0;i!=t4->GetEntries();i++){
+    t4->GetEntry(i);
+
+    // effectively generic neutrino selection
+    if (tagger.kine_reco_Enu == 0) continue;
+
+    // odd sub run number ...
+    if (tagger.subrun %2 == 1) continue;
+    
+    tagger.weight = (pot_2+pot_3)/(pot_4+pot_5);
+    tagger.lowEweight = 1;
+    
+    
+    Tbkg->Fill();
+    
+  }
+
+  // Run3  ext
+  for (Int_t i=0;i!=t5->GetEntries();i++){
+    t5->GetEntry(i);
+
+    // effectively generic neutrino selection
+    if (tagger.kine_reco_Enu == 0) continue;
+
+    // odd sub run number ...
+    if (tagger.subrun %2 == 1) continue;
+    
+    tagger.weight =  (pot_2+pot_3)/(pot_4+pot_5);
+    tagger.lowEweight = 1;
+    
+   
+    Tbkg->Fill();
+   
+  }
+  
+  
+
+  
+  
 
   // later need to add EXTBNB ...
   

@@ -601,15 +601,15 @@ void merge_files(){
   
   for (Int_t i=0;i!=tree0->GetEntries();i++){
     tree0->GetEntry(i);
-    
-    Tsig->Fill();
+    if (tagger_info.numu_cc_flag != -1)
+      Tsig->Fill();
   }
   
   for (Int_t i=0;i!=tree1->GetEntries();i++){
     tree1->GetEntry(i);
     
-
-    Tbkg->Fill();
+    if (tagger_info.numu_cc_flag != -1)
+      Tbkg->Fill();
   }
   
 
@@ -821,7 +821,8 @@ void convert_file(int level){
   reader->AddVariable("numu_1_score",&tagger_info.numu_1_score);
   reader->AddVariable("numu_2_score",&tagger_info.numu_2_score);
   reader->AddVariable("numu_3_score",&tagger_info.numu_3_score);
-  reader->BookMVA( "MyBDT", "dataset/weights/Test_BDT.weights.xml");
+  if (level!=1)
+    reader->BookMVA( "MyBDT", "dataset/weights/Test_BDT.weights.xml");
   
   
   for (int i=0;i!=sig->GetEntries();i++){
@@ -989,10 +990,10 @@ void InitBDT_r1(){
     TCut mycut_b = "1>0"; // 
     
     dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
-        "nTrain_Signal=27000:"
-        "nTrain_Background=5460:"
-	"nTest_Signal=4431:"
-        "nTest_Background=1500:"
+        "nTrain_Signal=100000:"
+        "nTrain_Background=70000:"
+	"nTest_Signal=20000:"
+        "nTest_Background=10000:"
         "SplitMode=Random:"
         "NormMode=NumEvents:"
         "!V" );

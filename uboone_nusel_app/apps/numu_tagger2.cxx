@@ -268,14 +268,14 @@ void InitBDT_r1()
   dataloader->SetBackgroundWeightExpression( "weight " );
     
     // Apply additional cuts on the signal and background samples (can be different)
-    TCut mycut_s = "cosmict_flag_1==0 && numu_cc_flag_2 == 1"; // 
-    TCut mycut_b = "cosmict_flag_1==0"; // 
+  TCut mycut_s = "cosmict_flag_1==0 && numu_cc_flag_2 == 1"; // 37903
+  TCut mycut_b = "cosmict_flag_1==0"; // 2039
     
     dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
-        "nTrain_Signal=3800:"
-        "nTrain_Background=180:"
-	"nTest_Signal=493:"
-        "nTest_Background=33:"
+        "nTrain_Signal=20000:"
+        "nTrain_Background=1800:"
+	"nTest_Signal=5000:"
+        "nTest_Background=239:"
         "SplitMode=Random:"
         "NormMode=NumEvents:"
         "!V" );
@@ -335,10 +335,10 @@ void InitBDT_r2()
     TCut mycut_b = "cosmict_flag_1==0"; // 
     
     dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
-        "nTrain_Signal=3800:"
-        "nTrain_Background=180:"
-	"nTest_Signal=594:"
-        "nTest_Background=33:"
+        "nTrain_Signal=20000:"
+        "nTrain_Background=1800:"
+	"nTest_Signal=5000:"
+        "nTest_Background=239:"
         "SplitMode=Random:"
         "NormMode=NumEvents:"
         "!V" );
