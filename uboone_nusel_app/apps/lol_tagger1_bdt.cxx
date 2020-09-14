@@ -299,14 +299,14 @@ void InitBDT_r1()
 
     // Apply additional cuts on the signal and background samples (can be different)
 
-    TCut mycut_s = "1>0"; // 0 / 521843, adding pi0 50
-    TCut mycut_b = "lol_1_v_flag==0  "; // 25/89117, adding mip_id 340
+    TCut mycut_s = "1>0"; // 1045557
+    TCut mycut_b = "lol_1_v_flag==0  "; // 82
     
     dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
         "nTrain_Signal=200000:"
-        "nTrain_Background=24:"
+        "nTrain_Background=70:"
 	"nTest_Signal=30000:"
-        "nTest_Background=1:"
+        "nTest_Background=12:"
         "SplitMode=Random:"
         "NormMode=NumEvents:"
         "!V" );
@@ -365,13 +365,13 @@ void InitBDT_r2()
     // Apply additional cuts on the signal and background samples (can be different)
 
     TCut mycut_s = "1>0"; // 2 / 97209, adding pi0 50
-    TCut mycut_b = "(lol_1_v_flag==0 || lol_1_v_bdt < 0.1) "; // 79/40640, adding mip_id 340
+    TCut mycut_b = "(lol_1_v_flag==0 || lol_1_v_bdt < 0.1) "; // 313
     
     dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
         "nTrain_Signal=200000:"
-        "nTrain_Background=70:"
+        "nTrain_Background=270:"
 	"nTest_Signal=20000:"
-        "nTest_Background=9:"
+        "nTest_Background=43:"
         "SplitMode=Random:"
         "NormMode=NumEvents:"
         "!V" );

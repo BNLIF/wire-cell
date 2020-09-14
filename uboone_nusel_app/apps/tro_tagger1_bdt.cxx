@@ -358,14 +358,14 @@ void InitBDT_r1()
     dataloader->SetBackgroundWeightExpression( "weight " );
 
     // Apply additional cuts on the signal and background samples (can be different)
-    TCut mycut_s = "1>0 "; //   533/260556
-    TCut mycut_b = "tro_1_v_flag==0 "; // 1396/49876
+    TCut mycut_s = "1>0 "; //   522912
+    TCut mycut_b = "tro_1_v_flag==0 "; // 5447
     
     dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
         "nTrain_Signal=200000:"
-        "nTrain_Background=1100:"
+        "nTrain_Background=4800:"
 	"nTest_Signal=20000:"
-        "nTest_Background=279:"
+        "nTest_Background=647:"
         "SplitMode=Random:"
         "NormMode=NumEvents:"
         "!V" );
@@ -429,13 +429,13 @@ void InitBDT_r2()
 
     // Apply additional cuts on the signal and background samples (can be different)
     TCut mycut_s = "1>0 "; // 
-    TCut mycut_b = "(tro_1_v_flag==0  || tro_1_v_bdt < -0.02) "; //  2418
+    TCut mycut_b = "(tro_1_v_flag==0  || tro_1_v_bdt < -0.02) "; //  11429
     
     dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
         "nTrain_Signal=200000:"
-        "nTrain_Background=2100:"
+        "nTrain_Background=10000:"
 	"nTest_Signal=20000:"
-        "nTest_Background=435:"
+        "nTest_Background=1429:"
         "SplitMode=Random:"
         "NormMode=NumEvents:"
         "!V" );

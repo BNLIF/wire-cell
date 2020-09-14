@@ -331,14 +331,14 @@ void InitBDT_r1()
     //    TCut mycut_s = "pio_mip_id==0&&pio_filled==1&&pio_flag_pio==1"; // 831 events
     //    TCut mycut_b = "pio_mip_id==0&&pio_filled==1&&pio_flag_pio==1"; // 859 events
 
-    TCut mycut_s = "pio_filled==1 && pio_flag_pio==0 "; // 308 / 265054, adding pi0 50
-    TCut mycut_b = "pio_filled==1 && pio_flag_pio==0 && pio_2_v_flag==0 "; // 1113/471479, adding mip_id 340
+    TCut mycut_s = "pio_filled==1 && pio_flag_pio==0 "; // 549416
+    TCut mycut_b = "pio_filled==1 && pio_flag_pio==0 && pio_2_v_flag==0 "; // 2679
     
     dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
         "nTrain_Signal=200000:"
-        "nTrain_Background=950:"
-	"nTest_Signal=65054:"
-        "nTest_Background=163:"
+        "nTrain_Background=2200:"
+	"nTest_Signal=50000:"
+        "nTest_Background=479:"
         "SplitMode=Random:"
         "NormMode=NumEvents:"
         "!V" );
@@ -388,7 +388,7 @@ void InitBDT_r2()
     dataloader->AddSignalTree(signalTree, 1.0); // can add the global event weight
     dataloader->AddBackgroundTree( backgroundTree, 1.0);
     // Set individual event weights (the variables must exist in the original TTree)
-    dataloader->SetSignalWeightExpression( "weight " );
+    dataloader->SetSignalWeightExpression( "weight * lowEweight " );
     dataloader->SetBackgroundWeightExpression( "weight " );
 
     // Apply additional cuts on the signal and background samples (can be different)
@@ -396,13 +396,13 @@ void InitBDT_r2()
     //    TCut mycut_b = "pio_mip_id==0&&pio_filled==1&&pio_flag_pio==1"; // 859 events
 
     TCut mycut_s = "pio_filled==1 && pio_flag_pio==0 "; // 308 / 265054, adding pi0 50
-    TCut mycut_b = "pio_filled==1 && pio_flag_pio==0 && (pio_2_v_flag==0 || pio_2_v_bdt<0)"; // 4865/471479, adding mip_id 340
+    TCut mycut_b = "pio_filled==1 && pio_flag_pio==0 && (pio_2_v_flag==0 || pio_2_v_bdt<0)"; //13637
     
     dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
         "nTrain_Signal=200000:"
-        "nTrain_Background=4000:"
+        "nTrain_Background=11000:"
 	"nTest_Signal=65054:"
-        "nTest_Background=865:"
+        "nTest_Background=2637:"
         "SplitMode=Random:"
         "NormMode=NumEvents:"
         "!V" );

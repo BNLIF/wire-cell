@@ -300,14 +300,14 @@ void InitBDT_r1()
     dataloader->SetBackgroundWeightExpression( "weight " );
 
     // Apply additional cuts on the signal and background samples (can be different)
-    TCut mycut_s = "1>0 "; // 108 / 51520, adding pi0 50
-    TCut mycut_b = "sig_1_v_flag==0 "; // 598/21070, adding mip_id 340
+    TCut mycut_s = "1>0 "; // 110779
+    TCut mycut_b = "sig_1_v_flag==0 "; // 2094
     
     dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
-        "nTrain_Signal=20000:"
-        "nTrain_Background=500:"
+        "nTrain_Signal=40000:"
+        "nTrain_Background=1800:"
 	"nTest_Signal=10000:"
-        "nTest_Background=92:"
+        "nTest_Background=294:"
         "SplitMode=Random:"
         "NormMode=NumEvents:"
         "!V" );
@@ -362,18 +362,18 @@ void InitBDT_r2()
     dataloader->AddSignalTree(signalTree, 1.0); // can add the global event weight
     dataloader->AddBackgroundTree( backgroundTree, 1.0);
     // Set individual event weights (the variables must exist in the original TTree)
-    dataloader->SetSignalWeightExpression( "weight " );
+    dataloader->SetSignalWeightExpression( "weight * lowEweight" );
     dataloader->SetBackgroundWeightExpression( "weight " );
 
     // Apply additional cuts on the signal and background samples (can be different)
     TCut mycut_s = "1>0 "; // 108 / 51520, adding pi0 50
-    TCut mycut_b = "(sig_1_v_flag==0 || sig_1_v_bdt < 0.1) "; // 1264/21070, adding mip_id 340
+    TCut mycut_b = "(sig_1_v_flag==0 || sig_1_v_bdt < 0.1) "; // 5019
     
     dataloader->PrepareTrainingAndTestTree( mycut_s, mycut_b,
-        "nTrain_Signal=20000:"
-        "nTrain_Background=1100:"
+        "nTrain_Signal=40000:"
+        "nTrain_Background=4500:"
 	"nTest_Signal=10000:"
-        "nTest_Background=164:"
+        "nTest_Background=519:"
         "SplitMode=Random:"
         "NormMode=NumEvents:"
         "!V" );
