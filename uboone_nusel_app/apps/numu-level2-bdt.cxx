@@ -133,6 +133,9 @@ struct numuInfo
   std::vector<float> *cosmict_10_angle_beam;//= new std::vector<float>;
   std::vector<float> *cosmict_10_length;//= new std::vector<float>;
 
+  //truth
+  float nuvtx_diff;
+  float muonvtx_diff;
 
   // cosmict 9
   float cosmict_flag_9;
@@ -309,6 +312,9 @@ void set_tree_address(TTree *tree0, numuInfo& tagger_info){
   tree0->SetBranchAddress("cosmict_10_flag_dir_weak",&tagger_info.cosmict_10_flag_dir_weak);
   tree0->SetBranchAddress("cosmict_10_angle_beam",&tagger_info.cosmict_10_angle_beam);
   tree0->SetBranchAddress("cosmict_10_length",&tagger_info.cosmict_10_length);
+
+  tree0->SetBranchAddress("nuvtx_diff",&tagger_info.nuvtx_diff);
+  tree0->SetBranchAddress("muonvtx_diff",&tagger_info.muonvtx_diff);
 }
 
 void put_tree_address(TTree *Tsig, numuInfo& tagger_info){
@@ -415,6 +421,10 @@ void put_tree_address(TTree *Tsig, numuInfo& tagger_info){
   Tsig->Branch("cosmict_10_flag_dir_weak",&tagger_info.cosmict_10_flag_dir_weak);
   Tsig->Branch("cosmict_10_angle_beam",&tagger_info.cosmict_10_angle_beam);
   Tsig->Branch("cosmict_10_length",&tagger_info.cosmict_10_length);
+
+  Tsig->Branch("nuvtx_diff",&tagger_info.nuvtx_diff,"data/F");
+  Tsig->Branch("muonvtx_diff",&tagger_info.muonvtx_diff,"data/F");
+  
 }
 
 float cal_cosmict_2_4_bdt(float default_val,numuInfo& tagger_info, TMVA::Reader& reader){
