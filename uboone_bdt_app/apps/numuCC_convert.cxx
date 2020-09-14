@@ -17,6 +17,15 @@
 
 int main( int argc, char** argv )
 {
+  int process = 1;
+  for (Int_t i=1;i!=argc;i++){
+    switch(argv[i][1]){
+    case 'p':
+      process = atoi(&argv[i][2]);
+      break;
+    }
+  }
+  
   TaggerInfo tagger;
   
   tagger.pio_2_v_dis2 = new std::vector<float>;
@@ -293,8 +302,15 @@ int main( int argc, char** argv )
   set_tree_address(t5, tagger);
   double pot_5 = 1.9e20/2.;
 
+
+  TString filename;
+  if (process == 1){
+    filename = "bdt.root";
+  }else{
+    filename = "bdt_validation.root";
+  }
   
-  TFile *new_file = new TFile("bdt.root","RECREATE");
+  TFile *new_file = new TFile(filename,"RECREATE");
   TTree* Tsig = new TTree("sig","sig");
   TTree* Tbkg = new TTree("bkg","bkg");
   Tsig->SetDirectory(new_file);
@@ -313,7 +329,7 @@ int main( int argc, char** argv )
     if (tagger.kine_reco_Enu == 0) continue;
 
     // odd sub run number ...
-    if (tagger.subrun %2 == 1) continue;
+    if (tagger.subrun %2 == 1 && process == 1 || tagger.subrun %2 == 0 && process != 1) continue;
     
     tagger.weight = tagger.weight_spline * tagger.weight_cv ;
     tagger.lowEweight = 1;
@@ -336,7 +352,8 @@ int main( int argc, char** argv )
     if (tagger.kine_reco_Enu == 0) continue;
 
     // odd sub run number skip ...
-    if (tagger.subrun %2 == 1) continue;
+    if (tagger.subrun %2 == 1 && process == 1 || tagger.subrun %2 == 0 && process != 1) continue;
+    //    if (tagger.subrun %2 == 1) continue;
     
     tagger.weight = tagger.weight_spline * tagger.weight_cv ;
     tagger.lowEweight = 1;
@@ -356,7 +373,8 @@ int main( int argc, char** argv )
     if (tagger.kine_reco_Enu == 0) continue;
 
     // odd sub run number ...
-    if (tagger.subrun %2 == 1) continue;
+    if (tagger.subrun %2 == 1 && process == 1 || tagger.subrun %2 == 0 && process != 1) continue;
+    //    if (tagger.subrun %2 == 1) continue;
     
     tagger.weight = (pot_2+pot_3)/(pot_4+pot_5);
     tagger.lowEweight = 1;
@@ -374,7 +392,8 @@ int main( int argc, char** argv )
     if (tagger.kine_reco_Enu == 0) continue;
 
     // odd sub run number ...
-    if (tagger.subrun %2 == 1) continue;
+    if (tagger.subrun %2 == 1 && process == 1 || tagger.subrun %2 == 0 && process != 1) continue;
+    //    if (tagger.subrun %2 == 1) continue;
     
     tagger.weight =  (pot_2+pot_3)/(pot_4+pot_5);
     tagger.lowEweight = 1;

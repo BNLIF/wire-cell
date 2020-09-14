@@ -137,6 +137,14 @@ struct numuInfo
   float nuvtx_diff;
   float muonvtx_diff;
 
+  float kine_reco_Enu;
+  float match_isFC;
+  float truth_isCC;
+  float truth_vtxInside;
+  float truth_nuPdg;
+  
+
+  
   // cosmict 9
   float cosmict_flag_9;
   
@@ -315,6 +323,12 @@ void set_tree_address(TTree *tree0, numuInfo& tagger_info){
 
   tree0->SetBranchAddress("nuvtx_diff",&tagger_info.nuvtx_diff);
   tree0->SetBranchAddress("muonvtx_diff",&tagger_info.muonvtx_diff);
+
+  tree0->SetBranchAddress("kine_reco_Enu",&tagger_info.kine_reco_Enu);
+  tree0->SetBranchAddress("match_isFC", &tagger_info.match_isFC);
+  tree0->SetBranchAddress("truth_isCC", &tagger_info.truth_isCC);
+  tree0->SetBranchAddress("truth_vtxInside", &tagger_info.truth_vtxInside);
+  tree0->SetBranchAddress("truth_nuPdg", &tagger_info.truth_nuPdg);
 }
 
 void put_tree_address(TTree *Tsig, numuInfo& tagger_info){
@@ -424,7 +438,11 @@ void put_tree_address(TTree *Tsig, numuInfo& tagger_info){
 
   Tsig->Branch("nuvtx_diff",&tagger_info.nuvtx_diff,"data/F");
   Tsig->Branch("muonvtx_diff",&tagger_info.muonvtx_diff,"data/F");
-  
+  Tsig->Branch("kine_reco_Enu",&tagger_info.kine_reco_Enu,"data/F");
+  Tsig->Branch("match_isFC", &tagger_info.match_isFC,"data/F");
+  Tsig->Branch("truth_isCC", &tagger_info.truth_isCC,"data/F");
+  Tsig->Branch("truth_vtxInside", &tagger_info.truth_vtxInside,"data/F");
+  Tsig->Branch("truth_nuPdg", &tagger_info.truth_nuPdg,"data/F");
 }
 
 float cal_cosmict_2_4_bdt(float default_val,numuInfo& tagger_info, TMVA::Reader& reader){
