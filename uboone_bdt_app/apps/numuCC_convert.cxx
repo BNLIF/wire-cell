@@ -330,8 +330,13 @@ int main( int argc, char** argv )
 
     // odd sub run number ...
     if (tagger.subrun %2 == 1 && process == 1 || tagger.subrun %2 == 0 && process != 1) continue;
+
+    if (tagger.weight_spline * tagger.weight_cv <=0 || tagger.weight_spline * tagger.weight_cv > 1000){
+      tagger.weight = 1;
+    }else{
+      tagger.weight = tagger.weight_spline * tagger.weight_cv ;
+    }
     
-    tagger.weight = tagger.weight_spline * tagger.weight_cv ;
     tagger.lowEweight = 1;
     
     if (tagger.truth_isCC==1 && abs(tagger.truth_nuPdg)==14 && tagger.truth_vtxInside ==1  ) {
@@ -354,8 +359,11 @@ int main( int argc, char** argv )
     // odd sub run number skip ...
     if (tagger.subrun %2 == 1 && process == 1 || tagger.subrun %2 == 0 && process != 1) continue;
     //    if (tagger.subrun %2 == 1) continue;
-    
-    tagger.weight = tagger.weight_spline * tagger.weight_cv ;
+    if (tagger.weight_spline * tagger.weight_cv <=0 || tagger.weight_spline * tagger.weight_cv > 1000){
+      tagger.weight = 1;
+    }else{
+      tagger.weight = tagger.weight_spline * tagger.weight_cv ;
+    }
     tagger.lowEweight = 1;
     
     if (tagger.truth_isCC==1 && abs(tagger.truth_nuPdg)==14 && tagger.truth_vtxInside ==1  ) {

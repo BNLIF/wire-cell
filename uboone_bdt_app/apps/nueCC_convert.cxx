@@ -1073,8 +1073,12 @@ int main( int argc, char** argv )
     if (tagger.subrun %2 == 1 && process==1 || tagger.subrun%2 == 0 && process != 1) continue;
 
     
+    if (tagger.weight_spline * tagger.weight_cv <=0 || tagger.weight_spline * tagger.weight_cv > 1000){
+      tagger.weight = (1 + tagger.weight_lee);
+    }else{
+      tagger.weight = tagger.weight_spline * tagger.weight_cv * (1 + tagger.weight_lee);
+    }
     
-    tagger.weight = tagger.weight_spline * tagger.weight_cv * (1 + tagger.weight_lee);
     tagger.lowEweight = (1. + 5 * tagger.weight_lee)/(1. + tagger.weight_lee);
 
     // scale intrinsic nue higher ...
@@ -1117,8 +1121,11 @@ int main( int argc, char** argv )
     //    if (tagger.subrun %2 == 1) continue;
 
     
-    
-    tagger.weight = tagger.weight_spline * tagger.weight_cv * (1 + tagger.weight_lee);
+    if (tagger.weight_spline * tagger.weight_cv <=0 || tagger.weight_spline * tagger.weight_cv > 1000){
+      tagger.weight = (1 + tagger.weight_lee);
+    }else{
+      tagger.weight = tagger.weight_spline * tagger.weight_cv * (1 + tagger.weight_lee);
+    }
     tagger.lowEweight = (1. + 5 * tagger.weight_lee)/(1. + tagger.weight_lee);
 
     // scale intrinsic nue higher ...
@@ -1161,8 +1168,11 @@ int main( int argc, char** argv )
     //    if (tagger.subrun %2 == 1) continue;
 
     
-    
-    tagger.weight = tagger.weight_spline * tagger.weight_cv * (1 + tagger.weight_lee);
+    if (tagger.weight_spline * tagger.weight_cv <=0 || tagger.weight_spline * tagger.weight_cv > 1000){
+      tagger.weight = 1 + tagger.weight_lee;
+    }else{
+      tagger.weight = tagger.weight_spline * tagger.weight_cv * (1 + tagger.weight_lee);
+    }
     tagger.lowEweight = (1. + 5 * tagger.weight_lee)/(1. + tagger.weight_lee);
 
             
@@ -1202,8 +1212,11 @@ int main( int argc, char** argv )
     //    if (tagger.subrun %2 == 1) continue;
 
     
-    
-    tagger.weight = tagger.weight_spline * tagger.weight_cv * (1 + tagger.weight_lee);
+    if (tagger.weight_spline * tagger.weight_cv <=0 || tagger.weight_spline * tagger.weight_cv > 1000){
+      tagger.weight = 1 + tagger.weight_lee;
+    }else{
+      tagger.weight = tagger.weight_spline * tagger.weight_cv * (1 + tagger.weight_lee);
+    }
     tagger.lowEweight = (1. + 5 * tagger.weight_lee)/(1. + tagger.weight_lee);
    
     
@@ -1249,10 +1262,17 @@ int main( int argc, char** argv )
     // also need to exclude the NC nu-electron elastic scattering 
     if ((tagger.truth_isCC==1 && abs(tagger.truth_nuPdg)==12 || tagger.truth_nuIntType==1098) && process == 1 ) continue;
 
-    if (tagger.truth_nuEnergy > 400)
-      tagger.weight = tagger.weight_spline * tagger.weight_cv * (pot_1+pot_2+pot_3+pot_4)/(pot_5+pot_6 );
-    else
-      tagger.weight = tagger.weight_spline * tagger.weight_cv * (pot_1+pot_2+pot_3+pot_4)/(pot_5+pot_6 +pot_9 + pot_10);
+    if (tagger.weight_spline * tagger.weight_cv <=0 || tagger.weight_spline * tagger.weight_cv > 1000){
+      if (tagger.truth_nuEnergy > 400)
+	tagger.weight =  (pot_1+pot_2+pot_3+pot_4)/(pot_5+pot_6 );
+      else
+	tagger.weight =  (pot_1+pot_2+pot_3+pot_4)/(pot_5+pot_6 +pot_9 + pot_10);
+    }else{
+      if (tagger.truth_nuEnergy > 400)
+	tagger.weight = tagger.weight_spline * tagger.weight_cv * (pot_1+pot_2+pot_3+pot_4)/(pot_5+pot_6 );
+      else
+	tagger.weight = tagger.weight_spline * tagger.weight_cv * (pot_1+pot_2+pot_3+pot_4)/(pot_5+pot_6 +pot_9 + pot_10);
+    }
     
     tagger.lowEweight = 1;
 
@@ -1292,11 +1312,17 @@ int main( int argc, char** argv )
     // also need to exclude the NC nu-electron elastic scattering 
     if ((tagger.truth_isCC==1 && abs(tagger.truth_nuPdg)==12 || tagger.truth_nuIntType==1098)&&process==1 ) continue;
 
-    if (tagger.truth_nuEnergy > 400)
-      tagger.weight = tagger.weight_spline * tagger.weight_cv * (pot_1+pot_2+pot_3+pot_4)/(pot_5+pot_6);
-    else
-      tagger.weight = tagger.weight_spline * tagger.weight_cv * (pot_1+pot_2+pot_3+pot_4)/(pot_5+pot_6+pot_9+pot_10);
-    
+    if (tagger.weight_spline * tagger.weight_cv <=0 || tagger.weight_spline * tagger.weight_cv > 1000){
+      if (tagger.truth_nuEnergy > 400)
+	tagger.weight =  (pot_1+pot_2+pot_3+pot_4)/(pot_5+pot_6);
+      else
+	tagger.weight =  (pot_1+pot_2+pot_3+pot_4)/(pot_5+pot_6+pot_9+pot_10);
+    }else{
+      if (tagger.truth_nuEnergy > 400)
+	tagger.weight = tagger.weight_spline * tagger.weight_cv * (pot_1+pot_2+pot_3+pot_4)/(pot_5+pot_6);
+      else
+	tagger.weight = tagger.weight_spline * tagger.weight_cv * (pot_1+pot_2+pot_3+pot_4)/(pot_5+pot_6+pot_9+pot_10);
+    }
     tagger.lowEweight = 1;
 
     tagger.br3_3_score     = cal_br3_3_bdt(0.3, tagger,  reader_br3_3, br3_3_v_energy,  br3_3_v_angle,  br3_3_v_dir_length, br3_3_v_length);
@@ -1334,7 +1360,11 @@ int main( int argc, char** argv )
     // also need to exclude the NC nu-electron elastic scattering 
     if ((tagger.truth_isCC==1 && abs(tagger.truth_nuPdg)==12 || tagger.truth_nuIntType==1098) && process==1 ) continue;
 
-    tagger.weight = tagger.weight_spline * tagger.weight_cv * (pot_1+pot_2+pot_3+pot_4)/(pot_5+pot_6 +pot_9 + pot_10);
+    if (tagger.weight_spline * tagger.weight_cv <=0 || tagger.weight_spline * tagger.weight_cv > 1000){
+       tagger.weight =  (pot_1+pot_2+pot_3+pot_4)/(pot_5+pot_6 +pot_9 + pot_10);
+    }else{
+      tagger.weight = tagger.weight_spline * tagger.weight_cv * (pot_1+pot_2+pot_3+pot_4)/(pot_5+pot_6 +pot_9 + pot_10);
+    }
     
     tagger.lowEweight = 1;
 
@@ -1373,7 +1403,11 @@ int main( int argc, char** argv )
     // also need to exclude the NC nu-electron elastic scattering 
     if ((tagger.truth_isCC==1 && abs(tagger.truth_nuPdg)==12 || tagger.truth_nuIntType==1098) && process==1 ) continue;
 
-    tagger.weight = tagger.weight_spline * tagger.weight_cv * (pot_1+pot_2+pot_3+pot_4)/(pot_5+pot_6 +pot_9 + pot_10);
+    if (tagger.weight_spline * tagger.weight_cv <=0 || tagger.weight_spline * tagger.weight_cv > 1000){
+       tagger.weight =  (pot_1+pot_2+pot_3+pot_4)/(pot_5+pot_6 +pot_9 + pot_10);
+    }else{
+      tagger.weight = tagger.weight_spline * tagger.weight_cv * (pot_1+pot_2+pot_3+pot_4)/(pot_5+pot_6 +pot_9 + pot_10);
+    }
     
     tagger.lowEweight = 1;
 
