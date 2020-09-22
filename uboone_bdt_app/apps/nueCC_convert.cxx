@@ -12,6 +12,7 @@
 #include "TObjString.h"
 #include "TSystem.h"
 #include "TROOT.h"
+#include "TMath.h"
 
 #include "tagger.h"
 
@@ -23,6 +24,7 @@
 
 using namespace std;
 
+float cal_bdts_xgboost(TaggerInfo& tagger_info, TMVA::Reader& reader);
 
 float cal_br3_3_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& br3_3_v_energy,
 		    float& br3_3_v_angle,
@@ -477,6 +479,28 @@ float cal_tro_5_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& r
       if (tmp_val < val) val = tmp_val;
     }
   }
+  return val;
+}
+
+
+float cal_bdts_xgboost(TaggerInfo& tagger_info, TMVA::Reader& reader){
+  float val = 0; // background like ...
+  float default_val = -15;
+
+  if (tagger_info.br_filled==1){
+    // protection of variables ...
+    if(tagger_info.mip_min_dis>1000) tagger_info.mip_min_dis = 1000.0;
+    if(tagger_info.mip_quality_shortest_length>1000) tagger_info.mip_quality_shortest_length = 1000;
+    if(std::isnan(tagger_info.mip_quality_shortest_angle)) tagger_info.mip_quality_shortest_angle = 0;
+    if(std::isnan(tagger_info.stem_dir_ratio)) tagger_info.stem_dir_ratio = 1.0; 
+    
+    
+    double val1 = reader.EvaluateMVA("MyBDT");
+    val = TMath::Log10( (1+val1)/(1-val1) );
+  }else{
+    val = default_val;
+  }
+
   return val;
 }
 
@@ -1058,7 +1082,269 @@ int main( int argc, char** argv )
   reader_stw_4.AddVariable("stw_4_v_energy",&stw_4_v_energy);
   reader_stw_4.BookMVA( "MyBDT", "weights/stw_4_BDT.weights.xml");
 
+  
+  // total BDTs ... to be added ...
+  TMVA::Reader reader;
 
+  reader.AddVariable("cme_mu_energy",&tagger.cme_mu_energy);
+  reader.AddVariable("cme_energy",&tagger.cme_energy);
+  reader.AddVariable("cme_mu_length",&tagger.cme_mu_length);
+  reader.AddVariable("cme_length",&tagger.cme_length);
+  reader.AddVariable("cme_angle_beam",&tagger.cme_angle_beam);
+  reader.AddVariable("anc_angle",&tagger.anc_angle);
+  reader.AddVariable("anc_max_angle",&tagger.anc_max_angle);
+  reader.AddVariable("anc_max_length",&tagger.anc_max_length);
+  reader.AddVariable("anc_acc_forward_length",&tagger.anc_acc_forward_length);
+  reader.AddVariable("anc_acc_backward_length",&tagger.anc_acc_backward_length);
+  reader.AddVariable("anc_acc_forward_length1",&tagger.anc_acc_forward_length1);
+  reader.AddVariable("anc_shower_main_length",&tagger.anc_shower_main_length);
+  reader.AddVariable("anc_shower_total_length",&tagger.anc_shower_total_length);
+  reader.AddVariable("anc_flag_main_outside",&tagger.anc_flag_main_outside);
+  reader.AddVariable("gap_flag_prolong_u",&tagger.gap_flag_prolong_u);
+  reader.AddVariable("gap_flag_prolong_v",&tagger.gap_flag_prolong_v);
+  reader.AddVariable("gap_flag_prolong_w",&tagger.gap_flag_prolong_w);
+  reader.AddVariable("gap_flag_parallel",&tagger.gap_flag_parallel);
+  reader.AddVariable("gap_n_points",&tagger.gap_n_points);
+  reader.AddVariable("gap_n_bad",&tagger.gap_n_bad);
+  reader.AddVariable("gap_energy",&tagger.gap_energy);
+  reader.AddVariable("gap_num_valid_tracks",&tagger.gap_num_valid_tracks);
+  reader.AddVariable("gap_flag_single_shower",&tagger.gap_flag_single_shower);
+  reader.AddVariable("hol_1_n_valid_tracks",&tagger.hol_1_n_valid_tracks);
+  reader.AddVariable("hol_1_min_angle",&tagger.hol_1_min_angle);
+  reader.AddVariable("hol_1_energy",&tagger.hol_1_energy);
+  reader.AddVariable("hol_1_min_length",&tagger.hol_1_min_length);
+  reader.AddVariable("hol_2_min_angle",&tagger.hol_2_min_angle);
+  reader.AddVariable("hol_2_medium_dQ_dx",&tagger.hol_2_medium_dQ_dx);
+  reader.AddVariable("hol_2_ncount",&tagger.hol_2_ncount);
+  reader.AddVariable("lol_3_angle_beam",&tagger.lol_3_angle_beam);
+  reader.AddVariable("lol_3_n_valid_tracks",&tagger.lol_3_n_valid_tracks);
+  reader.AddVariable("lol_3_min_angle",&tagger.lol_3_min_angle);
+  reader.AddVariable("lol_3_vtx_n_segs",&tagger.lol_3_vtx_n_segs);
+  reader.AddVariable("lol_3_shower_main_length",&tagger.lol_3_shower_main_length);
+  reader.AddVariable("lol_3_n_out",&tagger.lol_3_n_out);
+  reader.AddVariable("lol_3_n_sum",&tagger.lol_3_n_sum);
+  reader.AddVariable("hol_1_flag_all_shower",&tagger.hol_1_flag_all_shower); // naming issue
+  reader.AddVariable("mgo_energy",&tagger.mgo_energy);
+  reader.AddVariable("mgo_max_energy",&tagger.mgo_max_energy);
+  reader.AddVariable("mgo_total_energy",&tagger.mgo_total_energy);
+  reader.AddVariable("mgo_n_showers",&tagger.mgo_n_showers);
+  reader.AddVariable("mgo_max_energy_1",&tagger.mgo_max_energy_1);
+  reader.AddVariable("mgo_max_energy_2",&tagger.mgo_max_energy_2);
+  reader.AddVariable("mgo_total_other_energy",&tagger.mgo_total_other_energy);
+  reader.AddVariable("mgo_n_total_showers",&tagger.mgo_n_total_showers);
+  reader.AddVariable("mgo_total_other_energy_1",&tagger.mgo_total_other_energy_1);
+  reader.AddVariable("mgt_flag_single_shower",&tagger.mgt_flag_single_shower);
+  reader.AddVariable("mgt_max_energy",&tagger.mgt_max_energy);
+  reader.AddVariable("mgt_total_other_energy",&tagger.mgt_total_other_energy);
+  reader.AddVariable("mgt_max_energy_1",&tagger.mgt_max_energy_1);
+  reader.AddVariable("mgt_e_indirect_max_energy",&tagger.mgt_e_indirect_max_energy);
+  reader.AddVariable("mgt_e_direct_max_energy",&tagger.mgt_e_direct_max_energy);
+  reader.AddVariable("mgt_n_direct_showers",&tagger.mgt_n_direct_showers);
+  reader.AddVariable("mgt_e_direct_total_energy",&tagger.mgt_e_direct_total_energy);
+  reader.AddVariable("mgt_flag_indirect_max_pio",&tagger.mgt_flag_indirect_max_pio);
+  reader.AddVariable("mgt_e_indirect_total_energy",&tagger.mgt_e_indirect_total_energy);
+  reader.AddVariable("mip_quality_energy",&tagger.mip_quality_energy);
+  reader.AddVariable("mip_quality_overlap",&tagger.mip_quality_overlap);
+  reader.AddVariable("mip_quality_n_showers",&tagger.mip_quality_n_showers);
+  reader.AddVariable("mip_quality_n_tracks",&tagger.mip_quality_n_tracks);
+  reader.AddVariable("mip_quality_flag_inside_pi0",&tagger.mip_quality_flag_inside_pi0);
+  reader.AddVariable("mip_quality_n_pi0_showers",&tagger.mip_quality_n_pi0_showers);
+  reader.AddVariable("mip_quality_shortest_length",&tagger.mip_quality_shortest_length);
+  reader.AddVariable("mip_quality_acc_length",&tagger.mip_quality_acc_length);
+  reader.AddVariable("mip_quality_shortest_angle",&tagger.mip_quality_shortest_angle);
+  reader.AddVariable("mip_quality_flag_proton",&tagger.mip_quality_flag_proton);
+  reader.AddVariable("br1_1_shower_type",&tagger.br1_1_shower_type);
+  reader.AddVariable("br1_1_vtx_n_segs",&tagger.br1_1_vtx_n_segs);
+  reader.AddVariable("br1_1_energy",&tagger.br1_1_energy);
+  reader.AddVariable("br1_1_n_segs",&tagger.br1_1_n_segs);
+  reader.AddVariable("br1_1_flag_sg_topology",&tagger.br1_1_flag_sg_topology);
+  reader.AddVariable("br1_1_flag_sg_trajectory",&tagger.br1_1_flag_sg_trajectory);
+  reader.AddVariable("br1_1_sg_length",&tagger.br1_1_sg_length);
+  reader.AddVariable("br1_2_n_connected",&tagger.br1_2_n_connected);
+  reader.AddVariable("br1_2_max_length",&tagger.br1_2_max_length);
+  reader.AddVariable("br1_2_n_connected_1",&tagger.br1_2_n_connected_1);
+  reader.AddVariable("br1_2_n_shower_segs",&tagger.br1_2_n_shower_segs);
+  reader.AddVariable("br1_2_max_length_ratio",&tagger.br1_2_max_length_ratio);
+  reader.AddVariable("br1_2_shower_length",&tagger.br1_2_shower_length);
+  reader.AddVariable("br1_3_n_connected_p",&tagger.br1_3_n_connected_p);
+  reader.AddVariable("br1_3_max_length_p",&tagger.br1_3_max_length_p);
+  reader.AddVariable("br1_3_n_shower_main_segs",&tagger.br1_3_n_shower_main_segs);
+  reader.AddVariable("br3_1_energy",&tagger.br3_1_energy);
+  reader.AddVariable("br3_1_n_shower_segments",&tagger.br3_1_n_shower_segments);
+  reader.AddVariable("br3_1_sg_flag_trajectory",&tagger.br3_1_sg_flag_trajectory);
+  reader.AddVariable("br3_1_sg_direct_length",&tagger.br3_1_sg_direct_length);
+  reader.AddVariable("br3_1_sg_length",&tagger.br3_1_sg_length);
+  reader.AddVariable("br3_1_total_main_length",&tagger.br3_1_total_main_length);
+  reader.AddVariable("br3_1_total_length",&tagger.br3_1_total_length);
+  reader.AddVariable("br3_1_iso_angle",&tagger.br3_1_iso_angle);
+  reader.AddVariable("br3_1_sg_flag_topology",&tagger.br3_1_sg_flag_topology);
+  reader.AddVariable("br3_2_n_ele",&tagger.br3_2_n_ele);
+  reader.AddVariable("br3_2_n_other",&tagger.br3_2_n_other);
+  reader.AddVariable("br3_2_other_fid",&tagger.br3_2_other_fid);
+  reader.AddVariable("br3_4_acc_length",&tagger.br3_4_acc_length);
+  reader.AddVariable("br3_4_total_length",&tagger.br3_4_total_length);
+  reader.AddVariable("br3_7_min_angle",&tagger.br3_7_min_angle);
+  reader.AddVariable("br3_8_max_dQ_dx",&tagger.br3_8_max_dQ_dx);
+  reader.AddVariable("br3_8_n_main_segs",&tagger.br3_8_n_main_segs);
+  reader.AddVariable("vis_1_n_vtx_segs",&tagger.vis_1_n_vtx_segs);
+  reader.AddVariable("vis_1_energy",&tagger.vis_1_energy);
+  reader.AddVariable("vis_1_num_good_tracks",&tagger.vis_1_num_good_tracks);
+  reader.AddVariable("vis_1_max_angle",&tagger.vis_1_max_angle);
+  reader.AddVariable("vis_1_max_shower_angle",&tagger.vis_1_max_shower_angle);
+  reader.AddVariable("vis_1_tmp_length1",&tagger.vis_1_tmp_length1);
+  reader.AddVariable("vis_1_tmp_length2",&tagger.vis_1_tmp_length2);
+  reader.AddVariable("vis_2_n_vtx_segs",&tagger.vis_2_n_vtx_segs);
+  reader.AddVariable("vis_2_min_angle",&tagger.vis_2_min_angle);
+  reader.AddVariable("vis_2_min_weak_track",&tagger.vis_2_min_weak_track);
+  reader.AddVariable("vis_2_angle_beam",&tagger.vis_2_angle_beam);
+  reader.AddVariable("vis_2_min_angle1",&tagger.vis_2_min_angle1);
+  reader.AddVariable("vis_2_iso_angle1",&tagger.vis_2_iso_angle1);
+  reader.AddVariable("vis_2_min_medium_dQ_dx",&tagger.vis_2_min_medium_dQ_dx);
+  reader.AddVariable("vis_2_min_length",&tagger.vis_2_min_length);
+  reader.AddVariable("vis_2_sg_length",&tagger.vis_2_sg_length);
+  reader.AddVariable("vis_2_max_angle",&tagger.vis_2_max_angle);
+  reader.AddVariable("vis_2_max_weak_track",&tagger.vis_2_max_weak_track);
+  reader.AddVariable("pio_1_mass",&tagger.pio_1_mass);
+  reader.AddVariable("pio_1_pio_type",&tagger.pio_1_pio_type);
+  reader.AddVariable("pio_1_energy_1",&tagger.pio_1_energy_1);
+  reader.AddVariable("pio_1_energy_2",&tagger.pio_1_energy_2);
+  reader.AddVariable("pio_1_dis_1",&tagger.pio_1_dis_1);
+  reader.AddVariable("pio_1_dis_2",&tagger.pio_1_dis_2);
+  reader.AddVariable("pio_mip_id",&tagger.pio_mip_id);
+  reader.AddVariable("stem_dir_flag_single_shower",&tagger.stem_dir_flag_single_shower);
+  reader.AddVariable("stem_dir_angle",&tagger.stem_dir_angle);
+  reader.AddVariable("stem_dir_energy",&tagger.stem_dir_energy);
+  reader.AddVariable("stem_dir_angle1",&tagger.stem_dir_angle1);
+  reader.AddVariable("stem_dir_angle2",&tagger.stem_dir_angle2);
+  reader.AddVariable("stem_dir_angle3",&tagger.stem_dir_angle3);
+  reader.AddVariable("stem_dir_ratio",&tagger.stem_dir_ratio);
+  reader.AddVariable("br2_num_valid_tracks",&tagger.br2_num_valid_tracks);
+  reader.AddVariable("br2_n_shower_main_segs",&tagger.br2_n_shower_main_segs);
+  reader.AddVariable("br2_max_angle",&tagger.br2_max_angle);
+  reader.AddVariable("br2_sg_length",&tagger.br2_sg_length);
+  reader.AddVariable("br2_flag_sg_trajectory",&tagger.br2_flag_sg_trajectory);
+  reader.AddVariable("stem_len_energy",&tagger.stem_len_energy);
+  reader.AddVariable("stem_len_length",&tagger.stem_len_length);
+  reader.AddVariable("stem_len_flag_avoid_muon_check",&tagger.stem_len_flag_avoid_muon_check);
+  reader.AddVariable("stem_len_num_daughters",&tagger.stem_len_num_daughters);
+  reader.AddVariable("stem_len_daughter_length",&tagger.stem_len_daughter_length);
+  reader.AddVariable("brm_n_mu_segs",&tagger.brm_n_mu_segs);
+  reader.AddVariable("brm_Ep",&tagger.brm_Ep);
+  reader.AddVariable("brm_acc_length",&tagger.brm_acc_length);
+  reader.AddVariable("brm_shower_total_length",&tagger.brm_shower_total_length);
+  reader.AddVariable("brm_connected_length",&tagger.brm_connected_length);
+  reader.AddVariable("brm_n_size",&tagger.brm_n_size);
+  reader.AddVariable("brm_n_shower_main_segs",&tagger.brm_n_shower_main_segs);
+  reader.AddVariable("brm_n_mu_main",&tagger.brm_n_mu_main);
+  reader.AddVariable("lem_shower_main_length",&tagger.lem_shower_main_length);
+  reader.AddVariable("lem_n_3seg",&tagger.lem_n_3seg);
+  reader.AddVariable("lem_e_charge",&tagger.lem_e_charge);
+  reader.AddVariable("lem_e_dQdx",&tagger.lem_e_dQdx);
+  reader.AddVariable("lem_shower_num_main_segs",&tagger.lem_shower_num_main_segs);
+  reader.AddVariable("brm_acc_direct_length",&tagger.brm_acc_direct_length); // naming issue
+  reader.AddVariable("stw_1_energy",&tagger.stw_1_energy);
+  reader.AddVariable("stw_1_dis",&tagger.stw_1_dis);
+  reader.AddVariable("stw_1_dQ_dx",&tagger.stw_1_dQ_dx);
+  reader.AddVariable("stw_1_flag_single_shower",&tagger.stw_1_flag_single_shower);
+  reader.AddVariable("stw_1_n_pi0",&tagger.stw_1_n_pi0);
+  reader.AddVariable("stw_1_num_valid_tracks",&tagger.stw_1_num_valid_tracks);
+  reader.AddVariable("spt_shower_main_length",&tagger.spt_shower_main_length);
+  reader.AddVariable("spt_shower_total_length",&tagger.spt_shower_total_length);
+  reader.AddVariable("spt_angle_beam",&tagger.spt_angle_beam);
+  reader.AddVariable("spt_angle_vertical",&tagger.spt_angle_vertical);
+  reader.AddVariable("spt_max_dQ_dx",&tagger.spt_max_dQ_dx);
+  reader.AddVariable("spt_angle_beam_1",&tagger.spt_angle_beam_1);
+  reader.AddVariable("spt_angle_drift",&tagger.spt_angle_drift);
+  reader.AddVariable("spt_angle_drift_1",&tagger.spt_angle_drift_1);
+  reader.AddVariable("spt_num_valid_tracks",&tagger.spt_num_valid_tracks);
+  reader.AddVariable("spt_n_vtx_segs",&tagger.spt_n_vtx_segs);
+  reader.AddVariable("spt_max_length",&tagger.spt_max_length);
+  reader.AddVariable("mip_energy",&tagger.mip_energy);
+  reader.AddVariable("mip_n_end_reduction",&tagger.mip_n_end_reduction);
+  reader.AddVariable("mip_n_first_mip",&tagger.mip_n_first_mip);
+  reader.AddVariable("mip_n_first_non_mip",&tagger.mip_n_first_non_mip);
+  reader.AddVariable("mip_n_first_non_mip_1",&tagger.mip_n_first_non_mip_1);
+  reader.AddVariable("mip_n_first_non_mip_2",&tagger.mip_n_first_non_mip_2);
+  reader.AddVariable("mip_vec_dQ_dx_0",&tagger.mip_vec_dQ_dx_0);
+  reader.AddVariable("mip_vec_dQ_dx_1",&tagger.mip_vec_dQ_dx_1);
+  reader.AddVariable("mip_max_dQ_dx_sample",&tagger.mip_max_dQ_dx_sample);
+  reader.AddVariable("mip_n_below_threshold",&tagger.mip_n_below_threshold);
+  reader.AddVariable("mip_n_below_zero",&tagger.mip_n_below_zero);
+  reader.AddVariable("mip_n_lowest",&tagger.mip_n_lowest);
+  reader.AddVariable("mip_n_highest",&tagger.mip_n_highest);
+  reader.AddVariable("mip_lowest_dQ_dx",&tagger.mip_lowest_dQ_dx);
+  reader.AddVariable("mip_highest_dQ_dx",&tagger.mip_highest_dQ_dx);
+  reader.AddVariable("mip_medium_dQ_dx",&tagger.mip_medium_dQ_dx);
+  reader.AddVariable("mip_stem_length",&tagger.mip_stem_length);
+  reader.AddVariable("mip_length_main",&tagger.mip_length_main);
+  reader.AddVariable("mip_length_total",&tagger.mip_length_total);
+  reader.AddVariable("mip_angle_beam",&tagger.mip_angle_beam);
+  reader.AddVariable("mip_iso_angle",&tagger.mip_iso_angle);
+  reader.AddVariable("mip_n_vertex",&tagger.mip_n_vertex);
+  reader.AddVariable("mip_n_good_tracks",&tagger.mip_n_good_tracks);
+  reader.AddVariable("mip_E_indirect_max_energy",&tagger.mip_E_indirect_max_energy);
+  reader.AddVariable("mip_flag_all_above",&tagger.mip_flag_all_above);
+  reader.AddVariable("mip_min_dQ_dx_5",&tagger.mip_min_dQ_dx_5);
+  reader.AddVariable("mip_n_other_vertex",&tagger.mip_n_other_vertex);
+  reader.AddVariable("mip_n_stem_size",&tagger.mip_n_stem_size);
+  reader.AddVariable("mip_flag_stem_trajectory",&tagger.mip_flag_stem_trajectory);
+  reader.AddVariable("mip_min_dis",&tagger.mip_min_dis);
+  reader.AddVariable("mip_vec_dQ_dx_2",&tagger.mip_vec_dQ_dx_2);
+  reader.AddVariable("mip_vec_dQ_dx_3",&tagger.mip_vec_dQ_dx_3);
+  reader.AddVariable("mip_vec_dQ_dx_4",&tagger.mip_vec_dQ_dx_4);
+  reader.AddVariable("mip_vec_dQ_dx_5",&tagger.mip_vec_dQ_dx_5);
+  reader.AddVariable("mip_vec_dQ_dx_6",&tagger.mip_vec_dQ_dx_6);
+  reader.AddVariable("mip_vec_dQ_dx_7",&tagger.mip_vec_dQ_dx_7);
+  reader.AddVariable("mip_vec_dQ_dx_8",&tagger.mip_vec_dQ_dx_8);
+  reader.AddVariable("mip_vec_dQ_dx_9",&tagger.mip_vec_dQ_dx_9);
+  reader.AddVariable("mip_vec_dQ_dx_10",&tagger.mip_vec_dQ_dx_10);
+  reader.AddVariable("mip_vec_dQ_dx_11",&tagger.mip_vec_dQ_dx_11);
+  reader.AddVariable("mip_vec_dQ_dx_12",&tagger.mip_vec_dQ_dx_12);
+  reader.AddVariable("mip_vec_dQ_dx_13",&tagger.mip_vec_dQ_dx_13);
+  reader.AddVariable("mip_vec_dQ_dx_14",&tagger.mip_vec_dQ_dx_14);
+  reader.AddVariable("mip_vec_dQ_dx_15",&tagger.mip_vec_dQ_dx_15);
+  reader.AddVariable("mip_vec_dQ_dx_16",&tagger.mip_vec_dQ_dx_16);
+  reader.AddVariable("mip_vec_dQ_dx_17",&tagger.mip_vec_dQ_dx_17);
+  reader.AddVariable("mip_vec_dQ_dx_18",&tagger.mip_vec_dQ_dx_18);
+  reader.AddVariable("mip_vec_dQ_dx_19",&tagger.mip_vec_dQ_dx_19);
+  reader.AddVariable("br3_3_score",&tagger.br3_3_score);
+  reader.AddVariable("br3_5_score",&tagger.br3_5_score);
+  reader.AddVariable("br3_6_score",&tagger.br3_6_score);
+  reader.AddVariable("pio_2_score",&tagger.pio_2_score);
+  reader.AddVariable("stw_2_score",&tagger.stw_2_score);
+  reader.AddVariable("stw_3_score",&tagger.stw_3_score);
+  reader.AddVariable("stw_4_score",&tagger.stw_4_score);
+  reader.AddVariable("sig_1_score",&tagger.sig_1_score);
+  reader.AddVariable("sig_2_score",&tagger.sig_2_score);
+  reader.AddVariable("lol_1_score",&tagger.lol_1_score);
+  reader.AddVariable("lol_2_score",&tagger.lol_2_score);
+  reader.AddVariable("tro_1_score",&tagger.tro_1_score);
+  reader.AddVariable("tro_2_score",&tagger.tro_2_score);
+  reader.AddVariable("tro_4_score",&tagger.tro_4_score);
+  reader.AddVariable("tro_5_score",&tagger.tro_5_score);
+  reader.AddVariable("br4_1_shower_main_length",&tagger.br4_1_shower_main_length);
+  reader.AddVariable("br4_1_shower_total_length",&tagger.br4_1_shower_total_length);
+  reader.AddVariable("br4_1_min_dis",&tagger.br4_1_min_dis);
+  reader.AddVariable("br4_1_energy",&tagger.br4_1_energy);
+  reader.AddVariable("br4_1_flag_avoid_muon_check",&tagger.br4_1_flag_avoid_muon_check);
+  reader.AddVariable("br4_1_n_vtx_segs",&tagger.br4_1_n_vtx_segs);
+  reader.AddVariable("br4_2_ratio_45",&tagger.br4_2_ratio_45);
+  reader.AddVariable("br4_2_ratio_35",&tagger.br4_2_ratio_35);
+  reader.AddVariable("br4_2_ratio_25",&tagger.br4_2_ratio_25);
+  reader.AddVariable("br4_2_ratio_15",&tagger.br4_2_ratio_15);
+  reader.AddVariable("br4_2_ratio1_45",&tagger.br4_2_ratio1_45);
+  reader.AddVariable("br4_2_ratio1_35",&tagger.br4_2_ratio1_35);
+  reader.AddVariable("br4_2_ratio1_25",&tagger.br4_2_ratio1_25);
+  reader.AddVariable("br4_2_ratio1_15",&tagger.br4_2_ratio1_15);
+  reader.AddVariable("br4_2_iso_angle",&tagger.br4_2_iso_angle);
+  reader.AddVariable("br4_2_iso_angle1",&tagger.br4_2_iso_angle1);
+  reader.AddVariable("br4_2_angle",&tagger.br4_2_angle);
+  reader.AddVariable("tro_3_stem_length",&tagger.tro_3_stem_length);
+  reader.AddVariable("tro_3_n_muon_segs",&tagger.tro_3_n_muon_segs);
+  reader.AddVariable("br4_1_n_main_segs",&tagger.br4_1_n_main_segs); // naming issue
+  
+  reader.BookMVA( "MyBDT", "./weights/xgboost_set8seed7_kaicheng_0819.xml");
+  
   
   
   // signal, intrinsic nue ...
@@ -1103,7 +1389,7 @@ int main( int argc, char** argv )
       tagger.tro_2_score     = cal_tro_2_bdt(0.35, tagger, reader_tro_2, tro_2_v_energy, tro_2_v_stem_length, tro_2_v_iso_angle, tro_2_v_max_length, tro_2_v_angle);
       tagger.tro_4_score     = cal_tro_4_bdt(0.33, tagger, reader_tro_4, tro_4_v_dir2_mag, tro_4_v_angle, tro_4_v_angle1, tro_4_v_angle2, tro_4_v_length, tro_4_v_length1, tro_4_v_medium_dQ_dx, tro_4_v_end_dQ_dx, tro_4_v_energy, tro_4_v_shower_main_length, tro_4_v_flag_shower_trajectory);
       tagger.tro_5_score     = cal_tro_5_bdt(0.5, tagger, reader_tro_5, tro_5_v_max_angle, tro_5_v_min_angle, tro_5_v_max_length, tro_5_v_iso_angle, tro_5_v_n_vtx_segs, tro_5_v_min_count, tro_5_v_max_count, tro_5_v_energy);
-
+      tagger.nue_score       = cal_bdts_xgboost( tagger,  reader);
       
       Tsig->Fill();
     }
@@ -1150,6 +1436,7 @@ int main( int argc, char** argv )
       tagger.tro_2_score     = cal_tro_2_bdt(0.35, tagger, reader_tro_2, tro_2_v_energy, tro_2_v_stem_length, tro_2_v_iso_angle, tro_2_v_max_length, tro_2_v_angle);
       tagger.tro_4_score     = cal_tro_4_bdt(0.33, tagger, reader_tro_4, tro_4_v_dir2_mag, tro_4_v_angle, tro_4_v_angle1, tro_4_v_angle2, tro_4_v_length, tro_4_v_length1, tro_4_v_medium_dQ_dx, tro_4_v_end_dQ_dx, tro_4_v_energy, tro_4_v_shower_main_length, tro_4_v_flag_shower_trajectory);
       tagger.tro_5_score     = cal_tro_5_bdt(0.5, tagger, reader_tro_5, tro_5_v_max_angle, tro_5_v_min_angle, tro_5_v_max_length, tro_5_v_iso_angle, tro_5_v_n_vtx_segs, tro_5_v_min_count, tro_5_v_max_count, tro_5_v_energy);
+      tagger.nue_score       = cal_bdts_xgboost( tagger,  reader);
       
       Tsig->Fill();
     }
@@ -1195,6 +1482,7 @@ int main( int argc, char** argv )
       tagger.tro_2_score     = cal_tro_2_bdt(0.35, tagger, reader_tro_2, tro_2_v_energy, tro_2_v_stem_length, tro_2_v_iso_angle, tro_2_v_max_length, tro_2_v_angle);
       tagger.tro_4_score     = cal_tro_4_bdt(0.33, tagger, reader_tro_4, tro_4_v_dir2_mag, tro_4_v_angle, tro_4_v_angle1, tro_4_v_angle2, tro_4_v_length, tro_4_v_length1, tro_4_v_medium_dQ_dx, tro_4_v_end_dQ_dx, tro_4_v_energy, tro_4_v_shower_main_length, tro_4_v_flag_shower_trajectory);
       tagger.tro_5_score     = cal_tro_5_bdt(0.5, tagger, reader_tro_5, tro_5_v_max_angle, tro_5_v_min_angle, tro_5_v_max_length, tro_5_v_iso_angle, tro_5_v_n_vtx_segs, tro_5_v_min_count, tro_5_v_max_count, tro_5_v_energy);
+      tagger.nue_score       = cal_bdts_xgboost( tagger,  reader);
       
       Tsig->Fill();
     }
@@ -1239,6 +1527,8 @@ int main( int argc, char** argv )
       tagger.tro_2_score     = cal_tro_2_bdt(0.35, tagger, reader_tro_2, tro_2_v_energy, tro_2_v_stem_length, tro_2_v_iso_angle, tro_2_v_max_length, tro_2_v_angle);
       tagger.tro_4_score     = cal_tro_4_bdt(0.33, tagger, reader_tro_4, tro_4_v_dir2_mag, tro_4_v_angle, tro_4_v_angle1, tro_4_v_angle2, tro_4_v_length, tro_4_v_length1, tro_4_v_medium_dQ_dx, tro_4_v_end_dQ_dx, tro_4_v_energy, tro_4_v_shower_main_length, tro_4_v_flag_shower_trajectory);
       tagger.tro_5_score     = cal_tro_5_bdt(0.5, tagger, reader_tro_5, tro_5_v_max_angle, tro_5_v_min_angle, tro_5_v_max_length, tro_5_v_iso_angle, tro_5_v_n_vtx_segs, tro_5_v_min_count, tro_5_v_max_count, tro_5_v_energy);
+
+      tagger.nue_score       = cal_bdts_xgboost( tagger,  reader);
       
       Tsig->Fill();
     }
@@ -1294,7 +1584,7 @@ int main( int argc, char** argv )
       tagger.tro_4_score     = cal_tro_4_bdt(0.33, tagger, reader_tro_4, tro_4_v_dir2_mag, tro_4_v_angle, tro_4_v_angle1, tro_4_v_angle2, tro_4_v_length, tro_4_v_length1, tro_4_v_medium_dQ_dx, tro_4_v_end_dQ_dx, tro_4_v_energy, tro_4_v_shower_main_length, tro_4_v_flag_shower_trajectory);
       tagger.tro_5_score     = cal_tro_5_bdt(0.5, tagger, reader_tro_5, tro_5_v_max_angle, tro_5_v_min_angle, tro_5_v_max_length, tro_5_v_iso_angle, tro_5_v_n_vtx_segs, tro_5_v_min_count, tro_5_v_max_count, tro_5_v_energy);
 
-
+      tagger.nue_score       = cal_bdts_xgboost( tagger,  reader);
     
     Tbkg->Fill();
   }
@@ -1342,6 +1632,7 @@ int main( int argc, char** argv )
       tagger.tro_4_score     = cal_tro_4_bdt(0.33, tagger, reader_tro_4, tro_4_v_dir2_mag, tro_4_v_angle, tro_4_v_angle1, tro_4_v_angle2, tro_4_v_length, tro_4_v_length1, tro_4_v_medium_dQ_dx, tro_4_v_end_dQ_dx, tro_4_v_energy, tro_4_v_shower_main_length, tro_4_v_flag_shower_trajectory);
       tagger.tro_5_score     = cal_tro_5_bdt(0.5, tagger, reader_tro_5, tro_5_v_max_angle, tro_5_v_min_angle, tro_5_v_max_length, tro_5_v_iso_angle, tro_5_v_n_vtx_segs, tro_5_v_min_count, tro_5_v_max_count, tro_5_v_energy);
 
+      tagger.nue_score       = cal_bdts_xgboost( tagger,  reader);
     
     Tbkg->Fill();
   }
@@ -1385,6 +1676,7 @@ int main( int argc, char** argv )
       tagger.tro_4_score     = cal_tro_4_bdt(0.33, tagger, reader_tro_4, tro_4_v_dir2_mag, tro_4_v_angle, tro_4_v_angle1, tro_4_v_angle2, tro_4_v_length, tro_4_v_length1, tro_4_v_medium_dQ_dx, tro_4_v_end_dQ_dx, tro_4_v_energy, tro_4_v_shower_main_length, tro_4_v_flag_shower_trajectory);
       tagger.tro_5_score     = cal_tro_5_bdt(0.5, tagger, reader_tro_5, tro_5_v_max_angle, tro_5_v_min_angle, tro_5_v_max_length, tro_5_v_iso_angle, tro_5_v_n_vtx_segs, tro_5_v_min_count, tro_5_v_max_count, tro_5_v_energy);
 
+      tagger.nue_score       = cal_bdts_xgboost( tagger,  reader);
     
     Tbkg->Fill();
   }
@@ -1428,6 +1720,7 @@ int main( int argc, char** argv )
       tagger.tro_4_score     = cal_tro_4_bdt(0.33, tagger, reader_tro_4, tro_4_v_dir2_mag, tro_4_v_angle, tro_4_v_angle1, tro_4_v_angle2, tro_4_v_length, tro_4_v_length1, tro_4_v_medium_dQ_dx, tro_4_v_end_dQ_dx, tro_4_v_energy, tro_4_v_shower_main_length, tro_4_v_flag_shower_trajectory);
       tagger.tro_5_score     = cal_tro_5_bdt(0.5, tagger, reader_tro_5, tro_5_v_max_angle, tro_5_v_min_angle, tro_5_v_max_length, tro_5_v_iso_angle, tro_5_v_n_vtx_segs, tro_5_v_min_count, tro_5_v_max_count, tro_5_v_energy);
 
+      tagger.nue_score       = cal_bdts_xgboost( tagger,  reader);
     
     Tbkg->Fill();
   }
@@ -1469,6 +1762,7 @@ int main( int argc, char** argv )
       tagger.tro_4_score     = cal_tro_4_bdt(0.33, tagger, reader_tro_4, tro_4_v_dir2_mag, tro_4_v_angle, tro_4_v_angle1, tro_4_v_angle2, tro_4_v_length, tro_4_v_length1, tro_4_v_medium_dQ_dx, tro_4_v_end_dQ_dx, tro_4_v_energy, tro_4_v_shower_main_length, tro_4_v_flag_shower_trajectory);
       tagger.tro_5_score     = cal_tro_5_bdt(0.5, tagger, reader_tro_5, tro_5_v_max_angle, tro_5_v_min_angle, tro_5_v_max_length, tro_5_v_iso_angle, tro_5_v_n_vtx_segs, tro_5_v_min_count, tro_5_v_max_count, tro_5_v_energy);
 
+      tagger.nue_score       = cal_bdts_xgboost( tagger,  reader);
     
     Tbkg->Fill();
   }
@@ -1506,6 +1800,7 @@ int main( int argc, char** argv )
       tagger.tro_4_score     = cal_tro_4_bdt(0.33, tagger, reader_tro_4, tro_4_v_dir2_mag, tro_4_v_angle, tro_4_v_angle1, tro_4_v_angle2, tro_4_v_length, tro_4_v_length1, tro_4_v_medium_dQ_dx, tro_4_v_end_dQ_dx, tro_4_v_energy, tro_4_v_shower_main_length, tro_4_v_flag_shower_trajectory);
       tagger.tro_5_score     = cal_tro_5_bdt(0.5, tagger, reader_tro_5, tro_5_v_max_angle, tro_5_v_min_angle, tro_5_v_max_length, tro_5_v_iso_angle, tro_5_v_n_vtx_segs, tro_5_v_min_count, tro_5_v_max_count, tro_5_v_energy);
 
+      tagger.nue_score       = cal_bdts_xgboost( tagger,  reader);
     
     Tbkg->Fill();
   }

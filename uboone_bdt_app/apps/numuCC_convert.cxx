@@ -15,6 +15,119 @@
 
 #include "tagger.h"
 
+#include "TMVA/Factory.h"
+#include "TMVA/DataLoader.h"
+#include "TMVA/Tools.h"
+#include "TMVA/TMVAGui.h"
+#include "TMVA/Reader.h"
+
+using namespace std;
+
+float cal_cosmict_10_bdt(float default_val,TaggerInfo& tagger_info, TMVA::Reader& reader,
+			 float& cosmict_10_vtx_z,
+			 float& cosmict_10_flag_shower,
+			 float& cosmict_10_flag_dir_weak,
+			 float& cosmict_10_angle_beam,
+			 float& cosmict_10_length);
+
+float cal_numu_1_bdt(float default_val,TaggerInfo& tagger_info,TMVA::Reader& reader,
+		     float& numu_cc_flag_1,
+		     float& numu_cc_1_particle_type,
+		     float& numu_cc_1_length,
+		     float& numu_cc_1_medium_dQ_dx,
+		     float& numu_cc_1_dQ_dx_cut,
+		     float& numu_cc_1_direct_length,
+		     float& numu_cc_1_n_daughter_tracks,
+		     float& numu_cc_1_n_daughter_all);
+float cal_numu_2_bdt(float default_val,TaggerInfo& tagger_info,TMVA::Reader& reader,
+		     float& numu_cc_2_length,
+		     float& numu_cc_2_total_length,
+		     float& numu_cc_2_n_daughter_tracks,
+		     float& numu_cc_2_n_daughter_all);
+
+float cal_cosmict_10_bdt(float default_val,TaggerInfo& tagger_info, TMVA::Reader& reader,
+			 float& cosmict_10_vtx_z,
+			 float& cosmict_10_flag_shower,
+			 float& cosmict_10_flag_dir_weak,
+			 float& cosmict_10_angle_beam,
+			 float& cosmict_10_length){
+  float val = default_val;
+  
+  if (tagger_info.cosmict_10_length->size()>0){
+    val = 1e9;
+    for (size_t i=0;i!=tagger_info.cosmict_10_length->size();i++){
+      cosmict_10_vtx_z = tagger_info.cosmict_10_vtx_z->at(i);
+      cosmict_10_flag_shower = tagger_info.cosmict_10_flag_shower->at(i);
+      cosmict_10_flag_dir_weak = tagger_info.cosmict_10_flag_dir_weak->at(i);
+      cosmict_10_angle_beam = tagger_info.cosmict_10_angle_beam->at(i);
+      cosmict_10_length = tagger_info.cosmict_10_length->at(i);
+
+      if (std::isnan(cosmict_10_angle_beam)) cosmict_10_angle_beam = 0;
+      
+      float tmp_bdt =  reader.EvaluateMVA("MyBDT");
+      if (tmp_bdt < val) val = tmp_bdt;
+    }
+  }
+
+  return val;
+}
+
+float cal_numu_1_bdt(float default_val,TaggerInfo& tagger_info,TMVA::Reader& reader,
+		     float& numu_cc_flag_1,
+		     float& numu_cc_1_particle_type,
+		     float& numu_cc_1_length,
+		     float& numu_cc_1_medium_dQ_dx,
+		     float& numu_cc_1_dQ_dx_cut,
+		     float& numu_cc_1_direct_length,
+		     float& numu_cc_1_n_daughter_tracks,
+		     float& numu_cc_1_n_daughter_all){
+  float val = default_val;
+  
+  
+  if (tagger_info.numu_cc_1_particle_type->size()>0){
+    val = -1e9;
+    for (size_t i=0;i!=tagger_info.numu_cc_1_particle_type->size();i++){
+      numu_cc_flag_1 = tagger_info.numu_cc_flag_1->at(i);
+      numu_cc_1_particle_type= tagger_info.numu_cc_1_particle_type->at(i);
+      numu_cc_1_length= tagger_info.numu_cc_1_length->at(i);
+      numu_cc_1_medium_dQ_dx= tagger_info.numu_cc_1_medium_dQ_dx->at(i);
+      numu_cc_1_dQ_dx_cut= tagger_info.numu_cc_1_dQ_dx_cut->at(i);
+      numu_cc_1_direct_length= tagger_info.numu_cc_1_direct_length->at(i);
+      numu_cc_1_n_daughter_tracks= tagger_info.numu_cc_1_n_daughter_tracks->at(i);
+      numu_cc_1_n_daughter_all= tagger_info.numu_cc_1_n_daughter_all->at(i);
+
+      if (std::isinf(numu_cc_1_dQ_dx_cut))  numu_cc_1_dQ_dx_cut = 10;
+      
+      float tmp_bdt =  reader.EvaluateMVA("MyBDT");
+      if (tmp_bdt > val) val = tmp_bdt;
+    }
+  }
+  
+  return val;
+}
+float cal_numu_2_bdt(float default_val,TaggerInfo& tagger_info,TMVA::Reader& reader,
+		     float& numu_cc_2_length,
+		     float& numu_cc_2_total_length,
+		     float& numu_cc_2_n_daughter_tracks,
+		     float& numu_cc_2_n_daughter_all){
+  float val = default_val;
+
+  if (tagger_info.numu_cc_2_length->size()>0){
+    val = -1e9;
+    for (size_t i=0;i!=tagger_info.numu_cc_2_length->size();i++){
+      numu_cc_2_length = tagger_info.numu_cc_2_length->at(i);
+      numu_cc_2_total_length = tagger_info.numu_cc_2_total_length->at(i);
+      numu_cc_2_n_daughter_tracks = tagger_info.numu_cc_2_n_daughter_tracks->at(i);
+      numu_cc_2_n_daughter_all = tagger_info.numu_cc_2_n_daughter_all->at(i);
+	
+      float tmp_bdt =  reader.EvaluateMVA("MyBDT");
+      if (tmp_bdt > val) val = tmp_bdt;
+    }
+  }
+
+  return val;
+}
+
 int main( int argc, char** argv )
 {
   int process = 1;
@@ -302,6 +415,57 @@ int main( int argc, char** argv )
   set_tree_address(t5, tagger);
   double pot_5 = 1.9e20/2.;
 
+  TMVA::Reader reader_cosmict_10;
+  float cosmict_10_vtx_z;
+  float cosmict_10_flag_shower;
+  float cosmict_10_flag_dir_weak;
+  float cosmict_10_angle_beam;
+  float cosmict_10_length;
+  
+  reader_cosmict_10.AddVariable("cosmict_10_vtx_z",&cosmict_10_vtx_z);
+  reader_cosmict_10.AddVariable("cosmict_10_flag_shower",&cosmict_10_flag_shower);
+  reader_cosmict_10.AddVariable("cosmict_10_flag_dir_weak",&cosmict_10_flag_dir_weak);
+  reader_cosmict_10.AddVariable("cosmict_10_angle_beam",&cosmict_10_angle_beam);
+  reader_cosmict_10.AddVariable("cosmict_10_length",&cosmict_10_length);
+      
+  reader_cosmict_10.BookMVA( "MyBDT", "weights/cos_tagger_10.weights.xml");
+
+
+  TMVA::Reader reader_numu_1;
+  
+  float numu_cc_flag_1;
+  float numu_cc_1_particle_type;
+  float numu_cc_1_length;
+  float numu_cc_1_medium_dQ_dx;
+  float numu_cc_1_dQ_dx_cut;
+  float numu_cc_1_direct_length;
+  float numu_cc_1_n_daughter_tracks;
+  float numu_cc_1_n_daughter_all;
+  
+  reader_numu_1.AddVariable("numu_cc_1_particle_type",&numu_cc_1_particle_type);
+  reader_numu_1.AddVariable("numu_cc_1_length",&numu_cc_1_length);
+  reader_numu_1.AddVariable("numu_cc_1_medium_dQ_dx",&numu_cc_1_medium_dQ_dx);
+  reader_numu_1.AddVariable("numu_cc_1_dQ_dx_cut",&numu_cc_1_dQ_dx_cut);
+  reader_numu_1.AddVariable("numu_cc_1_direct_length",&numu_cc_1_direct_length);
+  reader_numu_1.AddVariable("numu_cc_1_n_daughter_tracks",&numu_cc_1_n_daughter_tracks);
+  reader_numu_1.AddVariable("numu_cc_1_n_daughter_all",&numu_cc_1_n_daughter_all);
+      
+  reader_numu_1.BookMVA( "MyBDT", "weights/numu_tagger1.weights.xml");
+
+
+  TMVA::Reader reader_numu_2;
+  float numu_cc_2_length;
+  float numu_cc_2_total_length;
+  float numu_cc_2_n_daughter_tracks;
+  float numu_cc_2_n_daughter_all;
+  
+  reader_numu_2.AddVariable("numu_cc_2_length",&numu_cc_2_length);
+  reader_numu_2.AddVariable("numu_cc_2_total_length",&numu_cc_2_total_length);
+  reader_numu_2.AddVariable("numu_cc_2_n_daughter_tracks",&numu_cc_2_n_daughter_tracks);
+  reader_numu_2.AddVariable("numu_cc_2_n_daughter_all",&numu_cc_2_n_daughter_all);
+  
+  reader_numu_2.BookMVA( "MyBDT", "weights/numu_tagger2.weights.xml");
+  
 
   TString filename;
   if (process == 1){
@@ -318,6 +482,11 @@ int main( int argc, char** argv )
   put_tree_address(Tsig, tagger);
   put_tree_address(Tbkg, tagger);
 
+  // add numu vector and then scalar BDTs ... 
+
+  
+
+  
   
   for (Int_t i=0;i!=t2->GetEntries();i++){
     t2->GetEntry(i);
@@ -326,7 +495,7 @@ int main( int argc, char** argv )
     if (std::isnan(tagger.weight_cv) || std::isnan(tagger.weight_spline) || std::isinf(tagger.weight_cv) || std::isinf(tagger.weight_spline)) continue;
 
     // effectively generic neutrino selection
-    if (tagger.kine_reco_Enu == 0) continue;
+    //if (tagger.kine_reco_Enu == 0) continue;
 
     // odd sub run number ...
     if (tagger.subrun %2 == 1 && process == 1 || tagger.subrun %2 == 0 && process != 1) continue;
@@ -338,6 +507,29 @@ int main( int argc, char** argv )
     }
     
     tagger.lowEweight = 1;
+
+
+    // BDT calculations
+    tagger.numu_1_score = cal_numu_1_bdt(-0.4,tagger, reader_numu_1, numu_cc_flag_1,
+    					      numu_cc_1_particle_type,
+    					      numu_cc_1_length,
+    					      numu_cc_1_medium_dQ_dx,
+    					      numu_cc_1_dQ_dx_cut,
+    					      numu_cc_1_direct_length,
+    					      numu_cc_1_n_daughter_tracks,
+    					      numu_cc_1_n_daughter_all);
+    tagger.numu_2_score = cal_numu_2_bdt(-0.1,tagger,reader_numu_2,
+					      numu_cc_2_length,
+					      numu_cc_2_total_length,
+					      numu_cc_2_n_daughter_tracks,
+					      numu_cc_2_n_daughter_all);
+    tagger.cosmict_10_score = cal_cosmict_10_bdt(0.7, tagger, reader_cosmict_10,
+						      cosmict_10_vtx_z,
+						      cosmict_10_flag_shower,
+						      cosmict_10_flag_dir_weak,
+						      cosmict_10_angle_beam,
+						      cosmict_10_length);
+
     
     if (tagger.truth_isCC==1 && abs(tagger.truth_nuPdg)==14 && tagger.truth_vtxInside ==1  ) {
       Tsig->Fill(); 
@@ -354,7 +546,7 @@ int main( int argc, char** argv )
     if (std::isnan(tagger.weight_cv) || std::isnan(tagger.weight_spline) || std::isinf(tagger.weight_cv) || std::isinf(tagger.weight_spline)) continue;
 
     // effectively generic neutrino selection
-    if (tagger.kine_reco_Enu == 0) continue;
+    // if (tagger.kine_reco_Enu == 0) continue;
 
     // odd sub run number skip ...
     if (tagger.subrun %2 == 1 && process == 1 || tagger.subrun %2 == 0 && process != 1) continue;
@@ -365,6 +557,29 @@ int main( int argc, char** argv )
       tagger.weight = tagger.weight_spline * tagger.weight_cv ;
     }
     tagger.lowEweight = 1;
+
+
+    // BDT calculations
+    tagger.numu_1_score = cal_numu_1_bdt(-0.4,tagger, reader_numu_1, numu_cc_flag_1,
+    					      numu_cc_1_particle_type,
+    					      numu_cc_1_length,
+    					      numu_cc_1_medium_dQ_dx,
+    					      numu_cc_1_dQ_dx_cut,
+    					      numu_cc_1_direct_length,
+    					      numu_cc_1_n_daughter_tracks,
+    					      numu_cc_1_n_daughter_all);
+    tagger.numu_2_score = cal_numu_2_bdt(-0.1,tagger,reader_numu_2,
+					      numu_cc_2_length,
+					      numu_cc_2_total_length,
+					      numu_cc_2_n_daughter_tracks,
+					      numu_cc_2_n_daughter_all);
+    tagger.cosmict_10_score = cal_cosmict_10_bdt(0.7, tagger, reader_cosmict_10,
+						      cosmict_10_vtx_z,
+						      cosmict_10_flag_shower,
+						      cosmict_10_flag_dir_weak,
+						      cosmict_10_angle_beam,
+						      cosmict_10_length);
+
     
     if (tagger.truth_isCC==1 && abs(tagger.truth_nuPdg)==14 && tagger.truth_vtxInside ==1  ) {
       Tsig->Fill(); 
@@ -378,7 +593,7 @@ int main( int argc, char** argv )
     t4->GetEntry(i);
 
     // effectively generic neutrino selection
-    if (tagger.kine_reco_Enu == 0) continue;
+    // if (tagger.kine_reco_Enu == 0) continue;
 
     // odd sub run number ...
     if (tagger.subrun %2 == 1 && process == 1 || tagger.subrun %2 == 0 && process != 1) continue;
@@ -386,6 +601,27 @@ int main( int argc, char** argv )
     
     tagger.weight = (pot_2+pot_3)/(pot_4+pot_5);
     tagger.lowEweight = 1;
+
+    // BDT calculations
+    tagger.numu_1_score = cal_numu_1_bdt(-0.4,tagger, reader_numu_1, numu_cc_flag_1,
+    					      numu_cc_1_particle_type,
+    					      numu_cc_1_length,
+    					      numu_cc_1_medium_dQ_dx,
+    					      numu_cc_1_dQ_dx_cut,
+    					      numu_cc_1_direct_length,
+    					      numu_cc_1_n_daughter_tracks,
+    					      numu_cc_1_n_daughter_all);
+    tagger.numu_2_score = cal_numu_2_bdt(-0.1,tagger,reader_numu_2,
+					      numu_cc_2_length,
+					      numu_cc_2_total_length,
+					      numu_cc_2_n_daughter_tracks,
+					      numu_cc_2_n_daughter_all);
+    tagger.cosmict_10_score = cal_cosmict_10_bdt(0.7, tagger, reader_cosmict_10,
+						      cosmict_10_vtx_z,
+						      cosmict_10_flag_shower,
+						      cosmict_10_flag_dir_weak,
+						      cosmict_10_angle_beam,
+						      cosmict_10_length);
     
     
     Tbkg->Fill();
@@ -397,7 +633,7 @@ int main( int argc, char** argv )
     t5->GetEntry(i);
 
     // effectively generic neutrino selection
-    if (tagger.kine_reco_Enu == 0) continue;
+    //if (tagger.kine_reco_Enu == 0) continue;
 
     // odd sub run number ...
     if (tagger.subrun %2 == 1 && process == 1 || tagger.subrun %2 == 0 && process != 1) continue;
@@ -405,7 +641,27 @@ int main( int argc, char** argv )
     
     tagger.weight =  (pot_2+pot_3)/(pot_4+pot_5);
     tagger.lowEweight = 1;
-    
+
+    // BDT calculations
+    tagger.numu_1_score = cal_numu_1_bdt(-0.4,tagger, reader_numu_1, numu_cc_flag_1,
+    					      numu_cc_1_particle_type,
+    					      numu_cc_1_length,
+    					      numu_cc_1_medium_dQ_dx,
+    					      numu_cc_1_dQ_dx_cut,
+    					      numu_cc_1_direct_length,
+    					      numu_cc_1_n_daughter_tracks,
+    					      numu_cc_1_n_daughter_all);
+    tagger.numu_2_score = cal_numu_2_bdt(-0.1,tagger,reader_numu_2,
+					      numu_cc_2_length,
+					      numu_cc_2_total_length,
+					      numu_cc_2_n_daughter_tracks,
+					      numu_cc_2_n_daughter_all);
+    tagger.cosmict_10_score = cal_cosmict_10_bdt(0.7, tagger, reader_cosmict_10,
+						      cosmict_10_vtx_z,
+						      cosmict_10_flag_shower,
+						      cosmict_10_flag_dir_weak,
+						      cosmict_10_angle_beam,
+						      cosmict_10_length);
    
     Tbkg->Fill();
    
