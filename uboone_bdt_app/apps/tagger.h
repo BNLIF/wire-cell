@@ -735,7 +735,23 @@
     float weight_spline;
     float weight_cv;
     float weight_lee;
+    
     float kine_reco_Enu;
+    float kine_reco_add_energy;
+    float kine_pio_mass;
+    float kine_pio_vtx_dis;
+    float kine_pio_flag;
+    float kine_pio_energy_1;
+    float kine_pio_theta_1;
+    float kine_pio_phi_1;
+    float kine_pio_dis_1;
+    float kine_pio_energy_2;
+    float kine_pio_theta_2;
+    float kine_pio_phi_2;
+    float kine_pio_dis_2;
+    float kine_pio_angle;
+    
+    
     float event_type;
 
 
@@ -1442,6 +1458,21 @@ void set_tree_address(TTree *tree0, TaggerInfo& tagger_info){
   tree0->SetBranchAddress("weight_cv",&tagger_info.weight_cv);
   tree0->SetBranchAddress("weight_lee",&tagger_info.weight_lee);
   tree0->SetBranchAddress("kine_reco_Enu",&tagger_info.kine_reco_Enu);
+  
+  tree0->SetBranchAddress("kine_reco_add_energy",&tagger_info.kine_reco_add_energy);
+  tree0->SetBranchAddress("kine_pio_mass",&tagger_info.kine_pio_mass);
+  tree0->SetBranchAddress("kine_pio_vtx_dis",&tagger_info.kine_pio_vtx_dis);
+  tree0->SetBranchAddress("kine_pio_flag",&tagger_info.kine_pio_flag);
+  tree0->SetBranchAddress("kine_pio_energy_1",&tagger_info.kine_pio_energy_1);
+  tree0->SetBranchAddress("kine_pio_theta_1",&tagger_info.kine_pio_theta_1);
+  tree0->SetBranchAddress("kine_pio_phi_1",&tagger_info.kine_pio_phi_1);
+  tree0->SetBranchAddress("kine_pio_dis_1",&tagger_info.kine_pio_dis_1);
+  tree0->SetBranchAddress("kine_pio_energy_2",&tagger_info.kine_pio_energy_2);
+  tree0->SetBranchAddress("kine_pio_theta_2",&tagger_info.kine_pio_theta_2);
+  tree0->SetBranchAddress("kine_pio_phi_2",&tagger_info.kine_pio_phi_2);
+  tree0->SetBranchAddress("kine_pio_dis_2",&tagger_info.kine_pio_dis_2);
+  tree0->SetBranchAddress("kine_pio_angle",&tagger_info.kine_pio_angle);
+  
   tree0->SetBranchAddress("event_type",&tagger_info.event_type);
 }
 
@@ -2139,6 +2170,22 @@ void put_tree_address(TTree *T_tagger, TaggerInfo& tagger_info){
     T_tagger->Branch("weight_cv",&tagger_info.weight_cv,"data/F");
     T_tagger->Branch("weight_lee",&tagger_info.weight_lee,"data/F");
     T_tagger->Branch("kine_reco_Enu",&tagger_info.kine_reco_Enu,"data/F");
+    
+    T_tagger->Branch("kine_reco_add_energy",&tagger_info.kine_reco_add_energy,"data/F");
+    T_tagger->Branch("kine_pio_mass",&tagger_info.kine_pio_mass,"data/F");
+    T_tagger->Branch("kine_pio_vtx_dis",&tagger_info.kine_pio_vtx_dis,"data/F");
+    T_tagger->Branch("kine_pio_flag",&tagger_info.kine_pio_flag,"data/F");
+    T_tagger->Branch("kine_pio_energy_1",&tagger_info.kine_pio_energy_1,"data/F");
+    T_tagger->Branch("kine_pio_theta_1",&tagger_info.kine_pio_theta_1,"data/F");
+    T_tagger->Branch("kine_pio_phi_1",&tagger_info.kine_pio_phi_1,"data/F");
+    T_tagger->Branch("kine_pio_dis_1",&tagger_info.kine_pio_dis_1,"data/F");
+    T_tagger->Branch("kine_pio_energy_2",&tagger_info.kine_pio_energy_2,"data/F");
+    T_tagger->Branch("kine_pio_theta_2",&tagger_info.kine_pio_theta_2,"data/F");
+    T_tagger->Branch("kine_pio_phi_2",&tagger_info.kine_pio_phi_2,"data/F");
+    T_tagger->Branch("kine_pio_dis_2",&tagger_info.kine_pio_dis_2,"data/F");
+    T_tagger->Branch("kine_pio_angle",&tagger_info.kine_pio_angle,"data/F");
+
+    
     T_tagger->Branch("event_type",&tagger_info.event_type,"data/F");
 
     T_tagger->Branch("weight",&tagger_info.weight,"data/F");
