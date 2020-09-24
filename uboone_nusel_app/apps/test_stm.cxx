@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
   for (int i =0;i!=T_match->GetEntries();i++){
     T_match->GetEntry(i);
     
-    if (flash_time < lowerwindow || flash_time > upperwindow) continue;
+    if (flash_time <= lowerwindow || flash_time >= upperwindow) continue;
     int flag_tgm = (event_type >> 3) & 1U;
     int flag_low_energy = (event_type >> 4) & 1U;
     int flag_lm = (event_type >> 1) & 1U;

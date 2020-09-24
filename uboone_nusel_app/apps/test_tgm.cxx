@@ -126,7 +126,7 @@ int main(int argc, char* argv[])
   for (int i=0;i!=T_flash->GetEntries();i++){
     T_flash->GetEntry(i);
     if (type==2){
-      if ( time >= lowerwindow && time <=upperwindow){
+      if ( time > lowerwindow && time <upperwindow){
 	saved_flash_ids.insert(flash_id);
 	saved_id_time_map[flash_id]=time;
 	//saved_times.push_back(time);

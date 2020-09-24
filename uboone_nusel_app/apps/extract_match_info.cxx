@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
   std::map<int,double> time_map;
   for (Int_t i=0;i!=T_flash->GetEntries();i++){
     T_flash->GetEntry(i);
-    if (time >=lowerwindow && time <= upperwindow){
+    if (time >lowerwindow && time < upperwindow){
       // std::cout << flash_id << " " << time << std::endl;
       good_flash_ids.insert(flash_id);
       pe_map[flash_id] = total_PE;
