@@ -12,6 +12,7 @@
 #include "TObjString.h"
 #include "TSystem.h"
 #include "TROOT.h"
+#include "TMath.h"
 
 #include "tagger.h"
 
@@ -22,6 +23,8 @@
 #include "TMVA/Reader.h"
 
 using namespace std;
+
+float cal_numu_bdts_xgboost(TaggerInfo& tagger_info, TMVA::Reader& reader);
 
 float cal_cosmict_10_bdt(float default_val,TaggerInfo& tagger_info, TMVA::Reader& reader,
 			 float& cosmict_10_vtx_z,
@@ -44,6 +47,17 @@ float cal_numu_2_bdt(float default_val,TaggerInfo& tagger_info,TMVA::Reader& rea
 		     float& numu_cc_2_total_length,
 		     float& numu_cc_2_n_daughter_tracks,
 		     float& numu_cc_2_n_daughter_all);
+
+float cal_numu_bdts_xgboost(TaggerInfo& tagger_info, TMVA::Reader& reader)
+{
+  float val = -10;
+
+  double val1 = reader.EvaluateMVA("MyBDT");
+  
+  val = TMath::Log10( (1+val1)/(1-val1) );
+  
+  return val;
+}
 
 float cal_cosmict_10_bdt(float default_val,TaggerInfo& tagger_info, TMVA::Reader& reader,
 			 float& cosmict_10_vtx_z,
@@ -465,6 +479,86 @@ int main( int argc, char** argv )
   reader_numu_2.AddVariable("numu_cc_2_n_daughter_all",&numu_cc_2_n_daughter_all);
   
   reader_numu_2.BookMVA( "MyBDT", "weights/numu_tagger2.weights.xml");
+
+
+  TMVA::Reader reader;
+  
+  reader.AddVariable("numu_cc_flag_3", &tagger.numu_cc_flag_3);
+  reader.AddVariable("numu_cc_3_particle_type", &tagger.numu_cc_3_particle_type);
+  reader.AddVariable("numu_cc_3_max_length", &tagger.numu_cc_3_max_length);
+  reader.AddVariable("numu_cc_3_track_length",&tagger.numu_cc_3_acc_track_length);
+  reader.AddVariable("numu_cc_3_max_length_all",&tagger.numu_cc_3_max_length_all);
+  reader.AddVariable("numu_cc_3_max_muon_length",&tagger.numu_cc_3_max_muon_length);
+  reader.AddVariable("numu_cc_3_n_daughter_tracks",&tagger.numu_cc_3_n_daughter_tracks);
+  reader.AddVariable("numu_cc_3_n_daughter_all",&tagger.numu_cc_3_n_daughter_all);
+  reader.AddVariable("cosmict_flag_2", &tagger.cosmict_flag_2);
+  reader.AddVariable("cosmict_2_filled", &tagger.cosmict_2_filled);
+  reader.AddVariable("cosmict_2_particle_type",&tagger.cosmict_2_particle_type);
+  reader.AddVariable("cosmict_2_n_muon_tracks",&tagger.cosmict_2_n_muon_tracks);
+  reader.AddVariable("cosmict_2_total_shower_length",&tagger.cosmict_2_total_shower_length);
+  reader.AddVariable("cosmict_2_flag_inside",&tagger.cosmict_2_flag_inside);
+  reader.AddVariable("cosmict_2_angle_beam",&tagger.cosmict_2_angle_beam);
+  reader.AddVariable("cosmict_2_flag_dir_weak", &tagger.cosmict_2_flag_dir_weak);
+  reader.AddVariable("cosmict_2_dQ_dx_end", &tagger.cosmict_2_dQ_dx_end);
+  reader.AddVariable("cosmict_2_dQ_dx_front", &tagger.cosmict_2_dQ_dx_front);
+  reader.AddVariable("cosmict_2_theta", &tagger.cosmict_2_theta);
+  reader.AddVariable("cosmict_2_phi", &tagger.cosmict_2_phi);
+  reader.AddVariable("cosmict_2_valid_tracks", &tagger.cosmict_2_valid_tracks);
+  reader.AddVariable("cosmict_flag_4", &tagger.cosmict_flag_4);
+  reader.AddVariable("cosmict_4_filled", &tagger.cosmict_4_filled);
+  reader.AddVariable("cosmict_4_flag_inside", &tagger.cosmict_4_flag_inside);
+  reader.AddVariable("cosmict_4_angle_beam", &tagger.cosmict_4_angle_beam);
+  reader.AddVariable("cosmict_4_connected_showers", &tagger.cosmict_4_connected_showers);
+  reader.AddVariable("cosmict_flag_3", &tagger.cosmict_flag_3);
+  reader.AddVariable("cosmict_3_filled", &tagger.cosmict_3_filled);
+  reader.AddVariable("cosmict_3_flag_inside", &tagger.cosmict_3_flag_inside);
+  reader.AddVariable("cosmict_3_angle_beam", &tagger.cosmict_3_angle_beam);
+  reader.AddVariable("cosmict_3_flag_dir_weak", &tagger.cosmict_3_flag_dir_weak);
+  reader.AddVariable("cosmict_3_dQ_dx_end", &tagger.cosmict_3_dQ_dx_end);
+  reader.AddVariable("cosmict_3_dQ_dx_front", &tagger.cosmict_3_dQ_dx_front);
+  reader.AddVariable("cosmict_3_theta", &tagger.cosmict_3_theta);
+  reader.AddVariable("cosmict_3_phi", &tagger.cosmict_3_phi);
+  reader.AddVariable("cosmict_3_valid_tracks", &tagger.cosmict_3_valid_tracks);
+  reader.AddVariable("cosmict_flag_5", &tagger.cosmict_flag_5);
+  reader.AddVariable("cosmict_5_filled", &tagger.cosmict_5_filled);
+  reader.AddVariable("cosmict_5_flag_inside", &tagger.cosmict_5_flag_inside);
+  reader.AddVariable("cosmict_5_angle_beam", &tagger.cosmict_5_angle_beam);
+  reader.AddVariable("cosmict_5_connected_showers", &tagger.cosmict_5_connected_showers);
+  reader.AddVariable("cosmict_flag_6", &tagger.cosmict_flag_6);
+  reader.AddVariable("cosmict_6_filled", &tagger.cosmict_6_filled);
+  reader.AddVariable("cosmict_6_flag_dir_weak", &tagger.cosmict_6_flag_dir_weak);
+  reader.AddVariable("cosmict_6_flag_inside", &tagger.cosmict_6_flag_inside);
+  reader.AddVariable("cosmict_6_angle", &tagger.cosmict_6_angle);
+  reader.AddVariable("cosmict_flag_7", &tagger.cosmict_flag_7);
+  reader.AddVariable("cosmict_7_filled", &tagger.cosmict_7_filled);
+  reader.AddVariable("cosmict_7_flag_sec", &tagger.cosmict_7_flag_sec);
+  reader.AddVariable("cosmict_7_n_muon_tracks", &tagger.cosmict_7_n_muon_tracks);
+  reader.AddVariable("cosmict_7_total_shower_length", &tagger.cosmict_7_total_shower_length);
+  reader.AddVariable("cosmict_7_flag_inside", &tagger.cosmict_7_flag_inside);
+  reader.AddVariable("cosmict_7_angle_beam", &tagger.cosmict_7_angle_beam);
+  reader.AddVariable("cosmict_7_flag_dir_weak", &tagger.cosmict_7_flag_dir_weak);
+  reader.AddVariable("cosmict_7_dQ_dx_end", &tagger.cosmict_7_dQ_dx_end);
+  reader.AddVariable("cosmict_7_dQ_dx_front", &tagger.cosmict_7_dQ_dx_front);
+  reader.AddVariable("cosmict_7_theta", &tagger.cosmict_7_theta);
+  reader.AddVariable("cosmict_7_phi", &tagger.cosmict_7_phi);
+  reader.AddVariable("cosmict_flag_8", &tagger.cosmict_flag_8);
+  reader.AddVariable("cosmict_8_filled", &tagger.cosmict_8_filled);
+  reader.AddVariable("cosmict_8_flag_out", &tagger.cosmict_8_flag_out);
+  reader.AddVariable("cosmict_8_muon_length", &tagger.cosmict_8_muon_length);
+  reader.AddVariable("cosmict_8_acc_length", &tagger.cosmict_8_acc_length);
+  reader.AddVariable("cosmict_flag_9", &tagger.cosmict_flag_9);
+  reader.AddVariable("cosmic_flag", &tagger.cosmic_flag);
+  reader.AddVariable("cosmic_filled", &tagger.cosmic_filled);
+  reader.AddVariable("cosmict_flag", &tagger.cosmict_flag);
+  reader.AddVariable("numu_cc_flag", &tagger.numu_cc_flag);
+  reader.AddVariable("cosmict_flag_1", &tagger.cosmict_flag_1);
+  reader.AddVariable("kine_reco_Enu",&tagger.kine_reco_Enu);
+  reader.AddVariable("match_isFC",&tagger.match_isFC);
+  reader.AddVariable("cosmict_10_score", &tagger.cosmict_10_score);
+  reader.AddVariable("numu_1_score", &tagger.numu_1_score);
+  reader.AddVariable("numu_2_score", &tagger.numu_2_score);
+
+  reader.BookMVA( "MyBDT", "weights/numu_scalars_scores_0923.xml");
   
 
   TString filename;
@@ -529,7 +623,8 @@ int main( int argc, char** argv )
 						      cosmict_10_flag_dir_weak,
 						      cosmict_10_angle_beam,
 						      cosmict_10_length);
-
+    if (std::isnan(tagger.cosmict_4_angle_beam)) tagger.cosmict_4_angle_beam = 0;
+    tagger.numu_score = cal_numu_bdts_xgboost(tagger,reader);
     
     if (tagger.truth_isCC==1 && abs(tagger.truth_nuPdg)==14 && tagger.truth_vtxInside ==1  ) {
       Tsig->Fill(); 
@@ -580,6 +675,8 @@ int main( int argc, char** argv )
 						      cosmict_10_angle_beam,
 						      cosmict_10_length);
 
+    if (std::isnan(tagger.cosmict_4_angle_beam)) tagger.cosmict_4_angle_beam = 0;
+    tagger.numu_score = cal_numu_bdts_xgboost(tagger,reader);
     
     if (tagger.truth_isCC==1 && abs(tagger.truth_nuPdg)==14 && tagger.truth_vtxInside ==1  ) {
       Tsig->Fill(); 
@@ -623,7 +720,8 @@ int main( int argc, char** argv )
 						      cosmict_10_angle_beam,
 						      cosmict_10_length);
     
-    
+    if (std::isnan(tagger.cosmict_4_angle_beam)) tagger.cosmict_4_angle_beam = 0;
+    tagger.numu_score = cal_numu_bdts_xgboost(tagger,reader);
     Tbkg->Fill();
     
   }
@@ -662,7 +760,8 @@ int main( int argc, char** argv )
 						      cosmict_10_flag_dir_weak,
 						      cosmict_10_angle_beam,
 						      cosmict_10_length);
-   
+    if (std::isnan(tagger.cosmict_4_angle_beam)) tagger.cosmict_4_angle_beam = 0;
+    tagger.numu_score = cal_numu_bdts_xgboost(tagger,reader);
     Tbkg->Fill();
    
   }
