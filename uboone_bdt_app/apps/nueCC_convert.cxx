@@ -1085,7 +1085,9 @@ int main( int argc, char** argv )
   
   // total BDTs ... to be added ...
   TMVA::Reader reader;
-
+  reader.AddVariable("match_isFC",&tagger.match_isFC);
+  reader.AddVariable("kine_reco_Enu",&tagger.kine_reco_Enu);
+  
   reader.AddVariable("cme_mu_energy",&tagger.cme_mu_energy);
   reader.AddVariable("cme_energy",&tagger.cme_energy);
   reader.AddVariable("cme_mu_length",&tagger.cme_mu_length);
@@ -1342,8 +1344,9 @@ int main( int argc, char** argv )
   reader.AddVariable("tro_3_stem_length",&tagger.tro_3_stem_length);
   reader.AddVariable("tro_3_n_muon_segs",&tagger.tro_3_n_muon_segs);
   reader.AddVariable("br4_1_n_main_segs",&tagger.br4_1_n_main_segs); // naming issue
-  
-  reader.BookMVA( "MyBDT", "./weights/xgboost_set8seed7_kaicheng_0819.xml");
+
+    reader.BookMVA( "MyBDT", "./weights/XGB_nue_seed2_0923.xml");
+  //  reader.BookMVA( "MyBDT", "./weights/xgboost_set8seed7_kaicheng_0819.xml");
   
   
   
