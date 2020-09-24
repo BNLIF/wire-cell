@@ -625,6 +625,9 @@ int main( int argc, char** argv )
 						      cosmict_10_length);
     if (std::isnan(tagger.cosmict_4_angle_beam)) tagger.cosmict_4_angle_beam = 0;
     if (std::isnan(tagger.cosmict_7_angle_beam)) tagger.cosmict_7_angle_beam = 0;
+    if (std::isnan(tagger.cosmict_7_theta)) tagger.cosmict_7_theta = 0;
+    if (std::isnan(tagger.cosmict_7_phi)) tagger.cosmict_7_phi = 0;
+    
     tagger.numu_score = cal_numu_bdts_xgboost(tagger,reader);
     
     if (tagger.truth_isCC==1 && abs(tagger.truth_nuPdg)==14 && tagger.truth_vtxInside ==1  ) {
@@ -678,6 +681,9 @@ int main( int argc, char** argv )
 
     if (std::isnan(tagger.cosmict_4_angle_beam)) tagger.cosmict_4_angle_beam = 0;
     if (std::isnan(tagger.cosmict_7_angle_beam)) tagger.cosmict_7_angle_beam = 0;
+    if (std::isnan(tagger.cosmict_7_theta)) tagger.cosmict_7_theta = 0;
+    if (std::isnan(tagger.cosmict_7_phi)) tagger.cosmict_7_phi = 0;
+    
     tagger.numu_score = cal_numu_bdts_xgboost(tagger,reader);
     
     if (tagger.truth_isCC==1 && abs(tagger.truth_nuPdg)==14 && tagger.truth_vtxInside ==1  ) {
@@ -724,6 +730,9 @@ int main( int argc, char** argv )
     
     if (std::isnan(tagger.cosmict_4_angle_beam)) tagger.cosmict_4_angle_beam = 0;
     if (std::isnan(tagger.cosmict_7_angle_beam)) tagger.cosmict_7_angle_beam = 0;
+    if (std::isnan(tagger.cosmict_7_theta)) tagger.cosmict_7_theta = 0;
+    if (std::isnan(tagger.cosmict_7_phi)) tagger.cosmict_7_phi = 0;
+    
     tagger.numu_score = cal_numu_bdts_xgboost(tagger,reader);
     Tbkg->Fill();
     
@@ -765,6 +774,8 @@ int main( int argc, char** argv )
 						      cosmict_10_length);
     if (std::isnan(tagger.cosmict_4_angle_beam)) tagger.cosmict_4_angle_beam = 0;
     if (std::isnan(tagger.cosmict_7_angle_beam)) tagger.cosmict_7_angle_beam = 0;
+    if (std::isnan(tagger.cosmict_7_theta)) tagger.cosmict_7_theta = 0;
+    if (std::isnan(tagger.cosmict_7_phi)) tagger.cosmict_7_phi = 0;
     tagger.numu_score = cal_numu_bdts_xgboost(tagger,reader);
     Tbkg->Fill();
    
