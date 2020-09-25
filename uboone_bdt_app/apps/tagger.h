@@ -761,11 +761,11 @@
     
   };
 
-void set_tree_address(TTree *tree0, TaggerInfo& tagger_info);
-void put_tree_address(TTree *Tsig, TaggerInfo& tagger_info);
+void set_tree_address(TTree *tree0, TaggerInfo& tagger_info, int flag = 1);
+void put_tree_address(TTree *Tsig, TaggerInfo& tagger_info, int flag = 1);
 
 
-void set_tree_address(TTree *tree0, TaggerInfo& tagger_info){
+void set_tree_address(TTree *tree0, TaggerInfo& tagger_info, int flag){
 
   
     // cosmic tagger
@@ -1447,36 +1447,36 @@ void set_tree_address(TTree *tree0, TaggerInfo& tagger_info){
   tree0->SetBranchAddress("showervtx_diff",&tagger_info.showervtx_diff);
   tree0->SetBranchAddress("muonvtx_diff",&tagger_info.muonvtx_diff);
   
-  tree0->SetBranchAddress("match_isFC",&tagger_info.match_isFC);
-  tree0->SetBranchAddress("truth_isCC",&tagger_info.truth_isCC);
-  tree0->SetBranchAddress("truth_vtxInside",&tagger_info.truth_vtxInside);
-  tree0->SetBranchAddress("truth_nuPdg",&tagger_info.truth_nuPdg);
-  tree0->SetBranchAddress("truth_nuEnergy",&tagger_info.truth_nuEnergy);
-  tree0->SetBranchAddress("truth_nuIntType",&tagger_info.truth_nuIntType);
-  tree0->SetBranchAddress("truth_energyInside",&tagger_info.truth_energyInside);
-  tree0->SetBranchAddress("weight_spline",&tagger_info.weight_spline);
-  tree0->SetBranchAddress("weight_cv",&tagger_info.weight_cv);
-  tree0->SetBranchAddress("weight_lee",&tagger_info.weight_lee);
-  tree0->SetBranchAddress("kine_reco_Enu",&tagger_info.kine_reco_Enu);
+  if (flag==1) tree0->SetBranchAddress("match_isFC",&tagger_info.match_isFC);
+  if (flag==1) tree0->SetBranchAddress("truth_isCC",&tagger_info.truth_isCC);
+  if (flag==1) tree0->SetBranchAddress("truth_vtxInside",&tagger_info.truth_vtxInside);
+  if (flag==1) tree0->SetBranchAddress("truth_nuPdg",&tagger_info.truth_nuPdg);
+  if (flag==1) tree0->SetBranchAddress("truth_nuEnergy",&tagger_info.truth_nuEnergy);
+  if (flag==1) tree0->SetBranchAddress("truth_nuIntType",&tagger_info.truth_nuIntType);
+  if (flag==1) tree0->SetBranchAddress("truth_energyInside",&tagger_info.truth_energyInside);
+  if (flag==1) tree0->SetBranchAddress("weight_spline",&tagger_info.weight_spline);
+  if (flag==1) tree0->SetBranchAddress("weight_cv",&tagger_info.weight_cv);
+  if (flag==1) tree0->SetBranchAddress("weight_lee",&tagger_info.weight_lee);
+  if (flag==1) tree0->SetBranchAddress("kine_reco_Enu",&tagger_info.kine_reco_Enu);
   
-  tree0->SetBranchAddress("kine_reco_add_energy",&tagger_info.kine_reco_add_energy);
-  tree0->SetBranchAddress("kine_pio_mass",&tagger_info.kine_pio_mass);
-  tree0->SetBranchAddress("kine_pio_vtx_dis",&tagger_info.kine_pio_vtx_dis);
-  tree0->SetBranchAddress("kine_pio_flag",&tagger_info.kine_pio_flag);
-  tree0->SetBranchAddress("kine_pio_energy_1",&tagger_info.kine_pio_energy_1);
-  tree0->SetBranchAddress("kine_pio_theta_1",&tagger_info.kine_pio_theta_1);
-  tree0->SetBranchAddress("kine_pio_phi_1",&tagger_info.kine_pio_phi_1);
-  tree0->SetBranchAddress("kine_pio_dis_1",&tagger_info.kine_pio_dis_1);
-  tree0->SetBranchAddress("kine_pio_energy_2",&tagger_info.kine_pio_energy_2);
-  tree0->SetBranchAddress("kine_pio_theta_2",&tagger_info.kine_pio_theta_2);
-  tree0->SetBranchAddress("kine_pio_phi_2",&tagger_info.kine_pio_phi_2);
-  tree0->SetBranchAddress("kine_pio_dis_2",&tagger_info.kine_pio_dis_2);
-  tree0->SetBranchAddress("kine_pio_angle",&tagger_info.kine_pio_angle);
+  if (flag==1) tree0->SetBranchAddress("kine_reco_add_energy",&tagger_info.kine_reco_add_energy);
+  if (flag==1) tree0->SetBranchAddress("kine_pio_mass",&tagger_info.kine_pio_mass);
+  if (flag==1) tree0->SetBranchAddress("kine_pio_vtx_dis",&tagger_info.kine_pio_vtx_dis);
+  if (flag==1) tree0->SetBranchAddress("kine_pio_flag",&tagger_info.kine_pio_flag);
+  if (flag==1) tree0->SetBranchAddress("kine_pio_energy_1",&tagger_info.kine_pio_energy_1);
+  if (flag==1) tree0->SetBranchAddress("kine_pio_theta_1",&tagger_info.kine_pio_theta_1);
+  if (flag==1) tree0->SetBranchAddress("kine_pio_phi_1",&tagger_info.kine_pio_phi_1);
+  if (flag==1) tree0->SetBranchAddress("kine_pio_dis_1",&tagger_info.kine_pio_dis_1);
+  if (flag==1) tree0->SetBranchAddress("kine_pio_energy_2",&tagger_info.kine_pio_energy_2);
+  if (flag==1) tree0->SetBranchAddress("kine_pio_theta_2",&tagger_info.kine_pio_theta_2);
+  if (flag==1) tree0->SetBranchAddress("kine_pio_phi_2",&tagger_info.kine_pio_phi_2);
+  if (flag==1) tree0->SetBranchAddress("kine_pio_dis_2",&tagger_info.kine_pio_dis_2);
+  if (flag==1) tree0->SetBranchAddress("kine_pio_angle",&tagger_info.kine_pio_angle);
   
-  tree0->SetBranchAddress("event_type",&tagger_info.event_type);
+  if (flag==1) tree0->SetBranchAddress("event_type",&tagger_info.event_type);
 }
 
-void put_tree_address(TTree *T_tagger, TaggerInfo& tagger_info){
+void put_tree_address(TTree *T_tagger, TaggerInfo& tagger_info, int flag){
    // cosmic tagger
     T_tagger->Branch("cosmic_flag", &tagger_info.cosmic_flag, "cosmic_flag/F");
     T_tagger->Branch("cosmic_n_solid_tracks",&tagger_info.cosmic_n_solid_tracks,"cosmic_n_solid_tracks/F");
@@ -2160,34 +2160,34 @@ void put_tree_address(TTree *T_tagger, TaggerInfo& tagger_info){
     T_tagger->Branch("muonvtx_diff",&tagger_info.muonvtx_diff,"data/F");
     
     T_tagger->Branch("match_isFC",&tagger_info.match_isFC,"data/F");
-    T_tagger->Branch("truth_isCC",&tagger_info.truth_isCC,"data/F");
-    T_tagger->Branch("truth_vtxInside",&tagger_info.truth_vtxInside,"data/F");
-    T_tagger->Branch("truth_nuPdg",&tagger_info.truth_nuPdg,"data/F");
-    T_tagger->Branch("truth_nuEnergy",&tagger_info.truth_nuEnergy,"data/F");
-    T_tagger->Branch("truth_nuIntType",&tagger_info.truth_nuIntType,"data/F");
-    T_tagger->Branch("truth_energyInside",&tagger_info.truth_energyInside,"data/F");
-    T_tagger->Branch("weight_spline",&tagger_info.weight_spline,"data/F");
-    T_tagger->Branch("weight_cv",&tagger_info.weight_cv,"data/F");
-    T_tagger->Branch("weight_lee",&tagger_info.weight_lee,"data/F");
+    if (flag==1) T_tagger->Branch("truth_isCC",&tagger_info.truth_isCC,"data/F");
+    if (flag==1) T_tagger->Branch("truth_vtxInside",&tagger_info.truth_vtxInside,"data/F");
+    if (flag==1) T_tagger->Branch("truth_nuPdg",&tagger_info.truth_nuPdg,"data/F");
+    if (flag==1) T_tagger->Branch("truth_nuEnergy",&tagger_info.truth_nuEnergy,"data/F");
+    if (flag==1) T_tagger->Branch("truth_nuIntType",&tagger_info.truth_nuIntType,"data/F");
+    if (flag==1) T_tagger->Branch("truth_energyInside",&tagger_info.truth_energyInside,"data/F");
+    if (flag==1) T_tagger->Branch("weight_spline",&tagger_info.weight_spline,"data/F");
+    if (flag==1) T_tagger->Branch("weight_cv",&tagger_info.weight_cv,"data/F");
+    if (flag==1) T_tagger->Branch("weight_lee",&tagger_info.weight_lee,"data/F");
     T_tagger->Branch("kine_reco_Enu",&tagger_info.kine_reco_Enu,"data/F");
     
-    T_tagger->Branch("kine_reco_add_energy",&tagger_info.kine_reco_add_energy,"data/F");
-    T_tagger->Branch("kine_pio_mass",&tagger_info.kine_pio_mass,"data/F");
-    T_tagger->Branch("kine_pio_vtx_dis",&tagger_info.kine_pio_vtx_dis,"data/F");
-    T_tagger->Branch("kine_pio_flag",&tagger_info.kine_pio_flag,"data/F");
-    T_tagger->Branch("kine_pio_energy_1",&tagger_info.kine_pio_energy_1,"data/F");
-    T_tagger->Branch("kine_pio_theta_1",&tagger_info.kine_pio_theta_1,"data/F");
-    T_tagger->Branch("kine_pio_phi_1",&tagger_info.kine_pio_phi_1,"data/F");
-    T_tagger->Branch("kine_pio_dis_1",&tagger_info.kine_pio_dis_1,"data/F");
-    T_tagger->Branch("kine_pio_energy_2",&tagger_info.kine_pio_energy_2,"data/F");
-    T_tagger->Branch("kine_pio_theta_2",&tagger_info.kine_pio_theta_2,"data/F");
-    T_tagger->Branch("kine_pio_phi_2",&tagger_info.kine_pio_phi_2,"data/F");
-    T_tagger->Branch("kine_pio_dis_2",&tagger_info.kine_pio_dis_2,"data/F");
-    T_tagger->Branch("kine_pio_angle",&tagger_info.kine_pio_angle,"data/F");
+    if (flag==1) T_tagger->Branch("kine_reco_add_energy",&tagger_info.kine_reco_add_energy,"data/F");
+    if (flag==1) T_tagger->Branch("kine_pio_mass",&tagger_info.kine_pio_mass,"data/F");
+    if (flag==1) T_tagger->Branch("kine_pio_vtx_dis",&tagger_info.kine_pio_vtx_dis,"data/F");
+    if (flag==1) T_tagger->Branch("kine_pio_flag",&tagger_info.kine_pio_flag,"data/F");
+    if (flag==1) T_tagger->Branch("kine_pio_energy_1",&tagger_info.kine_pio_energy_1,"data/F");
+    if (flag==1) T_tagger->Branch("kine_pio_theta_1",&tagger_info.kine_pio_theta_1,"data/F");
+    if (flag==1) T_tagger->Branch("kine_pio_phi_1",&tagger_info.kine_pio_phi_1,"data/F");
+    if (flag==1) T_tagger->Branch("kine_pio_dis_1",&tagger_info.kine_pio_dis_1,"data/F");
+    if (flag==1) T_tagger->Branch("kine_pio_energy_2",&tagger_info.kine_pio_energy_2,"data/F");
+    if (flag==1) T_tagger->Branch("kine_pio_theta_2",&tagger_info.kine_pio_theta_2,"data/F");
+    if (flag==1) T_tagger->Branch("kine_pio_phi_2",&tagger_info.kine_pio_phi_2,"data/F");
+    if (flag==1) T_tagger->Branch("kine_pio_dis_2",&tagger_info.kine_pio_dis_2,"data/F");
+    if (flag==1) T_tagger->Branch("kine_pio_angle",&tagger_info.kine_pio_angle,"data/F");
 
     
-    T_tagger->Branch("event_type",&tagger_info.event_type,"data/F");
+    if (flag==1) T_tagger->Branch("event_type",&tagger_info.event_type,"data/F");
 
-    T_tagger->Branch("weight",&tagger_info.weight,"data/F");
-    T_tagger->Branch("lowEweight",&tagger_info.lowEweight,"data/F");
+    if (flag==1) T_tagger->Branch("weight",&tagger_info.weight,"data/F");
+    if (flag==1) T_tagger->Branch("lowEweight",&tagger_info.lowEweight,"data/F");
 }
