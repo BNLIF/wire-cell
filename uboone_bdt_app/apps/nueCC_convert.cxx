@@ -350,6 +350,18 @@ int main( int argc, char** argv )
   set_tree_address(t10, tagger);
   double pot_10 = 1.5e21/2.;
 
+  // DIRT 
+  TFile *file11 = new TFile("bdt_run1_dirt_POT2.4E20.root");
+  TTree *t11 = (TTree*)file11->Get("bdt");
+  set_tree_address(t11, tagger);
+  double pot_11 = 2.4e20;
+
+  TFile *file12 = new TFile("bdt_run3_dirt_POT1.8E20.root");
+  TTree *t12 =(TTree*)file12->Get("bdt");
+  set_tree_address(t12, tagger);
+  double pot_12 = 1.8e20;
+
+  
   TString filename;
   if (process==1){
     filename = "bdt.root";
@@ -1739,6 +1751,143 @@ int main( int argc, char** argv )
 
       
     Tbkg->Fill();
+  }
+
+
+  if(process==2){
+    
+    for (Int_t i=0;i!=t11->GetEntries();i++){
+      t11->GetEntry(i);
+
+      // require EM shower ...
+      if (tagger.br_filled!=1) continue;
+      // only use even subrun number to train ...
+      //if (tagger.subrun %2 == 1 && process==1 || tagger.subrun%2 == 0 && process != 1) continue;
+      
+      // also need to exclude the NC nu-electron elastic scattering 
+      //if (tagger.truth_isCC==1 && abs(tagger.truth_nuPdg)==12 || tagger.truth_nuIntType==1098 ) continue;
+    
+      tagger.weight = (pot_1+pot_2+pot_3+pot_4)/(pot_11+pot_12);
+      tagger.lowEweight = 1;
+
+      tagger.br3_3_score     = cal_br3_3_bdt(0.3, tagger,  reader_br3_3, br3_3_v_energy,  br3_3_v_angle,  br3_3_v_dir_length, br3_3_v_length);
+      tagger.br3_5_score     = cal_br3_5_bdt(0.42, tagger,  reader_br3_5, br3_5_v_dir_length, br3_5_v_total_length, br3_5_v_flag_avoid_muon_check, br3_5_v_n_seg, br3_5_v_angle, br3_5_v_sg_length, br3_5_v_energy, br3_5_v_n_main_segs, br3_5_v_n_segs, br3_5_v_shower_main_length, br3_5_v_shower_total_length);
+      tagger.br3_6_score     = cal_br3_6_bdt(0.75, tagger, reader_br3_6, br3_6_v_angle, br3_6_v_angle1, br3_6_v_flag_shower_trajectory, br3_6_v_direct_length, br3_6_v_length, br3_6_v_n_other_vtx_segs, br3_6_v_energy);
+      tagger.pio_2_score     = cal_pio_2_bdt(0.2,  tagger,  reader_pio_2, pio_2_v_dis2, pio_2_v_angle2, pio_2_v_acc_length);
+      tagger.stw_2_score     = cal_stw_2_bdt(0.7, tagger, reader_stw_2, stw_2_v_medium_dQ_dx, stw_2_v_energy, stw_2_v_angle, stw_2_v_dir_length, stw_2_v_max_dQ_dx);
+      tagger.stw_3_score     = cal_stw_3_bdt(0.5, tagger, reader_stw_3, stw_3_v_angle, stw_3_v_dir_length, stw_3_v_energy, stw_3_v_medium_dQ_dx);
+      tagger.stw_4_score     = cal_stw_4_bdt(0.7, tagger, reader_stw_4, stw_4_v_angle, stw_4_v_dis, stw_4_v_energy);
+      tagger.sig_1_score     = cal_sig_1_bdt(0.59, tagger,  reader_sig_1, sig_1_v_angle, sig_1_v_flag_single_shower, sig_1_v_energy, sig_1_v_energy_1);
+      tagger.sig_2_score     = cal_sig_2_bdt(0.55, tagger, reader_sig_2, sig_2_v_energy, sig_2_v_shower_angle, sig_2_v_flag_single_shower, sig_2_v_medium_dQ_dx, sig_2_v_start_dQ_dx);
+      tagger.lol_1_score     = cal_lol_1_bdt(0.85, tagger, reader_lol_1, lol_1_v_energy, lol_1_v_vtx_n_segs, lol_1_v_nseg, lol_1_v_angle);
+      tagger.lol_2_score     = cal_lol_2_bdt(0.7, tagger, reader_lol_2,  lol_2_v_length, lol_2_v_angle, lol_2_v_type, lol_2_v_vtx_n_segs, lol_2_v_energy, lol_2_v_shower_main_length, lol_2_v_flag_dir_weak);
+      tagger.tro_1_score     = cal_tro_1_bdt(0.28, tagger, reader_tro_1, tro_1_v_particle_type, tro_1_v_flag_dir_weak, tro_1_v_min_dis, tro_1_v_sg1_length,
+  tro_1_v_shower_main_length, tro_1_v_max_n_vtx_segs, tro_1_v_tmp_length, tro_1_v_medium_dQ_dx, tro_1_v_dQ_dx_cut, tro_1_v_flag_shower_topology);
+      tagger.tro_2_score     = cal_tro_2_bdt(0.35, tagger, reader_tro_2, tro_2_v_energy, tro_2_v_stem_length, tro_2_v_iso_angle, tro_2_v_max_length, tro_2_v_angle);
+      tagger.tro_4_score     = cal_tro_4_bdt(0.33, tagger, reader_tro_4, tro_4_v_dir2_mag, tro_4_v_angle, tro_4_v_angle1, tro_4_v_angle2, tro_4_v_length, tro_4_v_length1, tro_4_v_medium_dQ_dx, tro_4_v_end_dQ_dx, tro_4_v_energy, tro_4_v_shower_main_length, tro_4_v_flag_shower_trajectory);
+      tagger.tro_5_score     = cal_tro_5_bdt(0.5, tagger, reader_tro_5, tro_5_v_max_angle, tro_5_v_min_angle, tro_5_v_max_length, tro_5_v_iso_angle, tro_5_v_n_vtx_segs, tro_5_v_min_count, tro_5_v_max_count, tro_5_v_energy);
+
+      tagger.nue_score       = cal_bdts_xgboost( tagger,  reader);
+
+      // BDT calculations
+      tagger.numu_1_score = cal_numu_1_bdt(-0.4,tagger, reader_numu_1, numu_cc_flag_1,
+					   numu_cc_1_particle_type,
+					   numu_cc_1_length,
+					   numu_cc_1_medium_dQ_dx,
+					   numu_cc_1_dQ_dx_cut,
+					   numu_cc_1_direct_length,
+					   numu_cc_1_n_daughter_tracks,
+					   numu_cc_1_n_daughter_all);
+      tagger.numu_2_score = cal_numu_2_bdt(-0.1,tagger,reader_numu_2,
+					   numu_cc_2_length,
+					   numu_cc_2_total_length,
+					   numu_cc_2_n_daughter_tracks,
+					   numu_cc_2_n_daughter_all);
+      tagger.cosmict_10_score = cal_cosmict_10_bdt(0.7, tagger, reader_cosmict_10,
+						   cosmict_10_vtx_z,
+						   cosmict_10_flag_shower,
+						   cosmict_10_flag_dir_weak,
+						   cosmict_10_angle_beam,
+						   cosmict_10_length);
+      
+      if (std::isnan(tagger.cosmict_4_angle_beam)) tagger.cosmict_4_angle_beam = 0;
+      if (std::isnan(tagger.cosmict_7_angle_beam)) tagger.cosmict_7_angle_beam = 0;
+      if (std::isnan(tagger.cosmict_7_theta)) tagger.cosmict_7_theta = 0;
+      if (std::isnan(tagger.cosmict_7_phi)) tagger.cosmict_7_phi = 0;
+      
+      tagger.numu_score = cal_numu_bdts_xgboost(tagger,reader_numu);
+      
+      
+      Tbkg->Fill();
+    }
+
+
+    for (Int_t i=0;i!=t12->GetEntries();i++){
+      t12->GetEntry(i);
+
+      // require EM shower ...
+      if (tagger.br_filled!=1) continue;
+      // only use even subrun number to train ...
+      //if (tagger.subrun %2 == 1 && process==1 || tagger.subrun%2 == 0 && process != 1) continue;
+      
+      // also need to exclude the NC nu-electron elastic scattering 
+      //if (tagger.truth_isCC==1 && abs(tagger.truth_nuPdg)==12 || tagger.truth_nuIntType==1098 ) continue;
+    
+      tagger.weight = (pot_1+pot_2+pot_3+pot_4)/(pot_11+pot_12);
+      tagger.lowEweight = 1;
+
+      tagger.br3_3_score     = cal_br3_3_bdt(0.3, tagger,  reader_br3_3, br3_3_v_energy,  br3_3_v_angle,  br3_3_v_dir_length, br3_3_v_length);
+      tagger.br3_5_score     = cal_br3_5_bdt(0.42, tagger,  reader_br3_5, br3_5_v_dir_length, br3_5_v_total_length, br3_5_v_flag_avoid_muon_check, br3_5_v_n_seg, br3_5_v_angle, br3_5_v_sg_length, br3_5_v_energy, br3_5_v_n_main_segs, br3_5_v_n_segs, br3_5_v_shower_main_length, br3_5_v_shower_total_length);
+      tagger.br3_6_score     = cal_br3_6_bdt(0.75, tagger, reader_br3_6, br3_6_v_angle, br3_6_v_angle1, br3_6_v_flag_shower_trajectory, br3_6_v_direct_length, br3_6_v_length, br3_6_v_n_other_vtx_segs, br3_6_v_energy);
+      tagger.pio_2_score     = cal_pio_2_bdt(0.2,  tagger,  reader_pio_2, pio_2_v_dis2, pio_2_v_angle2, pio_2_v_acc_length);
+      tagger.stw_2_score     = cal_stw_2_bdt(0.7, tagger, reader_stw_2, stw_2_v_medium_dQ_dx, stw_2_v_energy, stw_2_v_angle, stw_2_v_dir_length, stw_2_v_max_dQ_dx);
+      tagger.stw_3_score     = cal_stw_3_bdt(0.5, tagger, reader_stw_3, stw_3_v_angle, stw_3_v_dir_length, stw_3_v_energy, stw_3_v_medium_dQ_dx);
+      tagger.stw_4_score     = cal_stw_4_bdt(0.7, tagger, reader_stw_4, stw_4_v_angle, stw_4_v_dis, stw_4_v_energy);
+      tagger.sig_1_score     = cal_sig_1_bdt(0.59, tagger,  reader_sig_1, sig_1_v_angle, sig_1_v_flag_single_shower, sig_1_v_energy, sig_1_v_energy_1);
+      tagger.sig_2_score     = cal_sig_2_bdt(0.55, tagger, reader_sig_2, sig_2_v_energy, sig_2_v_shower_angle, sig_2_v_flag_single_shower, sig_2_v_medium_dQ_dx, sig_2_v_start_dQ_dx);
+      tagger.lol_1_score     = cal_lol_1_bdt(0.85, tagger, reader_lol_1, lol_1_v_energy, lol_1_v_vtx_n_segs, lol_1_v_nseg, lol_1_v_angle);
+      tagger.lol_2_score     = cal_lol_2_bdt(0.7, tagger, reader_lol_2,  lol_2_v_length, lol_2_v_angle, lol_2_v_type, lol_2_v_vtx_n_segs, lol_2_v_energy, lol_2_v_shower_main_length, lol_2_v_flag_dir_weak);
+      tagger.tro_1_score     = cal_tro_1_bdt(0.28, tagger, reader_tro_1, tro_1_v_particle_type, tro_1_v_flag_dir_weak, tro_1_v_min_dis, tro_1_v_sg1_length,
+  tro_1_v_shower_main_length, tro_1_v_max_n_vtx_segs, tro_1_v_tmp_length, tro_1_v_medium_dQ_dx, tro_1_v_dQ_dx_cut, tro_1_v_flag_shower_topology);
+      tagger.tro_2_score     = cal_tro_2_bdt(0.35, tagger, reader_tro_2, tro_2_v_energy, tro_2_v_stem_length, tro_2_v_iso_angle, tro_2_v_max_length, tro_2_v_angle);
+      tagger.tro_4_score     = cal_tro_4_bdt(0.33, tagger, reader_tro_4, tro_4_v_dir2_mag, tro_4_v_angle, tro_4_v_angle1, tro_4_v_angle2, tro_4_v_length, tro_4_v_length1, tro_4_v_medium_dQ_dx, tro_4_v_end_dQ_dx, tro_4_v_energy, tro_4_v_shower_main_length, tro_4_v_flag_shower_trajectory);
+      tagger.tro_5_score     = cal_tro_5_bdt(0.5, tagger, reader_tro_5, tro_5_v_max_angle, tro_5_v_min_angle, tro_5_v_max_length, tro_5_v_iso_angle, tro_5_v_n_vtx_segs, tro_5_v_min_count, tro_5_v_max_count, tro_5_v_energy);
+
+      tagger.nue_score       = cal_bdts_xgboost( tagger,  reader);
+
+      // BDT calculations
+      tagger.numu_1_score = cal_numu_1_bdt(-0.4,tagger, reader_numu_1, numu_cc_flag_1,
+					   numu_cc_1_particle_type,
+					   numu_cc_1_length,
+					   numu_cc_1_medium_dQ_dx,
+					   numu_cc_1_dQ_dx_cut,
+					   numu_cc_1_direct_length,
+					   numu_cc_1_n_daughter_tracks,
+					   numu_cc_1_n_daughter_all);
+      tagger.numu_2_score = cal_numu_2_bdt(-0.1,tagger,reader_numu_2,
+					   numu_cc_2_length,
+					   numu_cc_2_total_length,
+					   numu_cc_2_n_daughter_tracks,
+					   numu_cc_2_n_daughter_all);
+      tagger.cosmict_10_score = cal_cosmict_10_bdt(0.7, tagger, reader_cosmict_10,
+						   cosmict_10_vtx_z,
+						   cosmict_10_flag_shower,
+						   cosmict_10_flag_dir_weak,
+						   cosmict_10_angle_beam,
+						   cosmict_10_length);
+      
+      if (std::isnan(tagger.cosmict_4_angle_beam)) tagger.cosmict_4_angle_beam = 0;
+      if (std::isnan(tagger.cosmict_7_angle_beam)) tagger.cosmict_7_angle_beam = 0;
+      if (std::isnan(tagger.cosmict_7_theta)) tagger.cosmict_7_theta = 0;
+      if (std::isnan(tagger.cosmict_7_phi)) tagger.cosmict_7_phi = 0;
+      
+      tagger.numu_score = cal_numu_bdts_xgboost(tagger,reader_numu);
+      
+      
+      Tbkg->Fill();
+    }
+    
+    
   }
   
   
