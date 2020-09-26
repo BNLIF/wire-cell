@@ -50,6 +50,9 @@ int main( int argc, char** argv )
   T_pot->SetBranchAddress("pot_tor875",&pot_tor875);
   
   double total_pot = 0;
+  double total_pot_even = 0;
+  double total_pot_odd = 0;
+  
   std::map<std::pair<int,int>, double> map_rs_pot;
   std::map<std::pair<int, int>, int> map_rs_n;
   std::map<std::pair<int, int>, std::set<int> > map_rs_f1p5; // Reco 1.5
@@ -62,10 +65,13 @@ int main( int argc, char** argv )
     total_pot += pot_tor875;
     map_rs_pot[std::make_pair(runNo, subRunNo)] = pot_tor875;
     map_rs_n[std::make_pair(runNo, subRunNo)] = 0; // set 0
+    if (subRunNo %2 == 0) total_pot_even += pot_tor875;
+    if (subRunNo %2 == 1) total_pot_odd += pot_tor875;
+    
   }
 
   std::cout << filename << std::endl;
-  std::cout << "Total POT: " << total_pot << std::endl;
+  std::cout << "Total POT: " << total_pot << "   " << total_pot_even << " (even)   " << total_pot_odd << " (odd)" << std::endl;
 
   // check failure mode
   TTree *T_eval = (TTree*)file->Get("wcpselection/T_eval");
@@ -111,7 +117,7 @@ int main( int argc, char** argv )
   TTree *T_PFeval = (TTree*)file->Get("wcpselection/T_PFeval");
   T_PFeval->SetBranchStatus("*",0);
   Float_t reco_nuvtxX;
-  T_PFeval->SetBranchAddress("reco_nuvtxX", &reco_nuvtxX);
+  T_PFeval->SetBranchStatus("reco_nuvtxX",1); T_PFeval->SetBranchAddress("reco_nuvtxX", &reco_nuvtxX);
 
   TTree *T_BDTvars = (TTree*)file->Get("wcpselection/T_BDTvars");
   T_BDTvars->SetBranchStatus("*",0);
@@ -154,36 +160,93 @@ int main( int argc, char** argv )
   Float_t n_gen_numu[2]={0,0};
   Float_t n_gen_numu_err2[2]={0,0};
   Float_t n_all_numu[2]={0,0};
-  Float_t n_all_numu_err2[2]={0,0}; 
-  
-  // numuCC passing rate after generic neutrino, also need to calculate efficiency
+  Float_t n_all_numu_err2[2]={0,0};
 
-  // neCC passing rate after generic neutrino, also need to calculate efficiency
+  Float_t n_gen_nue[2]={0,0};
+  Float_t n_gen_nue_err2[2]={0,0};
+  Float_t n_all_nue[2]={0,0};
+  Float_t n_all_nue_err2[2]={0,0};
+
+  Float_t n_gen_nuelee[2]={0,0};
+  Float_t n_gen_nuelee_err2[2]={0,0};
+  Float_t n_all_nuelee[2]={0,0};
+  Float_t n_all_nuelee_err2[2]={0,0};
+  
+  // numuCC passing rate after generic neutrino, also need to calculate efficiency  (even vs. odd)
+
+  Float_t n_gen_pr_numu[4]={0,0,0,0};
+  Float_t n_gen_pr_numu_err2[4]={0,0,0,0};
+  Float_t n_gen_all[4]={0,0,0,0};
+  Float_t n_gen_all_err2[4]={0,0,0,0};
+
+  Float_t n_gen_prt_numu[4]={0,0,0,0};
+  Float_t n_gen_prt_numu_err2[4]={0,0,0,0};
+  Float_t n_gen_all_numu[4]={0,0,0,0};
+  Float_t n_gen_all_numu_err2[4]={0,0,0,0};
 
   // pi0 passing rate after generic neutrino
+  Float_t n_gen_pr_pio[2]={0,0};
+  Float_t n_gen_pr_pio_err2[2]={0,0};
+  
+  // neCC passing rate after generic neutrino, also need to calculate efficiency (event vs. odd, intrinsic vs. LEE)
+  Float_t n_gen_pr_nue[4]={0,0,0,0};
+  Float_t n_gen_pr_nue_err2[4]={0,0,0,0};
+  
+  Float_t n_gen_prt_nue[4]={0,0,0,0};
+  Float_t n_gen_prt_nue_err2[4]={0,0,0,0};
+  Float_t n_gen_all_nue[4]={0,0,0,0};
+  Float_t n_gen_all_nue_err2[4]={0,0,0,0};
+
+  Float_t n_gen_pr_nuelee[4]={0,0,0,0};
+  Float_t n_gen_pr_nuelee_err2[4]={0,0,0,0};
+  
+  Float_t n_gen_prt_nuelee[4]={0,0,0,0};
+  Float_t n_gen_prt_nuelee_err2[4]={0,0,0,0};
+  Float_t n_gen_all_nuelee[4]={0,0,0,0};
+  Float_t n_gen_all_nuelee_err2[4]={0,0,0,0};
   
   
   bool flag_presel = false;
   bool flag_generic = false;
   bool flag_numu = false;
   bool flag_gen_numu = false;
+
+  bool flag_nue = false;
+  bool flag_gen_nue = false;
+
+  bool flag_gen_pr_numu = false;
+  bool flag_gen_pr_nue = false;
+  bool flag_gen_pr_pio = false;
+  
   
   double weight = 1;
   for (Int_t i=0;i!=T_eval->GetEntries();i++){
     T_eval->GetEntry(i);
     T_PFeval->GetEntry(i);
+    T_BDTvars->GetEntry(i);
+    T_kine->GetEntry(i);
     
     flag_presel = false;
     flag_generic = false;
-
+    flag_gen_pr_numu = false;
+    flag_gen_pr_nue = false;
+    flag_gen_pr_pio = false;
+    
     if (match_found != 0 && stm_eventtype != 0 && stm_lowenergy ==0 && stm_LM ==0 && stm_TGM ==0 && stm_STM==0 && stm_FullDead == 0 && stm_cluster_length >0) {
       flag_presel = true; // preselection ...
       if (stm_cluster_length > 15) flag_generic = true; // generic
     }
+
+    if (numu_score > 0.9 && flag_generic) flag_gen_pr_numu = true;
+    if (nue_score > 7.0 && flag_generic) flag_gen_pr_nue = true;
+    if (flag_generic && kine_pio_flag==1 && kine_pio_energy_1 > 15 && kine_pio_energy_2 > 15 && kine_pio_dis_1 < 80 && kine_pio_dis_2 < 80 && kine_pio_angle > 20 && kine_pio_vtx_dis < 1) flag_gen_pr_pio = true;
     
     if (flag_data ==0){
       flag_numu = false;
       flag_gen_numu = false;
+
+      flag_nue = false;
+      flag_gen_nue = false;
       
       // deal with weight
       if (std::isnan(weight_cv) || std::isinf(weight_cv) || weight_cv <= 0 || weight_cv > 1000) weight_cv = 1;
@@ -192,10 +255,13 @@ int main( int argc, char** argv )
       
       if (truth_vtxInside==1 && truth_nuPdg == 14 && truth_isCC == 1) flag_numu = true;
       if (flag_numu && flag_generic) flag_gen_numu = true;
+
+      if (truth_vtxInside==1 && abs(truth_nuPdg) == 12 && truth_isCC==1) flag_nue = true;
+      if (flag_nue && flag_generic) flag_gen_nue = true;
     }
         
     
-    
+    // generic neutrino selections
     n_all[0] ++; n_all[1] += weight;
     n_all_err2[0] ++; n_all_err2[1] += pow(weight,2);
     
@@ -211,8 +277,121 @@ int main( int argc, char** argv )
       n_gen_numu[0] ++; n_gen_numu[1] += weight;
       n_gen_numu_err2[0]++; n_gen_numu_err2[1] += pow(weight,2);
     }
-   
 
+    
+    if (flag_nue){
+      n_all_nue[0] ++; n_all_nue[1] += weight;
+      n_all_nue_err2[0]++; n_all_nue_err2[1] += pow(weight,2);
+    }
+    if (flag_gen_nue){
+      n_gen_nue[0] ++; n_gen_nue[1] += weight;
+      n_gen_nue_err2[0]++; n_gen_nue_err2[1] += pow(weight,2);
+    }
+
+    if (weight_lee <0) weight_lee = 0;
+    if (flag_nue){
+      n_all_nuelee[0] ++; n_all_nuelee[1] += weight*weight_lee;
+      n_all_nuelee_err2[0]++; n_all_nuelee_err2[1] += pow(weight*weight_lee,2);
+    }
+    if (flag_gen_nue){
+      n_gen_nuelee[0] ++; n_gen_nuelee[1] += weight*weight_lee;
+      n_gen_nuelee_err2[0]++; n_gen_nuelee_err2[1] += pow(weight*weight_lee,2);
+    }
+
+   
+    // PR ...
+    
+  
+    if (flag_gen_pr_numu){
+      if (subrun%2==0){
+	n_gen_pr_numu[0] ++; n_gen_pr_numu[1] += weight;
+	n_gen_pr_numu_err2[0] ++; n_gen_pr_numu_err2[1] += pow(weight,2);
+      }else{
+	n_gen_pr_numu[2] ++; n_gen_pr_numu[3] += weight;
+	n_gen_pr_numu_err2[2] ++; n_gen_pr_numu_err2[3] += pow(weight,2);
+      }
+      
+      if (flag_numu){
+	if (subrun%2==0){
+	  n_gen_prt_numu[0] ++; n_gen_prt_numu[1] += weight;
+	  n_gen_prt_numu_err2[0] ++; n_gen_prt_numu_err2[1] += pow(weight,2);
+	}else{
+	  n_gen_prt_numu[2] ++; n_gen_prt_numu[3] += weight;
+	  n_gen_prt_numu_err2[2] ++; n_gen_prt_numu_err2[3] += pow(weight,2);
+	}
+      }      
+    }
+
+    //    if (flag_gen_pr_numu &&  (!flag_generic)) std::cout << "Something wrong! " << std::endl;
+    if (flag_gen_pr_nue){
+      if (subrun%2==0){
+	n_gen_pr_nue[0] ++; n_gen_pr_nue[1] += weight;
+	n_gen_pr_nue_err2[0] ++; n_gen_pr_nue_err2[1] += pow(weight,2);
+      }else{
+	n_gen_pr_nue[2] ++; n_gen_pr_nue[3] += weight;
+	n_gen_pr_nue_err2[2] ++; n_gen_pr_nue_err2[3] += pow(weight,2);
+      }
+      
+      if (flag_nue){
+	if (subrun%2==0){
+	  n_gen_prt_nue[0] ++; n_gen_prt_nue[1] += weight;
+	  n_gen_prt_nue_err2[0] ++; n_gen_prt_nue_err2[1] += pow(weight,2);
+
+	  n_gen_prt_nuelee[0] ++; n_gen_prt_nuelee[1] += weight*weight_lee;
+	  n_gen_prt_nuelee_err2[0] ++; n_gen_prt_nuelee_err2[1] += pow(weight*weight_lee,2);
+	}else{
+	  n_gen_prt_nue[2] ++; n_gen_prt_nue[3] += weight;
+	  n_gen_prt_nue_err2[2] ++; n_gen_prt_nue_err2[3] += pow(weight,2);
+
+	  n_gen_prt_nuelee[2] ++; n_gen_prt_nuelee[3] += weight*weight_lee;
+	  n_gen_prt_nuelee_err2[2] ++; n_gen_prt_nuelee_err2[3] += pow(weight*weight_lee,2);
+	}
+      }      
+    }
+
+    
+    if (flag_generic){
+      if (subrun%2==0){
+	n_gen_all[0] ++; n_gen_all[1] += weight;
+	n_gen_all_err2[0] ++; n_gen_all_err2[1] += pow(weight,2);
+      }else{
+	n_gen_all[2] ++; n_gen_all[3] += weight;
+	n_gen_all_err2[2] ++; n_gen_all_err2[3] += pow(weight,2);
+      }
+      
+      if (flag_numu){
+	if (subrun%2==0){
+	  n_gen_all_numu[0] ++; n_gen_all_numu[1] += weight;
+	  n_gen_all_numu_err2[0] ++; n_gen_all_numu_err2[1] += pow(weight,2);
+	}else{
+	  n_gen_all_numu[2] ++; n_gen_all_numu[3] += weight;
+	  n_gen_all_numu_err2[2] ++; n_gen_all_numu_err2[3] += pow(weight,2);
+	}
+      }
+
+      if (flag_nue){
+	if (subrun%2==0){
+	  n_gen_all_nue[0] ++; n_gen_all_nue[1] += weight;
+	  n_gen_all_nue_err2[0] ++; n_gen_all_nue_err2[1] += pow(weight,2);
+	  
+	  n_gen_all_nuelee[0] ++; n_gen_all_nuelee[1] += weight*weight_lee;
+	  n_gen_all_nuelee_err2[0] ++; n_gen_all_nuelee_err2[1] += pow(weight*weight_lee,2);
+	}else{
+	  n_gen_all_nue[2] ++; n_gen_all_nue[3] += weight;
+	  n_gen_all_nue_err2[2] ++; n_gen_all_nue_err2[3] += pow(weight,2);
+
+	  n_gen_all_nuelee[2] ++; n_gen_all_nuelee[3] += weight*weight_lee;
+	  n_gen_all_nuelee_err2[2] ++; n_gen_all_nuelee_err2[3] += pow(weight*weight_lee,2);
+	}
+      }
+    }
+
+    // pio
+    if (flag_gen_pr_pio){
+      n_gen_pr_pio[0]++; n_gen_pr_pio[1] += weight;
+      n_gen_pr_pio_err2[0]++; n_gen_pr_pio_err2[1] += pow(weight,2);
+    }
+    
     
     // add events ...
     map_rs_n[std::make_pair(run, subrun)] ++;
@@ -222,6 +401,7 @@ int main( int argc, char** argv )
     if (flag_presel && numu_cc_flag == -1) map_rs_f2pr[std::make_pair(run, subrun)].insert(event);
   }
 
+  std::cout << endl;
   // Reco 1.5
   {
     double tmp_pot = 0;
@@ -281,18 +461,16 @@ int main( int argc, char** argv )
     }
     std::cout << "Reco 2.0 PR failure in event: " << tmp_event << "/" << T_eval->GetEntries() << "  POT: " << tmp_pot << " ratio " << tmp_pot/total_pot << std::endl;
   }
-  
+  std::cout << endl;
   // generic neutrino
 
-  // Float_t n_gen_numu[2]={0,0};
-  // Float_t n_gen_numu_err2[2]={0,0};
-  // Float_t n_all_numu[2]={0,0};
-  // Float_t n_all_numu_err2[2]={0,0}; 
   {
     double gen_ratio;
     double gen_ratio_err;
     double gen_ratio_weight;
     double gen_ratio_weight_err;
+    double gen_ratio_weight1;
+    double gen_ratio_weight1_err;
 
     gen_ratio = n_gen[0]/n_all[0];
     gen_ratio_err = sqrt(n_gen_err2[0] * pow(n_all[0]-n_gen[0],2) + pow(n_gen[0],2) * (n_all_err2[0] - n_gen_err2[0]))/pow(n_all[0],2);
@@ -301,6 +479,14 @@ int main( int argc, char** argv )
 
     std::cout << "Generic passing rate: " << gen_ratio << "+-" << gen_ratio_err << "  w. weight: " << gen_ratio_weight << "+-" << gen_ratio_weight_err << std::endl;
 
+    gen_ratio = n_gen[0]/total_pot * 5e19;
+    gen_ratio_err = sqrt(n_gen_err2[0])/total_pot * 5e19;
+
+    gen_ratio_weight = n_gen[1]/total_pot * 5e19;
+    gen_ratio_weight_err = sqrt(n_gen_err2[1])/total_pot * 5e19;
+    
+    std::cout << "Generic rate @ 5e19POT: " << gen_ratio << "+-" << gen_ratio_err << "  w. weight: " << gen_ratio_weight << "+-" << gen_ratio_weight_err << std::endl;
+    
     if (flag_data == 0){
       gen_ratio = n_gen_numu[0]/n_all_numu[0];
       gen_ratio_err = sqrt(n_gen_numu_err2[0] * pow(n_all_numu[0]-n_gen_numu[0],2) + pow(n_gen_numu[0],2) * (n_all_numu_err2[0] - n_gen_numu_err2[0]) )/pow(n_all_numu[0],2);
@@ -308,7 +494,189 @@ int main( int argc, char** argv )
       gen_ratio_weight_err = sqrt(n_gen_numu_err2[1] * pow(n_all_numu[1]-n_gen_numu[1],2) + pow(n_gen_numu[1],2) * (n_all_numu_err2[1] - n_gen_numu_err2[1]) )/pow(n_all_numu[1],2);
       
       std::cout << "Generic numuCC eff: " << gen_ratio << "+-" << gen_ratio_err << "  w. weight: " << gen_ratio_weight << "+-" << gen_ratio_weight_err << std::endl;
+
+      gen_ratio = n_gen_nue[0]/n_all_nue[0];
+      gen_ratio_err = sqrt(n_gen_nue_err2[0] * pow(n_all_nue[0]-n_gen_nue[0],2) + pow(n_gen_nue[0],2) * (n_all_nue_err2[0] - n_gen_nue_err2[0]) )/pow(n_all_nue[0],2);
+      gen_ratio_weight = n_gen_nue[1]/n_all_nue[1];
+      gen_ratio_weight_err = sqrt(n_gen_nue_err2[1] * pow(n_all_nue[1]-n_gen_nue[1],2) + pow(n_gen_nue[1],2) * (n_all_nue_err2[1] - n_gen_nue_err2[1]) )/pow(n_all_nue[1],2);
+
+      gen_ratio_weight1 = n_gen_nuelee[1]/n_all_nuelee[1];
+      gen_ratio_weight1_err = sqrt(n_gen_nuelee_err2[1] * pow(n_all_nuelee[1]-n_gen_nuelee[1],2) + pow(n_gen_nuelee[1],2) * (n_all_nuelee_err2[1] - n_gen_nuelee_err2[1]) )/pow(n_all_nuelee[1],2);
+      
+      std::cout << "Generic nueCC eff: " << gen_ratio << "+-" << gen_ratio_err << "  w. weight: " << gen_ratio_weight << "+-" << gen_ratio_weight_err << " LEE:" << gen_ratio_weight1 << "+-" << gen_ratio_weight1_err << std::endl;
+
     }
+  }
+  std::cout << endl;
+
+  // numu passing rate
+   // Float_t n_gen_pr_numu[4]={0,0,0,0};
+  // Float_t n_gen_pr_numu_err2[4]={0,0,0,0};
+  // Float_t n_gen_all[4]={0,0,0,0};
+  // Float_t n_gen_all_err2[4]={0,0,0,0};
+  {
+    double gen_ratio;
+    double gen_ratio_err;
+    double gen_ratio_weight;
+    double gen_ratio_weight_err;
+    double gen_ratio_weight1;
+    double gen_ratio_weight1_err;
+    
+    double gen_ratio1;
+    double gen_ratio1_err;
+    double gen_ratio1_weight;
+    double gen_ratio1_weight_err;
+    double gen_ratio1_weight1;
+    double gen_ratio1_weight1_err;
+
+    gen_ratio = n_gen_pr_numu[0]/n_gen_all[0];
+    gen_ratio_err = sqrt(n_gen_pr_numu_err2[0] * pow(n_gen_all[0]-n_gen_pr_numu[0],2) + pow(n_gen_pr_numu[0],2) * (n_gen_all_err2[0] - n_gen_pr_numu_err2[0]))/pow(n_gen_all[0],2);
+    
+    gen_ratio_weight = n_gen_pr_numu[1]/n_gen_all[1];
+    gen_ratio_weight_err = sqrt(n_gen_pr_numu_err2[1] * pow(n_gen_all[1]-n_gen_pr_numu[1],2) + pow(n_gen_pr_numu[1],2) * (n_gen_all_err2[1] - n_gen_pr_numu_err2[1]))/pow(n_gen_all[1],2);
+
+    gen_ratio1 = n_gen_pr_numu[2]/n_gen_all[2];
+    gen_ratio1_err = sqrt(n_gen_pr_numu_err2[2] * pow(n_gen_all[2]-n_gen_pr_numu[2],2) + pow(n_gen_pr_numu[2],2) * (n_gen_all_err2[2] - n_gen_pr_numu_err2[2]))/pow(n_gen_all[2],2);
+    
+    gen_ratio1_weight = n_gen_pr_numu[3]/n_gen_all[3];
+    gen_ratio1_weight_err = sqrt(n_gen_pr_numu_err2[3] * pow(n_gen_all[3]-n_gen_pr_numu[3],2) + pow(n_gen_pr_numu[3],2) * (n_gen_all_err2[3] - n_gen_pr_numu_err2[3]))/pow(n_gen_all[3],2);
+
+    std::cout << "numuCC passing rate w.r.t. generic (even): " << gen_ratio << "+-" << gen_ratio_err << "  w. weight: " << gen_ratio_weight << "+-" << gen_ratio_weight_err << std::endl;
+    std::cout << "numuCC passing rate w.r.t. generic (odd): "  << gen_ratio1 << "+-" << gen_ratio1_err << "  w. weight: " << gen_ratio1_weight << "+-" << gen_ratio1_weight_err << std::endl;
+
+
+    gen_ratio = n_gen_pr_numu[0]/total_pot_even * 5e19;
+    gen_ratio_err = sqrt(n_gen_pr_numu_err2[0])/total_pot_even * 5e19;
+
+    gen_ratio_weight = n_gen_pr_numu[1]/total_pot_even * 5e19;
+    gen_ratio_weight_err = sqrt(n_gen_pr_numu_err2[1])/total_pot_even * 5e19;
+
+    gen_ratio1 = n_gen_pr_numu[2]/total_pot_odd * 5e19;
+    gen_ratio1_err = sqrt(n_gen_pr_numu_err2[2])/total_pot_odd * 5e19;
+
+    gen_ratio1_weight = n_gen_pr_numu[3]/total_pot_odd * 5e19;
+    gen_ratio1_weight_err = sqrt(n_gen_pr_numu_err2[3])/total_pot_odd * 5e19;
+    
+    std::cout << "numuCC rate (even) @ 5e19POT: " << gen_ratio << "+-" << gen_ratio_err << "  w. weight: " << gen_ratio_weight << "+-" << gen_ratio_weight_err << std::endl;
+    std::cout << "numuCC rate (odd) @ 5e19POT: " << gen_ratio1 << "+-" << gen_ratio1_err << "  w. weight: " << gen_ratio1_weight << "+-" << gen_ratio1_weight_err << std::endl;
+
+    // Float_t n_gen_prt_numu[4]={0,0,0,0};
+    // Float_t n_gen_prt_numu_err2[4]={0,0,0,0};
+    // Float_t n_gen_all_numu[4]={0,0,0,0};
+    // Float_t n_gen_all_numu_err2[4]={0,0,0,0};
+    if (flag_data == 0){
+      gen_ratio = n_gen_prt_numu[0]/n_gen_all_numu[0];
+      gen_ratio_err = sqrt(n_gen_prt_numu_err2[0] * pow(n_gen_all_numu[0]-n_gen_prt_numu[0],2) + pow(n_gen_prt_numu[0],2) * (n_gen_all_numu_err2[0] - n_gen_prt_numu_err2[0]))/pow(n_gen_all_numu[0],2);
+      
+      gen_ratio_weight = n_gen_prt_numu[1]/n_gen_all_numu[1];
+      //    std::cout << n_gen_all_numu[1] << " " << n_gen_prt_numu[1] << " " << n_gen_all_numu_err2[1] << " " << n_gen_prt_numu_err2[1] << " " <<   pow(n_gen_all_numu[1]-n_gen_prt_numu[1],2) << " " <<  pow(n_gen_prt_numu[1],2) << " " << (n_gen_all_numu_err2[1] - n_gen_prt_numu_err2[1]) << " " << std::endl;
+      
+      gen_ratio_weight_err = sqrt(n_gen_prt_numu_err2[1] * pow(n_gen_all_numu[1]-n_gen_prt_numu[1],2) + pow(n_gen_prt_numu[1],2) * (n_gen_all_numu_err2[1] - n_gen_prt_numu_err2[1]))/pow(n_gen_all_numu[1],2);
+      
+      gen_ratio1 = n_gen_prt_numu[2]/n_gen_all_numu[2];
+      gen_ratio1_err = sqrt(n_gen_prt_numu_err2[2] * pow(n_gen_all_numu[2]-n_gen_prt_numu[2],2) + pow(n_gen_prt_numu[2],2) * (n_gen_all_numu_err2[2] - n_gen_prt_numu_err2[2]))/pow(n_gen_all_numu[2],2);
+      
+      gen_ratio1_weight = n_gen_prt_numu[3]/n_gen_all_numu[3];
+      gen_ratio1_weight_err = sqrt(n_gen_prt_numu_err2[3] * pow(n_gen_all_numu[3]-n_gen_prt_numu[3],2) + pow(n_gen_prt_numu[3],2) * (n_gen_all_numu_err2[3] - n_gen_prt_numu_err2[3]))/pow(n_gen_all_numu[3],2);
+      
+      std::cout << "numuCC eff. w.r.t. generic (even): " << gen_ratio << "+-" << gen_ratio_err << "  w. weight: " << gen_ratio_weight << "+-" << gen_ratio_weight_err << std::endl;
+      std::cout << "numuCC eff. w.r.t. generic (odd): "  << gen_ratio1 << "+-" << gen_ratio1_err << "  w. weight: " << gen_ratio1_weight << "+-" << gen_ratio1_weight_err << std::endl;
+    }
+    std::cout << std::endl;
+    
+    // pio ...
+    gen_ratio = n_gen_pr_pio[0]/n_gen[0];
+    gen_ratio_err = sqrt(n_gen_pr_pio_err2[0] * pow(n_gen[0]-n_gen_pr_pio[0],2) + pow(n_gen_pr_pio[0],2) * (n_gen_err2[0] - n_gen_pr_pio_err2[0]))/pow(n_gen[0],2);
+    gen_ratio_weight = n_gen_pr_pio[1]/n_gen[1];
+    gen_ratio_weight_err = sqrt(n_gen_pr_pio_err2[1] * pow(n_gen[1] - n_gen_pr_pio[1],2) + pow(n_gen_pr_pio[1],2) * (n_gen_err2[1] - n_gen_pr_pio_err2[1]))/pow(n_gen[1],2);
+
+    std::cout << "Pi0 passing rate w.r.t. generic: " << gen_ratio << "+-" << gen_ratio_err << "  w. weight: " << gen_ratio_weight << "+-" << gen_ratio_weight_err << std::endl;
+
+    gen_ratio = n_gen_pr_pio[0]/total_pot * 5e19;
+    gen_ratio_err = sqrt(n_gen_pr_pio_err2[0])/total_pot * 5e19;
+
+    gen_ratio_weight = n_gen_pr_pio[1]/total_pot * 5e19;
+    gen_ratio_weight_err = sqrt(n_gen_pr_pio_err2[1])/total_pot * 5e19;
+    
+    std::cout << "Pi0 rate @ 5e19POT: " << gen_ratio << "+-" << gen_ratio_err << "  w. weight: " << gen_ratio_weight << "+-" << gen_ratio_weight_err << std::endl;
+
+    std::cout << std::endl;
+
+    // nueCC
+    gen_ratio = n_gen_pr_nue[0]/n_gen_all[0];
+    gen_ratio_err = sqrt(n_gen_pr_nue_err2[0] * pow(n_gen_all[0]-n_gen_pr_nue[0],2) + pow(n_gen_pr_nue[0],2) * (n_gen_all_err2[0] - n_gen_pr_nue_err2[0]))/pow(n_gen_all[0],2);
+    
+    gen_ratio_weight = n_gen_pr_nue[1]/n_gen_all[1];
+    gen_ratio_weight_err = sqrt(n_gen_pr_nue_err2[1] * pow(n_gen_all[1]-n_gen_pr_nue[1],2) + pow(n_gen_pr_nue[1],2) * (n_gen_all_err2[1] - n_gen_pr_nue_err2[1]))/pow(n_gen_all[1],2);
+
+    gen_ratio1 = n_gen_pr_nue[2]/n_gen_all[2];
+    gen_ratio1_err = sqrt(n_gen_pr_nue_err2[2] * pow(n_gen_all[2]-n_gen_pr_nue[2],2) + pow(n_gen_pr_nue[2],2) * (n_gen_all_err2[2] - n_gen_pr_nue_err2[2]))/pow(n_gen_all[2],2);
+    
+    gen_ratio1_weight = n_gen_pr_nue[3]/n_gen_all[3];
+    gen_ratio1_weight_err = sqrt(n_gen_pr_nue_err2[3] * pow(n_gen_all[3]-n_gen_pr_nue[3],2) + pow(n_gen_pr_nue[3],2) * (n_gen_all_err2[3] - n_gen_pr_nue_err2[3]))/pow(n_gen_all[3],2);
+
+    std::cout << "nueCC passing rate w.r.t. generic (even): " << gen_ratio << "+-" << gen_ratio_err << "  w. weight: " << gen_ratio_weight << "+-" << gen_ratio_weight_err << std::endl;
+    std::cout << "nueCC passing rate w.r.t. generic (odd): "  << gen_ratio1 << "+-" << gen_ratio1_err << "  w. weight: " << gen_ratio1_weight << "+-" << gen_ratio1_weight_err << std::endl;
+
+
+    gen_ratio = n_gen_pr_nue[0]/total_pot_even * 5e19;
+    gen_ratio_err = sqrt(n_gen_pr_nue_err2[0])/total_pot_even * 5e19;
+
+    gen_ratio_weight = n_gen_pr_nue[1]/total_pot_even * 5e19;
+    gen_ratio_weight_err = sqrt(n_gen_pr_nue_err2[1])/total_pot_even * 5e19;
+
+    gen_ratio1 = n_gen_pr_nue[2]/total_pot_odd * 5e19;
+    gen_ratio1_err = sqrt(n_gen_pr_nue_err2[2])/total_pot_odd * 5e19;
+
+    gen_ratio1_weight = n_gen_pr_nue[3]/total_pot_odd * 5e19;
+    gen_ratio1_weight_err = sqrt(n_gen_pr_nue_err2[3])/total_pot_odd * 5e19;
+    
+    std::cout << "nueCC rate (even) @ 5e19POT: " << gen_ratio << "+-" << gen_ratio_err << "  w. weight: " << gen_ratio_weight << "+-" << gen_ratio_weight_err << std::endl;
+    std::cout << "nueCC rate (odd) @ 5e19POT: " << gen_ratio1 << "+-" << gen_ratio1_err << "  w. weight: " << gen_ratio1_weight << "+-" << gen_ratio1_weight_err << std::endl;
+
+    // Float_t n_gen_prt_nue[4]={0,0,0,0};
+    // Float_t n_gen_prt_nue_err2[4]={0,0,0,0};
+    // Float_t n_gen_all_nue[4]={0,0,0,0};
+    // Float_t n_gen_all_nue_err2[4]={0,0,0,0};
+    if (flag_data == 0){
+      gen_ratio = n_gen_prt_nue[0]/n_gen_all_nue[0];
+      gen_ratio_err = sqrt(n_gen_prt_nue_err2[0] * pow(n_gen_all_nue[0]-n_gen_prt_nue[0],2) + pow(n_gen_prt_nue[0],2) * (n_gen_all_nue_err2[0] - n_gen_prt_nue_err2[0]))/pow(n_gen_all_nue[0],2);
+      
+      gen_ratio_weight = n_gen_prt_nue[1]/n_gen_all_nue[1];
+      //    std::cout << n_gen_all_nue[1] << " " << n_gen_prt_nue[1] << " " << n_gen_all_nue_err2[1] << " " << n_gen_prt_nue_err2[1] << " " <<   pow(n_gen_all_nue[1]-n_gen_prt_nue[1],2) << " " <<  pow(n_gen_prt_nue[1],2) << " " << (n_gen_all_nue_err2[1] - n_gen_prt_nue_err2[1]) << " " << std::endl;
+      
+      gen_ratio_weight_err = sqrt(n_gen_prt_nue_err2[1] * pow(n_gen_all_nue[1]-n_gen_prt_nue[1],2) + pow(n_gen_prt_nue[1],2) * (n_gen_all_nue_err2[1] - n_gen_prt_nue_err2[1]))/pow(n_gen_all_nue[1],2);
+      
+      gen_ratio1 = n_gen_prt_nue[2]/n_gen_all_nue[2];
+      gen_ratio1_err = sqrt(n_gen_prt_nue_err2[2] * pow(n_gen_all_nue[2]-n_gen_prt_nue[2],2) + pow(n_gen_prt_nue[2],2) * (n_gen_all_nue_err2[2] - n_gen_prt_nue_err2[2]))/pow(n_gen_all_nue[2],2);
+      
+      gen_ratio1_weight = n_gen_prt_nue[3]/n_gen_all_nue[3];
+      gen_ratio1_weight_err = sqrt(n_gen_prt_nue_err2[3] * pow(n_gen_all_nue[3]-n_gen_prt_nue[3],2) + pow(n_gen_prt_nue[3],2) * (n_gen_all_nue_err2[3] - n_gen_prt_nue_err2[3]))/pow(n_gen_all_nue[3],2);
+      
+      std::cout << "nueCC eff. w.r.t. generic (even): " << gen_ratio << "+-" << gen_ratio_err << "  w. weight: " << gen_ratio_weight << "+-" << gen_ratio_weight_err << std::endl;
+      std::cout << "nueCC eff. w.r.t. generic (odd): "  << gen_ratio1 << "+-" << gen_ratio1_err << "  w. weight: " << gen_ratio1_weight << "+-" << gen_ratio1_weight_err << std::endl;
+
+      gen_ratio = n_gen_prt_nuelee[0]/n_gen_all_nuelee[0];
+      gen_ratio_err = sqrt(n_gen_prt_nuelee_err2[0] * pow(n_gen_all_nuelee[0]-n_gen_prt_nuelee[0],2) + pow(n_gen_prt_nuelee[0],2) * (n_gen_all_nuelee_err2[0] - n_gen_prt_nuelee_err2[0]))/pow(n_gen_all_nuelee[0],2);
+      
+      gen_ratio_weight = n_gen_prt_nuelee[1]/n_gen_all_nuelee[1];
+      //    std::cout << n_gen_all_nuelee[1] << " " << n_gen_prt_nuelee[1] << " " << n_gen_all_nuelee_err2[1] << " " << n_gen_prt_nuelee_err2[1] << " " <<   pow(n_gen_all_nuelee[1]-n_gen_prt_nuelee[1],2) << " " <<  pow(n_gen_prt_nuelee[1],2) << " " << (n_gen_all_nuelee_err2[1] - n_gen_prt_nuelee_err2[1]) << " " << std::endl;
+      
+      gen_ratio_weight_err = sqrt(n_gen_prt_nuelee_err2[1] * pow(n_gen_all_nuelee[1]-n_gen_prt_nuelee[1],2) + pow(n_gen_prt_nuelee[1],2) * (n_gen_all_nuelee_err2[1] - n_gen_prt_nuelee_err2[1]))/pow(n_gen_all_nuelee[1],2);
+      
+      gen_ratio1 = n_gen_prt_nuelee[2]/n_gen_all_nuelee[2];
+      gen_ratio1_err = sqrt(n_gen_prt_nuelee_err2[2] * pow(n_gen_all_nuelee[2]-n_gen_prt_nuelee[2],2) + pow(n_gen_prt_nuelee[2],2) * (n_gen_all_nuelee_err2[2] - n_gen_prt_nuelee_err2[2]))/pow(n_gen_all_nuelee[2],2);
+      
+      gen_ratio1_weight = n_gen_prt_nuelee[3]/n_gen_all_nuelee[3];
+      gen_ratio1_weight_err = sqrt(n_gen_prt_nuelee_err2[3] * pow(n_gen_all_nuelee[3]-n_gen_prt_nuelee[3],2) + pow(n_gen_prt_nuelee[3],2) * (n_gen_all_nuelee_err2[3] - n_gen_prt_nuelee_err2[3]))/pow(n_gen_all_nuelee[3],2);
+      
+      std::cout << "LEE eff. w.r.t. generic (even): " << gen_ratio << "+-" << gen_ratio_err << "  w. weight: " << gen_ratio_weight << "+-" << gen_ratio_weight_err << std::endl;
+      std::cout << "LEE eff. w.r.t. generic (odd): "  << gen_ratio1 << "+-" << gen_ratio1_err << "  w. weight: " << gen_ratio1_weight << "+-" << gen_ratio1_weight_err << std::endl;
+
+      
+    }
+
+    
   }
 
   
@@ -316,7 +684,7 @@ int main( int argc, char** argv )
   
   
   
-  
+  std::cout << std::endl << std::endl << std::endl;
   
   //std::cout << filename << " " << POT << std::endl;
 
