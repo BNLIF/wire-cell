@@ -239,6 +239,7 @@ int main( int argc, char** argv )
 
     if (numu_score > 0.9 && flag_generic) flag_gen_pr_numu = true;
     if (nue_score > 7.0 && flag_generic) flag_gen_pr_nue = true;
+    
     if (flag_generic && kine_pio_flag==1 && kine_pio_energy_1 > 15 && kine_pio_energy_2 > 15 && kine_pio_dis_1 < 80 && kine_pio_dis_2 < 80 && kine_pio_angle > 20 && kine_pio_vtx_dis < 1) flag_gen_pr_pio = true;
     
     if (flag_data ==0){
