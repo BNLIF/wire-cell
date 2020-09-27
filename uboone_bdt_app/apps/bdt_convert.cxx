@@ -23,41 +23,76 @@
 #include "TMVA/Reader.h"
 
 
+#include "eval.h"
+
 using namespace std;
 
 #include "bdt.h"
+#include "pot.h"
+#include "pfeval.h"
+#include "kine.h"
 
 int main( int argc, char** argv )
 {
   if (argc < 3) {
-    std::cout << "bdt_convert #input_file #output_file" << std::endl;
+    std::cout << "bdt_convert #input_file #output_file -c[weight_cut_val]" << std::endl;
     return -1;
   }
 
   TString input_file = argv[1];
   TString out_file = argv[2];
 
+  float weight_cut_val = 1000;
+  float fail_percentage = 0.15;
+  
+  for (Int_t i=1;i!=argc;i++){
+    switch(argv[i][1]){
+    case 'c':
+      weight_cut_val = atof(&argv[i][2]);
+      break;
+    case 't':
+      fail_percentage = atof(&argv[i][2]);
+      break;
+    }
+  }
+  
+  
   //std::cout << input_file << " " << out_file << std::endl;
 
 
   TFile *file1 = new TFile(input_file);
+  TTree *T_BDTvars = (TTree*)file1->Get("wcpselection/T_BDTvars");
+  
   TTree *T_eval = (TTree*)file1->Get("wcpselection/T_eval");
   TTree *T_pot = (TTree*)file1->Get("wcpselection/T_pot");
   TTree *T_PFeval = (TTree*)file1->Get("wcpselection/T_PFeval");
-  TTree *T_BDTvars = (TTree*)file1->Get("wcpselection/T_BDTvars");
   TTree *T_KINEvars = (TTree*)file1->Get("wcpselection/T_KINEvars");
 
   //  std::cout << T_eval->GetEntries() << std::endl;
   TFile *file2 = new TFile(out_file,"RECREATE");
   file2->mkdir("wcpselection");
   file2->cd("wcpselection");
-  TTree *t1 = T_eval->CloneTree(-1,"");
-  TTree *t2 = T_pot->CloneTree(-1,"");
-  TTree *t3 = T_PFeval->CloneTree(-1,"");
   TTree *t4 = new TTree("T_BDTvars","T_BDTvars");
-  TTree *t5 = T_KINEvars->CloneTree(-1,"");
-  
+  TTree *t1 = new TTree("T_eval","T_eval");
+  TTree *t2 = new TTree("T_pot","T_pot");
+  TTree *t3 = new TTree("T_PFeval", "T_PFeval");
+  TTree *t5 = new TTree("T_KINEvars", "T_KINEvars");
+  //TTree *t1 = T_eval->CloneTree(-1,"");
+  //TTree *t2 = T_pot->CloneTree(-1,"");
+  //TTree *t3 = T_PFeval->CloneTree(-1,"");
+  //  TTree *t5 = T_KINEvars->CloneTree(-1,"");
+
+  EvalInfo eval;
+  POTInfo pot;
   TaggerInfo tagger;
+  PFevalInfo pfeval;
+  KineInfo kine;
+
+  kine.kine_energy_particle = new std::vector<float>;
+  kine.kine_energy_info = new std::vector<int>;
+  kine.kine_particle_type = new std::vector<int>;
+  kine.kine_energy_included = new std::vector<int>;
+  
   
   tagger.pio_2_v_dis2 = new std::vector<float>;
   tagger.pio_2_v_angle2 = new std::vector<float>;
@@ -315,9 +350,22 @@ int main( int argc, char** argv )
   set_tree_address(T_BDTvars, tagger,2 );
   put_tree_address(t4, tagger,2);
 
-  bool match_isFC;
-  T_eval->SetBranchAddress("match_isFC",&match_isFC);
-  T_KINEvars->SetBranchAddress("kine_reco_Enu",&tagger.kine_reco_Enu);
+  set_tree_address(T_eval, eval);
+  put_tree_address(t1, eval);
+
+  set_tree_address(T_pot, pot);
+  put_tree_address(t2, pot);
+
+  set_tree_address(T_PFeval, pfeval);
+  put_tree_address(t3, pfeval);
+
+  set_tree_address(T_KINEvars, kine);
+  put_tree_address(t5, kine);
+  
+  
+  //  bool match_isFC;
+  //T_eval->SetBranchAddress("match_isFC",&match_isFC);
+  //  T_KINEvars->SetBranchAddress("kine_reco_Enu",&tagger.kine_reco_Enu);
 
 
   // BDTs ...
@@ -957,13 +1005,76 @@ int main( int argc, char** argv )
   reader_numu.AddVariable("numu_2_score", &tagger.numu_2_score);
 
   reader_numu.BookMVA( "MyBDT", "weights/numu_scalars_scores_0923.xml");
+
+
+  std::map<std::pair<int, int>, int> map_rs_n;
+  std::map<std::pair<int, int>, std::set<int> > map_rs_f1p5; // Reco 1.5
+  std::map<std::pair<int, int>, std::set<int> > map_rs_f2stm; // Reco2 stm
+  std::map<std::pair<int, int>, std::set<int> > map_rs_f2pr; // Reco2 Pattern recognition
   
+  T_eval->SetBranchStatus("*",0);
+  T_eval->SetBranchStatus("stm_eventtype",1); 
+  T_eval->SetBranchStatus("stm_lowenergy",1); 
+  T_eval->SetBranchStatus("stm_LM",1); 
+  T_eval->SetBranchStatus("stm_TGM",1); 
+  T_eval->SetBranchStatus("stm_STM",1); 
+  T_eval->SetBranchStatus("stm_FullDead",1); 
+  T_eval->SetBranchStatus("stm_clusterlength",1);
+  T_eval->SetBranchStatus("match_found",1);
+  T_eval->SetBranchStatus("run",1); 
+  T_eval->SetBranchStatus("subrun",1); 
+  T_eval->SetBranchStatus("event",1);
+
+  T_BDTvars->SetBranchStatus("*",0);
+  T_BDTvars->SetBranchStatus("numu_cc_flag",1);
+  
+  bool flag_presel = false;
+  for (Int_t i=0;i!=T_eval->GetEntries();i++){
+    T_eval->GetEntry(i);
+    T_BDTvars->GetEntry(i);
+    flag_presel = false;
+    if (eval.match_found != 0 && eval.stm_eventtype != 0 && eval.stm_lowenergy ==0 && eval.stm_LM ==0 && eval.stm_TGM ==0 && eval.stm_STM==0 && eval.stm_FullDead == 0 && eval.stm_clusterlength >0) {
+      flag_presel = true; // preselection ...
+    }
+    
+    map_rs_n[std::make_pair(eval.run, eval.subrun)] ++;
+    if (eval.match_found == -1) map_rs_f1p5[std::make_pair(eval.run, eval.subrun)].insert(eval.event);
+    if (eval.match_found == 1 && eval.stm_lowenergy == -1) map_rs_f2stm[std::make_pair(eval.run, eval.subrun)].insert(eval.event);
+    if (flag_presel && tagger.numu_cc_flag == -1) map_rs_f2pr[std::make_pair(eval.run, eval.subrun)].insert(eval.event);
+  }
+
+  std::set<std::pair<int,int> > remove_set;
+  
+  for (auto it = map_rs_f1p5.begin(); it!= map_rs_f1p5.end(); it++){
+    if ( map_rs_f1p5[it->first].size()  > map_rs_n[it->first] * fail_percentage && map_rs_f1p5[it->first].size() != 1
+	 || map_rs_f1p5[it->first].size()  > map_rs_n[it->first] * 0.33 && map_rs_f1p5[it->first].size() == 1)
+      remove_set.insert(it->first);
+  }
+  for (auto it = map_rs_f2stm.begin(); it != map_rs_f2stm.end(); it++){
+    if (map_rs_f2stm[it->first].size() > map_rs_n[it->first]* fail_percentage && map_rs_f2stm[it->first].size() != 1
+	|| map_rs_f2stm[it->first].size() > map_rs_n[it->first]* 0.33 && map_rs_f2stm[it->first].size() == 1)
+      remove_set.insert(it->first);
+  }
+  for (auto it = map_rs_f2pr.begin(); it != map_rs_f2pr.end(); it++){
+    if (map_rs_f2pr[it->first].size() > map_rs_n[it->first] * fail_percentage && map_rs_f2pr[it->first].size() != 1 || map_rs_f2pr[it->first].size() > map_rs_n[it->first] * 0.33 && map_rs_f2pr[it->first].size() == 1
+	)
+      remove_set.insert(it->first);
+  }
+
+  //  std::cout << remove_set.size() << std::endl;
+  
+
+  T_eval->SetBranchStatus("*",1);
+  T_BDTvars->SetBranchStatus("*",1);
   
   for (int i=0;i!=T_BDTvars->GetEntries();i++){
     T_BDTvars->GetEntry(i);
-    T_eval->GetEntry(i); tagger.match_isFC = match_isFC;
-    T_KINEvars->GetEntry(i);
+    T_eval->GetEntry(i); tagger.match_isFC = eval.match_isFC;
+    T_KINEvars->GetEntry(i); tagger.kine_reco_Enu = kine.kine_reco_Enu;
+    T_PFeval->GetEntry(i);
 
+    if (remove_set.find(std::make_pair(eval.run, eval.subrun)) != remove_set.end()) continue;
+    
     tagger.br3_3_score     = cal_br3_3_bdt(0.3, tagger,  reader_br3_3, br3_3_v_energy,  br3_3_v_angle,  br3_3_v_dir_length, br3_3_v_length);
     tagger.br3_5_score     = cal_br3_5_bdt(0.42, tagger,  reader_br3_5, br3_5_v_dir_length, br3_5_v_total_length, br3_5_v_flag_avoid_muon_check, br3_5_v_n_seg, br3_5_v_angle, br3_5_v_sg_length, br3_5_v_energy, br3_5_v_n_main_segs, br3_5_v_n_segs, br3_5_v_shower_main_length, br3_5_v_shower_total_length);
     tagger.br3_6_score     = cal_br3_6_bdt(0.75, tagger, reader_br3_6, br3_6_v_angle, br3_6_v_angle1, br3_6_v_flag_shower_trajectory, br3_6_v_direct_length, br3_6_v_length, br3_6_v_n_other_vtx_segs, br3_6_v_energy);
@@ -1008,12 +1119,36 @@ int main( int argc, char** argv )
     if (std::isnan(tagger.cosmict_7_phi)) tagger.cosmict_7_phi = 0;
     
     tagger.numu_score = cal_numu_bdts_xgboost(tagger,reader_numu); 
+
+    // limit the cut val ...
+    if (std::isnan(eval.weight_spline) || std::isinf(eval.weight_spline) ||
+	std::isnan(eval.weight_cv) || std::isinf(eval.weight_cv) ||
+	eval.weight_spline * eval.weight_cv <=0 ||
+	eval.weight_spline * eval.weight_cv > weight_cut_val){
+      eval.weight_spline = 1;
+      eval.weight_cv = 1;
+    }
     
     
     t4->Fill();
-    
+    t1->Fill();
+    t3->Fill();
+    t5->Fill();
   }
-  
+
+  for (Int_t i=0;i!=T_pot->GetEntries();i++){
+    T_pot->GetEntry(i);
+    
+    if (remove_set.find(std::make_pair(pot.runNo, pot.subRunNo)) != remove_set.end()) continue;
+    
+
+    t2->Fill();
+  }
+
+
+  for (auto it = remove_set.begin(); it!= remove_set.end(); it++){
+    std::cout <<"remove  run:" << it->first << " subrun:" << it->second << std::endl;
+  }
   
   file2->Write();
   file2->Close();
