@@ -1,6 +1,7 @@
 #ifndef UBOONE_LEE_KINE
 #define UBOONE_LEE_KINE
 
+namespace LEEana{
 struct KineInfo{
   Float_t kine_reco_Enu;
   Float_t kine_reco_add_energy;
@@ -24,9 +25,9 @@ struct KineInfo{
 
 void set_tree_address(TTree *tree0, KineInfo& tagger_info);
 void put_tree_address(TTree *Tsig, KineInfo& tagger_info);
+}
 
-
-void set_tree_address(TTree *tree0, KineInfo& tagger_info){
+void LEEana::set_tree_address(TTree *tree0, KineInfo& tagger_info){
   tree0->SetBranchAddress("kine_reco_Enu", &tagger_info.kine_reco_Enu);
   tree0->SetBranchAddress("kine_reco_add_energy", &tagger_info.kine_reco_add_energy);
   tree0->SetBranchAddress("kine_energy_particle", &tagger_info.kine_energy_particle);
@@ -47,7 +48,7 @@ void set_tree_address(TTree *tree0, KineInfo& tagger_info){
   tree0->SetBranchAddress("kine_pio_angle", &tagger_info.kine_pio_angle);
 };
 
-void put_tree_address(TTree *tree0, KineInfo& tagger_info){
+void LEEana::put_tree_address(TTree *tree0, KineInfo& tagger_info){
   tree0->Branch("kine_reco_Enu", &tagger_info.kine_reco_Enu,"data/F");
   tree0->Branch("kine_reco_add_energy", &tagger_info.kine_reco_add_energy,"data/F");
   tree0->Branch("kine_energy_particle", &tagger_info.kine_energy_particle);

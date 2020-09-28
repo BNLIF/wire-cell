@@ -1,6 +1,7 @@
 #ifndef UBOONE_LEE_TAGGER
 #define UBOONE_LEE_TAGGER
 
+namespace LEEana{
  //
   struct TaggerInfo
   {
@@ -762,11 +763,11 @@
     
   };
 
-void set_tree_address(TTree *tree0, TaggerInfo& tagger_info, int flag = 1);
-void put_tree_address(TTree *Tsig, TaggerInfo& tagger_info, int flag = 1);
+  void set_tree_address(TTree *tree0, TaggerInfo& tagger_info, int flag = 1);
+  void put_tree_address(TTree *Tsig, TaggerInfo& tagger_info, int flag = 1);
+}
 
-
-void set_tree_address(TTree *tree0, TaggerInfo& tagger_info, int flag){
+void LEEana::set_tree_address(TTree *tree0, TaggerInfo& tagger_info, int flag){
 
   
     // cosmic tagger
@@ -1477,7 +1478,7 @@ void set_tree_address(TTree *tree0, TaggerInfo& tagger_info, int flag){
   if (flag==1) tree0->SetBranchAddress("event_type",&tagger_info.event_type);
 }
 
-void put_tree_address(TTree *T_tagger, TaggerInfo& tagger_info, int flag){
+void LEEana::put_tree_address(TTree *T_tagger, TaggerInfo& tagger_info, int flag){
    // cosmic tagger
     T_tagger->Branch("cosmic_flag", &tagger_info.cosmic_flag, "cosmic_flag/F");
     T_tagger->Branch("cosmic_n_solid_tracks",&tagger_info.cosmic_n_solid_tracks,"cosmic_n_solid_tracks/F");

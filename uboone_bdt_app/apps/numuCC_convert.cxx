@@ -23,7 +23,7 @@
 #include "TMVA/Reader.h"
 
 using namespace std;
-
+using namespace LEEana;
 
 #include "bdt.h"
 

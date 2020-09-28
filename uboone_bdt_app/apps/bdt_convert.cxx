@@ -26,6 +26,7 @@
 #include "eval.h"
 
 using namespace std;
+using namespace LEEana;
 
 #include "bdt.h"
 #include "pot.h"

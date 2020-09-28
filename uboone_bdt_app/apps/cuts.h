@@ -2,12 +2,14 @@
 #define UBOONE_LEE_CUTS
 
 // define cuts here ...
+#include "TCut.h"
 
 #include "tagger.h"
 #include "kine.h"
 #include "eval.h"
-#include "TCut.h"
 
+namespace LEEana{
+  
 // generic neutrino cuts
 TCut generic_cut = "match_found == 1 && stm_eventtype != 0 &&stm_lowenergy ==0 && stm_LM ==0 && stm_TGM ==0 && stm_STM==0 && stm_FullDead == 0 && stm_cluster_length >15";
 bool is_generic(EvalInfo& info);
@@ -43,9 +45,10 @@ TCut truth_nueCC_inside = "abs(truth_nuPdg)==12 && truth_isCC==1 && truth_vtxIns
 TCut truth_numuCC_inside = "abs(truth_nuPdg)==14 && truth_isCC==1 && truth_vtxInside==1";
 bool is_truth_nueCC_inside(EvalInfo& eval);
 bool is_truth_numuCC_inside(EvalInfo& eval);
+}
 
 
-bool is_truth_nueCC_inside(EvalInfo& eval){
+bool LEEana::is_truth_nueCC_inside(EvalInfo& eval){
   bool flag = false;
 
   if (fabs(eval.truth_nuPdg)==12 && eval.truth_isCC==1 && eval.truth_vtxInside==1)
@@ -54,7 +57,7 @@ bool is_truth_nueCC_inside(EvalInfo& eval){
   return flag;
 }
 
-bool is_truth_numuCC_inside(EvalInfo& eval){
+bool LEEana::is_truth_numuCC_inside(EvalInfo& eval){
    bool flag = false;
 
   if (fabs(eval.truth_nuPdg)==14 && eval.truth_isCC==1 && eval.truth_vtxInside==1)
@@ -65,7 +68,7 @@ bool is_truth_numuCC_inside(EvalInfo& eval){
 
 
 
-bool is_FC(EvalInfo& eval){
+bool LEEana::is_FC(EvalInfo& eval){
   if (eval.match_isFC){
     return true;
   }else{
@@ -74,7 +77,7 @@ bool is_FC(EvalInfo& eval){
 }
 
 
-bool is_pi0(KineInfo& kine){
+bool LEEana::is_pi0(KineInfo& kine){
   bool flag = false;
 
   if (kine.kine_pio_flag==1 && kine.kine_pio_energy_1 > 15 && kine.kine_pio_energy_2 > 15 && kine.kine_pio_dis_1 < 80 && kine.kine_pio_dis_2 < 80 && kine.kine_pio_angle > 20 && kine.kine_pio_vtx_dis < 1)
@@ -86,7 +89,7 @@ bool is_pi0(KineInfo& kine){
 
 
 
-bool is_NC(TaggerInfo& tagger_info){
+bool LEEana::is_NC(TaggerInfo& tagger_info){
   bool flag = false;
   if ((!tagger_info.cosmict_flag) && tagger_info.numu_score < 0)
     flag = true;
@@ -95,7 +98,7 @@ bool is_NC(TaggerInfo& tagger_info){
 }
 
 
-bool is_numuCC(TaggerInfo& tagger_info){
+bool LEEana::is_numuCC(TaggerInfo& tagger_info){
   bool flag = false;
 
   if (tagger_info.numu_cc_flag>=0 && tagger_info.numu_score > 0.9)
@@ -106,7 +109,7 @@ bool is_numuCC(TaggerInfo& tagger_info){
 
 
 
-bool is_nueCC(TaggerInfo& tagger_info){
+bool LEEana::is_nueCC(TaggerInfo& tagger_info){
   bool flag = false;
 
   if (tagger_info.numu_cc_flag >=0 && tagger_info.nue_score > 7.0)
@@ -116,7 +119,7 @@ bool is_nueCC(TaggerInfo& tagger_info){
 }
 
 
-bool is_generic(EvalInfo& eval){
+bool LEEana::is_generic(EvalInfo& eval){
   // not very useful for the main analysis
   bool flag = is_preselection(eval);
 
@@ -124,7 +127,7 @@ bool is_generic(EvalInfo& eval){
   return flag;
 }
 
-bool is_preselection(EvalInfo& eval){
+bool LEEana::is_preselection(EvalInfo& eval){
   bool flag = false;
 
   // match code ...

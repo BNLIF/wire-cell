@@ -1,6 +1,7 @@
 #ifndef UBOONE_LEE_PFEVAL
 #define UBOONE_LEE_PFEVAL
 
+namespace LEEana{
 struct PFevalInfo{
   Int_t run;
   Int_t subrun;
@@ -54,9 +55,9 @@ struct PFevalInfo{
 
 void set_tree_address(TTree *tree0, PFevalInfo& tagger_info, int flag = 1);
 void put_tree_address(TTree *tree0, PFevalInfo& tagger_info, int flag = 1);
+}
 
-
-void set_tree_address(TTree *tree0, PFevalInfo& tagger_info, int flag){
+void LEEana::set_tree_address(TTree *tree0, PFevalInfo& tagger_info, int flag){
   tree0->SetBranchAddress("run", &tagger_info.run);
   tree0->SetBranchAddress("subrun", &tagger_info.subrun);
   tree0->SetBranchAddress("event", &tagger_info.event);
@@ -107,7 +108,7 @@ void set_tree_address(TTree *tree0, PFevalInfo& tagger_info, int flag){
   }
 }
 
-void put_tree_address(TTree *tree0, PFevalInfo& tagger_info, int flag){
+void LEEana::put_tree_address(TTree *tree0, PFevalInfo& tagger_info, int flag){
   tree0->Branch("run", &tagger_info.run, "data/I");
   tree0->Branch("subrun", &tagger_info.subrun,"data/I");
   tree0->Branch("event", &tagger_info.event,"data/I");

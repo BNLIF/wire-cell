@@ -1,7 +1,8 @@
 #ifndef UBOONE_LEE_EVAL
 #define UBOONE_LEE_EVAL
 
-struct EvalInfo{
+namespace LEEana{
+  struct EvalInfo{
   bool is_match_found_int;
   
   Int_t run;
@@ -71,8 +72,9 @@ struct EvalInfo{
 
 void set_tree_address(TTree *tree0, EvalInfo& eval_info, int flag = 1);
 void put_tree_address(TTree *tree0, EvalInfo& eval_info, int flag = 1);
-
-void set_tree_address(TTree *tree0, EvalInfo& eval_info, int flag){
+}
+ 
+void LEEana::set_tree_address(TTree *tree0, EvalInfo& eval_info, int flag){
   eval_info.is_match_found_int = false;
   
   tree0->SetBranchAddress("run", &eval_info.run);
@@ -145,7 +147,7 @@ void set_tree_address(TTree *tree0, EvalInfo& eval_info, int flag){
   }
 }
 
-void put_tree_address(TTree *tree0, EvalInfo& eval_info, int flag){
+void LEEana::put_tree_address(TTree *tree0, EvalInfo& eval_info, int flag){
   tree0->Branch("run", &eval_info.run,"data/I");
   tree0->Branch("subrun", &eval_info.subrun,"data/I");
   tree0->Branch("event", &eval_info.event,"data/I");

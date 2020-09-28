@@ -1,3 +1,4 @@
+namespace LEEana{
 float cal_numu_bdts_xgboost(TaggerInfo& tagger_info, TMVA::Reader& reader);
 
 float cal_cosmict_10_bdt(float default_val,TaggerInfo& tagger_info, TMVA::Reader& reader,
@@ -21,100 +22,6 @@ float cal_numu_2_bdt(float default_val,TaggerInfo& tagger_info,TMVA::Reader& rea
 		     float& numu_cc_2_total_length,
 		     float& numu_cc_2_n_daughter_tracks,
 		     float& numu_cc_2_n_daughter_all);
-
-float cal_numu_bdts_xgboost(TaggerInfo& tagger_info, TMVA::Reader& reader)
-{
-  float val = -10;
-
-  double val1 = reader.EvaluateMVA("MyBDT");
-  
-  val = TMath::Log10( (1+val1)/(1-val1) );
-  
-  return val;
-}
-
-float cal_cosmict_10_bdt(float default_val,TaggerInfo& tagger_info, TMVA::Reader& reader,
-			 float& cosmict_10_vtx_z,
-			 float& cosmict_10_flag_shower,
-			 float& cosmict_10_flag_dir_weak,
-			 float& cosmict_10_angle_beam,
-			 float& cosmict_10_length){
-  float val = default_val;
-  
-  if (tagger_info.cosmict_10_length->size()>0){
-    val = 1e9;
-    for (size_t i=0;i!=tagger_info.cosmict_10_length->size();i++){
-      cosmict_10_vtx_z = tagger_info.cosmict_10_vtx_z->at(i);
-      cosmict_10_flag_shower = tagger_info.cosmict_10_flag_shower->at(i);
-      cosmict_10_flag_dir_weak = tagger_info.cosmict_10_flag_dir_weak->at(i);
-      cosmict_10_angle_beam = tagger_info.cosmict_10_angle_beam->at(i);
-      cosmict_10_length = tagger_info.cosmict_10_length->at(i);
-
-      if (std::isnan(cosmict_10_angle_beam)) cosmict_10_angle_beam = 0;
-      
-      float tmp_bdt =  reader.EvaluateMVA("MyBDT");
-      if (tmp_bdt < val) val = tmp_bdt;
-    }
-  }
-
-  return val;
-}
-
-float cal_numu_1_bdt(float default_val,TaggerInfo& tagger_info,TMVA::Reader& reader,
-		     float& numu_cc_flag_1,
-		     float& numu_cc_1_particle_type,
-		     float& numu_cc_1_length,
-		     float& numu_cc_1_medium_dQ_dx,
-		     float& numu_cc_1_dQ_dx_cut,
-		     float& numu_cc_1_direct_length,
-		     float& numu_cc_1_n_daughter_tracks,
-		     float& numu_cc_1_n_daughter_all){
-  float val = default_val;
-  
-  
-  if (tagger_info.numu_cc_1_particle_type->size()>0){
-    val = -1e9;
-    for (size_t i=0;i!=tagger_info.numu_cc_1_particle_type->size();i++){
-      numu_cc_flag_1 = tagger_info.numu_cc_flag_1->at(i);
-      numu_cc_1_particle_type= tagger_info.numu_cc_1_particle_type->at(i);
-      numu_cc_1_length= tagger_info.numu_cc_1_length->at(i);
-      numu_cc_1_medium_dQ_dx= tagger_info.numu_cc_1_medium_dQ_dx->at(i);
-      numu_cc_1_dQ_dx_cut= tagger_info.numu_cc_1_dQ_dx_cut->at(i);
-      numu_cc_1_direct_length= tagger_info.numu_cc_1_direct_length->at(i);
-      numu_cc_1_n_daughter_tracks= tagger_info.numu_cc_1_n_daughter_tracks->at(i);
-      numu_cc_1_n_daughter_all= tagger_info.numu_cc_1_n_daughter_all->at(i);
-
-      if (std::isinf(numu_cc_1_dQ_dx_cut))  numu_cc_1_dQ_dx_cut = 10;
-      
-      float tmp_bdt =  reader.EvaluateMVA("MyBDT");
-      if (tmp_bdt > val) val = tmp_bdt;
-    }
-  }
-  
-  return val;
-}
-float cal_numu_2_bdt(float default_val,TaggerInfo& tagger_info,TMVA::Reader& reader,
-		     float& numu_cc_2_length,
-		     float& numu_cc_2_total_length,
-		     float& numu_cc_2_n_daughter_tracks,
-		     float& numu_cc_2_n_daughter_all){
-  float val = default_val;
-
-  if (tagger_info.numu_cc_2_length->size()>0){
-    val = -1e9;
-    for (size_t i=0;i!=tagger_info.numu_cc_2_length->size();i++){
-      numu_cc_2_length = tagger_info.numu_cc_2_length->at(i);
-      numu_cc_2_total_length = tagger_info.numu_cc_2_total_length->at(i);
-      numu_cc_2_n_daughter_tracks = tagger_info.numu_cc_2_n_daughter_tracks->at(i);
-      numu_cc_2_n_daughter_all = tagger_info.numu_cc_2_n_daughter_all->at(i);
-	
-      float tmp_bdt =  reader.EvaluateMVA("MyBDT");
-      if (tmp_bdt > val) val = tmp_bdt;
-    }
-  }
-
-  return val;
-}
 
 float cal_bdts_xgboost(TaggerInfo& tagger_info, TMVA::Reader& reader);
 
@@ -210,8 +117,107 @@ float cal_tro_5_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& r
 		    float& tro_5_v_max_count,
 		    float& tro_5_v_energy);
 
+}
 
-float cal_br3_3_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& br3_3_v_energy,
+ 
+ 
+float LEEana::cal_numu_bdts_xgboost(TaggerInfo& tagger_info, TMVA::Reader& reader)
+{
+  float val = -10;
+
+  double val1 = reader.EvaluateMVA("MyBDT");
+  
+  val = TMath::Log10( (1+val1)/(1-val1) );
+  
+  return val;
+}
+
+float LEEana::cal_cosmict_10_bdt(float default_val,TaggerInfo& tagger_info, TMVA::Reader& reader,
+			 float& cosmict_10_vtx_z,
+			 float& cosmict_10_flag_shower,
+			 float& cosmict_10_flag_dir_weak,
+			 float& cosmict_10_angle_beam,
+			 float& cosmict_10_length){
+  float val = default_val;
+  
+  if (tagger_info.cosmict_10_length->size()>0){
+    val = 1e9;
+    for (size_t i=0;i!=tagger_info.cosmict_10_length->size();i++){
+      cosmict_10_vtx_z = tagger_info.cosmict_10_vtx_z->at(i);
+      cosmict_10_flag_shower = tagger_info.cosmict_10_flag_shower->at(i);
+      cosmict_10_flag_dir_weak = tagger_info.cosmict_10_flag_dir_weak->at(i);
+      cosmict_10_angle_beam = tagger_info.cosmict_10_angle_beam->at(i);
+      cosmict_10_length = tagger_info.cosmict_10_length->at(i);
+
+      if (std::isnan(cosmict_10_angle_beam)) cosmict_10_angle_beam = 0;
+      
+      float tmp_bdt =  reader.EvaluateMVA("MyBDT");
+      if (tmp_bdt < val) val = tmp_bdt;
+    }
+  }
+
+  return val;
+}
+
+float LEEana::cal_numu_1_bdt(float default_val,TaggerInfo& tagger_info,TMVA::Reader& reader,
+		     float& numu_cc_flag_1,
+		     float& numu_cc_1_particle_type,
+		     float& numu_cc_1_length,
+		     float& numu_cc_1_medium_dQ_dx,
+		     float& numu_cc_1_dQ_dx_cut,
+		     float& numu_cc_1_direct_length,
+		     float& numu_cc_1_n_daughter_tracks,
+		     float& numu_cc_1_n_daughter_all){
+  float val = default_val;
+  
+  
+  if (tagger_info.numu_cc_1_particle_type->size()>0){
+    val = -1e9;
+    for (size_t i=0;i!=tagger_info.numu_cc_1_particle_type->size();i++){
+      numu_cc_flag_1 = tagger_info.numu_cc_flag_1->at(i);
+      numu_cc_1_particle_type= tagger_info.numu_cc_1_particle_type->at(i);
+      numu_cc_1_length= tagger_info.numu_cc_1_length->at(i);
+      numu_cc_1_medium_dQ_dx= tagger_info.numu_cc_1_medium_dQ_dx->at(i);
+      numu_cc_1_dQ_dx_cut= tagger_info.numu_cc_1_dQ_dx_cut->at(i);
+      numu_cc_1_direct_length= tagger_info.numu_cc_1_direct_length->at(i);
+      numu_cc_1_n_daughter_tracks= tagger_info.numu_cc_1_n_daughter_tracks->at(i);
+      numu_cc_1_n_daughter_all= tagger_info.numu_cc_1_n_daughter_all->at(i);
+
+      if (std::isinf(numu_cc_1_dQ_dx_cut))  numu_cc_1_dQ_dx_cut = 10;
+      
+      float tmp_bdt =  reader.EvaluateMVA("MyBDT");
+      if (tmp_bdt > val) val = tmp_bdt;
+    }
+  }
+  
+  return val;
+}
+float LEEana::cal_numu_2_bdt(float default_val,TaggerInfo& tagger_info,TMVA::Reader& reader,
+		     float& numu_cc_2_length,
+		     float& numu_cc_2_total_length,
+		     float& numu_cc_2_n_daughter_tracks,
+		     float& numu_cc_2_n_daughter_all){
+  float val = default_val;
+
+  if (tagger_info.numu_cc_2_length->size()>0){
+    val = -1e9;
+    for (size_t i=0;i!=tagger_info.numu_cc_2_length->size();i++){
+      numu_cc_2_length = tagger_info.numu_cc_2_length->at(i);
+      numu_cc_2_total_length = tagger_info.numu_cc_2_total_length->at(i);
+      numu_cc_2_n_daughter_tracks = tagger_info.numu_cc_2_n_daughter_tracks->at(i);
+      numu_cc_2_n_daughter_all = tagger_info.numu_cc_2_n_daughter_all->at(i);
+	
+      float tmp_bdt =  reader.EvaluateMVA("MyBDT");
+      if (tmp_bdt > val) val = tmp_bdt;
+    }
+  }
+
+  return val;
+}
+
+
+
+float LEEana::cal_br3_3_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& br3_3_v_energy,
 		    float& br3_3_v_angle,
 		    float& br3_3_v_dir_length,
 		    float& br3_3_v_length){
@@ -231,7 +237,7 @@ float cal_br3_3_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& r
   
   return val;
 }
-float cal_br3_5_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& br3_5_v_dir_length,
+float LEEana::cal_br3_5_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& br3_5_v_dir_length,
 		    float& br3_5_v_total_length,
 		    float& br3_5_v_flag_avoid_muon_check,
 		    float& br3_5_v_n_seg,
@@ -267,7 +273,7 @@ float cal_br3_5_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& r
   return val;
 }
 
-float cal_br3_6_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& br3_6_v_angle,
+float LEEana::cal_br3_6_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& br3_6_v_angle,
 		    float& br3_6_v_angle1,
 		    float& br3_6_v_flag_shower_trajectory,
 		    float& br3_6_v_direct_length,
@@ -293,7 +299,7 @@ float cal_br3_6_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& r
   
   return val;
 }
-float cal_pio_2_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& pio_2_v_dis2,
+float LEEana::cal_pio_2_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& pio_2_v_dis2,
 		    float& pio_2_v_angle2,
 		    float& pio_2_v_acc_length){
   float val = default_val;
@@ -311,7 +317,7 @@ float cal_pio_2_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& r
   
   return val;
 }
-float cal_stw_2_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& stw_2_v_medium_dQ_dx,
+float LEEana::cal_stw_2_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& stw_2_v_medium_dQ_dx,
 		    float& stw_2_v_energy,
 		    float& stw_2_v_angle,
 		    float& stw_2_v_dir_length,
@@ -334,7 +340,7 @@ float cal_stw_2_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& r
   
   return val;
 }
-float cal_stw_3_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& stw_3_v_angle,
+float LEEana::cal_stw_3_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& stw_3_v_angle,
 		    float& stw_3_v_dir_length,
 		    float& stw_3_v_energy,
 		    float& stw_3_v_medium_dQ_dx){
@@ -355,7 +361,7 @@ float cal_stw_3_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& r
   
   return val;
 }
-float cal_stw_4_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& stw_4_v_angle,
+float LEEana::cal_stw_4_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& stw_4_v_angle,
 		    float& stw_4_v_dis,
 		    float& stw_4_v_energy){
   float val = default_val;
@@ -372,7 +378,7 @@ float cal_stw_4_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& r
   }
   return val;
 }
-float cal_sig_1_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& sig_1_v_angle,
+float LEEana::cal_sig_1_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& sig_1_v_angle,
 		    float& sig_1_v_flag_single_shower,
 		    float& sig_1_v_energy,
 		    float& sig_1_v_energy_1){
@@ -391,7 +397,7 @@ float cal_sig_1_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& r
   }
   return val;
 }
-float cal_sig_2_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& sig_2_v_energy,
+float LEEana::cal_sig_2_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& sig_2_v_energy,
 		    float& sig_2_v_shower_angle,
 		    float& sig_2_v_flag_single_shower,
 		    float& sig_2_v_medium_dQ_dx,
@@ -413,7 +419,7 @@ float cal_sig_2_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& r
   
   return val;
 }
-float cal_lol_1_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& lol_1_v_energy,
+float LEEana::cal_lol_1_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& lol_1_v_energy,
 		    float& lol_1_v_vtx_n_segs,
 		    float& lol_1_v_nseg,
 		    float& lol_1_v_angle){
@@ -432,7 +438,7 @@ float cal_lol_1_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& r
   }
   return val;
 }
-float cal_lol_2_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& lol_2_v_length,
+float LEEana::cal_lol_2_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& lol_2_v_length,
 		    float& lol_2_v_angle,
 		    float& lol_2_v_type,
 		    float& lol_2_v_vtx_n_segs,
@@ -458,7 +464,7 @@ float cal_lol_2_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& r
   
   return val;
 }
-float cal_tro_1_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& tro_1_v_particle_type,
+float LEEana::cal_tro_1_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& tro_1_v_particle_type,
 		    float& tro_1_v_flag_dir_weak,
 		    float& tro_1_v_min_dis,
 		    float& tro_1_v_sg1_length,
@@ -489,7 +495,7 @@ float cal_tro_1_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& r
   }
   return val;
 }
-float cal_tro_2_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& tro_2_v_energy,
+float LEEana::cal_tro_2_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& tro_2_v_energy,
 		    float& tro_2_v_stem_length,
 		    float& tro_2_v_iso_angle,
 		    float& tro_2_v_max_length,
@@ -511,7 +517,7 @@ float cal_tro_2_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& r
   }
   return val;
 }
-float cal_tro_4_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& tro_4_v_dir2_mag,
+float LEEana::cal_tro_4_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& tro_4_v_dir2_mag,
 		    float& tro_4_v_angle,
 		    float& tro_4_v_angle1,
 		    float& tro_4_v_angle2,
@@ -545,7 +551,7 @@ float cal_tro_4_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& r
   }
   return val;
 }
-float cal_tro_5_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& tro_5_v_max_angle,
+float LEEana::cal_tro_5_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& reader,float& tro_5_v_max_angle,
 		    float& tro_5_v_min_angle,
 		    float& tro_5_v_max_length,
 		    float& tro_5_v_iso_angle,
@@ -575,7 +581,7 @@ float cal_tro_5_bdt(float default_val , TaggerInfo& tagger_info, TMVA::Reader& r
 }
 
 
-float cal_bdts_xgboost(TaggerInfo& tagger_info, TMVA::Reader& reader){
+float LEEana::cal_bdts_xgboost(TaggerInfo& tagger_info, TMVA::Reader& reader){
   float val = 0; // background like ...
   float default_val = -15;
 
