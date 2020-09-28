@@ -6,6 +6,7 @@
 #include "tagger.h"
 #include "kine.h"
 #include "eval.h"
+#include "TCut.h"
 
 // generic neutrino cuts
 TCut generic_cut = "match_found == 1 && stm_eventtype != 0 &&stm_lowenergy ==0 && stm_LM ==0 && stm_TGM ==0 && stm_STM==0 && stm_FullDead == 0 && stm_cluster_length >15";
@@ -25,12 +26,26 @@ bool is_numuCC(TaggerInfo& tagger_info);
 
 // pio cuts
 TCut pi0_cut = "kine_pio_flag==1 && kine_pio_energy_1 > 15 && kine_pio_energy_2 > 15 && kine_pio_dis_1 < 80 && kine_pio_dis_2 < 80 && kine_pio_angle > 20 && kine_pio_vtx_dis < 1";
-bool is_pi0();
+bool is_pi0(KineInfo& kine);
 
 // NC cuts
 TCut NC_cut = "(!cosmict_flag) && numu_score < 0.0";
 bool is_NC(TaggerInfo& tagger_info);
 
+
+TCut FC_cut = "match_isFC==1";
+TCut PC_cut = "match_isFC==0";
+
+bool is_FC(EvalInfo& eval);
+
+
+bool is_FC(EvalInfo& eval){
+  if (eval.match_isFC){
+    return true;
+  }else{
+    return false;
+  }
+}
 
 
 bool is_pi0(KineInfo& kine){
@@ -54,7 +69,7 @@ bool is_NC(TaggerInfo& tagger_info){
 }
 
 
-bool is_numuCC{TaggerInfo& tagger_info){
+bool is_numuCC(TaggerInfo& tagger_info){
   bool flag = false;
 
   if (tagger_info.numu_cc_flag>=0 && tagger_info.numu_score > 0.9)
@@ -62,6 +77,7 @@ bool is_numuCC{TaggerInfo& tagger_info){
   
   return flag;
 }
+
 
 
 bool is_nueCC(TaggerInfo& tagger_info){
@@ -78,7 +94,7 @@ bool is_generic(EvalInfo& eval){
   // not very useful for the main analysis
   bool flag = is_preselection(eval);
 
-  flag = flag && (eval.stm_cluster_length > 15);
+  flag = flag && (eval.stm_clusterlength > 15);
   return flag;
 }
 
@@ -91,7 +107,7 @@ bool is_preselection(EvalInfo& eval){
     tmp_match_found = eval.match_found_asInt;
   }
 
-  if (tmp_match_found == 1 && eval.stm_eventtype != 0 && eval.stm_lowenergy ==0 && eval.stm_LM ==0 && eval.stm_TGM ==0 && eval.stm_STM==0 && eval.stm_FullDead == 0 && eval.stm_cluster_length >0) flag = true;
+  if (tmp_match_found == 1 && eval.stm_eventtype != 0 && eval.stm_lowenergy ==0 && eval.stm_LM ==0 && eval.stm_TGM ==0 && eval.stm_STM==0 && eval.stm_FullDead == 0 && eval.stm_clusterlength >0) flag = true;
   
   
   return flag;

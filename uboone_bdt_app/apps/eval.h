@@ -174,7 +174,7 @@ void put_tree_address(TTree *tree0, EvalInfo& eval_info, int flag){
   tree0->Branch("match_chargeV", &eval_info.match_chargeV,"data/F");
   tree0->Branch("match_chargeY", &eval_info.match_chargeY,"data/F");
   tree0->Branch("match_energyY", &eval_info.match_energyY,"data/F");
-  tree0->Branch("light_mismatch", &eval_info.light_mismatch,"data");
+  tree0->Branch("light_mismatch", &eval_info.light_mismatch,"data/O");
   tree0->Branch("match_charge", &eval_info.match_charge,"data/F");
 
   tree0->Branch("match_energy", &eval_info.match_energy,"data/F");
