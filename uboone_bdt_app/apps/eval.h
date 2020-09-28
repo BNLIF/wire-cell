@@ -59,6 +59,8 @@ struct EvalInfo{
   Float_t weight_spline;
   Float_t weight_cv;
   Float_t weight_lee;
+
+  Bool_t weight_change;
   
 };
 
@@ -124,6 +126,8 @@ void set_tree_address(TTree *tree0, EvalInfo& eval_info){
   tree0->SetBranchAddress("weight_spline", &eval_info.weight_spline);
   tree0->SetBranchAddress("weight_cv", &eval_info.weight_cv);
   tree0->SetBranchAddress("weight_lee", &eval_info.weight_lee);
+
+  if (tree0->GetBranch("weight_change")) tree0->SetBranchAddress("weight_change",&eval_info.weight_change);
 }
 
 void put_tree_address(TTree *tree0, EvalInfo& eval_info){
@@ -185,5 +189,7 @@ void put_tree_address(TTree *tree0, EvalInfo& eval_info){
   tree0->Branch("weight_spline", &eval_info.weight_spline,"data/F");
   tree0->Branch("weight_cv", &eval_info.weight_cv,"data/F");
   tree0->Branch("weight_lee", &eval_info.weight_lee,"data/F");
+
+  tree0->Branch("weight_change",&eval_info.weight_change,"data/O");
 }
 

@@ -1030,6 +1030,9 @@ int main( int argc, char** argv )
   
   bool flag_presel = false;
   for (Int_t i=0;i!=T_eval->GetEntries();i++){
+
+    eval.weight_change = false;
+    
     T_eval->GetEntry(i);
     T_BDTvars->GetEntry(i);
     flag_presel = false;
@@ -1127,6 +1130,7 @@ int main( int argc, char** argv )
 	eval.weight_spline * eval.weight_cv > weight_cut_val){
       eval.weight_spline = 1;
       eval.weight_cv = 1;
+      eval.weight_change = true;
     }
     
     
