@@ -56,7 +56,7 @@ int main( int argc, char** argv )
     }
   }
   
-  
+  bool flag_data = true;
   //std::cout << input_file << " " << out_file << std::endl;
 
 
@@ -68,6 +68,8 @@ int main( int argc, char** argv )
   TTree *T_PFeval = (TTree*)file1->Get("wcpselection/T_PFeval");
   TTree *T_KINEvars = (TTree*)file1->Get("wcpselection/T_KINEvars");
 
+  if (T_eval->GetBranch("weight_cv")) flag_data =false;
+  
   //  std::cout << T_eval->GetEntries() << std::endl;
   TFile *file2 = new TFile(out_file,"RECREATE");
   file2->mkdir("wcpselection");
@@ -350,14 +352,24 @@ int main( int argc, char** argv )
   set_tree_address(T_BDTvars, tagger,2 );
   put_tree_address(t4, tagger,2);
 
-  set_tree_address(T_eval, eval);
-  put_tree_address(t1, eval);
+  if (flag_data){
+    set_tree_address(T_eval, eval,2);
+    put_tree_address(t1, eval,2);
+
+    set_tree_address(T_PFeval, pfeval,2);
+    put_tree_address(t3, pfeval,2);
+  }else{
+    set_tree_address(T_eval, eval);
+    put_tree_address(t1, eval);
+
+    set_tree_address(T_PFeval, pfeval);
+    put_tree_address(t3, pfeval);
+  }
 
   set_tree_address(T_pot, pot);
   put_tree_address(t2, pot);
 
-  set_tree_address(T_PFeval, pfeval);
-  put_tree_address(t3, pfeval);
+
 
   set_tree_address(T_KINEvars, kine);
   put_tree_address(t5, kine);

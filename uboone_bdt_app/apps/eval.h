@@ -64,10 +64,10 @@ struct EvalInfo{
   
 };
 
-void set_tree_address(TTree *tree0, EvalInfo& eval_info);
-void put_tree_address(TTree *tree0, EvalInfo& eval_info);
+void set_tree_address(TTree *tree0, EvalInfo& eval_info, int flag = 1);
+void put_tree_address(TTree *tree0, EvalInfo& eval_info, int flag = 1);
 
-void set_tree_address(TTree *tree0, EvalInfo& eval_info){
+void set_tree_address(TTree *tree0, EvalInfo& eval_info, int flag){
   tree0->SetBranchAddress("run", &eval_info.run);
   tree0->SetBranchAddress("subrun", &eval_info.subrun);
   tree0->SetBranchAddress("event", &eval_info.event);
@@ -101,36 +101,39 @@ void set_tree_address(TTree *tree0, EvalInfo& eval_info){
   tree0->SetBranchAddress("stm_STM", &eval_info.stm_STM);
   tree0->SetBranchAddress("stm_FullDead", &eval_info.stm_FullDead);
   tree0->SetBranchAddress("stm_clusterlength", &eval_info.stm_clusterlength);
-  tree0->SetBranchAddress("truth_nuEnergy", &eval_info.truth_nuEnergy);
-  tree0->SetBranchAddress("truth_energyInside", &eval_info.truth_energyInside);
 
-  tree0->SetBranchAddress("truth_electronInside", &eval_info.truth_electronInside);
-  tree0->SetBranchAddress("truth_nuPdg", &eval_info.truth_nuPdg);
-  tree0->SetBranchAddress("truth_isCC", &eval_info.truth_isCC);
-  tree0->SetBranchAddress("truth_isEligible", &eval_info.truth_isEligible);
-  tree0->SetBranchAddress("truth_NCisEligible", &eval_info.truth_NCisEligible);
-
-  tree0->SetBranchAddress("truth_isFC", &eval_info.truth_isFC);
-  tree0->SetBranchAddress("truth_vtxInside", &eval_info.truth_vtxInside);
-  tree0->SetBranchAddress("truth_vtxX", &eval_info.truth_vtxX);
-  tree0->SetBranchAddress("truth_vtxY", &eval_info.truth_vtxY);
-  tree0->SetBranchAddress("truth_vtxZ", &eval_info.truth_vtxZ);
-
-  tree0->SetBranchAddress("truth_nuTime", &eval_info.truth_nuTime);
-  tree0->SetBranchAddress("match_completeness", &eval_info.match_completeness);
-  tree0->SetBranchAddress("match_completeness_energy", &eval_info.match_completeness_energy);
-  tree0->SetBranchAddress("match_purity", &eval_info.match_purity);
-  tree0->SetBranchAddress("match_purity_xz", &eval_info.match_purity_xz);
-
-  tree0->SetBranchAddress("match_purity_xy", &eval_info.match_purity_xy);
-  tree0->SetBranchAddress("weight_spline", &eval_info.weight_spline);
-  tree0->SetBranchAddress("weight_cv", &eval_info.weight_cv);
-  tree0->SetBranchAddress("weight_lee", &eval_info.weight_lee);
-
-  if (tree0->GetBranch("weight_change")) tree0->SetBranchAddress("weight_change",&eval_info.weight_change);
+  if (flag==1){
+    tree0->SetBranchAddress("truth_nuEnergy", &eval_info.truth_nuEnergy);
+    tree0->SetBranchAddress("truth_energyInside", &eval_info.truth_energyInside);
+    
+    tree0->SetBranchAddress("truth_electronInside", &eval_info.truth_electronInside);
+    tree0->SetBranchAddress("truth_nuPdg", &eval_info.truth_nuPdg);
+    tree0->SetBranchAddress("truth_isCC", &eval_info.truth_isCC);
+    tree0->SetBranchAddress("truth_isEligible", &eval_info.truth_isEligible);
+    tree0->SetBranchAddress("truth_NCisEligible", &eval_info.truth_NCisEligible);
+    
+    tree0->SetBranchAddress("truth_isFC", &eval_info.truth_isFC);
+    tree0->SetBranchAddress("truth_vtxInside", &eval_info.truth_vtxInside);
+    tree0->SetBranchAddress("truth_vtxX", &eval_info.truth_vtxX);
+    tree0->SetBranchAddress("truth_vtxY", &eval_info.truth_vtxY);
+    tree0->SetBranchAddress("truth_vtxZ", &eval_info.truth_vtxZ);
+    
+    tree0->SetBranchAddress("truth_nuTime", &eval_info.truth_nuTime);
+    tree0->SetBranchAddress("match_completeness", &eval_info.match_completeness);
+    tree0->SetBranchAddress("match_completeness_energy", &eval_info.match_completeness_energy);
+    tree0->SetBranchAddress("match_purity", &eval_info.match_purity);
+    tree0->SetBranchAddress("match_purity_xz", &eval_info.match_purity_xz);
+    
+    tree0->SetBranchAddress("match_purity_xy", &eval_info.match_purity_xy);
+    tree0->SetBranchAddress("weight_spline", &eval_info.weight_spline);
+    tree0->SetBranchAddress("weight_cv", &eval_info.weight_cv);
+    tree0->SetBranchAddress("weight_lee", &eval_info.weight_lee);
+    
+    if (tree0->GetBranch("weight_change")) tree0->SetBranchAddress("weight_change",&eval_info.weight_change);
+  }
 }
 
-void put_tree_address(TTree *tree0, EvalInfo& eval_info){
+void put_tree_address(TTree *tree0, EvalInfo& eval_info, int flag){
   tree0->Branch("run", &eval_info.run,"data/I");
   tree0->Branch("subrun", &eval_info.subrun,"data/I");
   tree0->Branch("event", &eval_info.event,"data/I");
@@ -164,32 +167,34 @@ void put_tree_address(TTree *tree0, EvalInfo& eval_info){
   tree0->Branch("stm_STM", &eval_info.stm_STM,"data/I");
   tree0->Branch("stm_FullDead", &eval_info.stm_FullDead,"data/I");
   tree0->Branch("stm_clusterlength", &eval_info.stm_clusterlength,"data/F");
-  tree0->Branch("truth_nuEnergy", &eval_info.truth_nuEnergy,"data/F");
-  tree0->Branch("truth_energyInside", &eval_info.truth_energyInside,"data/F");
-
-  tree0->Branch("truth_electronInside", &eval_info.truth_electronInside,"data/F");
-  tree0->Branch("truth_nuPdg", &eval_info.truth_nuPdg,"data/I");
-  tree0->Branch("truth_isCC", &eval_info.truth_isCC,"data/O");
-  tree0->Branch("truth_isEligible", &eval_info.truth_isEligible,"data/O");
-  tree0->Branch("truth_NCisEligible", &eval_info.truth_NCisEligible,"data/O");
-
-  tree0->Branch("truth_isFC", &eval_info.truth_isFC,"data/O");
-  tree0->Branch("truth_vtxInside", &eval_info.truth_vtxInside,"data/O");
-  tree0->Branch("truth_vtxX", &eval_info.truth_vtxX,"data/F");
-  tree0->Branch("truth_vtxY", &eval_info.truth_vtxY,"data/F");
-  tree0->Branch("truth_vtxZ", &eval_info.truth_vtxZ,"data/F");
-
-  tree0->Branch("truth_nuTime", &eval_info.truth_nuTime,"data/F");
-  tree0->Branch("match_completeness", &eval_info.match_completeness,"data/F");
-  tree0->Branch("match_completeness_energy", &eval_info.match_completeness_energy,"data/F");
-  tree0->Branch("match_purity", &eval_info.match_purity,"data/F");
-  tree0->Branch("match_purity_xz", &eval_info.match_purity_xz,"data/F");
-
-  tree0->Branch("match_purity_xy", &eval_info.match_purity_xy,"data/F");
-  tree0->Branch("weight_spline", &eval_info.weight_spline,"data/F");
-  tree0->Branch("weight_cv", &eval_info.weight_cv,"data/F");
-  tree0->Branch("weight_lee", &eval_info.weight_lee,"data/F");
-
-  tree0->Branch("weight_change",&eval_info.weight_change,"data/O");
+  if (flag==1){
+    tree0->Branch("truth_nuEnergy", &eval_info.truth_nuEnergy,"data/F");
+    tree0->Branch("truth_energyInside", &eval_info.truth_energyInside,"data/F");
+    
+    tree0->Branch("truth_electronInside", &eval_info.truth_electronInside,"data/F");
+    tree0->Branch("truth_nuPdg", &eval_info.truth_nuPdg,"data/I");
+    tree0->Branch("truth_isCC", &eval_info.truth_isCC,"data/O");
+    tree0->Branch("truth_isEligible", &eval_info.truth_isEligible,"data/O");
+    tree0->Branch("truth_NCisEligible", &eval_info.truth_NCisEligible,"data/O");
+    
+    tree0->Branch("truth_isFC", &eval_info.truth_isFC,"data/O");
+    tree0->Branch("truth_vtxInside", &eval_info.truth_vtxInside,"data/O");
+    tree0->Branch("truth_vtxX", &eval_info.truth_vtxX,"data/F");
+    tree0->Branch("truth_vtxY", &eval_info.truth_vtxY,"data/F");
+    tree0->Branch("truth_vtxZ", &eval_info.truth_vtxZ,"data/F");
+    
+    tree0->Branch("truth_nuTime", &eval_info.truth_nuTime,"data/F");
+    tree0->Branch("match_completeness", &eval_info.match_completeness,"data/F");
+    tree0->Branch("match_completeness_energy", &eval_info.match_completeness_energy,"data/F");
+    tree0->Branch("match_purity", &eval_info.match_purity,"data/F");
+    tree0->Branch("match_purity_xz", &eval_info.match_purity_xz,"data/F");
+    
+    tree0->Branch("match_purity_xy", &eval_info.match_purity_xy,"data/F");
+    tree0->Branch("weight_spline", &eval_info.weight_spline,"data/F");
+    tree0->Branch("weight_cv", &eval_info.weight_cv,"data/F");
+    tree0->Branch("weight_lee", &eval_info.weight_lee,"data/F");
+    
+    tree0->Branch("weight_change",&eval_info.weight_change,"data/O");
+  }
 }
 
