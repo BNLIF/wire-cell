@@ -3,11 +3,13 @@ struct EvalInfo{
   Int_t subrun;
   Int_t event;
   Bool_t flash_found;
+  //  Int_t flash_found_filled;
   Float_t flash_time;
 
   Float_t flash_measPe;
   Float_t flash_predPe;
   Bool_t match_found;
+  //  Int_t match_found_filled;
   UInt_t match_type;
   Bool_t match_isFC;
 

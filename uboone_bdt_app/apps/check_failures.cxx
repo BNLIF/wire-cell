@@ -88,6 +88,7 @@ int main( int argc, char** argv )
   T_eval->SetBranchStatus("stm_clusterlength",1); T_eval->SetBranchAddress("stm_clusterlength",&stm_cluster_length);
 
   bool match_found;
+ 
   T_eval->SetBranchStatus("match_found",1); T_eval->SetBranchAddress("match_found",&match_found);
   Int_t run, subrun, event;
   T_eval->SetBranchStatus("run",1); T_eval->SetBranchAddress("run",&run);
@@ -232,7 +233,8 @@ int main( int argc, char** argv )
     flag_gen_pr_nue = false;
     flag_gen_pr_pio = false;
     
-    if (match_found != 0 && stm_eventtype != 0 && stm_lowenergy ==0 && stm_LM ==0 && stm_TGM ==0 && stm_STM==0 && stm_FullDead == 0 && stm_cluster_length >0) {
+    if (match_found != 0 &&
+	stm_eventtype != 0 && stm_lowenergy ==0 && stm_LM ==0 && stm_TGM ==0 && stm_STM==0 && stm_FullDead == 0 && stm_cluster_length >0) {
       flag_presel = true; // preselection ...
       if (stm_cluster_length > 15) flag_generic = true; // generic
     }
@@ -245,7 +247,7 @@ int main( int argc, char** argv )
     if (flag_data ==0){
       flag_numu = false;
       flag_gen_numu = false;
-
+      
       flag_nue = false;
       flag_gen_nue = false;
       
