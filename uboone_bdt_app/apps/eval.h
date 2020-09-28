@@ -1,15 +1,17 @@
 struct EvalInfo{
+  bool is_match_found_int;
+  
   Int_t run;
   Int_t subrun;
   Int_t event;
   Bool_t flash_found;
-  //  Int_t flash_found_filled;
+  Int_t flash_found_asInt;
   Float_t flash_time;
 
   Float_t flash_measPe;
   Float_t flash_predPe;
   Bool_t match_found;
-  //  Int_t match_found_filled;
+  Int_t match_found_asInt;
   UInt_t match_type;
   Bool_t match_isFC;
 
@@ -68,15 +70,22 @@ void set_tree_address(TTree *tree0, EvalInfo& eval_info, int flag = 1);
 void put_tree_address(TTree *tree0, EvalInfo& eval_info, int flag = 1);
 
 void set_tree_address(TTree *tree0, EvalInfo& eval_info, int flag){
+  eval_info.is_match_found_int = false;
+  
   tree0->SetBranchAddress("run", &eval_info.run);
   tree0->SetBranchAddress("subrun", &eval_info.subrun);
   tree0->SetBranchAddress("event", &eval_info.event);
   tree0->SetBranchAddress("flash_found", &eval_info.flash_found);
+  if (tree0->GetBranch("flash_found_asInt"))   {
+    tree0->SetBranchAddress("flash_found_asInt", &eval_info.flash_found_asInt);
+    eval_info.is_match_found_int = true;
+  }
   tree0->SetBranchAddress("flash_time", &eval_info.flash_time);
 
   tree0->SetBranchAddress("flash_measPe", &eval_info.flash_measPe);
   tree0->SetBranchAddress("flash_predPe", &eval_info.flash_predPe);
   tree0->SetBranchAddress("match_found", &eval_info.match_found);
+  if (tree0->GetBranch("match_found_asInt"))   tree0->SetBranchAddress("match_found_asInt", &eval_info.match_found_asInt); 
   tree0->SetBranchAddress("match_type", &eval_info.match_type);
   tree0->SetBranchAddress("match_isFC", &eval_info.match_isFC);
 
@@ -138,8 +147,15 @@ void put_tree_address(TTree *tree0, EvalInfo& eval_info, int flag){
   tree0->Branch("subrun", &eval_info.subrun,"data/I");
   tree0->Branch("event", &eval_info.event,"data/I");
   tree0->Branch("flash_found", &eval_info.flash_found,"data/O");
+
   tree0->Branch("flash_time", &eval_info.flash_time,"data/F");
 
+  if (eval_info.is_match_found_int){
+    tree0->Branch("flash_found_asInt", &eval_info.flash_found_asInt, "data/I");
+    tree0->Branch("match_found_asInt", &eval_info.match_found_asInt, "data/I"); 
+  }
+  
+  
   tree0->Branch("flash_measPe", &eval_info.flash_measPe,"data/F");
   tree0->Branch("flash_predPe", &eval_info.flash_predPe,"data/F");
   tree0->Branch("match_found", &eval_info.match_found,"data/O");

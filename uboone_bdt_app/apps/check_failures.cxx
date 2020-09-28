@@ -88,8 +88,15 @@ int main( int argc, char** argv )
   T_eval->SetBranchStatus("stm_clusterlength",1); T_eval->SetBranchAddress("stm_clusterlength",&stm_cluster_length);
 
   bool match_found;
- 
+  int match_found_asInt;
+  bool is_match_found_int = false;
   T_eval->SetBranchStatus("match_found",1); T_eval->SetBranchAddress("match_found",&match_found);
+  if (T_eval->GetBranch("match_found_asInt")){
+    T_eval->SetBranchStatus("match_found_asInt",1); T_eval->SetBranchAddress("match_found_asInt",&match_found_asInt);
+    is_match_found_int = true;
+  }
+
+  
   Int_t run, subrun, event;
   T_eval->SetBranchStatus("run",1); T_eval->SetBranchAddress("run",&run);
   T_eval->SetBranchStatus("subrun",1); T_eval->SetBranchAddress("subrun",&subrun);
@@ -226,6 +233,11 @@ int main( int argc, char** argv )
     T_PFeval->GetEntry(i);
     T_BDTvars->GetEntry(i);
     T_kine->GetEntry(i);
+
+    int tmp_match_found = match_found;
+    if (is_match_found_int){
+      tmp_match_found = match_found_asInt;
+    }
     
     flag_presel = false;
     flag_generic = false;
@@ -233,7 +245,7 @@ int main( int argc, char** argv )
     flag_gen_pr_nue = false;
     flag_gen_pr_pio = false;
     
-    if (match_found != 0 &&
+    if (tmp_match_found != 0 &&
 	stm_eventtype != 0 && stm_lowenergy ==0 && stm_LM ==0 && stm_TGM ==0 && stm_STM==0 && stm_FullDead == 0 && stm_cluster_length >0) {
       flag_presel = true; // preselection ...
       if (stm_cluster_length > 15) flag_generic = true; // generic
@@ -399,8 +411,8 @@ int main( int argc, char** argv )
     // add events ...
     map_rs_n[std::make_pair(run, subrun)] ++;
     // Reco 1.5 failure ...
-    if (match_found == -1) map_rs_f1p5[std::make_pair(run, subrun)].insert(event);
-    if (match_found == 1 && stm_lowenergy == -1) map_rs_f2stm[std::make_pair(run, subrun)].insert(event);
+    if (tmp_match_found == -1) map_rs_f1p5[std::make_pair(run, subrun)].insert(event);
+    if (tmp_match_found == 1 && stm_lowenergy == -1) map_rs_f2stm[std::make_pair(run, subrun)].insert(event);
     if (flag_presel && numu_cc_flag == -1) map_rs_f2pr[std::make_pair(run, subrun)].insert(event);
   }
 

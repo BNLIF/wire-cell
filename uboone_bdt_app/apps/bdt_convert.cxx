@@ -1037,24 +1037,30 @@ int main( int argc, char** argv )
   T_eval->SetBranchStatus("subrun",1); 
   T_eval->SetBranchStatus("event",1);
 
+  if (T_eval->GetBranch("match_found_asInt")){
+    T_eval->SetBranchStatus("match_found_asInt",1);
+  }
+  
   T_BDTvars->SetBranchStatus("*",0);
   T_BDTvars->SetBranchStatus("numu_cc_flag",1);
   
   bool flag_presel = false;
   for (Int_t i=0;i!=T_eval->GetEntries();i++){
-
-
     
     T_eval->GetEntry(i);
     T_BDTvars->GetEntry(i);
+
+    int tmp_match_found = eval.match_found;
+    if (eval.is_match_found_int) tmp_match_found = eval.match_found_asInt;
+    
     flag_presel = false;
-    if (eval.match_found != 0 && eval.stm_eventtype != 0 && eval.stm_lowenergy ==0 && eval.stm_LM ==0 && eval.stm_TGM ==0 && eval.stm_STM==0 && eval.stm_FullDead == 0 && eval.stm_clusterlength >0) {
+    if (tmp_match_found != 0 && eval.stm_eventtype != 0 && eval.stm_lowenergy ==0 && eval.stm_LM ==0 && eval.stm_TGM ==0 && eval.stm_STM==0 && eval.stm_FullDead == 0 && eval.stm_clusterlength >0) {
       flag_presel = true; // preselection ...
     }
     
     map_rs_n[std::make_pair(eval.run, eval.subrun)] ++;
-    if (eval.match_found == -1) map_rs_f1p5[std::make_pair(eval.run, eval.subrun)].insert(eval.event);
-    if (eval.match_found == 1 && eval.stm_lowenergy == -1) map_rs_f2stm[std::make_pair(eval.run, eval.subrun)].insert(eval.event);
+    if (tmp_match_found == -1) map_rs_f1p5[std::make_pair(eval.run, eval.subrun)].insert(eval.event);
+    if (tmp_match_found == 1 && eval.stm_lowenergy == -1) map_rs_f2stm[std::make_pair(eval.run, eval.subrun)].insert(eval.event);
     if (flag_presel && tagger.numu_cc_flag == -1) map_rs_f2pr[std::make_pair(eval.run, eval.subrun)].insert(eval.event);
   }
 
