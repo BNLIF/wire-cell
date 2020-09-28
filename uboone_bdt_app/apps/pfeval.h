@@ -1,3 +1,6 @@
+#ifndef UBOONE_LEE_PFEVAL
+#define UBOONE_LEE_PFEVAL
+
 struct PFevalInfo{
   Int_t run;
   Int_t subrun;
@@ -154,3 +157,6 @@ void put_tree_address(TTree *tree0, PFevalInfo& tagger_info, int flag){
     tree0->Branch("truth_nuIntType", &tagger_info.truth_nuIntType,"data/I");
   }
 }
+
+
+#endif

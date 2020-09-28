@@ -1,4 +1,5 @@
-
+#ifndef UBOONE_LEE_TAGGER
+#define UBOONE_LEE_TAGGER
 
  //
   struct TaggerInfo
@@ -2191,3 +2192,6 @@ void put_tree_address(TTree *T_tagger, TaggerInfo& tagger_info, int flag){
     if (flag==1) T_tagger->Branch("weight",&tagger_info.weight,"data/F");
     if (flag==1) T_tagger->Branch("lowEweight",&tagger_info.lowEweight,"data/F");
 }
+
+
+#endif

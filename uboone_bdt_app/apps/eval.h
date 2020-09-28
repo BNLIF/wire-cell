@@ -1,3 +1,6 @@
+#ifndef UBOONE_LEE_EVAL
+#define UBOONE_LEE_EVAL
+
 struct EvalInfo{
   bool is_match_found_int;
   
@@ -214,3 +217,5 @@ void put_tree_address(TTree *tree0, EvalInfo& eval_info, int flag){
   }
 }
 
+
+#endif

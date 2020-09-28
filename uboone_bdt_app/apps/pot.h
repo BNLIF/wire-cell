@@ -1,3 +1,6 @@
+#ifndef UBOONE_LEE_POT
+#define UBOONE_LEE_POT
+
 struct POTInfo{
   Int_t runNo;
   Int_t subRunNo;
@@ -30,3 +33,6 @@ void put_tree_address(TTree *tree0, POTInfo& pot_info){
   tree0->Branch("spill_tor875", &pot_info.spill_tor875,"data/D");
   tree0->Branch("spill_tor875good", &pot_info.spill_tor875good,"data/D");
 }
+
+
+#endif

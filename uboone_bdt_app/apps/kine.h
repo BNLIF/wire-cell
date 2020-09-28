@@ -1,3 +1,6 @@
+#ifndef UBOONE_LEE_KINE
+#define UBOONE_LEE_KINE
+
 struct KineInfo{
   Float_t kine_reco_Enu;
   Float_t kine_reco_add_energy;
@@ -64,3 +67,6 @@ void put_tree_address(TTree *tree0, KineInfo& tagger_info){
   tree0->Branch("kine_pio_dis_2", &tagger_info.kine_pio_dis_2,"data/F");
   tree0->Branch("kine_pio_angle", &tagger_info.kine_pio_angle,"data/F");
 };
+
+
+#endif
