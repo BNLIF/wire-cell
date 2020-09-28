@@ -1043,7 +1043,7 @@ int main( int argc, char** argv )
   bool flag_presel = false;
   for (Int_t i=0;i!=T_eval->GetEntries();i++){
 
-    eval.weight_change = false;
+
     
     T_eval->GetEntry(i);
     T_BDTvars->GetEntry(i);
@@ -1083,6 +1083,7 @@ int main( int argc, char** argv )
   T_BDTvars->SetBranchStatus("*",1);
   
   for (int i=0;i!=T_BDTvars->GetEntries();i++){
+    eval.weight_change = false;
     T_BDTvars->GetEntry(i);
     T_eval->GetEntry(i); tagger.match_isFC = eval.match_isFC;
     T_KINEvars->GetEntry(i); tagger.kine_reco_Enu = kine.kine_reco_Enu;
