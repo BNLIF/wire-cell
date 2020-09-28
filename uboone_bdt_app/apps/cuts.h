@@ -39,6 +39,32 @@ TCut PC_cut = "match_isFC==0";
 bool is_FC(EvalInfo& eval);
 
 
+TCut truth_nueCC_inside = "abs(truth_nuPdg)==12 && truth_isCC==1 && truth_vtxInside==1";
+TCut truth_numuCC_inside = "abs(truth_nuPdg)==14 && truth_isCC==1 && truth_vtxInside==1";
+bool is_truth_nueCC_inside(EvalInfo& eval);
+bool is_truth_numuCC_inside(EvalInfo& eval);
+
+
+bool is_truth_nueCC_inside(EvalInfo& eval){
+  bool flag = false;
+
+  if (fabs(eval.truth_nuPdg)==12 && eval.truth_isCC==1 && eval.truth_vtxInside==1)
+    flag = true;
+  
+  return flag;
+}
+
+bool is_truth_numuCC_inside(EvalInfo& eval){
+   bool flag = false;
+
+  if (fabs(eval.truth_nuPdg)==14 && eval.truth_isCC==1 && eval.truth_vtxInside==1)
+    flag = true;
+  
+  return flag;
+}
+
+
+
 bool is_FC(EvalInfo& eval){
   if (eval.match_isFC){
     return true;
