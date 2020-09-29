@@ -3,70 +3,73 @@
 
 namespace LEEana{
   struct EvalInfo{
-  bool is_match_found_int;
-  
-  Int_t run;
-  Int_t subrun;
-  Int_t event;
-  Bool_t flash_found;
-  Int_t flash_found_asInt;
-  Float_t flash_time;
-
-  Float_t flash_measPe;
-  Float_t flash_predPe;
-  Bool_t match_found;
-  Int_t match_found_asInt;
-  UInt_t match_type;
-  Bool_t match_isFC;
-
-  Bool_t match_isTgm;
-  Bool_t match_notFC_FV;
-  Bool_t match_notFC_SP;
-  Bool_t match_notFC_DC;
-  Float_t match_chargeU;
-
-  Float_t match_chargeV;
-  Float_t match_chargeY;
-  Float_t match_energyY;
-  Bool_t light_mismatch;
-  Float_t match_charge;
-
-  Float_t match_energy;
-  Int_t stm_eventtype;
-  Int_t stm_lowenergy;
-  Int_t stm_LM;
-  Int_t stm_TGM;
-
-  Int_t stm_STM;
-  Int_t stm_FullDead;
-  Float_t stm_clusterlength;
-  Float_t truth_nuEnergy;
-  Float_t truth_energyInside;
-
-  Float_t truth_electronInside;
-  Int_t truth_nuPdg;
-  Bool_t truth_isCC;
-  Bool_t truth_isEligible;
-  Bool_t truth_NCisEligible;
-
-  Bool_t truth_isFC;
-  Bool_t truth_vtxInside;
-  Float_t truth_vtxX;
-  Float_t truth_vtxY;
-  Float_t truth_vtxZ;
-
-  Float_t truth_nuTime;
-  Float_t match_completeness;
-  Float_t match_completeness_energy;
-  Float_t match_purity;
-  Float_t match_purity_xz;
-
-  Float_t match_purity_xy;
-  Float_t weight_spline;
-  Float_t weight_cv;
-  Float_t weight_lee;
-
-  Bool_t weight_change;
+    bool is_match_found_int;
+    bool is_file_type;
+    
+    Int_t run;
+    Int_t subrun;
+    Int_t event;
+    Bool_t flash_found;
+    Int_t flash_found_asInt;
+    Float_t flash_time;
+    
+    std::string *file_type;
+    
+    Float_t flash_measPe;
+    Float_t flash_predPe;
+    Bool_t match_found;
+    Int_t match_found_asInt;
+    UInt_t match_type;
+    Bool_t match_isFC;
+    
+    Bool_t match_isTgm;
+    Bool_t match_notFC_FV;
+    Bool_t match_notFC_SP;
+    Bool_t match_notFC_DC;
+    Float_t match_chargeU;
+    
+    Float_t match_chargeV;
+    Float_t match_chargeY;
+    Float_t match_energyY;
+    Bool_t light_mismatch;
+    Float_t match_charge;
+    
+    Float_t match_energy;
+    Int_t stm_eventtype;
+    Int_t stm_lowenergy;
+    Int_t stm_LM;
+    Int_t stm_TGM;
+    
+    Int_t stm_STM;
+    Int_t stm_FullDead;
+    Float_t stm_clusterlength;
+    Float_t truth_nuEnergy;
+    Float_t truth_energyInside;
+    
+    Float_t truth_electronInside;
+    Int_t truth_nuPdg;
+    Bool_t truth_isCC;
+    Bool_t truth_isEligible;
+    Bool_t truth_NCisEligible;
+    
+    Bool_t truth_isFC;
+    Bool_t truth_vtxInside;
+    Float_t truth_vtxX;
+    Float_t truth_vtxY;
+    Float_t truth_vtxZ;
+    
+    Float_t truth_nuTime;
+    Float_t match_completeness;
+    Float_t match_completeness_energy;
+    Float_t match_purity;
+    Float_t match_purity_xz;
+    
+    Float_t match_purity_xy;
+    Float_t weight_spline;
+    Float_t weight_cv;
+    Float_t weight_lee;
+    
+    Bool_t weight_change;
   
 };
 
@@ -76,6 +79,7 @@ void put_tree_address(TTree *tree0, EvalInfo& eval_info, int flag = 1);
  
 void LEEana::set_tree_address(TTree *tree0, EvalInfo& eval_info, int flag){
   eval_info.is_match_found_int = false;
+  eval_info.is_file_type = false;
   
   tree0->SetBranchAddress("run", &eval_info.run);
   tree0->SetBranchAddress("subrun", &eval_info.subrun);
@@ -84,6 +88,10 @@ void LEEana::set_tree_address(TTree *tree0, EvalInfo& eval_info, int flag){
   if (tree0->GetBranch("flash_found_asInt"))   {
     tree0->SetBranchAddress("flash_found_asInt", &eval_info.flash_found_asInt);
     eval_info.is_match_found_int = true;
+  }
+  if (tree0->GetBranch("file_type")){
+    tree0->SetBranchAddress("file_type",&eval_info.file_type);
+    eval_info.is_file_type = true;
   }
   tree0->SetBranchAddress("flash_time", &eval_info.flash_time);
 
@@ -159,7 +167,9 @@ void LEEana::put_tree_address(TTree *tree0, EvalInfo& eval_info, int flag){
     tree0->Branch("flash_found_asInt", &eval_info.flash_found_asInt, "data/I");
     tree0->Branch("match_found_asInt", &eval_info.match_found_asInt, "data/I"); 
   }
-  
+  if (eval_info.is_file_type){
+    tree0->Branch("file_type",&eval_info.file_type);
+  }
   
   tree0->Branch("flash_measPe", &eval_info.flash_measPe,"data/F");
   tree0->Branch("flash_predPe", &eval_info.flash_predPe,"data/F");

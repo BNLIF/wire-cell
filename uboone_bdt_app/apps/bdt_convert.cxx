@@ -36,7 +36,7 @@ using namespace LEEana;
 int main( int argc, char** argv )
 {
   if (argc < 3) {
-    std::cout << "bdt_convert #input_file #output_file -c[weight_cut_val]" << std::endl;
+    std::cout << "bdt_convert #input_file #output_file -c[weight_cut_val] -l[traing_list] -g[global_file_type]" << std::endl;
     return -1;
   }
 
@@ -45,7 +45,9 @@ int main( int argc, char** argv )
 
   float weight_cut_val = 1000;
   float fail_percentage = 0.15;
-  
+
+  TString training_list = "";
+  string global_file_type = "";
   for (Int_t i=1;i!=argc;i++){
     switch(argv[i][1]){
     case 'c':
@@ -54,8 +56,36 @@ int main( int argc, char** argv )
     case 't':
       fail_percentage = atof(&argv[i][2]);
       break;
+    case 'l':
+      training_list = &argv[i][2];
+      break;
+    case 'g':
+      global_file_type = &argv[i][2];
+      break;
     }
   }
+  
+  bool flag_check_run_subrun = false;
+  bool flag_use_global_file_type = false;
+  if (global_file_type != "") flag_use_global_file_type = true;
+  
+  
+  std::map<string, std::set<std::pair<int, int> > > map_type_run_subrun;
+  if (training_list != ""){
+    flag_check_run_subrun = true;
+    
+    ifstream infile(training_list);
+    string tmp_type;
+    int run, subrun;
+    while(!infile.eof()){
+      infile >> tmp_type >> run >> subrun;
+      map_type_run_subrun[tmp_type].insert(std::make_pair(run, subrun));
+    }
+    // std::cout << map_type_run_subrun.size() << std::endl;
+    // return 0;
+  }
+  
+  
   
   bool flag_data = true;
   //std::cout << input_file << " " << out_file << std::endl;
@@ -69,7 +99,15 @@ int main( int argc, char** argv )
   TTree *T_PFeval = (TTree*)file1->Get("wcpselection/T_PFeval");
   TTree *T_KINEvars = (TTree*)file1->Get("wcpselection/T_KINEvars");
 
+  
+
+  
   if (T_eval->GetBranch("weight_cv")) flag_data =false;
+  if (T_eval->GetBranch("file_type")) flag_use_global_file_type = false;
+
+  // std::cout << flag_use_global_file_type << " " << flag_check_run_subrun << std::endl;
+  // return 0;
+
   
   //  std::cout << T_eval->GetEntries() << std::endl;
   TFile *file2 = new TFile(out_file,"RECREATE");
@@ -84,8 +122,11 @@ int main( int argc, char** argv )
   //TTree *t2 = T_pot->CloneTree(-1,"");
   //TTree *t3 = T_PFeval->CloneTree(-1,"");
   //  TTree *t5 = T_KINEvars->CloneTree(-1,"");
-
+  
+  
   EvalInfo eval;
+  eval.file_type = new std::string();
+  
   POTInfo pot;
   TaggerInfo tagger;
   PFevalInfo pfeval;
@@ -1044,6 +1085,8 @@ int main( int argc, char** argv )
   
   T_BDTvars->SetBranchStatus("*",0);
   T_BDTvars->SetBranchStatus("numu_cc_flag",1);
+
+  std::set<std::pair<int,int> > remove_set;
   
   bool flag_presel = false;
   for (Int_t i=0;i!=T_eval->GetEntries();i++){
@@ -1051,6 +1094,25 @@ int main( int argc, char** argv )
     T_eval->GetEntry(i);
     T_BDTvars->GetEntry(i);
 
+    if (flag_check_run_subrun){
+      if (flag_use_global_file_type){
+	(*eval.file_type) = global_file_type;
+      }
+      auto it1 = map_type_run_subrun.find(*eval.file_type);
+      
+      if (it1 != map_type_run_subrun.end()){
+	
+	// hack for now ...
+	if (it1->second.find(std::make_pair(eval.run, eval.subrun)) != it1->second.end()) {
+	  remove_set.insert(std::make_pair(eval.run, eval.subrun));
+	  continue;
+	}
+      }
+      //std::cout << *eval.file_type << " "  << " " << eval.run << " " << eval.subrun << std::endl;
+    }
+
+    
+    
     int tmp_match_found = eval.match_found;
     if (eval.is_match_found_int) tmp_match_found = eval.match_found_asInt;
     
@@ -1065,7 +1127,7 @@ int main( int argc, char** argv )
     if (flag_presel && tagger.numu_cc_flag == -1) map_rs_f2pr[std::make_pair(eval.run, eval.subrun)].insert(eval.event);
   }
 
-  std::set<std::pair<int,int> > remove_set;
+
   
   for (auto it = map_rs_f1p5.begin(); it!= map_rs_f1p5.end(); it++){
     if ( map_rs_f1p5[it->first].size()  > map_rs_n[it->first] * fail_percentage && map_rs_f1p5[it->first].size() != 1
@@ -1097,6 +1159,8 @@ int main( int argc, char** argv )
     T_PFeval->GetEntry(i);
 
     if (remove_set.find(std::make_pair(eval.run, eval.subrun)) != remove_set.end()) continue;
+
+    
     
     tagger.br3_3_score     = cal_br3_3_bdt(0.3, tagger,  reader_br3_3, br3_3_v_energy,  br3_3_v_angle,  br3_3_v_dir_length, br3_3_v_length);
     tagger.br3_5_score     = cal_br3_5_bdt(0.42, tagger,  reader_br3_5, br3_5_v_dir_length, br3_5_v_total_length, br3_5_v_flag_avoid_muon_check, br3_5_v_n_seg, br3_5_v_angle, br3_5_v_sg_length, br3_5_v_energy, br3_5_v_n_main_segs, br3_5_v_n_segs, br3_5_v_shower_main_length, br3_5_v_shower_total_length);
