@@ -1078,6 +1078,7 @@ int main( int argc, char** argv )
   T_eval->SetBranchStatus("run",1); 
   T_eval->SetBranchStatus("subrun",1); 
   T_eval->SetBranchStatus("event",1);
+  T_eval->SetBranchStatus("file_type",1);
 
   if (T_eval->GetBranch("match_found_asInt")){
     T_eval->SetBranchStatus("match_found_asInt",1);
@@ -1108,7 +1109,8 @@ int main( int argc, char** argv )
 	  continue;
 	}
       }
-      //std::cout << *eval.file_type << " "  << " " << eval.run << " " << eval.subrun << std::endl;
+
+      //std::cout << flag_use_global_file_type << " " << *eval.file_type  << " " << eval.run << " " << eval.subrun << " " << remove_set.size() << std::endl;
     }
 
     
