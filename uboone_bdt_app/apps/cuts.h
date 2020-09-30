@@ -27,7 +27,7 @@ TCut numuCC_cut = "numu_cc_flag >=0 && numu_score > 0.9";
 bool is_numuCC(TaggerInfo& tagger_info);
 
 // pio cuts
-TCut pi0_cut = "kine_pio_flag==1 && kine_pio_energy_1 > 15 && kine_pio_energy_2 > 15 && kine_pio_dis_1 < 80 && kine_pio_dis_2 < 80 && kine_pio_angle > 20 && kine_pio_vtx_dis < 1";
+TCut pi0_cut = "kine_pio_flag==1 && kine_pio_energy_1 > 40 && kine_pio_energy_2 > 25 && kine_pio_dis_1 < 110 && kine_pio_dis_2 < 120 && kine_pio_angle > 0 && kine_pio_vtx_dis < 9 && kine_pio_angle < 174 && kine_pio_mass > 22 && kine_pio_mass < 300";
 bool is_pi0(KineInfo& kine);
 
 // NC cuts
@@ -80,7 +80,7 @@ bool LEEana::is_FC(EvalInfo& eval){
 bool LEEana::is_pi0(KineInfo& kine){
   bool flag = false;
 
-  if (kine.kine_pio_flag==1 && kine.kine_pio_energy_1 > 15 && kine.kine_pio_energy_2 > 15 && kine.kine_pio_dis_1 < 80 && kine.kine_pio_dis_2 < 80 && kine.kine_pio_angle > 20 && kine.kine_pio_vtx_dis < 1)
+  if (kine.kine_pio_flag==1 && kine.kine_pio_energy_1 > 40 && kine.kine_pio_energy_2 > 25 && kine.kine_pio_dis_1 < 110 && kine.kine_pio_dis_2 < 120 && kine.kine_pio_angle > 0 && kine.kine_pio_angle < 174 && kine.kine_pio_vtx_dis < 9 && kine.kine_pio_mass > 22 && kine.kine_pio_mass < 300)
     flag = true;
 
   
