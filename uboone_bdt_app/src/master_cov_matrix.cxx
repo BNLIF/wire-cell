@@ -155,6 +155,14 @@ void LEEana::CovMatrix::print_filetype_info(){
 }
 
 
+std::tuple<int, double, double> LEEana::CovMatrix::get_ch_hist(int ch){
+  if (map_ch_hist.find(ch) != map_ch_hist.end()){
+    return std::make_tuple(std::get<2>(map_ch_hist[ch]), std::get<3>(map_ch_hist[ch]), std::get<4>(map_ch_hist[ch]));
+  }else{
+    return std::make_tuple(-1,0,0);
+  }
+}
+
 
 TString LEEana::CovMatrix::get_ch_name(int ch){
   TString result = "Null";
