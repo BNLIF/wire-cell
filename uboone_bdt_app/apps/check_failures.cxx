@@ -127,6 +127,9 @@ int main( int argc, char** argv )
   T_PFeval->SetBranchStatus("*",0);
   Float_t reco_nuvtxX;
   T_PFeval->SetBranchStatus("reco_nuvtxX",1); T_PFeval->SetBranchAddress("reco_nuvtxX", &reco_nuvtxX);
+  Int_t truth_NprimPio;
+  T_PFeval->SetBranchStatus("truth_NprimPio",1); T_PFeval->SetBranchAddress("truth_NprimPio", &truth_NprimPio);
+  
 
   TTree *T_BDTvars = (TTree*)file->Get("wcpselection/T_BDTvars");
   T_BDTvars->SetBranchStatus("*",0);
@@ -144,11 +147,13 @@ int main( int argc, char** argv )
   TTree *T_kine = (TTree*)file->Get("wcpselection/T_KINEvars"); // Kine tree for pi0 ...
   T_kine->SetBranchStatus("*",0);
   Int_t kine_pio_flag;
+  Float_t kine_pio_mass;
   Float_t kine_pio_vtx_dis, kine_pio_angle;
   Float_t kine_pio_energy_1, kine_pio_theta_1, kine_pio_phi_1, kine_pio_dis_1;
   Float_t kine_pio_energy_2, kine_pio_theta_2, kine_pio_phi_2, kine_pio_dis_2;
   
   T_kine->SetBranchStatus("kine_pio_flag",1); T_kine->SetBranchAddress("kine_pio_flag",&kine_pio_flag);
+  T_kine->SetBranchStatus("kine_pio_mass",1); T_kine->SetBranchAddress("kine_pio_mass",&kine_pio_mass);
   T_kine->SetBranchStatus("kine_pio_vtx_dis",1); T_kine->SetBranchAddress("kine_pio_vtx_dis",&kine_pio_vtx_dis);
   T_kine->SetBranchStatus("kine_pio_angle",1); T_kine->SetBranchAddress("kine_pio_angle",&kine_pio_angle);
   T_kine->SetBranchStatus("kine_pio_energy_1",1); T_kine->SetBranchAddress("kine_pio_energy_1",&kine_pio_energy_1);
@@ -196,6 +201,14 @@ int main( int argc, char** argv )
   // pi0 passing rate after generic neutrino
   Float_t n_gen_pr_pio[2]={0,0};
   Float_t n_gen_pr_pio_err2[2]={0,0};
+  Float_t n_gen_pr_numu_pio[2]={0,0};
+  Float_t n_gen_pr_numu_pio_err2[2]={0,0};
+  Float_t n_gen_numu_cc_pio[2]={0,0}; // true cc pio
+  Float_t n_gen_numu_cc_pio_err2[2]={0,0};
+  Float_t n_gen_cc_pio[2]={0,0}; // true cc pio
+  Float_t n_gen_cc_pio_err2[2]={0,0};
+  Float_t n_all_cc_pio[2]={0,0}; // true cc pio
+  Float_t n_all_cc_pio_err2[2]={0,0};
   
   // neCC passing rate after generic neutrino, also need to calculate efficiency (event vs. odd, intrinsic vs. LEE)
   Float_t n_gen_pr_nue[4]={0,0,0,0};
@@ -219,6 +232,8 @@ int main( int argc, char** argv )
   bool flag_generic = false;
   bool flag_numu = false;
   bool flag_gen_numu = false;
+
+  bool flag_cc_pio = false;
 
   bool flag_nue = false;
   bool flag_gen_nue = false;
@@ -255,12 +270,15 @@ int main( int argc, char** argv )
     if (numu_score > 0.9 && flag_generic) flag_gen_pr_numu = true;
     if (nue_score > 7.0 && flag_generic) flag_gen_pr_nue = true;
     
-    if (flag_generic && kine_pio_flag==1 && kine_pio_energy_1 > 15 && kine_pio_energy_2 > 15 && kine_pio_dis_1 < 80 && kine_pio_dis_2 < 80 && kine_pio_angle > 20 && kine_pio_vtx_dis < 1) flag_gen_pr_pio = true;
+    // if (flag_generic && kine_pio_flag==1 && kine_pio_energy_1 > 15 && kine_pio_energy_2 > 15 && kine_pio_dis_1 < 80 && kine_pio_dis_2 < 80 && kine_pio_angle > 20 && kine_pio_vtx_dis < 1) flag_gen_pr_pio = true;
+    if (flag_generic && kine_pio_flag==1 && kine_pio_energy_1 > 40 && kine_pio_energy_2 > 25 && kine_pio_dis_1 < 110 && kine_pio_dis_2 < 120 && kine_pio_angle <174 && kine_pio_vtx_dis < 9 && kine_pio_mass > 22 && kine_pio_mass<300) flag_gen_pr_pio = true;
     
     if (flag_data ==0){
       flag_numu = false;
       flag_gen_numu = false;
       
+      flag_cc_pio = false;
+
       flag_nue = false;
       flag_gen_nue = false;
       
@@ -274,6 +292,9 @@ int main( int argc, char** argv )
 
       if (truth_vtxInside==1 && abs(truth_nuPdg) == 12 && truth_isCC==1) flag_nue = true;
       if (flag_nue && flag_generic) flag_gen_nue = true;
+
+      if (truth_vtxInside==1 && truth_nuPdg == 14 && truth_isCC == 1 && truth_NprimPio>0) flag_cc_pio = true;
+      // if (truth_nuPdg == 14 && truth_isCC == 1 && truth_NprimPio>0) flag_cc_pio = true;
     }
         
     
@@ -294,7 +315,6 @@ int main( int argc, char** argv )
       n_gen_numu_err2[0]++; n_gen_numu_err2[1] += pow(weight,2);
     }
 
-    
     if (flag_nue){
       n_all_nue[0] ++; n_all_nue[1] += weight;
       n_all_nue_err2[0]++; n_all_nue_err2[1] += pow(weight,2);
@@ -406,6 +426,26 @@ int main( int argc, char** argv )
     if (flag_gen_pr_pio){
       n_gen_pr_pio[0]++; n_gen_pr_pio[1] += weight;
       n_gen_pr_pio_err2[0]++; n_gen_pr_pio_err2[1] += pow(weight,2);
+    }
+
+    if (flag_gen_pr_pio && flag_gen_pr_numu){
+      n_gen_pr_numu_pio[0]++; n_gen_pr_numu_pio[1] += weight;
+      n_gen_pr_numu_pio_err2[0]++; n_gen_pr_numu_pio_err2[1] += pow(weight,2);
+    }
+
+    if (flag_gen_pr_pio && flag_gen_pr_numu && flag_cc_pio){
+      n_gen_numu_cc_pio[0] ++; n_gen_numu_cc_pio[1] += weight;
+      n_gen_numu_cc_pio_err2[0]++; n_gen_numu_cc_pio_err2[1] += pow(weight,2);
+    }
+
+    if (flag_generic && flag_cc_pio){
+      n_gen_cc_pio[0] ++; n_gen_cc_pio[1] += weight;
+      n_gen_cc_pio_err2[0]++; n_gen_cc_pio_err2[1] += pow(weight,2);
+    }
+    
+    if (flag_cc_pio){
+      n_all_cc_pio[0]++; n_all_cc_pio[1] += weight;
+      n_all_cc_pio_err2[0]++; n_all_cc_pio_err2[1] += pow(weight,2);
     }
     
     
@@ -615,7 +655,34 @@ int main( int argc, char** argv )
     gen_ratio_weight_err = sqrt(n_gen_pr_pio_err2[1])/total_pot * 5e19;
     
     std::cout << "Pi0 rate @ 5e19POT: " << gen_ratio << "+-" << gen_ratio_err << "  w. weight: " << gen_ratio_weight << "+-" << gen_ratio_weight_err << std::endl;
+    if (flag_data == 0){
+      gen_ratio = n_gen_numu_cc_pio[0]/n_all_cc_pio[0];
+      gen_ratio_err = sqrt(n_gen_numu_cc_pio_err2[0] * pow(n_all_cc_pio[0]-n_gen_numu_cc_pio[0],2) + pow(n_gen_numu_cc_pio[0],2) * (n_all_cc_pio_err2[0] - n_gen_numu_cc_pio_err2[0]))/pow(n_all_cc_pio[0],2);
 
+      gen_ratio_weight = n_gen_numu_cc_pio[1]/n_all_cc_pio[1];
+      gen_ratio_weight_err = sqrt(n_gen_numu_cc_pio_err2[1] * pow(n_all_cc_pio[1]-n_gen_numu_cc_pio[1],2) + pow(n_gen_numu_cc_pio[1],2) * (n_all_cc_pio_err2[1] - n_gen_numu_cc_pio_err2[1]))/pow(n_all_cc_pio[1],2);
+
+      std::cout << "CC Pi0 (w/ numu tagging) eff.: " << gen_ratio << "+-" << gen_ratio_err << "  w. weight: " << gen_ratio_weight << "+-" << gen_ratio_weight_err << std::endl;
+
+      gen_ratio = n_gen_numu_cc_pio[0]/n_gen_cc_pio[0];
+      gen_ratio_err = sqrt(n_gen_numu_cc_pio_err2[0] * pow(n_gen_cc_pio[0]-n_gen_numu_cc_pio[0],2) + pow(n_gen_numu_cc_pio[0],2) * (n_gen_cc_pio_err2[0] - n_gen_numu_cc_pio_err2[0]))/pow(n_gen_cc_pio[0],2);
+
+      gen_ratio_weight = n_gen_numu_cc_pio[1]/n_gen_cc_pio[1];
+      gen_ratio_weight_err = sqrt(n_gen_numu_cc_pio_err2[1] * pow(n_gen_cc_pio[1]-n_gen_numu_cc_pio[1],2) + pow(n_gen_numu_cc_pio[1],2) * (n_gen_cc_pio_err2[1] - n_gen_numu_cc_pio_err2[1]))/pow(n_gen_cc_pio[1],2);
+
+      std::cout << "CC Pi0 (w/ numu tagging) eff. w.r.t generic: " << gen_ratio << "+-" << gen_ratio_err << "  w. weight: " << gen_ratio_weight << "+-" << gen_ratio_weight_err << std::endl;
+      // std::cout << "n_all_cc_pi: " << n_all_cc_pio[1] << " n_gen_cc_pio: " << n_gen_cc_pio[1] << " n_gen_numu_cc_pio: " << n_gen_numu_cc_pio[1] << std::endl;
+
+      gen_ratio = n_gen_numu_cc_pio[0]/n_gen_pr_numu_pio[0];
+      gen_ratio_err = sqrt(n_gen_numu_cc_pio_err2[0] * pow(n_gen_pr_numu_pio[0]-n_gen_numu_cc_pio[0],2) + pow(n_gen_numu_cc_pio[0],2) * (n_gen_pr_numu_pio_err2[0] - n_gen_numu_cc_pio_err2[0]))/pow(n_gen_pr_numu_pio[0],2);
+
+      gen_ratio_weight = n_gen_numu_cc_pio[1]/n_gen_pr_numu_pio[1];
+      gen_ratio_weight_err = sqrt(n_gen_numu_cc_pio_err2[1] * pow(n_gen_pr_numu_pio[1]-n_gen_numu_cc_pio[1],2) + pow(n_gen_numu_cc_pio[1],2) * (n_gen_pr_numu_pio_err2[1] - n_gen_numu_cc_pio_err2[1]))/pow(n_gen_pr_numu_pio[1],2);
+
+      std::cout << "CC Pi0 (w/ numu tagging) purity: " << gen_ratio << "+-" << gen_ratio_err << "  w. weight: " << gen_ratio_weight << "+-" << gen_ratio_weight_err << std::endl;
+
+
+    }
     std::cout << std::endl;
 
     // nueCC
