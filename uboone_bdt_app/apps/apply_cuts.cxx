@@ -14,9 +14,9 @@
 #include "TMath.h"
 #include "TH1F.h"
 
-#include "cuts.h"
-#include "pot.h"
-#include "pfeval.h"
+#include "WCPLEEANA/cuts.h"
+#include "WCPLEEANA/pot.h"
+#include "WCPLEEANA/pfeval.h"
 
 using namespace std;
 using namespace LEEana;

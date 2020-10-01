@@ -14,7 +14,7 @@
 #include "TROOT.h"
 #include "TMath.h"
 
-#include "tagger.h"
+#include "WCPLEEANA/tagger.h"
 
 #include "TMVA/Factory.h"
 #include "TMVA/DataLoader.h"
@@ -26,7 +26,7 @@
 using namespace std;
 using namespace LEEana;
 
-#include "bdt.h"
+#include "WCPLEEANA/bdt.h"
 
 int main( int argc, char** argv )
 {

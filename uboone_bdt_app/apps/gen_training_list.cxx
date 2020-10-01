@@ -12,7 +12,7 @@
 #include "TROOT.h"
 #include "TMath.h"
 
-#include "tagger.h"
+#include "WCPLEEANA/tagger.h"
 
 #include "TMVA/Factory.h"
 #include "TMVA/DataLoader.h"
