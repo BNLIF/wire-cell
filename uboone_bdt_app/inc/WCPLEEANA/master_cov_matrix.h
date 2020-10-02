@@ -2,6 +2,7 @@
 #define LEEANAC_MASTER_COV_MATRIX
 
 #include "TString.h"
+#include "TMatrixD.h"
 #include <map>
 #include <set>
 
@@ -33,9 +34,20 @@ namespace LEEana{
     bool get_sys_xs_flux(int ch);
     bool get_sys_det(int ch);
     std::pair<bool, float> get_sys_add(int ch);
-    bool get_sys_mc_same(int ch);
+    int get_sys_mc_same(int ch);
+    std::map<int, std::vector<int> > get_mcstat_same_covchs(){return map_mcstat_same_covchs;};
+
+    int get_obsch(int ch);
+    int get_covch(int ch);
+    int get_obsch_fcov(int covch);
+    std::pair<int, int> get_obsch_info(int obsch);
+    std::pair<int, int> get_covch_info(int covch);
+
+    TMatrixD* get_mat_collapse(){return mat_collapse;};
     
   private:
+    TMatrixD* mat_collapse;
+    
     // basic information about the channels
     std::map<int, std::tuple<TString, TString, int, double, double> > map_ch_hist;
 
@@ -56,11 +68,11 @@ namespace LEEana{
     std::map<int, int> map_ch_obsch;
     std::map<int, int> map_ch_covch;
 
+    std::map<int, int> map_covch_obsch; // map ...
+    
     std::map<int, int> map_obsch_nbin; // record the bin number + 1
     std::map<int, int> map_covch_nbin; // record the bin number + 1
-
-    std::map<int, int> map_covch_obsch; // map ...
-
+    
     // covariance matrix internally ...
     std::map<int, int> map_covch_startbin; 
     std::map<int, int> map_obsch_startbin;

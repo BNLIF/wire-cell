@@ -50,20 +50,24 @@ LEEana::CovMatrix::CovMatrix(TString filename){
     ch_no ++;
   }
 
+  int total_obs_bin = 0;
   int start_bin = 0;
   for (auto it = map_obsch_nbin.begin(); it!= map_obsch_nbin.end(); it++){
     map_obsch_startbin[it->first] = start_bin;
     start_bin += it->second;
+    total_obs_bin += it->second;
     //std::cout << it->first << " " << it->second << std::endl;
   }
 
+  int total_cov_bin = 0;
   start_bin = 0;
   for (auto it = map_covch_nbin.begin(); it != map_covch_nbin.end(); it++){
     map_covch_startbin[it->first] = start_bin;
     start_bin += it->second;
+    total_cov_bin += it->second;
   }
   
-  
+  mat_collapse = new TMatrixD(total_cov_bin,total_obs_bin);
   // form the large covariance matrix, and the start bin ...
   for (auto it = map_covch_obsch.begin(); it!= map_covch_obsch.end(); it++){
     //std::cout << it->first << " " << it->second << std::endl;
@@ -72,18 +76,68 @@ LEEana::CovMatrix::CovMatrix(TString filename){
     int start_bin_obs = map_obsch_startbin[it->second];
     for (int i=0; i!=nbin; i++){
       map_covchbin_obschbin[start_bin_cov + i] =  start_bin_obs + i;
+      (*mat_collapse)(start_bin_cov + i, start_bin_obs + i) = 1;
       //std::cout << start_bin_cov + i << " " << start_bin_obs + i << std::endl;
     }
   }
 
-
+  
   
 }
 
 
 LEEana::CovMatrix::~CovMatrix(){
-  
+
+  delete mat_collapse;
 }
+
+
+
+
+int LEEana::CovMatrix::get_obsch(int ch){
+  auto it = map_ch_obsch.find(ch);
+  if (it != map_ch_obsch.end()){
+    return it->second;
+  }else{
+    return -1;
+  }
+}
+
+int LEEana::CovMatrix::get_covch(int ch){
+  auto it = map_ch_covch.find(ch);
+  if (it != map_ch_covch.end()){
+    return it->second;
+  }else{
+    return -1;
+  }
+}
+
+int LEEana::CovMatrix::get_obsch_fcov(int covch){
+  auto it = map_covch_obsch.find(covch);
+  if (it != map_covch_obsch.end()){
+    return it->second;
+  }else{
+    return -1;
+  }
+}
+
+std::pair<int, int> LEEana::CovMatrix::get_obsch_info(int obsch){
+  auto it = map_obsch_startbin.find(obsch);
+  if (it != map_obsch_startbin.end()){
+    return std::make_pair(it->second, map_obsch_nbin[it->first]);
+  }else{
+    return std::make_pair(0,0);
+  }
+}
+std::pair<int, int> LEEana::CovMatrix::get_covch_info(int covch){
+  auto it = map_covch_startbin.find(covch);
+  if (it != map_covch_startbin.end()){
+    return std::make_pair(it->second, map_covch_nbin[it->first]);
+  }else{
+    return std::make_pair(0,0);
+  }
+}
+
 
 bool LEEana::CovMatrix::get_sys_xs_flux(int ch){
   auto it = map_ch_systematics.find(ch);
@@ -123,16 +177,12 @@ std::pair<bool, float> LEEana::CovMatrix::get_sys_add(int ch){
   }
 }
 
-bool LEEana::CovMatrix::get_sys_mc_same(int ch){
+int LEEana::CovMatrix::get_sys_mc_same(int ch){
   auto it = map_ch_systematics.find(ch);
   if (it != map_ch_systematics.end()){
-    if (std::get<3>(it->second)==0){
-      return false;
-    }else{
-      return true;
-    }
+    return std::get<3>(it->second);
   }else{
-    return false;
+    return 0;
   }
 }
 
