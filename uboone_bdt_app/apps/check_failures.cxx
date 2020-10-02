@@ -127,8 +127,10 @@ int main( int argc, char** argv )
   T_PFeval->SetBranchStatus("*",0);
   Float_t reco_nuvtxX;
   T_PFeval->SetBranchStatus("reco_nuvtxX",1); T_PFeval->SetBranchAddress("reco_nuvtxX", &reco_nuvtxX);
-  Int_t truth_NprimPio;
-  T_PFeval->SetBranchStatus("truth_NprimPio",1); T_PFeval->SetBranchAddress("truth_NprimPio", &truth_NprimPio);
+  Int_t truth_NprimPio = 0;
+  if (T_PFeval->GetBranch("truth_NprimPio")){
+      T_PFeval->SetBranchStatus("truth_NprimPio",1); T_PFeval->SetBranchAddress("truth_NprimPio", &truth_NprimPio);
+    }
   
 
   TTree *T_BDTvars = (TTree*)file->Get("wcpselection/T_BDTvars");

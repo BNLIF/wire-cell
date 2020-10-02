@@ -85,6 +85,125 @@ LEEana::CovMatrix::~CovMatrix(){
   
 }
 
+
+bool LEEana::CovMatrix::get_sys_xs_flux(int ch){
+  auto it = map_ch_systematics.find(ch);
+  if (it != map_ch_systematics.end()){
+    if (std::get<0>(it->second)==0){
+      return false;
+    }else{
+      return true;
+    }
+  }else{
+    return false;
+  }
+}
+bool LEEana::CovMatrix::get_sys_det(int ch){
+  auto it = map_ch_systematics.find(ch);
+  if (it != map_ch_systematics.end()){
+    if (std::get<1>(it->second)==0){
+      return false;
+    }else{
+      return true;
+    }
+  }else{
+    return false;
+  }
+}
+std::pair<bool, float> LEEana::CovMatrix::get_sys_add(int ch){
+  auto it = map_ch_systematics.find(ch);
+  if (it != map_ch_systematics.end()){
+    if (std::get<2>(it->second)==0){
+      return std::make_pair(false,0);
+    }else{
+      return std::make_pair(true,std::get<2>(it->second) );
+    }
+  }else{
+    return std::make_pair(false,0);
+  }
+}
+
+bool LEEana::CovMatrix::get_sys_mc_same(int ch){
+  auto it = map_ch_systematics.find(ch);
+  if (it != map_ch_systematics.end()){
+    if (std::get<3>(it->second)==0){
+      return false;
+    }else{
+      return true;
+    }
+  }else{
+    return false;
+  }
+}
+
+std::vector<int> LEEana::CovMatrix::get_filetype_chs(int filetype){
+  auto it = map_filetype_chs.find(filetype);
+  if (it != map_filetype_chs.end()){
+    return it->second;
+  }else{
+    std::vector<int> tmp;
+    return tmp;
+  }
+}
+
+int LEEana::CovMatrix::get_ch_filetype(int ch){
+  auto it = map_ch_filetype.find(ch);
+
+  if (it != map_ch_filetype.end()){
+    return it->second;
+  }else{
+    return -1;
+  }
+}
+
+std::tuple<int, double, double> LEEana::CovMatrix::get_ch_hist(int ch){
+  auto it = map_ch_hist.find(ch);
+  if (it != map_ch_hist.end()){
+    return std::make_tuple(std::get<2>(it->second), std::get<3>(it->second), std::get<4>(it->second));
+  }else{
+    return std::make_tuple(-1,0,0);
+  }
+}
+
+
+TString LEEana::CovMatrix::get_ch_name(int ch){
+  TString result = "Null";
+  auto it = map_ch_hist.find(ch);
+  if (it != map_ch_hist.end()){
+    return std::get<0>(it->second);
+  }
+  return result;
+}
+
+TString LEEana::CovMatrix::get_ch_var(int ch){
+  TString result = "Null";
+  auto it = map_ch_hist.find(ch);
+  if (it != map_ch_hist.end()){
+    return std::get<1>(it->second);
+  }
+  return result;
+}
+
+
+
+
+void LEEana::CovMatrix::print_ch_info(){
+  for (auto it = map_ch_hist.begin(); it!= map_ch_hist.end(); it++){
+    std::cout << it->first << " " << std::get<0>(it->second) << " " << std::get<1>(it->second) << " " << std::get<2>(it->second) << " " << std::get<3>(it->second) << " " << std::get<4>(it->second) << std::endl;
+  }
+}
+
+
+void LEEana::CovMatrix::print_filetype_info(){
+  for (auto it = map_filetype_chs.begin(); it != map_filetype_chs.end(); it++){
+    std::cout << it->first << ": ";
+    for (auto it1 = it->second.begin(); it1 != it->second.end(); it1++){
+      std::cout << get_ch_name(*it1) << " " ;
+    }
+    std::cout << std::endl;
+  }
+}
+
 void LEEana::CovMatrix::print_matrix(){
 
   for (auto it = map_ch_obsch.begin(); it != map_ch_obsch.end(); it++){
@@ -142,49 +261,4 @@ void LEEana::CovMatrix::print_systematics(){
     std::cout << std::endl;
   }
   
-}
-
-void LEEana::CovMatrix::print_filetype_info(){
-  for (auto it = map_filetype_chs.begin(); it != map_filetype_chs.end(); it++){
-    std::cout << it->first << ": ";
-    for (auto it1 = it->second.begin(); it1 != it->second.end(); it1++){
-      std::cout << get_ch_name(*it1) << " " ;
-    }
-    std::cout << std::endl;
-  }
-}
-
-
-std::tuple<int, double, double> LEEana::CovMatrix::get_ch_hist(int ch){
-  if (map_ch_hist.find(ch) != map_ch_hist.end()){
-    return std::make_tuple(std::get<2>(map_ch_hist[ch]), std::get<3>(map_ch_hist[ch]), std::get<4>(map_ch_hist[ch]));
-  }else{
-    return std::make_tuple(-1,0,0);
-  }
-}
-
-
-TString LEEana::CovMatrix::get_ch_name(int ch){
-  TString result = "Null";
-  if (map_ch_hist.find(ch) != map_ch_hist.end()){
-    return std::get<0>(map_ch_hist[ch]);
-  }
-  return result;
-}
-
-TString LEEana::CovMatrix::get_ch_var(int ch){
-  TString result = "Null";
-  if (map_ch_hist.find(ch) != map_ch_hist.end()){
-    return std::get<1>(map_ch_hist[ch]);
-  }
-  return result;
-}
-
-
-
-
-void LEEana::CovMatrix::print_ch_info(){
-  for (auto it = map_ch_hist.begin(); it!= map_ch_hist.end(); it++){
-    std::cout << it->first << " " << std::get<0>(it->second) << " " << std::get<1>(it->second) << " " << std::get<2>(it->second) << " " << std::get<3>(it->second) << " " << std::get<4>(it->second) << std::endl;
-  }
 }

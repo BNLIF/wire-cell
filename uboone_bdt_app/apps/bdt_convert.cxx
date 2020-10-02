@@ -418,7 +418,7 @@ int main( int argc, char** argv )
   
   
   //  bool match_isFC;
-  //T_eval->SetBranchAddress("match_isFC",&match_isFC);
+  //  T_eval->SetBranchAddress("match_isFC",&match_isFC);
   //  T_KINEvars->SetBranchAddress("kine_reco_Enu",&tagger.kine_reco_Enu);
 
 
@@ -1078,7 +1078,7 @@ int main( int argc, char** argv )
   T_eval->SetBranchStatus("run",1); 
   T_eval->SetBranchStatus("subrun",1); 
   T_eval->SetBranchStatus("event",1);
-  T_eval->SetBranchStatus("file_type",1);
+  if (T_eval->GetBranch("file_type")) T_eval->SetBranchStatus("file_type",1);
 
   if (T_eval->GetBranch("match_found_asInt")){
     T_eval->SetBranchStatus("match_found_asInt",1);
@@ -1110,7 +1110,7 @@ int main( int argc, char** argv )
 	}
       }
 
-      //std::cout << flag_use_global_file_type << " " << *eval.file_type  << " " << eval.run << " " << eval.subrun << " " << remove_set.size() << std::endl;
+      //      std::cout << flag_use_global_file_type << " " << *eval.file_type  << " " << eval.run << " " << eval.subrun << " " << remove_set.size() << std::endl;
     }
 
     

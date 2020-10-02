@@ -15,15 +15,30 @@ namespace LEEana{
     void print_filetype_info();
     void print_systematics();
     void print_matrix();
-    
+
+    // histogram ...
     TString get_ch_name(int ch);
     TString get_ch_var(int ch);
-    
     std::tuple<int, double, double> get_ch_hist(int ch);
+
+    // ... filetype related ...
+    int get_ch_filetype(int ch);
+    std::vector<int> get_filetype_chs(int filetype);
+
+    //
+    std::set<int> get_xfs_filetypes(){return xfs_filetypes;};
+    std::set<int> get_det_filetypes(){return det_filetypes;};
+    std::set<int> get_add_filetypes(){return add_filetypes;};
+
+    bool get_sys_xs_flux(int ch);
+    bool get_sys_det(int ch);
+    std::pair<bool, float> get_sys_add(int ch);
+    bool get_sys_mc_same(int ch);
     
   private:
     // basic information about the channels
     std::map<int, std::tuple<TString, TString, int, double, double> > map_ch_hist;
+
     // information regarding ch and their filetype
     std::map<int, int> map_ch_filetype;
     std::map<int, std::vector<int> > map_filetype_chs;
