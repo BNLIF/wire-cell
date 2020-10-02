@@ -408,6 +408,7 @@ int main( int argc, char** argv )
     bool flag_nueCC = is_nueCC(tagger);
     bool flag_FC = is_FC(eval);
     bool flag_pi0 = is_pi0(kine);
+    bool flag_cc_pi0 = is_cc_pi0(kine);
     bool flag_NC = is_NC(tagger);
 
     // numuCC
@@ -431,7 +432,7 @@ int main( int argc, char** argv )
       }
     }
 
-    if (flag_pi0){
+    if (flag_cc_pi0){
       if (flag_numuCC){
 	if (flag_FC){
 	  h_ccpi0_fc->Fill(kine.kine_reco_Enu, eval.weight_cv * eval.weight_spline);
@@ -440,7 +441,12 @@ int main( int argc, char** argv )
 	  h_ccpi0_pc->Fill(kine.kine_reco_Enu, eval.weight_cv * eval.weight_spline);
 	  h_ccpi0_pc_err2->Fill(kine.kine_reco_Enu, pow(eval.weight_cv * eval.weight_spline,2));
 	}
-      }else if (flag_NC){
+      }
+
+    }
+    
+    if (flag_pi0){
+      if (flag_NC){
 	h_ncpi0->Fill(kine.kine_reco_Enu, eval.weight_cv * eval.weight_spline);
 	h_ncpi0_err2->Fill(kine.kine_reco_Enu, pow(eval.weight_cv * eval.weight_spline,2));  
       }

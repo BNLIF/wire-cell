@@ -85,7 +85,6 @@ LEEana::CovMatrix::~CovMatrix(){
   
 }
 
-
 bool LEEana::CovMatrix::get_sys_xs_flux(int ch){
   auto it = map_ch_systematics.find(ch);
   if (it != map_ch_systematics.end()){
@@ -98,6 +97,7 @@ bool LEEana::CovMatrix::get_sys_xs_flux(int ch){
     return false;
   }
 }
+
 bool LEEana::CovMatrix::get_sys_det(int ch){
   auto it = map_ch_systematics.find(ch);
   if (it != map_ch_systematics.end()){
