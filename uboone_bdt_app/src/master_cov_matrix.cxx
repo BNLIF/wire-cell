@@ -20,34 +20,40 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
   
   int covbin = 0;
   int obscovbin = 0;
+  TString weight;
   
   while(!infile.eof()){
-    infile >> name >> var_name >> bin_num >> low_limit >> high_limit >> obs_no >> flag_xs_flux >> flag_det >> flag_add >> flag_same_mc_stat >> cov_sec_no >> file_no;
+    infile >> name >> var_name >> bin_num >> low_limit >> high_limit >> obs_no >> flag_xs_flux >> flag_det >> flag_add >> flag_same_mc_stat >> cov_sec_no >> file_no >> weight;
     //    std::cout << name << " " << var_name << " " << low_limit << " " << bin_num << " " << file_no << std::endl;
     if (bin_num == -1) break;
     
-    map_ch_hist[ch_no] = std::make_tuple(name, var_name, bin_num, low_limit, high_limit);
+    map_ch_hist[ch_no] = std::make_tuple(name, var_name, bin_num, low_limit, high_limit, weight);
     map_name_ch[name] = ch_no;
     
     map_ch_filetype[ch_no] = file_no;
     map_filetype_chs[file_no].push_back(ch_no);
 
-    map_ch_systematics[ch_no] = std::make_tuple(flag_xs_flux, flag_det, flag_add, flag_same_mc_stat);
-    if (flag_xs_flux == 1) xfs_filetypes.insert(file_no);
-    if (flag_det == 1) det_filetypes.insert(file_no);
-    if (flag_add != 0) add_filetypes.insert(file_no);
-
-    if (flag_same_mc_stat !=0) map_mcstat_same_covchs[flag_same_mc_stat].push_back(ch_no);
+    if (file_no !=5) { // data
+      map_ch_systematics[ch_no] = std::make_tuple(flag_xs_flux, flag_det, flag_add, flag_same_mc_stat);
+      if (flag_xs_flux == 1) xfs_filetypes.insert(file_no);
+      if (flag_det == 1) det_filetypes.insert(file_no);
+      if (flag_add != 0) add_filetypes.insert(file_no);
+      
+      if (flag_same_mc_stat !=0) {
+	map_mcstat_same_chs[flag_same_mc_stat].push_back(ch_no);
+	map_filetype_mcstats[file_no].insert(flag_same_mc_stat);
+      }
     
-    // prepare for the matrix
-    map_ch_obsch[ch_no] = obs_no;
-    map_ch_covch[ch_no] = cov_sec_no;
-
-    map_obsch_nbin[obs_no]     = bin_num + 1; // add the overflow bin
-    map_covch_nbin[cov_sec_no] = bin_num + 1; // add the overflow bin
-
-    map_covch_obsch[cov_sec_no] = obs_no; // ch map
-
+      // prepare for the matrix
+      map_ch_obsch[ch_no] = obs_no;
+      map_ch_covch[ch_no] = cov_sec_no;
+      
+      map_obsch_nbin[obs_no]     = bin_num + 1; // add the overflow bin
+      map_covch_nbin[cov_sec_no] = bin_num + 1; // add the overflow bin
+      
+      map_covch_obsch[cov_sec_no] = obs_no; // ch map
+    }
+    
     ch_no ++;
   }
 
@@ -87,18 +93,18 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
   int period;
   TString input_filename;
   TString out_filename;
-  double ext_pot;
+  float ext_pot;
   //std::cout << cv_filename << std::endl;
   std::ifstream infile1(cv_filename);
   while(!infile1.eof()){
-    infile1 >> filetype >> name >> period >> input_filename >> out_filename >> ext_pot;
+    infile1 >> filetype >> name >> period >> input_filename >> out_filename >> ext_pot >> file_no;
     // std::cout << filetype << " " << out_filename << std::endl;
     
     if (filetype == -1) break;
     
     map_filetype_name[filetype] = name;
     map_filetype_inputfiles[filetype].push_back(input_filename);
-    map_inputfile_info[input_filename] = std::make_tuple(filetype, period, out_filename, ext_pot);
+    map_inputfile_info[input_filename] = std::make_tuple(filetype, period, out_filename, ext_pot, file_no);
     
   }
 
@@ -109,7 +115,73 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
     if (input_filename == "end") break;
     map_inputfile_cuts[input_filename].push_back(cut_name);
   }
-    
+
+
+  // sort out the histograms ...
+  for (auto it = map_inputfile_info.begin(); it!= map_inputfile_info.end(); it++){
+    TString filename = it->first;
+    int filetype = std::get<0>(it->second);
+    int period = std::get<1>(it->second);
+    int file_no = std::get<4>(it->second);
+    for (auto it1 = map_inputfile_cuts[filename].begin(); it1 != map_inputfile_cuts[filename].end(); it1++){
+      TString add_cut = *it1;
+      
+      for (auto it2 = map_filetype_chs[filetype].begin(); it2 != map_filetype_chs[filetype].end(); it2++){
+	int ch = *it2;
+	auto it3 = map_ch_hist.find(ch);
+
+	TString name = std::get<0>(it3->second);
+	TString var_name = std::get<1>(it3->second);
+	int nbin = std::get<2>(it3->second);
+	int llimit = std::get<3>(it3->second);
+	int hlimit = std::get<4>(it3->second);
+	TString weight = std::get<5>(it3->second);
+	TString weight2 = weight + "_" + weight;
+	TString histo_name = name + Form("_%d_",file_no) + var_name + "_" + add_cut;
+	TString histo_name1 = histo_name + "_err2";
+
+	map_inputfile_histograms[filename].push_back(std::make_tuple(histo_name, nbin, llimit, hlimit, var_name, name, add_cut, weight));
+	map_inputfile_histograms_err2[filename].push_back(std::make_tuple(histo_name1, nbin, llimit, hlimit, var_name, name, add_cut, weight2));
+	
+	//std::cout << histo_name << " " << " " << histo_name1 << " " << nbin << " " << llimit << " " << hlimit << " " << var_name << " " << name << " " << add_cut << std::endl;
+	
+	//	std::cout << filename << " " << add_cut << std::endl;
+      }
+      std::set<int> mc_stat = map_filetype_mcstats[filetype];
+      for (auto it5 = mc_stat.begin(); it5 != mc_stat.end(); it5++){
+	std::vector<int> correlated_chs = map_mcstat_same_chs[*it5];
+	//std::cout << correlated_chs.size() << " " << filetype << " " << filename << std::endl;
+	for (size_t i=0;i!=correlated_chs.size();i++){
+	  int ch1 = correlated_chs.at(i);
+	  auto it3 = map_ch_hist.find(ch1);
+	  TString name1 = std::get<0>(it3->second);
+	  TString var_name1 = std::get<1>(it3->second);
+	  int nbin1 = std::get<2>(it3->second);
+	  int llimit1 = std::get<3>(it3->second);
+	  int hlimit1 = std::get<4>(it3->second);
+	  TString weight1 = std::get<5>(it3->second);
+	  
+	  for (size_t j=i+1;j<correlated_chs.size();j++){
+	    int ch2 = correlated_chs.at(j);
+	    auto it4 = map_ch_hist.find(ch2);
+	    TString name2 = std::get<0>(it4->second);
+	    TString var_name2 = std::get<1>(it4->second);
+	    int nbin2 = std::get<2>(it4->second);
+	    int llimit2 = std::get<3>(it4->second);
+	    int hlimit2 = std::get<4>(it4->second);
+	    TString weight2 = std::get<5>(it4->second);
+	    
+	    TString histo_name = name1 + "_" + name2 + "_" + add_cut + Form("_%d",file_no);
+	    TString weight = weight1 +"_" + weight2;
+	    
+	    map_inputfile_histograms_cros[filename].push_back(std::make_tuple(histo_name, nbin1, llimit1, hlimit1, var_name1, name1, add_cut, weight));
+	    
+	  }
+	}
+      }
+      
+    }
+  }
   
 }
 
@@ -120,7 +192,36 @@ LEEana::CovMatrix::~CovMatrix(){
 }
 
 
-double LEEana::CovMatrix::get_ext_pot(TString filename){
+std::vector< std::tuple<TString, int, float, float, TString, TString, TString, TString > > LEEana::CovMatrix::get_histograms(TString filename, int flag){
+  if (flag == 0){
+    auto it = map_inputfile_histograms.find(filename);
+    if (it != map_inputfile_histograms.end()){
+      return it->second;
+    }else{
+      std::vector< std::tuple<TString, int, float, float, TString, TString, TString, TString > > temp;
+      return temp;
+    }
+  }else if (flag==1){
+    auto it = map_inputfile_histograms_err2.find(filename);
+    if (it != map_inputfile_histograms_err2.end()){
+      return it->second;
+    }else{
+      std::vector< std::tuple<TString, int, float, float, TString, TString, TString, TString > > temp;
+      return temp;
+    }
+  }else if (flag==2){
+    auto it = map_inputfile_histograms_cros.find(filename);
+    if (it != map_inputfile_histograms_cros.end()){
+      return it->second;
+    }else{
+      std::vector< std::tuple<TString, int, float, float, TString, TString, TString, TString > > temp;
+      return temp;
+    }
+  }
+}
+
+
+float LEEana::CovMatrix::get_ext_pot(TString filename){
   auto it = map_inputfile_info.find(filename);
   if (it != map_inputfile_info.end()){
     return std::get<3>(it->second);
@@ -262,7 +363,7 @@ int LEEana::CovMatrix::get_ch_filetype(int ch){
   }
 }
 
-std::tuple<int, double, double> LEEana::CovMatrix::get_ch_hist(int ch){
+std::tuple<int, float, float> LEEana::CovMatrix::get_ch_hist(int ch){
   auto it = map_ch_hist.find(ch);
   if (it != map_ch_hist.end()){
     return std::make_tuple(std::get<2>(it->second), std::get<3>(it->second), std::get<4>(it->second));
@@ -359,7 +460,7 @@ void LEEana::CovMatrix::print_systematics(){
   std::cout << std::endl;
 
   std::cout << "same MC stat: " << std::endl;
-  for (auto it = map_mcstat_same_covchs.begin(); it != map_mcstat_same_covchs.end(); it++){
+  for (auto it = map_mcstat_same_chs.begin(); it != map_mcstat_same_chs.end(); it++){
     std::cout << it->first << ": ";
     for (auto it1 = it->second.begin(); it1 != it->second.end(); it1++){
       std::cout <<get_ch_name(*it1) << " ";

@@ -24,7 +24,7 @@ namespace LEEana{
     TString get_ch_var(int ch);
     int get_ch(TString name);
     
-    std::tuple<int, double, double> get_ch_hist(int ch);
+    std::tuple<int, float, float> get_ch_hist(int ch);
 
     // ... filetype related ...
     int get_ch_filetype(int ch);
@@ -39,7 +39,7 @@ namespace LEEana{
     bool get_sys_det(int ch);
     std::pair<bool, float> get_sys_add(int ch);
     int get_sys_mc_same(int ch);
-    std::map<int, std::vector<int> > get_mcstat_same_covchs(){return map_mcstat_same_covchs;};
+    std::map<int, std::vector<int> > get_mcstat_same_chs(){return map_mcstat_same_chs;};
 
     int get_obsch(int ch);
     int get_covch(int ch);
@@ -49,13 +49,14 @@ namespace LEEana{
 
     TMatrixD* get_mat_collapse(){return mat_collapse;};
 
-    double get_ext_pot(TString filename);
-    
+    float get_ext_pot(TString filename);
+    std::vector< std::tuple<TString, int, float, float, TString, TString, TString, TString > > get_histograms(TString filename, int flag = 0);
+      
   private:
     TMatrixD* mat_collapse;
     
     // basic information about the channels
-    std::map<int, std::tuple<TString, TString, int, double, double> > map_ch_hist;
+    std::map<int, std::tuple<TString, TString, int, float, float, TString> > map_ch_hist;
     std::map<TString, int> map_name_ch;
 
     // information regarding ch and their filetype
@@ -69,7 +70,8 @@ namespace LEEana{
     std::set<int> add_filetypes;
 
     // MC statistics ... same channels  (diagnal to start with ...)
-    std::map<int, std::vector<int> > map_mcstat_same_covchs;
+    std::map<int, std::vector<int> > map_mcstat_same_chs;
+    std::map<int, std::set<int> > map_filetype_mcstats;
     
     // prepare covariance matrix structure ...
     std::map<int, int> map_ch_obsch;
@@ -90,8 +92,14 @@ namespace LEEana{
     // CV related input ...
     std::map<int, TString> map_filetype_name;
     std::map<int, std::vector<TString> > map_filetype_inputfiles;
-    std::map<TString, std::tuple<int, int, TString, double> > map_inputfile_info;
+    std::map<TString, std::tuple<int, int, TString, float, int> > map_inputfile_info;
     std::map<TString, std::vector<TString> > map_inputfile_cuts;
+
+    // histogram infos (name, nbin, lowlimit, highlimit, variable, channel cut, additional cut, weight
+    std::map<TString, std::vector< std::tuple<TString, int, float, float, TString, TString, TString, TString > > > map_inputfile_histograms;
+    std::map<TString, std::vector< std::tuple<TString, int, float, float, TString, TString, TString, TString > > > map_inputfile_histograms_err2;
+    std::map<TString, std::vector< std::tuple<TString, int, float, float, TString, TString, TString, TString > > > map_inputfile_histograms_cros;
+    
   };
 }
 
