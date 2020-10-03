@@ -48,6 +48,8 @@ namespace LEEana{
     std::pair<int, int> get_covch_info(int covch);
 
     TMatrixD* get_mat_collapse(){return mat_collapse;};
+
+    double get_ext_pot(TString filename);
     
   private:
     TMatrixD* mat_collapse;
@@ -88,7 +90,7 @@ namespace LEEana{
     // CV related input ...
     std::map<int, TString> map_filetype_name;
     std::map<int, std::vector<TString> > map_filetype_inputfiles;
-    std::map<TString, std::tuple<int, int, TString> > map_inputfile_info;
+    std::map<TString, std::tuple<int, int, TString, double> > map_inputfile_info;
     std::map<TString, std::vector<TString> > map_inputfile_cuts;
   };
 }

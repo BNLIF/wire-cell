@@ -87,20 +87,18 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
   int period;
   TString input_filename;
   TString out_filename;
-
+  double ext_pot;
   //std::cout << cv_filename << std::endl;
   std::ifstream infile1(cv_filename);
   while(!infile1.eof()){
-    
-    infile1 >> filetype >> name >> period >> input_filename >> out_filename;
-
+    infile1 >> filetype >> name >> period >> input_filename >> out_filename >> ext_pot;
     // std::cout << filetype << " " << out_filename << std::endl;
     
     if (filetype == -1) break;
     
     map_filetype_name[filetype] = name;
     map_filetype_inputfiles[filetype].push_back(input_filename);
-    map_inputfile_info[input_filename] = std::make_tuple(filetype, period, out_filename);
+    map_inputfile_info[input_filename] = std::make_tuple(filetype, period, out_filename, ext_pot);
     
   }
 
@@ -121,12 +119,22 @@ LEEana::CovMatrix::~CovMatrix(){
   delete mat_collapse;
 }
 
+
+double LEEana::CovMatrix::get_ext_pot(TString filename){
+  auto it = map_inputfile_info.find(filename);
+  if (it != map_inputfile_info.end()){
+    return std::get<3>(it->second);
+  }else{
+    return 0;
+  }
+}
+
 void LEEana::CovMatrix::print_cvfile_info(){
   
   for (auto it = map_filetype_inputfiles.begin(); it!= map_filetype_inputfiles.end(); it++){
     std::cout << it->first << " " << map_filetype_name[it->first] << std::endl;
     for (auto it1 = it->second.begin(); it1 != it->second.end(); it1++){
-      std::cout << *it1 << " " << std::get<0>(map_inputfile_info[*it1]) << " " << std::get<1>(map_inputfile_info[*it1]) << " " << std::get<2>(map_inputfile_info[*it1]) << " " << map_inputfile_cuts[*it1].size() << std::endl;
+      std::cout << *it1 << " " << std::get<0>(map_inputfile_info[*it1]) << " " << std::get<1>(map_inputfile_info[*it1]) << " " << std::get<2>(map_inputfile_info[*it1]) << " " << std::get<3>(map_inputfile_info[*it1]) << " " << map_inputfile_cuts[*it1].size() << std::endl;
     }
   }
 }
