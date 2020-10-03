@@ -142,11 +142,12 @@ int main( int argc, char** argv )
   T_eval->SetBranchStatus("stm_STM",1);
   T_eval->SetBranchStatus("stm_FullDead",1);
   T_eval->SetBranchStatus("stm_clusterlength",1);
-  T_eval->SetBranchStatus("weight_spline",1);
-  T_eval->SetBranchStatus("weight_cv",1);
-  T_eval->SetBranchStatus("weight_lee",1);
-  T_eval->SetBranchStatus("weight_change",1);
+  
   if (!flag_data){
+    T_eval->SetBranchStatus("weight_spline",1);
+    T_eval->SetBranchStatus("weight_cv",1);
+    T_eval->SetBranchStatus("weight_lee",1);
+    T_eval->SetBranchStatus("weight_change",1);
     // MC enable truth information ...
     T_eval->SetBranchStatus("truth_isCC",1);
     T_eval->SetBranchStatus("truth_nuPdg",1);
