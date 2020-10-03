@@ -9,17 +9,21 @@
 namespace LEEana{
   class CovMatrix{
   public:
-    CovMatrix(TString filename = "./configurations/cov_input.txt");
+    CovMatrix(TString cov_filename = "./configurations/cov_input.txt", TString cv_filename = "./configurations/cv_input.txt", TString file_filename = "./configurations/file_ch.txt");
     ~CovMatrix();
 
     void print_ch_info();
     void print_filetype_info();
     void print_systematics();
     void print_matrix();
+    
+    void print_cvfile_info();
 
     // histogram ...
     TString get_ch_name(int ch);
     TString get_ch_var(int ch);
+    int get_ch(TString name);
+    
     std::tuple<int, double, double> get_ch_hist(int ch);
 
     // ... filetype related ...
@@ -50,6 +54,7 @@ namespace LEEana{
     
     // basic information about the channels
     std::map<int, std::tuple<TString, TString, int, double, double> > map_ch_hist;
+    std::map<TString, int> map_name_ch;
 
     // information regarding ch and their filetype
     std::map<int, int> map_ch_filetype;
@@ -79,7 +84,12 @@ namespace LEEana{
     
     // covariance matrix in observation
     std::map<int, int> map_covchbin_obschbin;
-    
+
+    // CV related input ...
+    std::map<int, TString> map_filetype_name;
+    std::map<int, std::vector<TString> > map_filetype_inputfiles;
+    std::map<TString, std::tuple<int, int, TString> > map_inputfile_info;
+    std::map<TString, std::vector<TString> > map_inputfile_cuts;
   };
 }
 

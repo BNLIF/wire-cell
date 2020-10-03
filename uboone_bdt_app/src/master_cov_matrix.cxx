@@ -3,8 +3,8 @@
 #include <iostream>
 #include <fstream>
 
-LEEana::CovMatrix::CovMatrix(TString filename){
-  std::ifstream infile(filename);
+LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString file_filename){
+  std::ifstream infile(cov_filename);
   TString name, var_name;
   Int_t bin_num;
   Float_t low_limit, high_limit;
@@ -27,6 +27,7 @@ LEEana::CovMatrix::CovMatrix(TString filename){
     if (bin_num == -1) break;
     
     map_ch_hist[ch_no] = std::make_tuple(name, var_name, bin_num, low_limit, high_limit);
+    map_name_ch[name] = ch_no;
     
     map_ch_filetype[ch_no] = file_no;
     map_filetype_chs[file_no].push_back(ch_no);
@@ -81,7 +82,36 @@ LEEana::CovMatrix::CovMatrix(TString filename){
     }
   }
 
-  
+  int filetype;
+  //  TString name;
+  int period;
+  TString input_filename;
+  TString out_filename;
+
+  //std::cout << cv_filename << std::endl;
+  std::ifstream infile1(cv_filename);
+  while(!infile1.eof()){
+    
+    infile1 >> filetype >> name >> period >> input_filename >> out_filename;
+
+    // std::cout << filetype << " " << out_filename << std::endl;
+    
+    if (filetype == -1) break;
+    
+    map_filetype_name[filetype] = name;
+    map_filetype_inputfiles[filetype].push_back(input_filename);
+    map_inputfile_info[input_filename] = std::make_tuple(filetype, period, out_filename);
+    
+  }
+
+  std::ifstream infile2(file_filename);
+  TString cut_name;
+  while (!infile2.eof()){
+    infile2 >> input_filename >> cut_name;
+    if (input_filename == "end") break;
+    map_inputfile_cuts[input_filename].push_back(cut_name);
+  }
+    
   
 }
 
@@ -91,7 +121,25 @@ LEEana::CovMatrix::~CovMatrix(){
   delete mat_collapse;
 }
 
+void LEEana::CovMatrix::print_cvfile_info(){
+  
+  for (auto it = map_filetype_inputfiles.begin(); it!= map_filetype_inputfiles.end(); it++){
+    std::cout << it->first << " " << map_filetype_name[it->first] << std::endl;
+    for (auto it1 = it->second.begin(); it1 != it->second.end(); it1++){
+      std::cout << *it1 << " " << std::get<0>(map_inputfile_info[*it1]) << " " << std::get<1>(map_inputfile_info[*it1]) << " " << std::get<2>(map_inputfile_info[*it1]) << " " << map_inputfile_cuts[*it1].size() << std::endl;
+    }
+  }
+}
 
+
+int LEEana::CovMatrix::get_ch(TString name){
+  auto it = map_name_ch.find(name);
+  if (it != map_name_ch.end()){
+    return it->second;
+  }else{
+    return -1;
+  }
+}
 
 
 int LEEana::CovMatrix::get_obsch(int ch){
