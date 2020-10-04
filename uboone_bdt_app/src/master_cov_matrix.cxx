@@ -21,13 +21,14 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
   int covbin = 0;
   int obscovbin = 0;
   TString weight;
+  int lee_strength;
   
   while(!infile.eof()){
-    infile >> name >> var_name >> bin_num >> low_limit >> high_limit >> obs_no >> flag_xs_flux >> flag_det >> flag_add >> flag_same_mc_stat >> cov_sec_no >> file_no >> weight;
+    infile >> name >> var_name >> bin_num >> low_limit >> high_limit >> obs_no >> flag_xs_flux >> flag_det >> flag_add >> flag_same_mc_stat >> cov_sec_no >> file_no >> weight >> lee_strength;
     //    std::cout << name << " " << var_name << " " << low_limit << " " << bin_num << " " << file_no << std::endl;
     if (bin_num == -1) break;
     
-    map_ch_hist[ch_no] = std::make_tuple(name, var_name, bin_num, low_limit, high_limit, weight, obs_no);
+    map_ch_hist[ch_no] = std::make_tuple(name, var_name, bin_num, low_limit, high_limit, weight, obs_no, lee_strength);
     map_name_ch[name] = ch_no;
     
     map_ch_filetype[ch_no] = file_no;
@@ -148,6 +149,10 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
 	int llimit = std::get<3>(it3->second);
 	int hlimit = std::get<4>(it3->second);
 	TString weight = std::get<5>(it3->second);
+	int lee_strength = std::get<7>(it3->second);
+
+	//	std::cout << name << " " << lee_strength << std::endl;
+	
 	TString weight2 = weight + "_" + weight;
 	TString histo_name = name + Form("_%d_",file_no) + var_name + "_" + add_cut;
 	TString histo_name1 = histo_name + "_err2";
@@ -156,7 +161,7 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
 	map_inputfile_histograms_err2[filename].push_back(std::make_tuple(histo_name1, nbin, llimit, hlimit, var_name, name, add_cut, weight2));
 
 	map_pred_subch_histos[std::make_pair(name,add_cut)].insert(std::make_pair(histo_name, period));
-	map_pred_histo_histo_err2[histo_name] = histo_name1;
+	map_pred_histo_histo_err2_lee[histo_name] = std::make_pair(histo_name1,lee_strength);
 	//std::cout << histo_name << " " << " " << histo_name1 << " " << nbin << " " << llimit << " " << hlimit << " " << var_name << " " << name << " " << add_cut << std::endl;
 	
 	//	std::cout << filename << " " << add_cut << std::endl;
@@ -167,6 +172,7 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
 	//std::cout << correlated_chs.size() << " " << filetype << " " << filename << std::endl;
 	for (size_t i=0;i!=correlated_chs.size();i++){
 	  int ch1 = correlated_chs.at(i);
+	  int obsch1 = map_ch_obsch[ch1];
 	  auto it3 = map_ch_hist.find(ch1);
 	  TString name1 = std::get<0>(it3->second);
 	  TString var_name1 = std::get<1>(it3->second);
@@ -189,7 +195,7 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
 	    TString weight = weight1 +"_" + weight2;
 	    
 	    map_inputfile_histograms_cros[filename].push_back(std::make_tuple(histo_name, nbin1, llimit1, hlimit1, var_name1, name1, add_cut, weight));
-	    map_pair_histo_histos_cros[std::make_pair(name1, name2)] = histo_name;
+	    map_pair_histo_histos_cros[std::make_pair(name1, name2)] = std::make_pair(histo_name, obsch1);
 	    
 	  }
 	}
@@ -223,15 +229,15 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
     }
   }
 
-  for (auto it = map_pred_obsch_histos.begin(); it!=map_pred_obsch_histos.end();it++){
-    std::cout << it->first << std::endl;
-    for (auto it1 = it->second.begin(); it1 != it->second.end(); it1++){
-      std::cout << "sub: " << (*it1).size() << std::endl;
-      for (auto it2 = it1->begin(); it2 != it1->end(); it2++){
-	std::cout << it->first << " " << (*it2).first << " " << (*it2).second << std::endl;
-      }
-    }
-  }
+  // for (auto it = map_pred_obsch_histos.begin(); it!=map_pred_obsch_histos.end();it++){
+  //   std::cout << it->first << std::endl;
+  //   for (auto it1 = it->second.begin(); it1 != it->second.end(); it1++){
+  //     std::cout << "sub: " << (*it1).size() << std::endl;
+  //     for (auto it2 = it1->begin(); it2 != it1->end(); it2++){
+  // 	std::cout << it->first << " " << (*it2).first << " " << (*it2).second << std::endl;
+  //     }
+  //   }
+  // }
   
 }
 
@@ -270,6 +276,11 @@ std::vector< std::tuple<TString, int, float, float, TString, TString, TString, T
   }
 }
 
+int LEEana::CovMatrix::get_obsch_name(TString name){
+  int ch = map_name_ch[name];
+  // std::cout << ch << std::endl;
+  return std::get<6>(map_ch_hist[ch]);
+}
 
 float LEEana::CovMatrix::get_ext_pot(TString filename){
   auto it = map_inputfile_info.find(filename);

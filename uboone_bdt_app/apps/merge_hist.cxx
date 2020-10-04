@@ -2,11 +2,18 @@
 
 #include "WCPLEEANA/master_cov_matrix.h"
 
+
 #include "TROOT.h"
+#include "TApplication.h"
+#include "TCanvas.h"
+#include "TGraphErrors.h"
+#include "TAxis.h"
+#include "TLegend.h"
 #include "TMath.h"
 #include "TH1F.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "TStyle.h"
 
 using namespace std;
 using namespace LEEana;
@@ -40,6 +47,7 @@ int main( int argc, char** argv )
   CovMatrix cov;
 
   // get data histograms ...
+  // filetype, period, outfilename, external pot, fileno
   std::map<TString, std::tuple<int, int, TString, float, int> > map_inputfile_info = cov.getp_map_inputfile_info();
 
   TFile *temp_file;
@@ -47,7 +55,9 @@ int main( int argc, char** argv )
   TTree *T;
   Double_t pot;
   std::map<TString, std::pair<TH1F*, double> > map_name_histogram;
-  
+
+  // data POT ...
+  std::map<int, double> map_data_period_pot;
   //  std::vector<TH1F*> temp_histograms;
   
   // open all the histograms ...
@@ -61,7 +71,12 @@ int main( int argc, char** argv )
     T = (TTree*)temp_file->Get("T");
     T->SetBranchAddress("pot",&pot);
     T->GetEntry(0);
-    std::cout << pot << std::endl;
+
+    if (filetype==5){
+      map_data_period_pot[period] = pot;
+    }
+    
+    // std::cout << pot << std::endl;
     
     std::vector< std::tuple<TString,  int, float, float, TString, TString, TString, TString > > all_histo_infos;
     std::vector< std::tuple<TString,  int, float, float, TString, TString, TString, TString > > histo_infos = cov.get_histograms(input_filename,0);
@@ -77,17 +92,120 @@ int main( int argc, char** argv )
       //      temp_histograms.push_back(htemp);
       map_name_histogram[std::get<0>(all_histo_infos.at(i))] = std::make_pair(htemp, pot);
     }
-
-    
-    
-
-    
-    
   }
 
+  
+ 
+  
+  // create histograms for data, create histograms for predictions
+  // obsch --> histograms (data, prediction, prediction_err2
+  std::map<int, std::vector<TH1F*> > map_obsch_histos;
+  // Bayesian error needed ...
+  // obsch --> bin with overflow bin --> vector of all channels (merge certain channels) --> mean and err2 
+  std::map<int, std::vector< std::vector< std::pair<double, double> > > > map_obsch_bayes;
+    
+  for (auto it = map_inputfile_info.begin(); it != map_inputfile_info.end(); it++){
+    TString input_filename = it->first;
+    int filetype = std::get<0>(it->second);
+    int period = std::get<1>(it->second);
+    TString out_filename = std::get<2>(it->second);
+    int file_no = std::get<4>(it->second);
+    if (filetype == 5){
+      // name, nbin, lowlimit, highlimit, variable, channel cut, additional cut, weight
+      std::vector< std::tuple<TString,  int, float, float, TString, TString, TString, TString > > histo_infos = cov.get_histograms(input_filename,0);
+      for (auto it1 = histo_infos.begin(); it1 != histo_infos.end(); it1++){
+	int obsch = cov.get_obsch_name(std::get<5>(*it1));	
+	htemp = map_name_histogram[std::get<0>(*it1)].first;
 
-  //  for (size_t i=0;i!=temp_histograms.size();i++){
-  //  std::cout << i << " " << temp_histograms.at(i)->GetSum() << std::endl;
+	std::vector<TH1F*> vec_histos;
+	
+	TH1F *hdata = (TH1F*)htemp->Clone(Form("data_%d",obsch));
+	hdata->Reset();
+	TH1F *hpred = (TH1F*)htemp->Clone(Form("pred_%d",obsch));
+	hpred->Reset();
+	TH1F *hpred_err2 = (TH1F*)htemp->Clone(Form("pred_err2_%d",obsch));
+	hpred_err2->Reset();
+
+	vec_histos.push_back(hdata);
+	vec_histos.push_back(hpred);
+	vec_histos.push_back(hpred_err2);
+
+	// get histograms ...
+	map_obsch_histos[obsch] = vec_histos;
+	for (Int_t i=0;i!=htemp->GetNbinsX()+1;i++){
+	  std::vector< std::pair<double, double> > temp;
+	  map_obsch_bayes[obsch].push_back(temp);
+	}
+	
+	
+	//std::cout << std::get<5>(*it1) << " " << obsch << " " << htemp->GetSum() << std::endl;
+      }
+      
+      break;
+    }
+  }
+  
+  // get data histograms ...
+
+
+
+  
+
+  // get predictions and its uncertainties ...,
+
+  // get Bayesian errrors ...
+
+
+  // plotting ...
+  TApplication theApp("theApp",&argc,argv);
+  theApp.SetReturnFromRun(true);
+  gStyle->SetOptStat(0);
+  
+  TCanvas c1("ToyMC","ToyMC",2000,800);
+  c1.Divide(4,2);
+  c1.Draw();
+  c1.cd(1);
+  map_obsch_histos[1].at(0)->Draw();
+
+  c1.cd(2);
+  map_obsch_histos[3].at(0)->Draw();
+  
+  c1.cd(3);
+  map_obsch_histos[5].at(0)->Draw();
+  
+  c1.cd(5);
+  map_obsch_histos[2].at(0)->Draw();
+  
+  c1.cd(6);
+  map_obsch_histos[4].at(0)->Draw();
+  
+  c1.cd(7);
+  map_obsch_histos[6].at(0)->Draw();
+
+  c1.cd(4);
+  map_obsch_histos[7].at(0)->Draw();
+    
+
+  //  theApp.Run();
+
+
+  
+  // std::map<TString, std::pair<TString, int> > map_pred_histo_hist_err2_lee = cov.get_map_pred_histo_histo_err2_lee();
+  // std::map<std::pair<TString, TString>, std::pair<TString, int> > map_pair_histo_histos_cross = cov.get_map_pair_hist_hists_cros();
+  // std::map<int, std::set<std::set<std::pair<TString, int> > > > map_pred_obsch_histos = cov.get_map_pred_obsch_histos();
+
+  // // prediction ...
+  // for (auto it = map_pred_obsch_histos.begin(); it!=map_pred_obsch_histos.end();it++){
+  //   std::cout << it->first << std::endl;
+  //   for (auto it1 = it->second.begin(); it1 != it->second.end(); it1++){
+  //     std::cout << "sub: " << (*it1).size() << std::endl;
+  //     for (auto it2 = it1->begin(); it2 != it1->end(); it2++){
+  // 	std::pair<TString, int> err2_lee = map_pred_histo_hist_err2_lee[(*it2).first];
+  // 	std::cout << it->first << " " << (*it2).first << " " << (*it2).second << " " << err2_lee.first << " " << err2_lee.second << std::endl;
+  //     }
+  //   }
   // }
+
+  
 
 }

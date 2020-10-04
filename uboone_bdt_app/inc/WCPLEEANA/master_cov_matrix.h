@@ -52,13 +52,23 @@ namespace LEEana{
     float get_ext_pot(TString filename);
     std::vector< std::tuple<TString, int, float, float, TString, TString, TString, TString > > get_histograms(TString filename, int flag = 0);
     std::map<TString, std::tuple<int, int, TString, float, int> > getp_map_inputfile_info(){return map_inputfile_info;};
+
+    std::map<TString, std::pair<TString, int> > get_map_pred_histo_histo_err2_lee(){return map_pred_histo_histo_err2_lee;};
+
+    // Now the cross uncertainty term
+    std::map<std::pair<TString, TString>, std::pair<TString, int> > get_map_pair_hist_hists_cros(){return map_pair_histo_histos_cros;};
+
+    std::map<int, std::set<std::set<std::pair<TString, int> > > > get_map_pred_obsch_histos(){return map_pred_obsch_histos;};
+
+    int get_obsch_name(TString name);
+
     
   private:
     TMatrixD* mat_collapse;
     
     // basic information about the channels
-    // name, var_name, bin, llmit, hlimit, weight, obs_no
-    std::map<int, std::tuple<TString, TString, int, float, float, TString, int> > map_ch_hist;
+    // name, var_name, bin, llmit, hlimit, weight, obs_no, lee
+    std::map<int, std::tuple<TString, TString, int, float, float, TString, int, int> > map_ch_hist;
     std::map<TString, int> map_name_ch;
 
     // information regarding ch and their filetype
@@ -115,10 +125,10 @@ namespace LEEana{
     std::map<int, std::set<std::pair<TString, TString> > > map_pred_ch_subch; // OK
     std::map<std::pair<TString, TString> , std::set<std::pair<TString, int> > > map_pred_subch_histos; //OK
 
-    std::map<TString, TString> map_pred_histo_histo_err2; //OK
+    std::map<TString, std::pair<TString, int> > map_pred_histo_histo_err2_lee; //OK
 
     // Now the cross uncertainty term
-    std::map<std::pair<TString, TString>, TString> map_pair_histo_histos_cros; // OK
+    std::map<std::pair<TString, TString>, std::pair<TString, int> > map_pair_histo_histos_cros; // OK
 
     std::map<int, std::set<std::set<std::pair<TString, int> > > > map_pred_obsch_histos; // total ...
     
