@@ -51,12 +51,14 @@ namespace LEEana{
 
     float get_ext_pot(TString filename);
     std::vector< std::tuple<TString, int, float, float, TString, TString, TString, TString > > get_histograms(TString filename, int flag = 0);
-      
+    std::map<TString, std::tuple<int, int, TString, float, int> > getp_map_inputfile_info(){return map_inputfile_info;};
+    
   private:
     TMatrixD* mat_collapse;
     
     // basic information about the channels
-    std::map<int, std::tuple<TString, TString, int, float, float, TString> > map_ch_hist;
+    // name, var_name, bin, llmit, hlimit, weight, obs_no
+    std::map<int, std::tuple<TString, TString, int, float, float, TString, int> > map_ch_hist;
     std::map<TString, int> map_name_ch;
 
     // information regarding ch and their filetype
@@ -64,6 +66,7 @@ namespace LEEana{
     std::map<int, std::vector<int> > map_filetype_chs;
 
     // information regarding systematics (xs_flux, det, additional, mc stat...)
+    // xs_flux, det, additional relative uncertainties, mc_stat
     std::map<int, std::tuple<int, int, float, int> > map_ch_systematics;
     std::set<int> xfs_filetypes;
     std::set<int> det_filetypes;
@@ -92,13 +95,34 @@ namespace LEEana{
     // CV related input ...
     std::map<int, TString> map_filetype_name;
     std::map<int, std::vector<TString> > map_filetype_inputfiles;
+    std::map<TString, int> map_inputfile_filetype;
+    
+    // filetype, period, outfile_name, external pot if any, file_no
     std::map<TString, std::tuple<int, int, TString, float, int> > map_inputfile_info;
+    std::map<int, int> map_fileno_period;
     std::map<TString, std::vector<TString> > map_inputfile_cuts;
 
     // histogram infos (name, nbin, lowlimit, highlimit, variable, channel cut, additional cut, weight
     std::map<TString, std::vector< std::tuple<TString, int, float, float, TString, TString, TString, TString > > > map_inputfile_histograms;
     std::map<TString, std::vector< std::tuple<TString, int, float, float, TString, TString, TString, TString > > > map_inputfile_histograms_err2;
     std::map<TString, std::vector< std::tuple<TString, int, float, float, TString, TString, TString, TString > > > map_inputfile_histograms_cros;
+
+
+    // structure of summing histograms together for prediction ...
+    std::map<int, std::set<int> > map_pred_obsch_covch; // OK
+    std::map<int, std::set<int> > map_pred_covch_ch; // OK
+    
+    std::map<int, std::set<std::pair<TString, TString> > > map_pred_ch_subch; // OK
+    std::map<std::pair<TString, TString> , std::set<std::pair<TString, int> > > map_pred_subch_histos; //OK
+
+    std::map<TString, TString> map_pred_histo_histo_err2; //OK
+
+    // Now the cross uncertainty term
+    std::map<std::pair<TString, TString>, TString> map_pair_histo_histos_cros; // OK
+
+    std::map<int, std::set<std::set<std::pair<TString, int> > > > map_pred_obsch_histos; // total ...
+    
+   
     
   };
 }

@@ -27,7 +27,7 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
     //    std::cout << name << " " << var_name << " " << low_limit << " " << bin_num << " " << file_no << std::endl;
     if (bin_num == -1) break;
     
-    map_ch_hist[ch_no] = std::make_tuple(name, var_name, bin_num, low_limit, high_limit, weight);
+    map_ch_hist[ch_no] = std::make_tuple(name, var_name, bin_num, low_limit, high_limit, weight, obs_no);
     map_name_ch[name] = ch_no;
     
     map_ch_filetype[ch_no] = file_no;
@@ -52,6 +52,10 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
       map_covch_nbin[cov_sec_no] = bin_num + 1; // add the overflow bin
       
       map_covch_obsch[cov_sec_no] = obs_no; // ch map
+
+      // relation among obs_no, cov_no, ch_no ...
+      map_pred_obsch_covch[obs_no].insert(cov_sec_no);
+      map_pred_covch_ch[cov_sec_no].insert(ch_no);
     }
     
     ch_no ++;
@@ -104,8 +108,9 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
     
     map_filetype_name[filetype] = name;
     map_filetype_inputfiles[filetype].push_back(input_filename);
+    map_inputfile_filetype[input_filename] = filetype;
     map_inputfile_info[input_filename] = std::make_tuple(filetype, period, out_filename, ext_pot, file_no);
-    
+    map_fileno_period[file_no] = period;
   }
 
   std::ifstream infile2(file_filename);
@@ -114,6 +119,13 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
     infile2 >> input_filename >> cut_name;
     if (input_filename == "end") break;
     map_inputfile_cuts[input_filename].push_back(cut_name);
+
+    // cut_name, input_filename --> filetype --> chs ...
+    int filetype = map_inputfile_filetype[input_filename];
+    std::vector<int> chs = map_filetype_chs[filetype];
+    for (auto it = chs.begin(); it!= chs.end(); it++){
+      map_pred_ch_subch[*it].insert(std::make_pair(std::get<0>(map_ch_hist[*it]),cut_name));
+    }
   }
 
 
@@ -142,7 +154,9 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
 
 	map_inputfile_histograms[filename].push_back(std::make_tuple(histo_name, nbin, llimit, hlimit, var_name, name, add_cut, weight));
 	map_inputfile_histograms_err2[filename].push_back(std::make_tuple(histo_name1, nbin, llimit, hlimit, var_name, name, add_cut, weight2));
-	
+
+	map_pred_subch_histos[std::make_pair(name,add_cut)].insert(std::make_pair(histo_name, period));
+	map_pred_histo_histo_err2[histo_name] = histo_name1;
 	//std::cout << histo_name << " " << " " << histo_name1 << " " << nbin << " " << llimit << " " << hlimit << " " << var_name << " " << name << " " << add_cut << std::endl;
 	
 	//	std::cout << filename << " " << add_cut << std::endl;
@@ -175,11 +189,47 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
 	    TString weight = weight1 +"_" + weight2;
 	    
 	    map_inputfile_histograms_cros[filename].push_back(std::make_tuple(histo_name, nbin1, llimit1, hlimit1, var_name1, name1, add_cut, weight));
+	    map_pair_histo_histos_cros[std::make_pair(name1, name2)] = histo_name;
 	    
 	  }
 	}
       }
       
+    }
+  }
+
+
+  // now form the final prediction map ...
+  for (auto it = map_pred_obsch_covch.begin(); it!= map_pred_obsch_covch.end(); it++){
+    int obsch = it->first;
+    for (auto it1 = it->second.begin(); it1 != it->second.end(); it1++){
+      int covch = *it1;
+      std::set<int> chs = map_pred_covch_ch[covch];
+      for (auto it2 = chs.begin(); it2 != chs.end(); it2++){
+	int ch = *it2;
+	std::set<std::pair<TString, TString> > subchs = map_pred_ch_subch[ch];
+	for (auto it3 = subchs.begin(); it3 != subchs.end(); it3++){
+	  std::pair<TString, TString> subch = *it3;
+	  std::set<std::pair<TString, int> > histos = map_pred_subch_histos[subch];
+
+	  map_pred_obsch_histos[obsch].insert(histos);
+	  //for (auto it4 = histos.begin(); it4 != histos.end(); it4++){
+	  //  TString histo = *it4;
+	  //map_pred_obsch_histos[obsch].insert(histo);
+	  //}
+	  
+	}
+      }
+    }
+  }
+
+  for (auto it = map_pred_obsch_histos.begin(); it!=map_pred_obsch_histos.end();it++){
+    std::cout << it->first << std::endl;
+    for (auto it1 = it->second.begin(); it1 != it->second.end(); it1++){
+      std::cout << "sub: " << (*it1).size() << std::endl;
+      for (auto it2 = it1->begin(); it2 != it1->end(); it2++){
+	std::cout << it->first << " " << (*it2).first << " " << (*it2).second << std::endl;
+      }
     }
   }
   
