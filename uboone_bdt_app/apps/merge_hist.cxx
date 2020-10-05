@@ -169,53 +169,268 @@ int main( int argc, char** argv )
   TCanvas c1("ToyMC","ToyMC",2000,800);
   c1.Divide(4,2);
   c1.Draw();
-  c1.cd(1);
-  map_obsch_histos[1].at(0)->Draw();
-  map_obsch_histos[1].at(1)->Draw("same");
-  map_obsch_histos[1].at(1)->SetLineColor(2);
 
-  // for (Int_t i=0;i!=map_obsch_histos[1].at(1)->GetNbinsX()+1;i++){
-  //   std::cout << i << " " << map_obsch_histos[1].at(1)->GetBinContent(i+1) << " " << map_obsch_histos[1].at(1)->GetBinError(i+1) << std::endl;
-  // }
-  
-  c1.cd(2);
-  map_obsch_histos[3].at(0)->Draw();
-  map_obsch_histos[3].at(1)->Draw("same");
-  map_obsch_histos[3].at(1)->SetLineColor(2);
+  if (flag_err==1){
+    c1.cd(1);
+    TGraphErrors *g10 = new TGraphErrors();
+    TGraphErrors *g11 = new TGraphErrors();
+    for (int i=0;i!=map_obsch_histos[1].at(0)->GetNbinsX()+1;i++){
+      double x = map_obsch_histos[1].at(0)->GetBinCenter(i+1);
+      double y = map_obsch_histos[1].at(0)->GetBinContent(i+1);
+      double x_err = 0;
+      double y_err = map_obsch_histos[1].at(0)->GetBinError(i+1);
+      g10->SetPoint(i,x,y);
+      g10->SetPointError(i,x_err,y_err);
 
-  // for (Int_t i=0;i!=map_obsch_histos[3].at(1)->GetNbinsX()+1;i++){
-  //   std::cout << i << " " << map_obsch_histos[3].at(1)->GetBinContent(i+1) << " " << map_obsch_histos[3].at(1)->GetBinError(i+1) << std::endl;
-  // }
-  
-  c1.cd(3);
-  map_obsch_histos[5].at(0)->Draw();
-  map_obsch_histos[5].at(1)->Draw("same");
-  map_obsch_histos[5].at(1)->SetLineColor(2);
+      y = map_obsch_histos[1].at(1)->GetBinContent(i+1);
+      y_err = map_obsch_histos[1].at(1)->GetBinError(i+1);
 
-  // for (Int_t i=0;i!=map_obsch_histos[5].at(1)->GetNbinsX()+1;i++){
-  //   std::cout << i << " " << map_obsch_histos[5].at(1)->GetBinContent(i+1) << " " << map_obsch_histos[5].at(1)->GetBinError(i+1) << std::endl;
-  // }
-  
-  c1.cd(5);
-  map_obsch_histos[2].at(0)->Draw();
-  map_obsch_histos[2].at(1)->Draw("same");
-  map_obsch_histos[2].at(1)->SetLineColor(2);
-  
-  c1.cd(6);
-  map_obsch_histos[4].at(0)->Draw();
-  map_obsch_histos[4].at(1)->Draw("same");
-  map_obsch_histos[4].at(1)->SetLineColor(2);
-  
-  c1.cd(7);
-  map_obsch_histos[6].at(0)->Draw();
-  map_obsch_histos[6].at(1)->Draw("same");
-  map_obsch_histos[6].at(1)->SetLineColor(2);
-  
-  c1.cd(4);
-  map_obsch_histos[7].at(0)->Draw();
-  map_obsch_histos[7].at(1)->Draw("same");
-  map_obsch_histos[7].at(1)->SetLineColor(2);
+      g11->SetPoint(i,x,y);
+      g11->SetPointError(i,x_err,y_err);
+      
+      //map_obsch_histos[1].at(0)->Draw();
+      //map_obsch_histos[1].at(1)->Draw("same");
+      //map_obsch_histos[1].at(1)->SetLineColor(2);
+    }
 
+    g10->Draw("A*");
+    g10->SetMarkerStyle(20);
+    g11->Draw("*same");
+    g11->SetMarkerStyle(21);
+    g11->SetMarkerColor(2);
+    g11->SetLineColor(2);
+    
+    // for (Int_t i=0;i!=map_obsch_histos[1].at(1)->GetNbinsX()+1;i++){
+    //   std::cout << i << " " << map_obsch_histos[1].at(1)->GetBinContent(i+1) << " " << map_obsch_histos[1].at(1)->GetBinError(i+1) << std::endl;
+    // }
+    
+    c1.cd(2);
+    // map_obsch_histos[3].at(0)->Draw();
+    // map_obsch_histos[3].at(1)->Draw("same");
+    // map_obsch_histos[3].at(1)->SetLineColor(2);
+    
+    // for (Int_t i=0;i!=map_obsch_histos[3].at(1)->GetNbinsX()+1;i++){
+    //   std::cout << i << " " << map_obsch_histos[3].at(1)->GetBinContent(i+1) << " " << map_obsch_histos[3].at(1)->GetBinError(i+1) << std::endl;
+    // }
+
+    TGraphErrors *g30 = new TGraphErrors();
+    TGraphErrors *g31 = new TGraphErrors();
+    for (int i=0;i!=map_obsch_histos[3].at(0)->GetNbinsX()+1;i++){
+      double x = map_obsch_histos[3].at(0)->GetBinCenter(i+1);
+      double y = map_obsch_histos[3].at(0)->GetBinContent(i+1);
+      double x_err = 0;
+      double y_err = map_obsch_histos[3].at(0)->GetBinError(i+1);
+      g30->SetPoint(i,x,y);
+      g30->SetPointError(i,x_err,y_err);
+
+      y = map_obsch_histos[3].at(1)->GetBinContent(i+1);
+      y_err = map_obsch_histos[3].at(1)->GetBinError(i+1);
+
+      g31->SetPoint(i,x,y);
+      g31->SetPointError(i,x_err,y_err);
+      
+      //map_obsch_histos[3].at(0)->Draw();
+      //map_obsch_histos[3].at(1)->Draw("same");
+      //map_obsch_histos[3].at(1)->SetLineColor(2);
+    }
+
+    g30->Draw("A*");
+    g30->SetMarkerStyle(20);
+    g31->Draw("*same");
+    g31->SetMarkerStyle(21);
+    g31->SetMarkerColor(2);
+    g31->SetLineColor(2);
+
+    
+    c1.cd(3);
+    // map_obsch_histos[5].at(0)->Draw();
+    // map_obsch_histos[5].at(1)->Draw("same");
+    // map_obsch_histos[5].at(1)->SetLineColor(2);
+    
+    // for (Int_t i=0;i!=map_obsch_histos[5].at(1)->GetNbinsX()+1;i++){
+    //   std::cout << i << " " << map_obsch_histos[5].at(1)->GetBinContent(i+1) << " " << map_obsch_histos[5].at(1)->GetBinError(i+1) << std::endl;
+    // }
+
+    TGraphErrors *g50 = new TGraphErrors();
+    TGraphErrors *g51 = new TGraphErrors();
+    for (int i=0;i!=map_obsch_histos[5].at(0)->GetNbinsX()+1;i++){
+      double x = map_obsch_histos[5].at(0)->GetBinCenter(i+1);
+      double y = map_obsch_histos[5].at(0)->GetBinContent(i+1);
+      double x_err = 0;
+      double y_err = map_obsch_histos[5].at(0)->GetBinError(i+1);
+      g50->SetPoint(i,x,y);
+      g50->SetPointError(i,x_err,y_err);
+
+      y = map_obsch_histos[5].at(1)->GetBinContent(i+1);
+      y_err = map_obsch_histos[5].at(1)->GetBinError(i+1);
+
+      g51->SetPoint(i,x,y);
+      g51->SetPointError(i,x_err,y_err);
+      
+      //map_obsch_histos[5].at(0)->Draw();
+      //map_obsch_histos[5].at(1)->Draw("same");
+      //map_obsch_histos[5].at(1)->SetLineColor(2);
+    }
+
+    g50->Draw("A*");
+    g50->SetMarkerStyle(20);
+    g51->Draw("*same");
+    g51->SetMarkerStyle(21);
+    g51->SetMarkerColor(2);
+    g51->SetLineColor(2);
+
+    
+    c1.cd(5);
+    // map_obsch_histos[2].at(0)->Draw();
+    // map_obsch_histos[2].at(1)->Draw("same");
+    // map_obsch_histos[2].at(1)->SetLineColor(2);
+
+    TGraphErrors *g20 = new TGraphErrors();
+    TGraphErrors *g21 = new TGraphErrors();
+    for (int i=0;i!=map_obsch_histos[2].at(0)->GetNbinsX()+1;i++){
+      double x = map_obsch_histos[2].at(0)->GetBinCenter(i+1);
+      double y = map_obsch_histos[2].at(0)->GetBinContent(i+1);
+      double x_err = 0;
+      double y_err = map_obsch_histos[2].at(0)->GetBinError(i+1);
+      g20->SetPoint(i,x,y);
+      g20->SetPointError(i,x_err,y_err);
+
+      y = map_obsch_histos[2].at(1)->GetBinContent(i+1);
+      y_err = map_obsch_histos[2].at(1)->GetBinError(i+1);
+
+      g21->SetPoint(i,x,y);
+      g21->SetPointError(i,x_err,y_err);
+      
+      //map_obsch_histos[2].at(0)->Draw();
+      //map_obsch_histos[2].at(1)->Draw("same");
+      //map_obsch_histos[2].at(1)->SetLineColor(2);
+    }
+
+    g20->Draw("A*");
+    g20->SetMarkerStyle(20);
+    g21->Draw("*same");
+    g21->SetMarkerStyle(21);
+    g21->SetMarkerColor(2);
+    g21->SetLineColor(2);
+    
+
+    
+    c1.cd(6);
+    // map_obsch_histos[4].at(0)->Draw();
+    // map_obsch_histos[4].at(1)->Draw("same");
+    // map_obsch_histos[4].at(1)->SetLineColor(2);
+
+    TGraphErrors *g40 = new TGraphErrors();
+    TGraphErrors *g41 = new TGraphErrors();
+    for (int i=0;i!=map_obsch_histos[4].at(0)->GetNbinsX()+1;i++){
+      double x = map_obsch_histos[4].at(0)->GetBinCenter(i+1);
+      double y = map_obsch_histos[4].at(0)->GetBinContent(i+1);
+      double x_err = 0;
+      double y_err = map_obsch_histos[4].at(0)->GetBinError(i+1);
+      g40->SetPoint(i,x,y);
+      g40->SetPointError(i,x_err,y_err);
+
+      y = map_obsch_histos[4].at(1)->GetBinContent(i+1);
+      y_err = map_obsch_histos[4].at(1)->GetBinError(i+1);
+
+      g41->SetPoint(i,x,y);
+      g41->SetPointError(i,x_err,y_err);
+      
+      //map_obsch_histos[4].at(0)->Draw();
+      //map_obsch_histos[4].at(1)->Draw("same");
+      //map_obsch_histos[4].at(1)->SetLineColor(2);
+    }
+
+    g40->Draw("A*");
+    g40->SetMarkerStyle(20);
+    g41->Draw("*same");
+    g41->SetMarkerStyle(21);
+    g41->SetMarkerColor(2);
+    g41->SetLineColor(2);
+    
+    c1.cd(7);
+    // map_obsch_histos[6].at(0)->Draw();
+    // map_obsch_histos[6].at(1)->Draw("same");
+    // map_obsch_histos[6].at(1)->SetLineColor(2);
+
+    TGraphErrors *g60 = new TGraphErrors();
+    TGraphErrors *g61 = new TGraphErrors();
+    for (int i=0;i!=map_obsch_histos[6].at(0)->GetNbinsX()+1;i++){
+      double x = map_obsch_histos[6].at(0)->GetBinCenter(i+1);
+      double y = map_obsch_histos[6].at(0)->GetBinContent(i+1);
+      double x_err = 0;
+      double y_err = map_obsch_histos[6].at(0)->GetBinError(i+1);
+      g60->SetPoint(i,x,y);
+      g60->SetPointError(i,x_err,y_err);
+
+      y = map_obsch_histos[6].at(1)->GetBinContent(i+1);
+      y_err = map_obsch_histos[6].at(1)->GetBinError(i+1);
+
+      g61->SetPoint(i,x,y);
+      g61->SetPointError(i,x_err,y_err);
+      
+      //map_obsch_histos[6].at(0)->Draw();
+      //map_obsch_histos[6].at(1)->Draw("same");
+      //map_obsch_histos[6].at(1)->SetLineColor(2);
+    }
+
+    g60->Draw("A*");
+    g60->SetMarkerStyle(20);
+    g61->Draw("*same");
+    g61->SetMarkerStyle(21);
+    g61->SetMarkerColor(2);
+    g61->SetLineColor(2);
+
+    
+    c1.cd(4);
+    // map_obsch_histos[7].at(0)->Draw();
+    // map_obsch_histos[7].at(1)->Draw("same");
+    // map_obsch_histos[7].at(1)->SetLineColor(2);
+
+    TGraphErrors *g70 = new TGraphErrors();
+    TGraphErrors *g71 = new TGraphErrors();
+    for (int i=0;i!=map_obsch_histos[7].at(0)->GetNbinsX()+1;i++){
+      double x = map_obsch_histos[7].at(0)->GetBinCenter(i+1);
+      double y = map_obsch_histos[7].at(0)->GetBinContent(i+1);
+      double x_err = 0;
+      double y_err = map_obsch_histos[7].at(0)->GetBinError(i+1);
+      g70->SetPoint(i,x,y);
+      g70->SetPointError(i,x_err,y_err);
+
+      y = map_obsch_histos[7].at(1)->GetBinContent(i+1);
+      y_err = map_obsch_histos[7].at(1)->GetBinError(i+1);
+
+      g71->SetPoint(i,x,y);
+      g71->SetPointError(i,x_err,y_err);
+      
+      //map_obsch_histos[7].at(0)->Draw();
+      //map_obsch_histos[7].at(1)->Draw("same");
+      //map_obsch_histos[7].at(1)->SetLineColor(2);
+    }
+
+    g70->Draw("A*");
+    g70->SetMarkerStyle(20);
+    g71->Draw("*same");
+    g71->SetMarkerStyle(21);
+    g71->SetMarkerColor(2);
+    g71->SetLineColor(2);
+    
+  }else if (flag_err == 2){
+    c1->cd(1);
+    
+    c1->cd(2);
+
+    c1->cd(3);
+
+    c1->cd(4);
+
+    c1->cd(5);
+
+    c1->cd(6);
+
+    c1->cd(7);
+    
+  }
   theApp.Run();
 
 
