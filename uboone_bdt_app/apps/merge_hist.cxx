@@ -146,47 +146,65 @@ int main( int argc, char** argv )
   }
   
   // get data histograms ...
-
-
-
+  cov.fill_data_histograms(run, map_obsch_histos, map_name_histogram);
   
-
   // get predictions and its uncertainties ...,
-
+  cov.fill_pred_histograms(run, map_obsch_histos, map_obsch_bayes, map_name_histogram, lee_strength, map_data_period_pot);
+  
   // get Bayesian errrors ...
 
+  for (auto it = map_obsch_histos.begin(); it!= map_obsch_histos.end(); it++){
+    TH1F *h1 = it->second.at(1);
+    TH1F *h2 = it->second.at(2);
+    for (int i=0;i!=h1->GetNbinsX()+1;i++){
+      h1->SetBinError(i+1,sqrt(h2->GetBinContent(i+1)));
+    }
+  }
 
   // plotting ...
   TApplication theApp("theApp",&argc,argv);
   theApp.SetReturnFromRun(true);
   gStyle->SetOptStat(0);
-  
+
   TCanvas c1("ToyMC","ToyMC",2000,800);
   c1.Divide(4,2);
   c1.Draw();
   c1.cd(1);
   map_obsch_histos[1].at(0)->Draw();
+  map_obsch_histos[1].at(1)->Draw("same");
+  map_obsch_histos[1].at(1)->SetLineColor(2);
 
   c1.cd(2);
   map_obsch_histos[3].at(0)->Draw();
+  map_obsch_histos[3].at(1)->Draw("same");
+  map_obsch_histos[3].at(1)->SetLineColor(2);
   
   c1.cd(3);
   map_obsch_histos[5].at(0)->Draw();
+  map_obsch_histos[5].at(1)->Draw("same");
+  map_obsch_histos[5].at(1)->SetLineColor(2);
   
   c1.cd(5);
   map_obsch_histos[2].at(0)->Draw();
+  map_obsch_histos[2].at(1)->Draw("same");
+  map_obsch_histos[2].at(1)->SetLineColor(2);
   
   c1.cd(6);
   map_obsch_histos[4].at(0)->Draw();
+  map_obsch_histos[4].at(1)->Draw("same");
+  map_obsch_histos[4].at(1)->SetLineColor(2);
   
   c1.cd(7);
   map_obsch_histos[6].at(0)->Draw();
-
+  map_obsch_histos[6].at(1)->Draw("same");
+  map_obsch_histos[6].at(1)->SetLineColor(2);
+  
   c1.cd(4);
   map_obsch_histos[7].at(0)->Draw();
-    
+  map_obsch_histos[7].at(1)->Draw("same");
+  map_obsch_histos[7].at(1)->SetLineColor(2);
 
-  //  theApp.Run();
+  theApp.Run();
 
 
   
@@ -195,16 +213,7 @@ int main( int argc, char** argv )
   // std::map<int, std::set<std::set<std::pair<TString, int> > > > map_pred_obsch_histos = cov.get_map_pred_obsch_histos();
 
   // // prediction ...
-  // for (auto it = map_pred_obsch_histos.begin(); it!=map_pred_obsch_histos.end();it++){
-  //   std::cout << it->first << std::endl;
-  //   for (auto it1 = it->second.begin(); it1 != it->second.end(); it1++){
-  //     std::cout << "sub: " << (*it1).size() << std::endl;
-  //     for (auto it2 = it1->begin(); it2 != it1->end(); it2++){
-  // 	std::pair<TString, int> err2_lee = map_pred_histo_hist_err2_lee[(*it2).first];
-  // 	std::cout << it->first << " " << (*it2).first << " " << (*it2).second << " " << err2_lee.first << " " << err2_lee.second << std::endl;
-  //     }
-  //   }
-  // }
+ 
 
   
 

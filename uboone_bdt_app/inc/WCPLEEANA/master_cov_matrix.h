@@ -3,6 +3,7 @@
 
 #include "TString.h"
 #include "TMatrixD.h"
+#include "TH1F.h"
 #include <map>
 #include <set>
 
@@ -62,6 +63,8 @@ namespace LEEana{
 
     int get_obsch_name(TString name);
 
+    void fill_data_histograms(int run, std::map<int, std::vector<TH1F*> >& map_obsch_histos, std::map<TString, std::pair<TH1F*, double> >& map_name_histogram);
+    void fill_pred_histograms(int run, std::map<int, std::vector<TH1F*> >& map_obsch_histos, std::map<int, std::vector< std::vector< std::pair<double, double> > > >& map_obsch_bayes, std::map<TString, std::pair<TH1F*, double> >& map_name_histogram, float lee_strength, std::map<int, double> map_data_period_pot);
     
   private:
     TMatrixD* mat_collapse;
@@ -116,7 +119,7 @@ namespace LEEana{
     std::map<TString, std::vector< std::tuple<TString, int, float, float, TString, TString, TString, TString > > > map_inputfile_histograms;
     std::map<TString, std::vector< std::tuple<TString, int, float, float, TString, TString, TString, TString > > > map_inputfile_histograms_err2;
     std::map<TString, std::vector< std::tuple<TString, int, float, float, TString, TString, TString, TString > > > map_inputfile_histograms_cros;
-
+    std::map<TString, TString> map_histogram_inputfile;
 
     // structure of summing histograms together for prediction ...
     std::map<int, std::set<int> > map_pred_obsch_covch; // OK
@@ -124,7 +127,9 @@ namespace LEEana{
     
     std::map<int, std::set<std::pair<TString, TString> > > map_pred_ch_subch; // OK
     std::map<std::pair<TString, TString> , std::set<std::pair<TString, int> > > map_pred_subch_histos; //OK
-
+    
+    
+    
     std::map<TString, std::pair<TString, int> > map_pred_histo_histo_err2_lee; //OK
 
     // Now the cross uncertainty term

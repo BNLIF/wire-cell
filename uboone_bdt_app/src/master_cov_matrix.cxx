@@ -157,6 +157,9 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
 	TString histo_name = name + Form("_%d_",file_no) + var_name + "_" + add_cut;
 	TString histo_name1 = histo_name + "_err2";
 
+	map_histogram_inputfile[histo_name] = filename;
+	map_histogram_inputfile[histo_name1] = filename;
+	
 	map_inputfile_histograms[filename].push_back(std::make_tuple(histo_name, nbin, llimit, hlimit, var_name, name, add_cut, weight));
 	map_inputfile_histograms_err2[filename].push_back(std::make_tuple(histo_name1, nbin, llimit, hlimit, var_name, name, add_cut, weight2));
 
@@ -180,6 +183,7 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
 	  int llimit1 = std::get<3>(it3->second);
 	  int hlimit1 = std::get<4>(it3->second);
 	  TString weight1 = std::get<5>(it3->second);
+	  TString histo_name1 = name1 + Form("_%d_",file_no) + var_name1 + "_" + add_cut;
 	  
 	  for (size_t j=i+1;j<correlated_chs.size();j++){
 	    int ch2 = correlated_chs.at(j);
@@ -190,12 +194,15 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
 	    int llimit2 = std::get<3>(it4->second);
 	    int hlimit2 = std::get<4>(it4->second);
 	    TString weight2 = std::get<5>(it4->second);
-	    
+	    TString histo_name2 = name2 + Form("_%d_",file_no) + var_name2 + "_" + add_cut;
 	    TString histo_name = name1 + "_" + name2 + "_" + add_cut + Form("_%d",file_no);
 	    TString weight = weight1 +"_" + weight2;
+
+	    map_histogram_inputfile[histo_name] = filename;
 	    
 	    map_inputfile_histograms_cros[filename].push_back(std::make_tuple(histo_name, nbin1, llimit1, hlimit1, var_name1, name1, add_cut, weight));
-	    map_pair_histo_histos_cros[std::make_pair(name1, name2)] = std::make_pair(histo_name, obsch1);
+	    
+	    map_pair_histo_histos_cros[std::make_pair(histo_name1, histo_name2)] = std::make_pair(histo_name, obsch1);
 	    
 	  }
 	}
@@ -275,6 +282,132 @@ std::vector< std::tuple<TString, int, float, float, TString, TString, TString, T
     }
   }
 }
+
+void LEEana::CovMatrix::fill_data_histograms(int run, std::map<int, std::vector<TH1F*> >& map_obsch_histos, std::map<TString, std::pair<TH1F*, double> >& map_name_histogram){
+  for (auto it = map_inputfile_info.begin(); it != map_inputfile_info.end(); it++){
+    TString input_filename = it->first;
+    int filetype = std::get<0>(it->second);
+    int period = std::get<1>(it->second);
+    TString out_filename = std::get<2>(it->second);
+    int file_no = std::get<4>(it->second);
+    if (period == run || run == 0){
+      if (filetype == 5){
+	std::vector< std::tuple<TString,  int, float, float, TString, TString, TString, TString > > histo_infos = get_histograms(input_filename,0);
+	for (auto it1 = histo_infos.begin(); it1 != histo_infos.end(); it1++){
+	  int obsch = get_obsch_name(std::get<5>(*it1));	
+	  TH1F *htemp = map_name_histogram[std::get<0>(*it1)].first;
+	  map_obsch_histos[obsch].at(0)->Add(htemp);
+	}
+      }
+    }
+  }
+  
+}
+
+
+void LEEana::CovMatrix::fill_pred_histograms(int run, std::map<int, std::vector<TH1F*> >& map_obsch_histos, std::map<int, std::vector< std::vector< std::pair<double, double> > > >& map_obsch_bayes, std::map<TString, std::pair<TH1F*, double> >& map_name_histogram, float lee_strength, std::map<int, double> map_data_period_pot){
+  for (auto it = map_pred_obsch_histos.begin(); it!=map_pred_obsch_histos.end();it++){
+    //std::cout << it->first << std::endl;
+    int obsch = it->first;
+    TH1F *hpred = map_obsch_histos[obsch].at(1);
+    TH1F *hpred_err2 = map_obsch_histos[obsch].at(2);
+
+    std::map<TString, std::pair<double, double> > temp_map_histo_ratios;
+    
+    // group
+    for (auto it1 = it->second.begin(); it1 != it->second.end(); it1++){
+      //      std::cout << "sub: " << (*it1).size() << std::endl;
+
+      TH1F *htemp = (TH1F*)hpred->Clone("htemp");
+      htemp->Reset();
+      TH1F *htemp_err2 = (TH1F*)hpred_err2->Clone("htemp_err2");
+      htemp_err2->Reset();
+      
+      std::map<int, double> temp_map_data_pot;
+      std::map<int, double> temp_map_mc_acc_pot;
+
+      // get accumulated POT ...
+      for (auto it2 = it1->begin(); it2 != it1->end(); it2++){
+	TString histoname = (*it2).first;
+	
+	TString input_filename = map_histogram_inputfile[histoname];
+	auto it3 = map_inputfile_info.find(input_filename);
+	int period = std::get<1>(it3->second);  if (period != run && run !=0) continue; // skip ...
+	auto it_data = map_data_period_pot.find(period); if (it_data == map_data_period_pot.end()) continue; // no corresponding data ...
+	
+	double data_pot = it_data->second;
+	temp_map_data_pot[period] = data_pot;
+	
+	std::pair<TString, int> err2_lee = map_pred_histo_histo_err2_lee[histoname];
+	TString histoname_err2 = err2_lee.first;
+	int flag_lee = err2_lee.second;
+	if (flag_lee == 1 && lee_strength == 0) continue; // no need to add ...
+	
+	TH1F *hmc = map_name_histogram[histoname].first;
+	TH1F *hmc_err2 = map_name_histogram[histoname_err2].first;
+	double mc_pot = map_name_histogram[histoname].second;
+	if (temp_map_mc_acc_pot.find(period) == temp_map_mc_acc_pot.end()){
+	  temp_map_mc_acc_pot[period] = mc_pot;
+	}else{
+	  temp_map_mc_acc_pot[period] += mc_pot;
+	}
+      }
+
+      for (auto it2 = it1->begin(); it2 != it1->end(); it2++){
+	TString histoname = (*it2).first;
+	TString input_filename = map_histogram_inputfile[histoname];
+	auto it3 = map_inputfile_info.find(input_filename);
+	int period = std::get<1>(it3->second);  if (period != run && run !=0) continue; // skip ...
+	auto it_data = map_data_period_pot.find(period); if (it_data == map_data_period_pot.end()) continue; // no corresponding data ...
+	std::pair<TString, int> err2_lee = map_pred_histo_histo_err2_lee[histoname];
+	TString histoname_err2 = err2_lee.first;
+	int flag_lee = err2_lee.second;
+	if (flag_lee == 1 && lee_strength == 0) continue; // no need to add ...
+	TH1F *hmc = map_name_histogram[histoname].first;
+	TH1F *hmc_err2 = map_name_histogram[histoname_err2].first;
+	
+	double ratio = temp_map_data_pot[period]/temp_map_mc_acc_pot[period];
+	
+	temp_map_histo_ratios[histoname] = std::make_pair(ratio, lee_strength);
+	
+	if (flag_lee == 1) ratio *= lee_strength;
+	
+	htemp->Add(hmc, ratio);
+	htemp_err2->Add(hmc_err2, ratio*ratio);
+	
+	//std::cout << histoname << " " << period << " " << temp_map_data_pot[period] << " " << temp_map_mc_acc_pot[period] << " " << htemp->GetSum() << " " << ratio << std::endl;
+      }
+
+     
+
+      
+      hpred->Add(htemp);
+      hpred_err2->Add(htemp_err2);
+      // delete the histograms ...
+      delete htemp;
+      delete htemp_err2;
+    }
+    
+    // treat cross term ???
+    
+    for (auto it2 = map_pair_histo_histos_cros.begin(); it2 != map_pair_histo_histos_cros.end(); it2++){
+      TString hist1 = it2->first.first;
+      TString hist2 = it2->first.second;
+      TString histogram = it2->second.first;
+      int obsch1 = it2->second.second;
+      if (obsch1 != obsch) continue;
+      auto it3 = temp_map_histo_ratios.find(hist1);
+      auto it4 = temp_map_histo_ratios.find(hist2);
+      if (it3 == temp_map_histo_ratios.end() || it4 == temp_map_histo_ratios.end()) continue;
+      TH1F *hmc_cros = map_name_histogram[histogram].first;
+      // cross term ...
+      hpred_err2->Add(hmc_cros, it3->second.first * it4->second.first * 2 * it3->second.second);
+      //  std::cout << hist1 << " " << hist2 << " " << histogram << " " << it3->second.first << " " << it3->second.second << " " << it4->second.first << " " << it4->second.second << std::endl;
+    }
+  }
+}
+
+
 
 int LEEana::CovMatrix::get_obsch_name(TString name){
   int ch = map_name_ch[name];
