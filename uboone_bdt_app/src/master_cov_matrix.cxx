@@ -383,7 +383,8 @@ void LEEana::CovMatrix::fill_pred_histograms(int run, std::map<int, std::vector<
 	  values.push_back(std::make_pair(hmc->GetBinContent(i+1)*ratio , hmc_err2->GetBinContent(i+1)*ratio*ratio));
 	}
 	map_histoname_values[histoname] = values;
-	
+
+	//	if (obsch==1) std::cout << values.at(2).first << " sep " << values.at(2).second << " " << histoname << std::endl;
 	//	std::cout << histoname << " " << period << " " << temp_map_data_pot[period] << " " << temp_map_mc_acc_pot[period] << " " << htemp->GetSum() << " " << ratio << std::endl;
       }
 
@@ -413,8 +414,8 @@ void LEEana::CovMatrix::fill_pred_histograms(int run, std::map<int, std::vector<
       // cross term ...
       hpred_err2->Add(hmc_cros, it3->second.first * it4->second.first * 2 * it3->second.second);
       
-      std::vector< std::pair<double, double> > values1 = map_histoname_values[hist1];
-      std::vector< std::pair<double, double> > values2 = map_histoname_values[hist2];
+      std::vector< std::pair<double, double> >& values1 = map_histoname_values[hist1];
+      std::vector< std::pair<double, double> >& values2 = map_histoname_values[hist2];
       for (size_t j=0;j!=values1.size();j++){
 	values1.at(j).first += values2.at(j).first;
 	values1.at(j).second += values2.at(j).second + hmc_cros->GetBinContent(j+1) * it3->second.first * it4->second.first * 2 * it3->second.second; 
@@ -426,6 +427,7 @@ void LEEana::CovMatrix::fill_pred_histograms(int run, std::map<int, std::vector<
     //   std::cout <<  map_histoname_values.size() << std::endl;
 
     for (auto it2 = map_histoname_values.begin(); it2 != map_histoname_values.end(); it2++){
+      //      if (obsch==1) std::cout << it2->second.at(2).first << " " << it2->second.at(2).second << std::endl;
       map_obsch_bayes[obsch].push_back(it2->second);
     }
     

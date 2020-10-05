@@ -87,7 +87,7 @@ double LEEana::get_kine_var(KineInfo& kine, PFevalInfo& pfeval, TString var_name
   }else if (var_name == "pi0_energy"){
     double pi0_mass = 135;
     double alpha = fabs(kine.kine_pio_energy_1 - kine.kine_pio_energy_2)/(kine.kine_pio_energy_1 + kine.kine_pio_energy_2);
-    return pi0_mass * sqrt(2./(1-alpha*alpha)/(1-cos(kine.kine_pio_angle/180.*3.1415926)));
+    return pi0_mass * (sqrt(2./(1-alpha*alpha)/(1-cos(kine.kine_pio_angle/180.*3.1415926)))-1);
     
   }else{
     std::cout << "No such variable: " << var_name << std::endl;

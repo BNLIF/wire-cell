@@ -174,15 +174,27 @@ int main( int argc, char** argv )
   map_obsch_histos[1].at(1)->Draw("same");
   map_obsch_histos[1].at(1)->SetLineColor(2);
 
+  // for (Int_t i=0;i!=map_obsch_histos[1].at(1)->GetNbinsX()+1;i++){
+  //   std::cout << i << " " << map_obsch_histos[1].at(1)->GetBinContent(i+1) << " " << map_obsch_histos[1].at(1)->GetBinError(i+1) << std::endl;
+  // }
+  
   c1.cd(2);
   map_obsch_histos[3].at(0)->Draw();
   map_obsch_histos[3].at(1)->Draw("same");
   map_obsch_histos[3].at(1)->SetLineColor(2);
+
+  // for (Int_t i=0;i!=map_obsch_histos[3].at(1)->GetNbinsX()+1;i++){
+  //   std::cout << i << " " << map_obsch_histos[3].at(1)->GetBinContent(i+1) << " " << map_obsch_histos[3].at(1)->GetBinError(i+1) << std::endl;
+  // }
   
   c1.cd(3);
   map_obsch_histos[5].at(0)->Draw();
   map_obsch_histos[5].at(1)->Draw("same");
   map_obsch_histos[5].at(1)->SetLineColor(2);
+
+  // for (Int_t i=0;i!=map_obsch_histos[5].at(1)->GetNbinsX()+1;i++){
+  //   std::cout << i << " " << map_obsch_histos[5].at(1)->GetBinContent(i+1) << " " << map_obsch_histos[5].at(1)->GetBinError(i+1) << std::endl;
+  // }
   
   c1.cd(5);
   map_obsch_histos[2].at(0)->Draw();
