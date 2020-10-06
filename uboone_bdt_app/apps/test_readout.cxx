@@ -48,13 +48,23 @@ int main( int argc, char** argv )
   // for (Int_t i=0;i!=101;i++){
   Bayes bayes;
   bayes.add_meas_component(0, 0, 0.184271 );
-  bayes.add_meas_component(0 ,0, 0.75); 
-  bayes.add_meas_component(0, 0, 0.0317704 );
-  bayes.add_meas_component(0.315891, 0.0250575, 0.0759359 );
-  bayes.add_meas_component(0, 0, 0.0317704 );
-  bayes.add_meas_component(0, 0, 0.000132375 );
-  bayes.add_meas_component(1.39223, 0.00129121, 0.000790154 );
-  bayes.add_meas_component(0, 0, 0.000132375);
+  bayes.add_meas_component(0, 0, 0.75); 
+  bayes.add_meas_component(0,  0, 0.0317704 );
+  bayes.add_meas_component( 0, 0, 0.0759359); 
+  bayes.add_meas_component( 0, 0, 0.0317704 );
+  bayes.add_meas_component( 0.000948154, 8.98997e-07, 0.000132375 );
+  bayes.add_meas_component( 0, 0, 0.000790154 );
+  bayes.add_meas_component( 0.000321204, 5.16172e-08, 0.000132375 );
+
+    
+  // bayes.add_meas_component(0, 0, 0.184271 );
+  // bayes.add_meas_component(0 ,0, 0.75); 
+  // bayes.add_meas_component(0, 0, 0.0317704 );
+  // bayes.add_meas_component(0.315891, 0.0250575, 0.0759359 );
+  // bayes.add_meas_component(0, 0, 0.0317704 );
+  // bayes.add_meas_component(0, 0, 0.000132375 );
+  // bayes.add_meas_component(1.39223, 0.00129121, 0.000790154 );
+  // bayes.add_meas_component(0, 0, 0.000132375);
   
   // bayes.add_meas_component(3.64165, 0.746753, 0.184271); 
   // bayes.add_meas_component(10.5, 7.875, 0.75); 

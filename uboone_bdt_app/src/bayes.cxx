@@ -12,6 +12,7 @@ LEEana::Bayes::Bayes()
   , sigma(1)
   , f_conv(0)
   , f_conv_num(0)
+  , g1(0)
 {
 }
 
@@ -26,9 +27,16 @@ LEEana::Bayes::~Bayes(){
   for (auto it = conv_vec.begin(); it != conv_vec.end(); it++){
     delete (*it);
   }
- 
+  // for (auto it = f_conv_vec.begin(); it!= f_conv_vec.end(); it++){
+  //   delete (*it);
+  // }
+  for (auto it = f_test_vec.begin(); it!= f_test_vec.end(); it++){
+    delete (*it);
+  }
  
   if (f_conv_num != (TF1*)0) delete f_conv_num;
+  if (f_conv != (TF1*)0) delete f_conv;
+  if (g1 != (TGraph*)0) delete g1;
 }
 
 void LEEana::Bayes::add_meas_component(double meas, double sigma2, double weight, int flag){
@@ -99,7 +107,7 @@ void LEEana::Bayes::do_convolution(){
   }else{
     hlimit = mean + 10;
   }
-  hlimit = std::max(hlimit, mean * 5);
+  hlimit = std::max(hlimit, mean * 5 + 20);
   
   // std::cout << llimit << " " << hlimit << std::endl;
     
@@ -334,26 +342,18 @@ double LEEana::Bayes::get_covariance_mc(){
       corr = 1./pow(x/mean,num_component-1);
     else
       corr = 1./pow(x,num_component-1);
-    if (std::isnan(corr) || std::isinf(corr)) corr = 0;
-
-    corr = 1;
-    
+    if (std::isnan(corr) || std::isinf(corr)) corr = 0;    
     
     sum += pow(x-mean,2) * corr;
     sum1 += corr;
   }
   
-  double result = sum/ sum1;
+  double result = sum / sum1;
 
   //  std::cout << mean << " " << num_component << " " << result << " " << acc_sigma2 << std::endl;
   
   return result; 
 
-  
- 
-  
-  
- 
 }
 
 

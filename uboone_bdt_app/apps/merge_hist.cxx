@@ -29,7 +29,7 @@ int main( int argc, char** argv )
   int run = 1; // run 1 ...
   int flag_err = 1;// 1 for standard, 2 for Bayesian ...
   float lee_strength = 0; // no LEE strength ...
-
+  int flag_display = 0;
   
 
   
@@ -43,6 +43,9 @@ int main( int argc, char** argv )
       break;
     case 'l':
       lee_strength = atof(&argv[i][2]);
+      break;
+    case 'd':
+      flag_display = atoi(&argv[i][2]);
       break;
     }
   }
@@ -157,68 +160,105 @@ int main( int argc, char** argv )
   
   // get Bayesian errrors ...
 
- 
-
-  // plotting ...
-  TApplication theApp("theApp",&argc,argv);
-  theApp.SetReturnFromRun(true);
-  gStyle->SetOptStat(0);
-
-  TCanvas c1("ToyMC","ToyMC",2000,800);
-  c1.Divide(4,2);
-  c1.Draw();
-
-  if (flag_err==1){
+  if (flag_err==2){
+    std::cout << lee_strength << " " << run << std::endl;
     
     for (auto it = map_obsch_histos.begin(); it!= map_obsch_histos.end(); it++){
       TH1F *h1 = it->second.at(1);
       TH1F *h2 = it->second.at(2);
-      for (int i=0;i!=h1->GetNbinsX()+1;i++){
-	h1->SetBinError(i+1,sqrt(h2->GetBinContent(i+1)));
-      }
-    }
+      int obsch = it->first;
 
-    
-    c1.cd(1);
-    TGraphErrors *g10 = new TGraphErrors();
-    TGraphErrors *g11 = new TGraphErrors();
-    for (int i=0;i!=map_obsch_histos[1].at(0)->GetNbinsX()+1;i++){
-      double x = map_obsch_histos[1].at(0)->GetBinCenter(i+1);
-      double y = map_obsch_histos[1].at(0)->GetBinContent(i+1);
-      double x_err = 0;
-      double y_err = map_obsch_histos[1].at(0)->GetBinError(i+1);
-      g10->SetPoint(i,x,y);
-      g10->SetPointError(i,x_err,y_err);
+      std::vector<std::vector< std::tuple<double, double, double> > >  bayes_inputs = map_obsch_bayes[obsch];
 
-      y = map_obsch_histos[1].at(1)->GetBinContent(i+1);
-      y_err = map_obsch_histos[1].at(1)->GetBinError(i+1);
+      //std::cout << obsch << " " << bayes_inputs.size() << " " << bayes_inputs.at(0).size() << " " << h1->GetNbinsX() << std::endl;
 
-      g11->SetPoint(i,x,y);
-      g11->SetPointError(i,x_err,y_err);
+      //if (obsch !=1) continue;
       
-      //map_obsch_histos[1].at(0)->Draw();
-      //map_obsch_histos[1].at(1)->Draw("same");
-      //map_obsch_histos[1].at(1)->SetLineColor(2);
-    }
+      for (int i=0;i!=h1->GetNbinsX()+1;i++){
+	Bayes bayes;
+	//	if (i!=0) continue;
+	//double temp = 0, temp1=0;
+	for (auto it1 = bayes_inputs.begin(); it1!=bayes_inputs.end(); it1++){
+	  bayes.add_meas_component(std::get<0>((*it1).at(i)), std::get<1>((*it1).at(i)), std::get<2>((*it1).at(i)));
+	  // temp += std::get<0>((*it1).at(i));
+	  // temp1 += std::get<1>((*it1).at(i));
+	  //std::cout << i << " " << std::get<0>((*it1).at(i)) << " " << std::get<1>((*it1).at(i)) << " " << std::get<2>((*it1).at(i)) << " " << std::endl;
+	}
 
-    g10->Draw("A*");
-    g10->SetMarkerStyle(20);
-    g11->Draw("*same");
-    g11->SetMarkerStyle(21);
-    g11->SetMarkerColor(2);
-    g11->SetLineColor(2);
+	bayes.do_convolution();
+	
+	double cov = bayes.get_covariance();
+	// double cov1 = bayes.get_covariance_mc();
+	std::cout << obsch << " " << i << " "	  << h1->GetBinContent(i+1) << " " << cov  << " "  << h2->GetBinContent(i+1) << std::endl;
+	// std::cout << temp << " " << temp1 << " " << h1->GetBinContent(i+1) << " " << h2->GetBinContent(i+1) << std::endl;
+	h1->SetBinError(i+1,sqrt(cov));
+      }
+      // obsch --> bin with overflow bin --> vector of all channels (merge certain channels) --> mean and err2 
+      //std::map<int, std::vector< std::vector< std::tuple<double, double, double> > > > map_obsch_bayes;
+    }
+  }
+
+  if (flag_display == 1){
+    // plotting ...
+    TApplication theApp("theApp",&argc,argv);
+    theApp.SetReturnFromRun(true);
+    gStyle->SetOptStat(0);
     
-    // for (Int_t i=0;i!=map_obsch_histos[1].at(1)->GetNbinsX()+1;i++){
-    //   std::cout << i << " " << map_obsch_histos[1].at(1)->GetBinContent(i+1) << " " << map_obsch_histos[1].at(1)->GetBinError(i+1) << std::endl;
-    // }
+    TCanvas c1("ToyMC","ToyMC",2000,800);
+    c1.Divide(4,2);
+    c1.Draw();
     
-    c1.cd(2);
-    // map_obsch_histos[3].at(0)->Draw();
-    // map_obsch_histos[3].at(1)->Draw("same");
-    // map_obsch_histos[3].at(1)->SetLineColor(2);
-    
-    // for (Int_t i=0;i!=map_obsch_histos[3].at(1)->GetNbinsX()+1;i++){
-    //   std::cout << i << " " << map_obsch_histos[3].at(1)->GetBinContent(i+1) << " " << map_obsch_histos[3].at(1)->GetBinError(i+1) << std::endl;
+    if (flag_err==1){
+      
+      for (auto it = map_obsch_histos.begin(); it!= map_obsch_histos.end(); it++){
+	TH1F *h1 = it->second.at(1);
+	TH1F *h2 = it->second.at(2);
+	for (int i=0;i!=h1->GetNbinsX()+1;i++){
+	  h1->SetBinError(i+1,sqrt(h2->GetBinContent(i+1)));
+	}
+      }
+      
+      
+      c1.cd(1);
+      TGraphErrors *g10 = new TGraphErrors();
+      TGraphErrors *g11 = new TGraphErrors();
+      for (int i=0;i!=map_obsch_histos[1].at(0)->GetNbinsX()+1;i++){
+	double x = map_obsch_histos[1].at(0)->GetBinCenter(i+1);
+	double y = map_obsch_histos[1].at(0)->GetBinContent(i+1);
+	double x_err = 0;
+	double y_err = map_obsch_histos[1].at(0)->GetBinError(i+1);
+	g10->SetPoint(i,x,y);
+	g10->SetPointError(i,x_err,y_err);
+	
+	y = map_obsch_histos[1].at(1)->GetBinContent(i+1);
+	y_err = map_obsch_histos[1].at(1)->GetBinError(i+1);
+	
+	g11->SetPoint(i,x,y);
+	g11->SetPointError(i,x_err,y_err);
+	
+	//map_obsch_histos[1].at(0)->Draw();
+	//map_obsch_histos[1].at(1)->Draw("same");
+	//map_obsch_histos[1].at(1)->SetLineColor(2);
+      }
+      
+      g10->Draw("A*");
+      g10->SetMarkerStyle(20);
+      g11->Draw("*same");
+      g11->SetMarkerStyle(21);
+      g11->SetMarkerColor(2);
+      g11->SetLineColor(2);
+      
+      // for (Int_t i=0;i!=map_obsch_histos[1].at(1)->GetNbinsX()+1;i++){
+      //   std::cout << i << " " << map_obsch_histos[1].at(1)->GetBinContent(i+1) << " " << map_obsch_histos[1].at(1)->GetBinError(i+1) << std::endl;
+      // }
+      
+      c1.cd(2);
+      // map_obsch_histos[3].at(0)->Draw();
+      // map_obsch_histos[3].at(1)->Draw("same");
+      // map_obsch_histos[3].at(1)->SetLineColor(2);
+      
+      // for (Int_t i=0;i!=map_obsch_histos[3].at(1)->GetNbinsX()+1;i++){
+      //   std::cout << i << " " << map_obsch_histos[3].at(1)->GetBinContent(i+1) << " " << map_obsch_histos[3].at(1)->GetBinError(i+1) << std::endl;
     // }
 
     TGraphErrors *g30 = new TGraphErrors();
@@ -425,39 +465,7 @@ int main( int argc, char** argv )
     
   }else if (flag_err == 2){
 
-    for (auto it = map_obsch_histos.begin(); it!= map_obsch_histos.end(); it++){
-      TH1F *h1 = it->second.at(1);
-      TH1F *h2 = it->second.at(2);
-      int obsch = it->first;
-
-      std::vector<std::vector< std::tuple<double, double, double> > >  bayes_inputs = map_obsch_bayes[obsch];
-
-      //std::cout << obsch << " " << bayes_inputs.size() << " " << bayes_inputs.at(0).size() << " " << h1->GetNbinsX() << std::endl;
-
-      if (obsch !=1) continue;
-      
-      for (int i=0;i!=h1->GetNbinsX()+1;i++){
-	Bayes bayes;
-	if (i!=10) continue;
-	//double temp = 0, temp1=0;
-	for (auto it1 = bayes_inputs.begin(); it1!=bayes_inputs.end(); it1++){
-	  bayes.add_meas_component(std::get<0>((*it1).at(i)), std::get<1>((*it1).at(i)), std::get<2>((*it1).at(i)));
-	  // temp += std::get<0>((*it1).at(i));
-	  // temp1 += std::get<1>((*it1).at(i));
-	  std::cout << i << " " << std::get<0>((*it1).at(i)) << " " << std::get<1>((*it1).at(i)) << " " << std::get<2>((*it1).at(i)) << " " << std::endl;
-	}
-
-	bayes.do_convolution();
-	
-	double cov = bayes.get_covariance();
-	std::cout << obsch << " " << i << " "
-		  << cov << " " << h2->GetBinContent(i+1) << std::endl;
-	// std::cout << temp << " " << temp1 << " " << h1->GetBinContent(i+1) << " " << h2->GetBinContent(i+1) << std::endl;
-	h1->SetBinError(i+1,sqrt(cov));
-      }
-      // obsch --> bin with overflow bin --> vector of all channels (merge certain channels) --> mean and err2 
-      //std::map<int, std::vector< std::vector< std::tuple<double, double, double> > > > map_obsch_bayes;
-    }
+    
 
     
     c1.cd(1);
@@ -623,7 +631,7 @@ int main( int argc, char** argv )
     
   }
   theApp.Run();
-
+  }
 
   
   // std::map<TString, std::pair<TString, int> > map_pred_histo_hist_err2_lee = cov.get_map_pred_histo_histo_err2_lee();

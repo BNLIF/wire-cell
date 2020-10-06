@@ -19,7 +19,7 @@ namespace LEEana{
     TF1* get_f_conv(){return f_conv;};
     TF1* get_f_conv_num(){return f_conv_num;};
     TF1 *get_f(int i){return meas_pdf_vec.at(i);};
-    TGraph* get_graph(int i){return map_index_graph[i];};
+    // TGraph* get_graph(int i){return map_index_graph[i];};
     TF1 *get_f_num(int i){return f1_num_vec.at(i);};
     
     double get_mean(){return mean;};
@@ -37,7 +37,7 @@ namespace LEEana{
     std::vector<double> weight_vec;
 
     std::vector<TF1*> meas_pdf_vec;
-    std::map<int,TGraph*> map_index_graph;
+    //std::map<int,TGraph*> map_index_graph;
     std::vector<TF1*> f1_num_vec;
     std::vector<TF1*> f_conv_vec;
 
