@@ -4,6 +4,7 @@
 #include "TString.h"
 #include "TMatrixD.h"
 #include "TH1F.h"
+#include "TGraph.h"
 #include <map>
 #include <set>
 
@@ -64,9 +65,14 @@ namespace LEEana{
     int get_obsch_name(TString name);
 
     void fill_data_histograms(int run, std::map<int, std::vector<TH1F*> >& map_obsch_histos, std::map<TString, std::pair<TH1F*, double> >& map_name_histogram);
-    void fill_pred_histograms(int run, std::map<int, std::vector<TH1F*> >& map_obsch_histos, std::map<int, std::vector< std::vector< std::pair<double, double> > > >& map_obsch_bayes, std::map<TString, std::pair<TH1F*, double> >& map_name_histogram, float lee_strength, std::map<int, double> map_data_period_pot);
+    void fill_pred_histograms(int run, std::map<int, std::vector<TH1F*> >& map_obsch_histos, std::map<int, std::vector< std::vector< std::tuple<double, double, double> > > >& map_obsch_bayes, std::map<TString, std::pair<TH1F*, double> >& map_name_histogram, float lee_strength, std::map<int, double> map_data_period_pot);
+
+    std::pair<double,double> get_bayes_errors(double num);
     
   private:
+    TGraph *gl, *gh;
+    int llimit, hlimit;
+    
     TMatrixD* mat_collapse;
     
     // basic information about the channels

@@ -887,103 +887,105 @@ void read_ratio_v02()
   /// set the number of digitization on pdf of ratio by analytic mtethod
   exampleA->Set_analytic_gh_digitize( 5000 );
     
-  /// measurement: event and weight
-  exampleA->Add_meas_component(460, 1);
+  // /// measurement: event and weight
+  exampleA->Add_meas_component(10, 1);
    
-  /// prediction: event and weight
-  exampleA->Add_pred_component(400, 0.25);
-  exampleA->Add_pred_component(200, 1);
-  exampleA->Add_pred_component(300, 0.5);
+  // /// prediction: event and weight
+  // exampleA->Add_pred_component(400, 0.25);
+  exampleA->Add_pred_component(10, 1);
+  // exampleA->Add_pred_component(300, 0.5);
  
   /// necessary
   exampleA->Self_Check();
   
-  /// print out inputs
-  exampleA->Print_inputs();
+  // /// print out inputs
+  // exampleA->Print_inputs();
 
-  ////////////////////// Analytic method
+  // ////////////////////// Analytic method
 
   /// calculate the PDF of summation of meas, or pred
   exampleA->Summation_meas_func();  
   exampleA->Summation_pred_func();
 
-  /// calculate the PDF of the ratio=meas/pred
-  exampleA->Func_ratio_meas2pred();
+  std::cout << exampleA->Get_data_range_low() << " " << exampleA->Get_data_range_hgh() << std::endl;
   
-  /// calculate the credible interval of the ratio
-  exampleA->Calculate_ratio_lower_upper(1, true);// nSigma, digitize func_raito
-
-  /// check time used
-  auto time7 = high_resolution_clock::now();
-  auto diff_1_7 = duration_cast<milliseconds>(time7 - time1);
-  int cc_diff_1_7 = diff_1_7.count();
-  cout<<endl<<TString::Format(" ---> Analytic method takes time (ms): %d", cc_diff_1_7)<<endl<<endl;
+  // /// calculate the PDF of the ratio=meas/pred
+  // exampleA->Func_ratio_meas2pred();
   
-  ////////////////////// ToyMC method
+  // /// calculate the credible interval of the ratio
+  // exampleA->Calculate_ratio_lower_upper(1, true);// nSigma, digitize func_raito
 
-  /// calculate the credible interval of the ratio by toy
-  /// (nSigma, number of toys)
-  exampleA->Toy_ResultsOfRatio(1, 1000000);
+  // /// check time used
+  // auto time7 = high_resolution_clock::now();
+  // auto diff_1_7 = duration_cast<milliseconds>(time7 - time1);
+  // int cc_diff_1_7 = diff_1_7.count();
+  // cout<<endl<<TString::Format(" ---> Analytic method takes time (ms): %d", cc_diff_1_7)<<endl<<endl;
+  
+  // ////////////////////// ToyMC method
+
+  // /// calculate the credible interval of the ratio by toy
+  // /// (nSigma, number of toys)
+  // exampleA->Toy_ResultsOfRatio(1, 1000000);
  
-  /////////////////////////// self_check and print results
-  ///////////////////////////
+  // /////////////////////////// self_check and print results
+  // ///////////////////////////
 
-  cout<<endl<<TString::Format(" ---> Integration of analytic Ratio PDF (should be close to 1, else set range): %8.5f",
-                              exampleA->Get_func_ratio_meas2pred()->Integral( exampleA->Get_ratio_range_low(), exampleA->Get_ratio_range_hgh() )
-                              )<<endl<<endl;
+  // cout<<endl<<TString::Format(" ---> Integration of analytic Ratio PDF (should be close to 1, else set range): %8.5f",
+  //                             exampleA->Get_func_ratio_meas2pred()->Integral( exampleA->Get_ratio_range_low(), exampleA->Get_ratio_range_hgh() )
+  //                             )<<endl<<endl;
  
-  cout<<TString::Format(" ---> Ratio %8.4f, analytic lower/upper: %8.4f, %8.4f",
-			      exampleA->Get_ratio(),
-			      exampleA->Get_ratio_lower(),
-			      exampleA->Get_ratio_upper()
-			      )<<endl<<endl;
+  // cout<<TString::Format(" ---> Ratio %8.4f, analytic lower/upper: %8.4f, %8.4f",
+  // 			      exampleA->Get_ratio(),
+  // 			      exampleA->Get_ratio_lower(),
+  // 			      exampleA->Get_ratio_upper()
+  // 			      )<<endl<<endl;
  
-  cout<<TString::Format(" ---> Ratio %8.4f,    toyMC lower/upper: %8.4f, %8.4f",
-			      exampleA->Get_ratio(),
-			      exampleA->Get_toy_ratio_lower(),
-			      exampleA->Get_toy_ratio_upper()
-			      )<<endl<<endl;
+  // cout<<TString::Format(" ---> Ratio %8.4f,    toyMC lower/upper: %8.4f, %8.4f",
+  // 			      exampleA->Get_ratio(),
+  // 			      exampleA->Get_toy_ratio_lower(),
+  // 			      exampleA->Get_toy_ratio_upper()
+  // 			      )<<endl<<endl;
 
-  /////////////////////////// It will save time if don't draw figures
-  ///////////////////////////
+  // /////////////////////////// It will save time if don't draw figures
+  // ///////////////////////////
   
-  roostr = "canv_data";
-  TCanvas *canv_data = new TCanvas(roostr, roostr, 900, 650);
-  func_canv_margin(canv_data, 0.15, 0.2,0.1,0.15);
+  // roostr = "canv_data";
+  // TCanvas *canv_data = new TCanvas(roostr, roostr, 900, 650);
+  // func_canv_margin(canv_data, 0.15, 0.2,0.1,0.15);
 
-  exampleA->Get_min_component()->Draw();
+  // exampleA->Get_min_component()->Draw();
 
-  for(int idx=1; idx<=exampleA->Get_size_pred(); idx++) {
-    exampleA->Get_pred_component(idx)->Draw("same");
-    exampleA->Get_pred_component(idx)->SetLineColor(kRed);
-  }
+  // for(int idx=1; idx<=exampleA->Get_size_pred(); idx++) {
+  //   exampleA->Get_pred_component(idx)->Draw("same");
+  //   exampleA->Get_pred_component(idx)->SetLineColor(kRed);
+  // }
   
-  for(int idx=1; idx<=exampleA->Get_size_meas(); idx++) {
-    exampleA->Get_meas_component(idx)->Draw("same");
-    exampleA->Get_meas_component(idx)->SetLineColor(kBlue);
-  }
+  // for(int idx=1; idx<=exampleA->Get_size_meas(); idx++) {
+  //   exampleA->Get_meas_component(idx)->Draw("same");
+  //   exampleA->Get_meas_component(idx)->SetLineColor(kBlue);
+  // }
   
-  exampleA->Get_summation_pred_func()->Draw("same");    
-  exampleA->Get_summation_pred_func()->SetLineColor(kGray+1);
+  // exampleA->Get_summation_pred_func()->Draw("same");    
+  // exampleA->Get_summation_pred_func()->SetLineColor(kGray+1);
 
-  exampleA->Get_summation_meas_func()->Draw("same");    
-  exampleA->Get_summation_meas_func()->SetLineColor(kBlack);
+  // exampleA->Get_summation_meas_func()->Draw("same");    
+  // exampleA->Get_summation_meas_func()->SetLineColor(kBlack);
       
-  ///////////////////////////
+  // ///////////////////////////
   
-  roostr = "canv_analytical";
-  TCanvas *canv_analytical = new TCanvas(roostr, roostr, 900, 650);
-  func_canv_margin(canv_analytical, 0.15, 0.2,0.1,0.15);
+  // roostr = "canv_analytical";
+  // TCanvas *canv_analytical = new TCanvas(roostr, roostr, 900, 650);
+  // func_canv_margin(canv_analytical, 0.15, 0.2,0.1,0.15);
 
-  exampleA->Get_func_ratio_meas2pred()->Draw();
+  // exampleA->Get_func_ratio_meas2pred()->Draw();
   
-  ///////////////////////////
+  // ///////////////////////////
   
-  roostr = "canv_toy";
-  TCanvas *canv_toy = new TCanvas(roostr, roostr, 900, 650);
-  func_canv_margin(canv_toy, 0.15, 0.2,0.1,0.15);
+  // roostr = "canv_toy";
+  // TCanvas *canv_toy = new TCanvas(roostr, roostr, 900, 650);
+  // func_canv_margin(canv_toy, 0.15, 0.2,0.1,0.15);
 
-  exampleA->Get_toy_ratio_PDF()->Draw("hist");
+  // exampleA->Get_toy_ratio_PDF()->Draw("hist");
   
 
 }

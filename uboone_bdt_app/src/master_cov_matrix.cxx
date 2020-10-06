@@ -245,6 +245,23 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
   //     }
   //   }
   // }
+
+  llimit = 0;
+  hlimit = 100;
+  
+  Double_t x[101]={0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100};
+
+  
+  Double_t yl[101]={0, 0, 0, 0.856632, 1.70317, 2.51005, 3.32075, 4.14046, 4.9693, 5.80646, 6.65117, 7.5025, 8.35978, 9.22237, 10.0898, 10.9615, 11.8372, 12.7165, 13.5992, 14.4849, 15.3734, 16.2646, 17.1583, 18.0543, 18.9524, 19.8526, 20.7547, 21.6586, 22.5642, 23.4715, 24.3803, 25.2906, 26.2023, 27.1153, 28.0297, 28.9452, 29.8619, 30.7797, 31.6987, 32.6187, 33.5396, 34.4616, 35.3845, 36.3083, 37.2329, 38.1584, 39.0847, 40.0118, 40.9396, 41.8682, 42.7975, 43.7275, 44.6581, 45.5895, 46.5215, 47.454, 48.3873, 49.321, 50.2554, 51.1903, 52.1257, 53.0617, 53.9982, 54.9352, 55.8727, 56.8107, 57.7491, 58.6881, 59.6274, 60.5673, 61.5075, 62.4482, 63.3892, 64.3307, 65.2725, 66.2148, 67.1575, 68.1005, 69.0438, 69.9876, 70.9317, 71.8761, 72.8209, 73.766, 74.7114, 75.6572, 76.6033, 77.5497, 78.4964, 79.4434, 80.3907, 81.3383, 82.2862, 83.2342, 84.1827, 85.1314, 86.0804, 87.0296, 87.9791, 88.9288, 89.8788}; 
+  Double_t yh[101]={1.1478, 2.35971, 3.51917, 4.72422, 5.98186, 7.21064, 8.41858, 9.61053, 10.7896, 11.9582, 13.1179, 14.27, 15.4155, 16.5552, 17.6898, 18.8197, 19.9454, 21.0673, 22.1858, 23.3011, 24.4133, 25.5229, 26.6299, 27.7346, 28.837, 29.9374, 31.0358, 32.1322, 33.2271, 34.3201, 35.4117, 36.5017, 37.5904, 38.6776, 39.7635, 40.8483, 41.9318, 43.0141, 44.0955, 45.1757, 46.2549, 47.3331, 48.4104, 49.4868, 50.5623, 51.637, 52.7108, 53.7839, 54.8561, 55.9277, 56.9985, 58.0686, 59.1381, 60.2068, 61.275, 62.3425, 63.4094, 64.4757, 65.5415, 66.6066, 67.6713, 68.7354, 69.7989, 70.862, 71.9246, 72.9866, 74.0483, 75.1094, 76.1701, 77.2304, 78.2902, 79.3496, 80.4085, 81.4672, 82.5253, 83.5831, 84.6406, 85.6976, 86.7542, 87.8105, 88.8665, 89.9221, 90.9774, 92.0323, 93.0869, 94.1411, 95.1951, 96.2488, 97.3021, 98.3552, 99.4079, 100.46, 101.513, 102.564, 103.616, 104.667, 105.718, 106.769, 107.82, 108.87, 109.92};
+
+  for (Int_t i=0;i!=101;i++){
+    yl[i] = fabs(yl[i] - x[i]);
+    yh[i] = fabs(yh[i] - x[i]);
+  }
+  
+  gl = new TGraph(101,x,yl);
+  gh = new TGraph(101,x,yh);
   
 }
 
@@ -252,6 +269,17 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
 LEEana::CovMatrix::~CovMatrix(){
 
   delete mat_collapse;
+  delete gl;
+  delete gh;
+}
+
+std::pair<double, double> LEEana::CovMatrix::get_bayes_errors(double num){
+  if (num > hlimit) return std::make_pair(sqrt(num), sqrt(num));
+  else if (num < llimit) num = llimit;
+
+  //  std::cout << num << " " << gl->Eval(num) << " " << gh->Eval(num) << std::endl;
+  
+  return std::make_pair(gl->Eval(num),gh->Eval(num));
 }
 
 
@@ -305,7 +333,7 @@ void LEEana::CovMatrix::fill_data_histograms(int run, std::map<int, std::vector<
 }
 
 
-void LEEana::CovMatrix::fill_pred_histograms(int run, std::map<int, std::vector<TH1F*> >& map_obsch_histos, std::map<int, std::vector< std::vector< std::pair<double, double> > > >& map_obsch_bayes, std::map<TString, std::pair<TH1F*, double> >& map_name_histogram, float lee_strength, std::map<int, double> map_data_period_pot){
+void LEEana::CovMatrix::fill_pred_histograms(int run, std::map<int, std::vector<TH1F*> >& map_obsch_histos, std::map<int, std::vector< std::vector< std::tuple<double, double, double> > > >& map_obsch_bayes, std::map<TString, std::pair<TH1F*, double> >& map_name_histogram, float lee_strength, std::map<int, double> map_data_period_pot){
   
   for (auto it = map_pred_obsch_histos.begin(); it!=map_pred_obsch_histos.end();it++){
     //std::cout << it->first << std::endl;
@@ -315,7 +343,7 @@ void LEEana::CovMatrix::fill_pred_histograms(int run, std::map<int, std::vector<
 
     std::map<TString, std::pair<double, double> > temp_map_histo_ratios;
 
-    std::map<TString, std::vector< std::pair<double, double> > > map_histoname_values;
+    std::map<TString, std::vector< std::tuple<double, double, double> > > map_histoname_values;
     
     // group
     for (auto it1 = it->second.begin(); it1 != it->second.end(); it1++){
@@ -378,9 +406,9 @@ void LEEana::CovMatrix::fill_pred_histograms(int run, std::map<int, std::vector<
 	htemp->Add(hmc, ratio);
 	htemp_err2->Add(hmc_err2, ratio*ratio);
 	
-	std::vector< std::pair<double, double> > values;
+	std::vector< std::tuple<double, double, double> > values;
 	for (int i=0;i!=hmc->GetNbinsX()+1;i++){
-	  values.push_back(std::make_pair(hmc->GetBinContent(i+1)*ratio , hmc_err2->GetBinContent(i+1)*ratio*ratio));
+	  values.push_back(std::make_tuple(hmc->GetBinContent(i+1)*ratio , hmc_err2->GetBinContent(i+1)*ratio*ratio, temp_map_data_pot[period]/temp_map_mc_acc_pot[period]));
 	}
 	map_histoname_values[histoname] = values;
 
@@ -414,11 +442,11 @@ void LEEana::CovMatrix::fill_pred_histograms(int run, std::map<int, std::vector<
       // cross term ...
       hpred_err2->Add(hmc_cros, it3->second.first * it4->second.first * 2 * it3->second.second);
       
-      std::vector< std::pair<double, double> >& values1 = map_histoname_values[hist1];
-      std::vector< std::pair<double, double> >& values2 = map_histoname_values[hist2];
+      std::vector< std::tuple<double, double, double> >& values1 = map_histoname_values[hist1];
+      std::vector< std::tuple<double, double, double> >& values2 = map_histoname_values[hist2];
       for (size_t j=0;j!=values1.size();j++){
-	values1.at(j).first += values2.at(j).first;
-	values1.at(j).second += values2.at(j).second + hmc_cros->GetBinContent(j+1) * it3->second.first * it4->second.first * 2 * it3->second.second; 
+	std::get<0>(values1.at(j)) += std::get<0>(values2.at(j));
+	std::get<1>(values1.at(j)) += std::get<1>(values2.at(j)) + hmc_cros->GetBinContent(j+1) * it3->second.first * it4->second.first * 2 * it3->second.second; 
       }
       map_histoname_values.erase(hist2);
       //      std::cout << values1.size() << " " << values2.size() << std::endl;
