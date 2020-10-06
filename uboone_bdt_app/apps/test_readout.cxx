@@ -47,24 +47,24 @@ int main( int argc, char** argv )
   // double x[101], y[2][101];
   // for (Int_t i=0;i!=101;i++){
   Bayes bayes;
-  bayes.add_meas_component(0, 0, 0.184271 );
-  bayes.add_meas_component(0, 0, 0.75); 
-  bayes.add_meas_component(0,  0, 0.0317704 );
-  bayes.add_meas_component( 0, 0, 0.0759359); 
-  bayes.add_meas_component( 0, 0, 0.0317704 );
-  bayes.add_meas_component( 0.000948154, 8.98997e-07, 0.000132375 );
-  bayes.add_meas_component( 0, 0, 0.000790154 );
-  bayes.add_meas_component( 0.000321204, 5.16172e-08, 0.000132375 );
+  // bayes.add_meas_component(0, 0, 0.184271 );
+  // bayes.add_meas_component(0, 0, 0.75); 
+  // bayes.add_meas_component(0,  0, 0.0317704 );
+  // bayes.add_meas_component( 0, 0, 0.0759359); 
+  // bayes.add_meas_component( 0, 0, 0.0317704 );
+  // bayes.add_meas_component( 0.000948154, 8.98997e-07, 0.000132375 );
+  // bayes.add_meas_component( 0, 0, 0.000790154 );
+  // bayes.add_meas_component( 0.000321204, 5.16172e-08, 0.000132375 );
 
     
-  // bayes.add_meas_component(0, 0, 0.184271 );
-  // bayes.add_meas_component(0 ,0, 0.75); 
-  // bayes.add_meas_component(0, 0, 0.0317704 );
-  // bayes.add_meas_component(0.315891, 0.0250575, 0.0759359 );
-  // bayes.add_meas_component(0, 0, 0.0317704 );
-  // bayes.add_meas_component(0, 0, 0.000132375 );
-  // bayes.add_meas_component(1.39223, 0.00129121, 0.000790154 );
-  // bayes.add_meas_component(0, 0, 0.000132375);
+  bayes.add_meas_component(0, 0, 0.184271 ); //DIRT???
+  bayes.add_meas_component(0 ,0, 0.75);  //EXTBNB
+  bayes.add_meas_component(0, 0, 0.0317704 );
+  bayes.add_meas_component(0.315891, 0.0250575, 0.0759359 );
+  bayes.add_meas_component(0, 0, 0.0317704 );
+  bayes.add_meas_component(0, 0, 0.000132375 );
+  bayes.add_meas_component(1.39223, 0.00129121, 0.000790154 );
+  bayes.add_meas_component(0, 0, 0.000132375);
   
   // bayes.add_meas_component(3.64165, 0.746753, 0.184271); 
   // bayes.add_meas_component(10.5, 7.875, 0.75); 
@@ -108,29 +108,29 @@ int main( int argc, char** argv )
   // }
   // std::cout << std::endl;
   
-  TApplication theApp("theApp",&argc,argv);
-  theApp.SetReturnFromRun(true);
-  gStyle->SetOptStat(0);
+  // TApplication theApp("theApp",&argc,argv);
+  // theApp.SetReturnFromRun(true);
+  // gStyle->SetOptStat(0);
 
-  TCanvas c1("ToyMC","ToyMC",1200,800);
-  c1.Draw();
-  c1.Divide(3,2);
-  for (int i=0;i!=1;i++){
-    c1.cd(i+1);
-    //    TF1 *f = bayes.get_f(i);
-    //    TF1 *f = bayes.get_f_conv();
-    TF1 *f = bayes.get_f_conv_num();
-    f->Draw();
-    //    TGraph *g1 = bayes.get_graph(i);
-    //g1->Draw("AL");
-    //bayes.get_f_num(i)->Draw();
-  }
-  c1.cd(2);
-  bayes.get_f(0)->Draw();
-  c1.cd(3);
-  bayes.get_f(1)->Draw();
+  // TCanvas c1("ToyMC","ToyMC",1200,800);
+  // c1.Draw();
+  // c1.Divide(3,2);
+  // for (int i=0;i!=1;i++){
+  //   c1.cd(i+1);
+  //   //    TF1 *f = bayes.get_f(i);
+  //   //    TF1 *f = bayes.get_f_conv();
+  //   TF1 *f = bayes.get_f_conv_num();
+  //   f->Draw();
+  //   //    TGraph *g1 = bayes.get_graph(i);
+  //   //g1->Draw("AL");
+  //   //bayes.get_f_num(i)->Draw();
+  // }
+  // c1.cd(2);
+  // bayes.get_f(0)->Draw();
+  // c1.cd(3);
+  // bayes.get_f(1)->Draw();
     
-  theApp.Run();
+  // theApp.Run();
   
   return 0;
 }
