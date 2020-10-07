@@ -108,7 +108,7 @@ int main( int argc, char** argv )
   std::map<int, std::vector<TH1F*> > map_obsch_histos;
   // Bayesian error needed ...
   // obsch --> bin with overflow bin --> vector of all channels (merge certain channels) --> mean and err2 
-  std::map<int, std::vector< std::vector< std::tuple<double, double, double> > > > map_obsch_bayes;
+  std::map<int, std::vector< std::vector< std::tuple<double, double, double, int> > > > map_obsch_bayes;
     
   for (auto it = map_inputfile_info.begin(); it != map_inputfile_info.end(); it++){
     TString input_filename = it->first;
@@ -168,7 +168,7 @@ int main( int argc, char** argv )
       TH1F *h2 = it->second.at(2);
       int obsch = it->first;
 
-      std::vector<std::vector< std::tuple<double, double, double> > >  bayes_inputs = map_obsch_bayes[obsch];
+      std::vector<std::vector< std::tuple<double, double, double, int> > >  bayes_inputs = map_obsch_bayes[obsch];
 
       //std::cout << obsch << " " << bayes_inputs.size() << " " << bayes_inputs.at(0).size() << " " << h1->GetNbinsX() << std::endl;
 
@@ -184,7 +184,6 @@ int main( int argc, char** argv )
 	  // temp1 += std::get<1>((*it1).at(i));
 	  //std::cout << i << " " << std::get<0>((*it1).at(i)) << " " << std::get<1>((*it1).at(i)) << " " << std::get<2>((*it1).at(i)) << " " << std::endl;
 	}
-
 	bayes.do_convolution();
 	
 	double cov = bayes.get_covariance();
@@ -633,6 +632,8 @@ int main( int argc, char** argv )
   theApp.Run();
   }
 
+
+  
   
   // std::map<TString, std::pair<TString, int> > map_pred_histo_hist_err2_lee = cov.get_map_pred_histo_histo_err2_lee();
   // std::map<std::pair<TString, TString>, std::pair<TString, int> > map_pair_histo_histos_cross = cov.get_map_pair_hist_hists_cros();

@@ -162,13 +162,13 @@ bool LEEana::get_cut_pass(TString ch_name, TString add_cut, bool flag_data, Eval
     if (flag_numuCC && (!flag_FC) && (!flag_nueCC) && (!flag_cc_pi0)) return true;
     else return false;
   }else if (ch_name == "CCpi0_nonueCC_FC_overlay" || ch_name =="BG_CCpi0_nonueCC_FC_ext" || ch_name == "BG_CCpi0_nonueCC_FC_dirt" || ch_name == "CCpi0_nonueCC_FC_bnb"){
-    if (flag_numuCC && flag_FC && flag_cc_pi0) return true;
+    if (flag_numuCC && flag_FC && flag_cc_pi0 && (!flag_nueCC) ) return true;
     else return false;
   }else if (ch_name == "CCpi0_nonueCC_PC_overlay" || ch_name == "BG_CCpi0_nonueCC_PC_ext" || ch_name == "BG_CCpi0_nonueCC_PC_dirt" || ch_name == "CCpi0_nonueCC_PC_bnb"){
-    if (flag_numuCC && (!flag_FC) && flag_cc_pi0) return true;
+    if (flag_numuCC && (!flag_FC) && flag_cc_pi0 && (!flag_nueCC) ) return true;
     else return false;
   }else if (ch_name == "NCpi0_nonueCC_overlay" || ch_name == "BG_NCpi0_nonueCC_ext" || ch_name == "BG_NCpi0_nonueCC_dirt" || ch_name == "NCpi0_nonueCC_bnb"){
-    if (flag_NC && flag_pi0) return true;
+    if (flag_NC && flag_pi0 && (!flag_nueCC) ) return true;
     else return false;
   }else{
     std::cout << "Not sure what cut: " << ch_name << std::endl;
