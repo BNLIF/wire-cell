@@ -159,6 +159,8 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
 
 	map_histogram_inputfile[histo_name] = filename;
 	map_histogram_inputfile[histo_name1] = filename;
+	map_histogram_covch[histo_name] = map_ch_covch[map_name_ch[name]];
+	map_histogram_covch[histo_name1] = map_ch_covch[map_name_ch[name]];
 	
 	map_inputfile_histograms[filename].push_back(std::make_tuple(histo_name, nbin, llimit, hlimit, var_name, name, add_cut, weight));
 	map_inputfile_histograms_err2[filename].push_back(std::make_tuple(histo_name1, nbin, llimit, hlimit, var_name, name, add_cut, weight2));
@@ -199,6 +201,7 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
 	    TString weight = weight1 +"_" + weight2;
 
 	    map_histogram_inputfile[histo_name] = filename;
+	    map_histogram_covch[histo_name] = -1;
 	    
 	    map_inputfile_histograms_cros[filename].push_back(std::make_tuple(histo_name, nbin1, llimit1, hlimit1, var_name1, name1, add_cut, weight));
 	    
@@ -408,7 +411,7 @@ void LEEana::CovMatrix::fill_pred_histograms(int run, std::map<int, std::vector<
 	
 	std::vector< std::tuple<double, double, double, int> > values;
 	for (int i=0;i!=hmc->GetNbinsX()+1;i++){
-	  values.push_back(std::make_tuple(hmc->GetBinContent(i+1)*ratio , hmc_err2->GetBinContent(i+1)*ratio*ratio, temp_map_data_pot[period]/temp_map_mc_acc_pot[period], 0));
+	  values.push_back(std::make_tuple(hmc->GetBinContent(i+1)*ratio , hmc_err2->GetBinContent(i+1)*ratio*ratio, temp_map_data_pot[period]/temp_map_mc_acc_pot[period], map_histogram_covch[histoname]));
 	}
 	map_histoname_values[histoname] = values;
 

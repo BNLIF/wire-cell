@@ -125,8 +125,10 @@ namespace LEEana{
     std::map<TString, std::vector< std::tuple<TString, int, float, float, TString, TString, TString, TString > > > map_inputfile_histograms;
     std::map<TString, std::vector< std::tuple<TString, int, float, float, TString, TString, TString, TString > > > map_inputfile_histograms_err2;
     std::map<TString, std::vector< std::tuple<TString, int, float, float, TString, TString, TString, TString > > > map_inputfile_histograms_cros;
-    std::map<TString, TString> map_histogram_inputfile;
 
+    std::map<TString, TString> map_histogram_inputfile;
+    std::map<TString, int> map_histogram_covch;
+    
     // structure of summing histograms together for prediction ...
     std::map<int, std::set<int> > map_pred_obsch_covch; // OK
     std::map<int, std::set<int> > map_pred_covch_ch; // OK

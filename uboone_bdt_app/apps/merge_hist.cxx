@@ -639,9 +639,41 @@ int main( int argc, char** argv )
   // std::map<std::pair<TString, TString>, std::pair<TString, int> > map_pair_histo_histos_cross = cov.get_map_pair_hist_hists_cros();
   // std::map<int, std::set<std::set<std::pair<TString, int> > > > map_pred_obsch_histos = cov.get_map_pred_obsch_histos();
 
-  // // prediction ...
- 
+  // prediction ...
+  TFile *file3 = new TFile("merge.root","RECREATE");
+  
+  TMatrixD* mat_collapse = cov.get_mat_collapse();
+  mat_collapse->Write("mat_collapse");
 
+  std::map<int, TH1F*> map_covch_histo;
+  
+  for (auto it = map_obsch_bayes.begin(); it != map_obsch_bayes.end(); it++){
+    int obsch = it->first;
+    std::vector<std::vector< std::tuple<double, double, double, int> > >  bayes_inputs = it->second;
+    TH1F *htemp = (TH1F*)map_obsch_histos[obsch].at(0);    
+    for (size_t i=0;i!=bayes_inputs.size(); i++){
+      int covch = std::get<3>(bayes_inputs.at(i).front());
+      if (map_covch_histo.find(covch) == map_covch_histo.end()){
+	TH1F *hnew = (TH1F*)htemp->Clone(Form("histo_%d",covch));
+	hnew->Reset();
+	map_covch_histo[covch] = hnew;
+      }
+      TH1F *htemp1 = map_covch_histo[covch];
+      for (size_t j=0;j!=bayes_inputs.at(i).size();j++){
+	htemp1->SetBinContent(j+1, htemp1->GetBinContent(j+1) + std::get<0>(bayes_inputs.at(i).at(j)));
+	htemp1->SetBinError(j+1, sqrt(pow(htemp1->GetBinError(j+1),2) + std::get<1>(bayes_inputs.at(i).at(j))));
+      }
+      //std::cout << obsch << " " << bayes_inputs.size() << " " << i << " " << covch << std::endl;
+      //  break;
+    }
+  }
+
+  for (auto it = map_covch_histo.begin(); it != map_covch_histo.end(); it++){
+    it->second->SetDirectory(file3);
+  }
+  
+  file3->Write();
+  file3->Close();
   
 
 }
