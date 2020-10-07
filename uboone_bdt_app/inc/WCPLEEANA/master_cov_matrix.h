@@ -49,8 +49,11 @@ namespace LEEana{
     std::pair<int, int> get_obsch_info(int obsch);
     std::pair<int, int> get_covch_info(int covch);
 
+    int get_covch_startbin(int covch){return map_covch_startbin[covch];}; 
+    
     TMatrixD* get_mat_collapse(){return mat_collapse;};
-
+    TMatrixD* get_add_cov_matrix(){return mat_add_cov;};
+    
     float get_ext_pot(TString filename);
     std::vector< std::tuple<TString, int, float, float, TString, TString, TString, TString > > get_histograms(TString filename, int flag = 0);
     std::map<TString, std::tuple<int, int, TString, float, int> > getp_map_inputfile_info(){return map_inputfile_info;};
@@ -65,7 +68,7 @@ namespace LEEana{
     int get_obsch_name(TString name);
 
     void fill_data_histograms(int run, std::map<int, std::vector<TH1F*> >& map_obsch_histos, std::map<TString, std::pair<TH1F*, double> >& map_name_histogram);
-    void fill_pred_histograms(int run, std::map<int, std::vector<TH1F*> >& map_obsch_histos, std::map<int, std::vector< std::vector< std::tuple<double, double, double, int> > > >& map_obsch_bayes, std::map<TString, std::pair<TH1F*, double> >& map_name_histogram, float lee_strength, std::map<int, double> map_data_period_pot);
+    void fill_pred_histograms(int run, std::map<int, std::vector<TH1F*> >& map_obsch_histos, std::map<int, std::vector< std::vector< std::tuple<double, double, double, int, double> > > >& map_obsch_bayes, std::map<TString, std::pair<TH1F*, double> >& map_name_histogram, float lee_strength, std::map<int, double> map_data_period_pot);
 
     std::pair<double,double> get_bayes_errors(double num);
     
@@ -74,6 +77,7 @@ namespace LEEana{
     int llimit, hlimit;
     
     TMatrixD* mat_collapse;
+    TMatrixD* mat_add_cov;
     
     // basic information about the channels
     // name, var_name, bin, llmit, hlimit, weight, obs_no, lee
@@ -127,7 +131,7 @@ namespace LEEana{
     std::map<TString, std::vector< std::tuple<TString, int, float, float, TString, TString, TString, TString > > > map_inputfile_histograms_cros;
 
     std::map<TString, TString> map_histogram_inputfile;
-    std::map<TString, int> map_histogram_covch;
+    std::map<TString, std::pair<int, double> > map_histogram_covch_add;
     
     // structure of summing histograms together for prediction ...
     std::map<int, std::set<int> > map_pred_obsch_covch; // OK

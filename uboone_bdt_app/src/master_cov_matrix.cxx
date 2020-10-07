@@ -80,6 +80,7 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
   }
   
   mat_collapse = new TMatrixD(total_cov_bin,total_obs_bin);
+  mat_add_cov = new TMatrixD(total_cov_bin, total_cov_bin);
   // form the large covariance matrix, and the start bin ...
   for (auto it = map_covch_obsch.begin(); it!= map_covch_obsch.end(); it++){
     //std::cout << it->first << " " << it->second << std::endl;
@@ -159,8 +160,9 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
 
 	map_histogram_inputfile[histo_name] = filename;
 	map_histogram_inputfile[histo_name1] = filename;
-	map_histogram_covch[histo_name] = map_ch_covch[map_name_ch[name]];
-	map_histogram_covch[histo_name1] = map_ch_covch[map_name_ch[name]];
+	
+	map_histogram_covch_add[histo_name] = std::make_pair(map_ch_covch[map_name_ch[name]], std::get<2>(map_ch_systematics[map_name_ch[name]]));
+	map_histogram_covch_add[histo_name1] = std::make_pair(map_ch_covch[map_name_ch[name]], std::get<2>(map_ch_systematics[map_name_ch[name]]));
 	
 	map_inputfile_histograms[filename].push_back(std::make_tuple(histo_name, nbin, llimit, hlimit, var_name, name, add_cut, weight));
 	map_inputfile_histograms_err2[filename].push_back(std::make_tuple(histo_name1, nbin, llimit, hlimit, var_name, name, add_cut, weight2));
@@ -201,7 +203,7 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
 	    TString weight = weight1 +"_" + weight2;
 
 	    map_histogram_inputfile[histo_name] = filename;
-	    map_histogram_covch[histo_name] = -1;
+	    map_histogram_covch_add[histo_name] = std::make_pair(-1,0);
 	    
 	    map_inputfile_histograms_cros[filename].push_back(std::make_tuple(histo_name, nbin1, llimit1, hlimit1, var_name1, name1, add_cut, weight));
 	    
@@ -272,6 +274,7 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
 LEEana::CovMatrix::~CovMatrix(){
 
   delete mat_collapse;
+  delete mat_add_cov;
   delete gl;
   delete gh;
 }
@@ -336,7 +339,7 @@ void LEEana::CovMatrix::fill_data_histograms(int run, std::map<int, std::vector<
 }
 
 
-void LEEana::CovMatrix::fill_pred_histograms(int run, std::map<int, std::vector<TH1F*> >& map_obsch_histos, std::map<int, std::vector< std::vector< std::tuple<double, double, double, int> > > >& map_obsch_bayes, std::map<TString, std::pair<TH1F*, double> >& map_name_histogram, float lee_strength, std::map<int, double> map_data_period_pot){
+void LEEana::CovMatrix::fill_pred_histograms(int run, std::map<int, std::vector<TH1F*> >& map_obsch_histos, std::map<int, std::vector< std::vector< std::tuple<double, double, double, int, double> > > >& map_obsch_bayes, std::map<TString, std::pair<TH1F*, double> >& map_name_histogram, float lee_strength, std::map<int, double> map_data_period_pot){
   
   for (auto it = map_pred_obsch_histos.begin(); it!=map_pred_obsch_histos.end();it++){
     //std::cout << it->first << std::endl;
@@ -346,7 +349,7 @@ void LEEana::CovMatrix::fill_pred_histograms(int run, std::map<int, std::vector<
 
     std::map<TString, std::pair<double, double> > temp_map_histo_ratios;
 
-    std::map<TString, std::vector< std::tuple<double, double, double, int> > > map_histoname_values;
+    std::map<TString, std::vector< std::tuple<double, double, double, int, double> > > map_histoname_values;
     
     // group
     for (auto it1 = it->second.begin(); it1 != it->second.end(); it1++){
@@ -408,10 +411,11 @@ void LEEana::CovMatrix::fill_pred_histograms(int run, std::map<int, std::vector<
 	
 	htemp->Add(hmc, ratio);
 	htemp_err2->Add(hmc_err2, ratio*ratio);
-	
-	std::vector< std::tuple<double, double, double, int> > values;
+
+	// mean, sigma2, pot_ratio, covch, add_sys2
+	std::vector< std::tuple<double, double, double, int, double> > values;
 	for (int i=0;i!=hmc->GetNbinsX()+1;i++){
-	  values.push_back(std::make_tuple(hmc->GetBinContent(i+1)*ratio , hmc_err2->GetBinContent(i+1)*ratio*ratio, temp_map_data_pot[period]/temp_map_mc_acc_pot[period], map_histogram_covch[histoname]));
+	  values.push_back(std::make_tuple(hmc->GetBinContent(i+1)*ratio , hmc_err2->GetBinContent(i+1)*ratio*ratio, temp_map_data_pot[period]/temp_map_mc_acc_pot[period], map_histogram_covch_add[histoname].first, pow(hmc->GetBinContent(i+1) *ratio * map_histogram_covch_add[histoname].second,2) ));
 	}
 	map_histoname_values[histoname] = values;
 
@@ -445,8 +449,8 @@ void LEEana::CovMatrix::fill_pred_histograms(int run, std::map<int, std::vector<
       // cross term ...
       hpred_err2->Add(hmc_cros, it3->second.first * it4->second.first * 2 * it3->second.second);
       
-      std::vector< std::tuple<double, double, double, int> >& values1 = map_histoname_values[hist1];
-      std::vector< std::tuple<double, double, double, int> >& values2 = map_histoname_values[hist2];
+      std::vector< std::tuple<double, double, double, int, double> >& values1 = map_histoname_values[hist1];
+      std::vector< std::tuple<double, double, double, int, double> >& values2 = map_histoname_values[hist2];
       for (size_t j=0;j!=values1.size();j++){
 	std::get<0>(values1.at(j)) += std::get<0>(values2.at(j));
 	std::get<1>(values1.at(j)) += std::get<1>(values2.at(j)) + hmc_cros->GetBinContent(j+1) * it3->second.first * it4->second.first * 2 * it3->second.second; 

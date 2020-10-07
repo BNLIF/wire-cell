@@ -108,7 +108,7 @@ int main( int argc, char** argv )
   std::map<int, std::vector<TH1F*> > map_obsch_histos;
   // Bayesian error needed ...
   // obsch --> bin with overflow bin --> vector of all channels (merge certain channels) --> mean and err2 
-  std::map<int, std::vector< std::vector< std::tuple<double, double, double, int> > > > map_obsch_bayes;
+  std::map<int, std::vector< std::vector< std::tuple<double, double, double, int, double> > > > map_obsch_bayes;
     
   for (auto it = map_inputfile_info.begin(); it != map_inputfile_info.end(); it++){
     TString input_filename = it->first;
@@ -168,7 +168,7 @@ int main( int argc, char** argv )
       TH1F *h2 = it->second.at(2);
       int obsch = it->first;
 
-      std::vector<std::vector< std::tuple<double, double, double, int> > >  bayes_inputs = map_obsch_bayes[obsch];
+      std::vector<std::vector< std::tuple<double, double, double, int, double> > >  bayes_inputs = map_obsch_bayes[obsch];
 
       //std::cout << obsch << " " << bayes_inputs.size() << " " << bayes_inputs.at(0).size() << " " << h1->GetNbinsX() << std::endl;
 
@@ -645,14 +645,21 @@ int main( int argc, char** argv )
   TMatrixD* mat_collapse = cov.get_mat_collapse();
   mat_collapse->Write("mat_collapse");
 
+  // additional covariance matrix ...
+  TMatrixD* mat_add_cov = cov.get_add_cov_matrix();
+  
   std::map<int, TH1F*> map_covch_histo;
   
   for (auto it = map_obsch_bayes.begin(); it != map_obsch_bayes.end(); it++){
     int obsch = it->first;
-    std::vector<std::vector< std::tuple<double, double, double, int> > >  bayes_inputs = it->second;
-    TH1F *htemp = (TH1F*)map_obsch_histos[obsch].at(0);    
+    std::vector<std::vector< std::tuple<double, double, double, int, double> > >  bayes_inputs = it->second;
+    TH1F *htemp = (TH1F*)map_obsch_histos[obsch].at(0); // data histogram ...
+    
     for (size_t i=0;i!=bayes_inputs.size(); i++){
       int covch = std::get<3>(bayes_inputs.at(i).front());
+      // double add_sys = std::get<4>(bayes_inputs.at(i).front());
+      int start_bin = cov.get_covch_startbin(covch);
+      
       if (map_covch_histo.find(covch) == map_covch_histo.end()){
 	TH1F *hnew = (TH1F*)htemp->Clone(Form("histo_%d",covch));
 	hnew->Reset();
@@ -662,8 +669,12 @@ int main( int argc, char** argv )
       for (size_t j=0;j!=bayes_inputs.at(i).size();j++){
 	htemp1->SetBinContent(j+1, htemp1->GetBinContent(j+1) + std::get<0>(bayes_inputs.at(i).at(j)));
 	htemp1->SetBinError(j+1, sqrt(pow(htemp1->GetBinError(j+1),2) + std::get<1>(bayes_inputs.at(i).at(j))));
+	
+	(*mat_add_cov)(start_bin + j, start_bin + j) += std::get<4>(bayes_inputs.at(i).at(j));
+
+	//	std::cout << obsch << " " << i << " " << start_bin + j << " " <<  std::get<4>(bayes_inputs.at(i).at(j)) << std::endl;
       }
-      //std::cout << obsch << " " << bayes_inputs.size() << " " << i << " " << covch << std::endl;
+      //      std::cout << obsch << " " << bayes_inputs.size() << " " << i << " " << covch << " " << start_bin << std::endl;
       //  break;
     }
   }
@@ -671,6 +682,7 @@ int main( int argc, char** argv )
   for (auto it = map_covch_histo.begin(); it != map_covch_histo.end(); it++){
     it->second->SetDirectory(file3);
   }
+  mat_add_cov->Write("cov_mat_add");
   
   file3->Write();
   file3->Close();
