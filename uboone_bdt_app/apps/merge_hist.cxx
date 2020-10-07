@@ -672,7 +672,8 @@ int main( int argc, char** argv )
 	
 	(*mat_add_cov)(start_bin + j, start_bin + j) += std::get<4>(bayes_inputs.at(i).at(j));
 
-	//	std::cout << obsch << " " << i << " " << start_bin + j << " " <<  std::get<4>(bayes_inputs.at(i).at(j)) << std::endl;
+	//	if (std::get<4>(bayes_inputs.at(i).at(j)) > 0)
+	//  std::cout << obsch << " " << i << " " << start_bin + j << " " <<  std::get<4>(bayes_inputs.at(i).at(j)) << std::endl;
       }
       //      std::cout << obsch << " " << bayes_inputs.size() << " " << i << " " << covch << " " << start_bin << std::endl;
       //  break;
