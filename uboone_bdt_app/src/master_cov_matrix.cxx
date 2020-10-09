@@ -20,6 +20,22 @@
 
 using namespace LEEana;
 
+
+float leeweight(float Enu)
+ {
+         if(Enu<200 || Enu>=800) return 0.0;
+         else if(Enu>=200 && Enu<250) return 6.37441;
+         else if(Enu>=250 && Enu<300) return 5.64554;
+         else if(Enu>=300 && Enu<350) return 3.73055;
+         else if(Enu>=350 && Enu<400) return 1.50914;
+         else if(Enu>=400 && Enu<450) return 1.07428;
+         else if(Enu>=450 && Enu<500) return 0.754093;
+         else if(Enu>=500 && Enu<600) return 0.476307;
+         else if(Enu>=600 && Enu<800) return 0.152327;
+         else return 0.0;
+ }
+
+
 LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString file_filename){
   std::ifstream infile(cov_filename);
   TString name, var_name;
@@ -303,7 +319,7 @@ LEEana::CovMatrix::~CovMatrix(){
 
 void LEEana::CovMatrix::gen_det_cov_matrix(int run, std::map<TString, TH1F*>& map_histoname_hist, TMatrixD* cov_mat_bootstrapping, TMatrixD* cov_det_mat){
   // prepare the maps ... name --> no,  covch, lee
-  std::map<TString, std::tuple<int, int, int>> map_histoname_infos ; 
+  std::map<TString, std::tuple<int, int, int, TString>> map_histoname_infos ; 
   std::map<int, TString> map_no_histoname; 
     
   int ncount = 0;
@@ -325,10 +341,11 @@ void LEEana::CovMatrix::gen_det_cov_matrix(int run, std::map<TString, TH1F*>& ma
       TString histoname = std::get<0>(*it1);
       TH1F *htemp = map_histoname_hist[histoname];
       //
-      map_histoname_infos[histoname] = std::make_tuple(ncount, covch, flag_lee);
+      map_histoname_infos[histoname] = std::make_tuple(ncount, covch, flag_lee, input_filename);
       map_no_histoname[ncount] = histoname;
       ncount ++;
-      //   std::cout << histoname << obsch << " " << covch << " " << flag_lee << std::endl;
+
+      //std::cout << histoname << obsch << " " << covch << " " << flag_lee << std::endl;
     }
   }
 
@@ -345,12 +362,53 @@ void LEEana::CovMatrix::gen_det_cov_matrix(int run, std::map<TString, TH1F*>& ma
     get_events_info(input_filename, map_all_events, map_filename_pot, map_histoname_infos);      
   }
   
-  
-  
+  double data_pot = 5e19; // example ...
+
+  // fill the histogram with CV
+  fill_det_histograms(map_all_events, map_histoname_infos, map_no_histoname, map_histoname_hist, 1);
+  // merge histograms according to POTs ...
 }
 
+ void LEEana::CovMatrix::fill_det_histograms(std::map<TString, std::vector< std::tuple<int, int, double, double, std::set<std::tuple<int, double, bool, double, bool> > > > >&map_all_events, std::map<TString, std::tuple<int, int, int, TString>>& map_histoname_infos, std::map<int, TString>& map_no_histoname,  std::map<TString, TH1F*>& map_histoname_hist, int flag){
+   // fill central value ...
+   if (flag==1){
+     // loop over files
+     for (auto it = map_all_events.begin(); it!=map_all_events.end(); it++){
+       // loop over events ...
+       //std::cout << it->first << " " << it->second.size() << std::endl;
+       
+       for (size_t i=0;i!=it->second.size(); i++){
+	 double weight = std::get<2>(it->second.at(i));
+	 double weight_lee = std::get<3>(it->second.at(i));
 
- void LEEana::CovMatrix::get_events_info(TString input_filename, std::map<TString, std::vector< std::tuple<int, int, double, double, std::set<std::tuple<int, double, bool, double, bool> > > > > &map_all_events, std::map<TString, double>& map_filename_pot,  std::map<TString, std::tuple<int, int, int>>& map_histoname_infos){
+	 //	 std::cout << i << " " << weight << " " << weight_lee << " " << std::get<4>(it->second.at(i)).size() << std::endl;
+	 
+	 for (auto it1 = std::get<4>(it->second.at(i)).begin(); it1 != std::get<4>(it->second.at(i)).end(); it1++){
+	   int no = std::get<0>(*it1);
+	   double val_cv = std::get<1>(*it1);
+	   bool flag_cv = std::get<2>(*it1);
+	   double val_det = std::get<3>(*it1);
+	   bool flag_det = std::get<4>(*it1);
+
+	   TString histoname = map_no_histoname[no];
+       	   TH1F *htemp = map_histoname_hist[histoname];
+	   int flag_lee = std::get<2>(map_histoname_infos[histoname]);
+	   
+	   if (flag_lee){
+	     htemp->Fill(val_cv, weight * weight_lee);
+	   }else{
+	     htemp->Fill(val_cv, weight);
+	   }
+	   // std::cout << weight << " " << weight_lee << " " << flag_lee << " " << histoname << std::endl;
+	 }
+       }
+     }
+   }
+   
+ }
+ 
+
+ void LEEana::CovMatrix::get_events_info(TString input_filename, std::map<TString, std::vector< std::tuple<int, int, double, double, std::set<std::tuple<int, double, bool, double, bool> > > > > &map_all_events, std::map<TString, double>& map_filename_pot,  std::map<TString, std::tuple<int, int, int, TString>>& map_histoname_infos){
 
    //   std::cout << input_filename << std::endl;
   TFile *file = new TFile(input_filename);
@@ -536,8 +594,12 @@ void LEEana::CovMatrix::gen_det_cov_matrix(int run, std::map<TString, TH1F*>& ma
     std::get<0>(vec_events.at(i)) = eval_cv.run;
     std::get<1>(vec_events.at(i)) = eval_cv.event;
     std::get<2>(vec_events.at(i)) = eval_cv.weight_cv * eval_cv.weight_spline;
-    std::get<3>(vec_events.at(i)) = eval_cv.weight_lee;
+
     
+    
+    //    std::get<3>(vec_events.at(i)) = eval_cv.weight_lee;
+    // hack for now ...
+    std::get<3>(vec_events.at(i)) = leeweight(eval_cv.truth_nuEnergy);
     
     for (auto it = histo_infos.begin(); it != histo_infos.end(); it++){
       TString histoname = std::get<0>(*it);
