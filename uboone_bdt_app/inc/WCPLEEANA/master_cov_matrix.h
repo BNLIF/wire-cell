@@ -56,7 +56,7 @@ namespace LEEana{
     
     float get_ext_pot(TString filename);
     std::vector< std::tuple<TString, int, float, float, TString, TString, TString, TString > > get_histograms(TString filename, int flag = 0);
-    std::map<TString, std::tuple<int, int, TString, float, int> > getp_map_inputfile_info(){return map_inputfile_info;};
+    std::map<TString, std::tuple<int, int, TString, float, int> > get_map_inputfile_info(){return map_inputfile_info;};
 
     std::map<TString, std::pair<TString, int> > get_map_pred_histo_histo_err2_lee(){return map_pred_histo_histo_err2_lee;};
 

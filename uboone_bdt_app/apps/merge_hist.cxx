@@ -31,8 +31,6 @@ int main( int argc, char** argv )
   float lee_strength = 0; // no LEE strength ...
   int flag_display = 0;
   
-
-  
   for (Int_t i=1;i!=argc;i++){
     switch(argv[i][1]){
     case 'r':
@@ -54,7 +52,7 @@ int main( int argc, char** argv )
 
   // get data histograms ...
   // filetype, period, outfilename, external pot, fileno
-  std::map<TString, std::tuple<int, int, TString, float, int> > map_inputfile_info = cov.getp_map_inputfile_info();
+  std::map<TString, std::tuple<int, int, TString, float, int> > map_inputfile_info = cov.get_map_inputfile_info();
 
   TFile *temp_file;
   TH1F *htemp;
