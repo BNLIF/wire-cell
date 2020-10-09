@@ -3,7 +3,22 @@
 #include <iostream>
 #include <fstream>
 
+#include "TFile.h"
+#include "TTree.h"
+
+#include "WCPLEEANA/cuts.h"
+#include "WCPLEEANA/pot.h"
+#include "WCPLEEANA/pfeval.h"
+
+//#include "WCPLEEANA/eval.h"
+//#include "WCPLEEANA/kine.h"
+//#include "WCPLEEANA/tagger.h"
+
 #include "mcm_1.h"
+
+
+
+using namespace LEEana;
 
 LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString file_filename){
   std::ifstream infile(cov_filename);
@@ -285,3 +300,268 @@ LEEana::CovMatrix::~CovMatrix(){
   delete gh;
 }
 
+
+void LEEana::CovMatrix::gen_det_cov_matrix(int run, std::map<TString, TH1F*>& map_histoname_hist, TMatrixD* cov_mat_bootstrapping, TMatrixD* cov_det_mat){
+  // prepare the maps ... name --> no,  covch, lee
+  std::map<TString, std::tuple<int, int, int>> map_histoname_infos ; 
+  std::map<int, TString> map_no_histoname; 
+    
+  int ncount = 0;
+  for (auto it = map_inputfile_info.begin(); it != map_inputfile_info.end(); it++){
+    TString input_filename = it->first;
+    int filetype = std::get<0>(it->second);
+    int period = std::get<1>(it->second);
+    
+    if (period != run) continue;
+    TString out_filename = std::get<2>(it->second);
+    int file_no = std::get<4>(it->second);
+    std::vector< std::tuple<TString,  int, float, float, TString, TString, TString, TString > > histo_infos = get_histograms(input_filename,0);
+    
+    for (auto it1 = histo_infos.begin(); it1 != histo_infos.end(); it1++){
+      int ch = map_name_ch[std::get<5>(*it1)];
+      int obsch = get_obsch_name(std::get<5>(*it1));
+      int covch = get_covch_name(std::get<5>(*it1));
+      int flag_lee = std::get<7>(map_ch_hist[ch]);
+      TString histoname = std::get<0>(*it1);
+      TH1F *htemp = map_histoname_hist[histoname];
+      //
+      map_histoname_infos[histoname] = std::make_tuple(ncount, covch, flag_lee);
+      map_no_histoname[ncount] = histoname;
+      ncount ++;
+      //   std::cout << histoname << obsch << " " << covch << " " << flag_lee << std::endl;
+    }
+  }
+
+  // results ... filename --> re --> variable, weight, lee weight, 
+  std::map<TString, std::vector<std::tuple<int, int, double, double, std::set<std::tuple<int, double, bool, double, bool> > > > > map_all_events;
+  std::map<TString, double> map_filename_pot;
+  for (auto it = map_inputfile_info.begin(); it != map_inputfile_info.end(); it++){
+    TString input_filename = it->first;
+    //int filetype = std::get<0>(it->second);
+    int period = std::get<1>(it->second);
+    if (period != run) continue;
+
+    //map_all_events[input_filename];
+    get_events_info(input_filename, map_all_events, map_filename_pot, map_histoname_infos);      
+  }
+  
+  
+  
+}
+
+
+ void LEEana::CovMatrix::get_events_info(TString input_filename, std::map<TString, std::vector< std::tuple<int, int, double, double, std::set<std::tuple<int, double, bool, double, bool> > > > > &map_all_events, std::map<TString, double>& map_filename_pot,  std::map<TString, std::tuple<int, int, int>>& map_histoname_infos){
+
+   //   std::cout << input_filename << std::endl;
+  TFile *file = new TFile(input_filename);
+
+  TTree *T_BDTvars_cv = (TTree*)file->Get("wcpselection/T_BDTvars_cv");
+  TTree *T_eval_cv = (TTree*)file->Get("wcpselection/T_eval_cv");
+  TTree *T_pot_cv = (TTree*)file->Get("wcpselection/T_pot_cv");
+  TTree *T_PFeval_cv = (TTree*)file->Get("wcpselection/T_PFeval_cv");
+  TTree *T_KINEvars_cv = (TTree*)file->Get("wcpselection/T_KINEvars_cv");
+
+  EvalInfo eval_cv;
+  POTInfo pot_cv;
+  TaggerInfo tagger_cv;
+  PFevalInfo pfeval_cv;
+  KineInfo kine_cv;
+
+  TTree *T_BDTvars_det = (TTree*)file->Get("wcpselection/T_BDTvars_det");
+  TTree *T_eval_det = (TTree*)file->Get("wcpselection/T_eval_det");
+  TTree *T_pot_det = (TTree*)file->Get("wcpselection/T_pot_det");
+  TTree *T_PFeval_det = (TTree*)file->Get("wcpselection/T_PFeval_det");
+  TTree *T_KINEvars_det = (TTree*)file->Get("wcpselection/T_KINEvars_det");
+
+  EvalInfo eval_det;
+  POTInfo pot_det;
+  TaggerInfo tagger_det;
+  PFevalInfo pfeval_det;
+  KineInfo kine_det;
+  
+  
+#include "init.txt"
+    
+  set_tree_address(T_BDTvars_cv, tagger_cv,2 );
+  set_tree_address(T_eval_cv, eval_cv);
+  set_tree_address(T_PFeval_cv, pfeval_cv);
+  set_tree_address(T_pot_cv, pot_cv);
+  set_tree_address(T_KINEvars_cv, kine_cv);
+
+  set_tree_address(T_BDTvars_det, tagger_det,2 );
+  set_tree_address(T_eval_det, eval_det);
+  set_tree_address(T_PFeval_det, pfeval_det);
+  set_tree_address(T_pot_det, pot_det);
+  set_tree_address(T_KINEvars_det, kine_det);
+  
+  double total_pot = 0;
+  for (Int_t i=0;i!=T_pot_cv->GetEntries();i++){
+    T_pot_cv->GetEntry(i);
+    total_pot += pot_cv.pot_tor875;
+  }
+  // total POT calculations ...
+  map_filename_pot[input_filename] = total_pot;
+
+   // fill histogram ...
+  T_BDTvars_cv->SetBranchStatus("*",0);
+  T_BDTvars_cv->SetBranchStatus("numu_cc_flag",1);
+  T_BDTvars_cv->SetBranchStatus("numu_score",1);
+  T_BDTvars_cv->SetBranchStatus("nue_score",1);
+  T_BDTvars_cv->SetBranchStatus("cosmict_flag",1);
+
+  T_eval_cv->SetBranchStatus("*",0);
+  T_eval_cv->SetBranchStatus("run",1);
+  T_eval_cv->SetBranchStatus("subrun",1);
+  T_eval_cv->SetBranchStatus("event",1);
+  
+  T_eval_cv->SetBranchStatus("match_isFC",1);
+  T_eval_cv->SetBranchStatus("match_found",1);
+  if (T_eval_cv->GetBranch("match_found_asInt")) T_eval_cv->SetBranchStatus("match_found_asInt",1); 
+  T_eval_cv->SetBranchStatus("stm_eventtype",1);
+  T_eval_cv->SetBranchStatus("stm_lowenergy",1);
+  T_eval_cv->SetBranchStatus("stm_LM",1);
+  T_eval_cv->SetBranchStatus("stm_TGM",1);
+  T_eval_cv->SetBranchStatus("stm_STM",1);
+  T_eval_cv->SetBranchStatus("stm_FullDead",1);
+  T_eval_cv->SetBranchStatus("stm_clusterlength",1);
+  
+  
+  T_eval_cv->SetBranchStatus("weight_spline",1);
+  T_eval_cv->SetBranchStatus("weight_cv",1);
+  T_eval_cv->SetBranchStatus("weight_lee",1);
+  T_eval_cv->SetBranchStatus("weight_change",1);
+  // MC enable truth information ...
+  T_eval_cv->SetBranchStatus("truth_isCC",1);
+  T_eval_cv->SetBranchStatus("truth_nuPdg",1);
+  T_eval_cv->SetBranchStatus("truth_vtxInside",1);
+  T_eval_cv->SetBranchStatus("truth_nuEnergy",1);
+  T_eval_cv->SetBranchStatus("truth_vtxX",1);
+  T_eval_cv->SetBranchStatus("truth_vtxY",1);
+  T_eval_cv->SetBranchStatus("truth_vtxZ",1);
+ 
+  
+  T_KINEvars_cv->SetBranchStatus("*",0);
+  T_KINEvars_cv->SetBranchStatus("kine_reco_Enu",1);
+  T_KINEvars_cv->SetBranchStatus("kine_pio_mass",1);
+  T_KINEvars_cv->SetBranchStatus("kine_pio_flag",1);
+  T_KINEvars_cv->SetBranchStatus("kine_pio_vtx_dis",1);
+  T_KINEvars_cv->SetBranchStatus("kine_pio_energy_1",1);
+  T_KINEvars_cv->SetBranchStatus("kine_pio_theta_1",1);
+  T_KINEvars_cv->SetBranchStatus("kine_pio_phi_1",1);
+  T_KINEvars_cv->SetBranchStatus("kine_pio_dis_1",1);
+  T_KINEvars_cv->SetBranchStatus("kine_pio_energy_2",1);
+  T_KINEvars_cv->SetBranchStatus("kine_pio_theta_2",1);
+  T_KINEvars_cv->SetBranchStatus("kine_pio_phi_2",1);
+  T_KINEvars_cv->SetBranchStatus("kine_pio_dis_2",1);
+  T_KINEvars_cv->SetBranchStatus("kine_pio_angle",1);
+
+  T_PFeval_cv->SetBranchStatus("*",0);
+
+  
+   // fill histogram ...
+  T_BDTvars_det->SetBranchStatus("*",0);
+  T_BDTvars_det->SetBranchStatus("numu_cc_flag",1);
+  T_BDTvars_det->SetBranchStatus("numu_score",1);
+  T_BDTvars_det->SetBranchStatus("nue_score",1);
+  T_BDTvars_det->SetBranchStatus("cosmict_flag",1);
+
+  T_eval_det->SetBranchStatus("*",0);
+  T_eval_det->SetBranchStatus("run",1);
+  T_eval_det->SetBranchStatus("subrun",1);
+  T_eval_det->SetBranchStatus("event",1);
+  
+  T_eval_det->SetBranchStatus("match_isFC",1);
+  T_eval_det->SetBranchStatus("match_found",1);
+  if (T_eval_det->GetBranch("match_found_asInt")) T_eval_det->SetBranchStatus("match_found_asInt",1); 
+  T_eval_det->SetBranchStatus("stm_eventtype",1);
+  T_eval_det->SetBranchStatus("stm_lowenergy",1);
+  T_eval_det->SetBranchStatus("stm_LM",1);
+  T_eval_det->SetBranchStatus("stm_TGM",1);
+  T_eval_det->SetBranchStatus("stm_STM",1);
+  T_eval_det->SetBranchStatus("stm_FullDead",1);
+  T_eval_det->SetBranchStatus("stm_clusterlength",1);
+  
+  
+  T_eval_det->SetBranchStatus("weight_spline",1);
+  T_eval_det->SetBranchStatus("weight_cv",1);
+  T_eval_det->SetBranchStatus("weight_lee",1);
+  T_eval_det->SetBranchStatus("weight_change",1);
+  // MC enable truth information ...
+  T_eval_det->SetBranchStatus("truth_isCC",1);
+  T_eval_det->SetBranchStatus("truth_nuPdg",1);
+  T_eval_det->SetBranchStatus("truth_vtxInside",1);
+  T_eval_det->SetBranchStatus("truth_nuEnergy",1);
+  T_eval_det->SetBranchStatus("truth_vtxX",1);
+  T_eval_det->SetBranchStatus("truth_vtxY",1);
+  T_eval_det->SetBranchStatus("truth_vtxZ",1);
+ 
+  
+  T_KINEvars_det->SetBranchStatus("*",0);
+  T_KINEvars_det->SetBranchStatus("kine_reco_Enu",1);
+  T_KINEvars_det->SetBranchStatus("kine_pio_mass",1);
+  T_KINEvars_det->SetBranchStatus("kine_pio_flag",1);
+  T_KINEvars_det->SetBranchStatus("kine_pio_vtx_dis",1);
+  T_KINEvars_det->SetBranchStatus("kine_pio_energy_1",1);
+  T_KINEvars_det->SetBranchStatus("kine_pio_theta_1",1);
+  T_KINEvars_det->SetBranchStatus("kine_pio_phi_1",1);
+  T_KINEvars_det->SetBranchStatus("kine_pio_dis_1",1);
+  T_KINEvars_det->SetBranchStatus("kine_pio_energy_2",1);
+  T_KINEvars_det->SetBranchStatus("kine_pio_theta_2",1);
+  T_KINEvars_det->SetBranchStatus("kine_pio_phi_2",1);
+  T_KINEvars_det->SetBranchStatus("kine_pio_dis_2",1);
+  T_KINEvars_det->SetBranchStatus("kine_pio_angle",1);
+
+  T_PFeval_det->SetBranchStatus("*",0);
+
+  
+  std::vector<std::tuple<int, int, double, double, std::set<std::tuple<int, double, bool, double, bool> > > > vec_events;
+
+  std::vector< std::tuple<TString,  int, float, float, TString, TString, TString, TString > > histo_infos = get_histograms(input_filename,0);
+
+  vec_events.resize(T_eval_cv->GetEntries());
+  
+  for (Int_t i=0;i!=T_eval_cv->GetEntries();i++){
+    T_BDTvars_cv->GetEntry(i);
+    T_eval_cv->GetEntry(i);
+    T_KINEvars_cv->GetEntry(i);
+    T_PFeval_cv->GetEntry(i);
+
+    T_BDTvars_det->GetEntry(i);
+    T_eval_det->GetEntry(i);
+    T_KINEvars_det->GetEntry(i);
+    T_PFeval_det->GetEntry(i);
+
+    if ( !(eval_cv.run == eval_det.run && eval_cv.event == eval_det.event)) std::cout <<"Wrong! " << std::endl;
+    
+    std::get<0>(vec_events.at(i)) = eval_cv.run;
+    std::get<1>(vec_events.at(i)) = eval_cv.event;
+    std::get<2>(vec_events.at(i)) = eval_cv.weight_cv * eval_cv.weight_spline;
+    std::get<3>(vec_events.at(i)) = eval_cv.weight_lee;
+    
+    
+    for (auto it = histo_infos.begin(); it != histo_infos.end(); it++){
+      TString histoname = std::get<0>(*it);
+
+      auto it2 = map_histoname_infos.find(histoname);
+      int no = std::get<0>(it2->second);
+      
+      TString var_name = std::get<4>(*it);
+      TString ch_name = std::get<5>(*it);
+      TString add_cut = std::get<6>(*it);
+      //      TString weight = std::get<7>(*it);
+ 
+      double val = get_kine_var(kine_cv, pfeval_cv, var_name);
+      bool flag_pass = get_cut_pass(ch_name, add_cut, false, eval_cv, tagger_cv, kine_cv);
+
+      double val1 = get_kine_var(kine_det, pfeval_det, var_name);
+      bool flag_pass1 = get_cut_pass(ch_name, add_cut, false, eval_det, tagger_det, kine_det);
+      if (flag_pass || flag_pass1) 	std::get<4>(vec_events.at(i) ).insert(std::make_tuple(no, val, flag_pass, val1, flag_pass1));
+      
+    }
+    //std::cout << std::get<0>(vec_events.at(i)) << " " << std::get<1>(vec_events.at(i)) << " " << std::get<2>(vec_events.at(i)) << " " << std::get<3>(vec_events.at(i))  << " " << std::get<4>(vec_events.at(i) ).size() << std::endl;
+  }
+  
+  
+  
+  map_all_events[input_filename] = vec_events;
+}

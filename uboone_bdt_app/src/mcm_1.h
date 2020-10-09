@@ -198,6 +198,11 @@ int LEEana::CovMatrix::get_obsch_name(TString name){
   return std::get<6>(map_ch_hist[ch]);
 }
 
+int LEEana::CovMatrix::get_covch_name(TString name){
+  int ch = map_name_ch[name];
+  return map_ch_covch[ch];
+}
+
 float LEEana::CovMatrix::get_ext_pot(TString filename){
   auto it = map_inputfile_info.find(filename);
   if (it != map_inputfile_info.end()){

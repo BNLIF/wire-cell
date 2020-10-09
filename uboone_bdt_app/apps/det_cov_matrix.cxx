@@ -73,7 +73,7 @@ int main( int argc, char** argv )
   // create a covariance matrix for det systematics ...
   TMatrixD* cov_det_mat = new TMatrixD(cov_add_mat->GetNrows(), cov_add_mat->GetNcols());
   
-  
+  cov.gen_det_cov_matrix(run, map_histoname_hist, cov_mat_bootstrapping, cov_det_mat);
   
   TFile *file = new TFile(outfile_name,"RECREATE");
   cov_mat_bootstrapping->Write(Form("cov_mat_boostrapping_%d",run));
