@@ -611,6 +611,7 @@ int main( int argc, char** argv )
   put_tree_address(t2_cv, pot_cv);
   put_tree_address(t5_cv, kine_cv);
   
+  
   set_tree_address(T_BDTvars_det, tagger_det,2 );
   set_tree_address(T_eval_det, eval_det);
   set_tree_address(T_PFeval_det, pfeval_det);
@@ -624,7 +625,7 @@ int main( int argc, char** argv )
   put_tree_address(t2_det, pot_det);
   put_tree_address(t5_det, kine_det);
 
-
+  
   T_BDTvars_cv->SetBranchStatus("*",0);
   T_BDTvars_cv->SetBranchStatus("numu_cc_flag",1);
   T_BDTvars_cv->SetBranchStatus("numu_score",1);
@@ -729,7 +730,7 @@ int main( int argc, char** argv )
   T_KINEvars_det->SetBranchStatus("kine_pio_angle",1);
 
   T_PFeval_det->SetBranchStatus("*",0);
-
+  
 
   std::map<std::pair<int, int>, int> map_re_entry_cv;
   std::map<std::pair<int, int>, std::set<std::pair<int, int> > > map_rs_re_cv;

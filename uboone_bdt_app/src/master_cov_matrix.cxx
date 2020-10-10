@@ -268,6 +268,7 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
 	  std::set<std::pair<TString, int> > histos = map_pred_subch_histos[subch];
 
 	  map_pred_obsch_histos[obsch].insert(histos);
+	  map_pred_covch_histos[covch].insert(histos);
 	  //for (auto it4 = histos.begin(); it4 != histos.end(); it4++){
 	  //  TString histo = *it4;
 	  //map_pred_obsch_histos[obsch].insert(histo);
@@ -317,7 +318,7 @@ LEEana::CovMatrix::~CovMatrix(){
 }
 
 
-void LEEana::CovMatrix::gen_det_cov_matrix(int run, std::map<TString, TH1F*>& map_histoname_hist, TMatrixD* cov_mat_bootstrapping, TMatrixD* cov_det_mat){
+void LEEana::CovMatrix::gen_det_cov_matrix(int run, std::map<int, TH1F*>& map_covch_hist, std::map<TString, TH1F*>& map_histoname_hist, TMatrixD* cov_mat_bootstrapping, TMatrixD* cov_det_mat){
   // prepare the maps ... name --> no,  covch, lee
   std::map<TString, std::tuple<int, int, int, TString>> map_histoname_infos ; 
   std::map<int, TString> map_no_histoname; 
@@ -367,9 +368,58 @@ void LEEana::CovMatrix::gen_det_cov_matrix(int run, std::map<TString, TH1F*>& ma
   // fill the histogram with CV
   fill_det_histograms(map_all_events, map_histoname_infos, map_no_histoname, map_histoname_hist, 1);
   // merge histograms according to POTs ...
+  for (auto it = map_pred_covch_histos.begin(); it!=map_pred_covch_histos.end();it++){
+    //std::cout << it->first << std::endl;
+    int covch = it->first;
+    TH1F *hpred = map_covch_hist[covch];
+    hpred->Reset();
+
+    for (auto it1 = it->second.begin(); it1 != it->second.end(); it1++){
+      TH1F *htemp = (TH1F*)hpred->Clone("htemp");
+      htemp->Reset();
+      std::map<int, double> temp_map_mc_acc_pot;
+      
+      for (auto it2 = it1->begin(); it2 != it1->end(); it2++){
+	TString histoname = (*it2).first;
+	TString input_filename = map_histogram_inputfile[histoname];
+	auto it3 = map_inputfile_info.find(input_filename);
+	int period = std::get<1>(it3->second);  if (period != run) continue; // skip ...
+	double mc_pot = map_filename_pot[input_filename];
+	//std::cout << mc_pot << std::endl;
+	if (temp_map_mc_acc_pot.find(period) == temp_map_mc_acc_pot.end()){
+	  temp_map_mc_acc_pot[period] = mc_pot;
+	}else{
+	  temp_map_mc_acc_pot[period] += mc_pot;
+	}
+      }
+
+      for (auto it2 = it1->begin(); it2 != it1->end(); it2++){
+	TString histoname = (*it2).first;
+	TString input_filename = map_histogram_inputfile[histoname];
+	auto it3 = map_inputfile_info.find(input_filename);
+	int period = std::get<1>(it3->second);  if (period != run) continue; // skip ...
+	double ratio = data_pot/temp_map_mc_acc_pot[period];
+
+	TH1F *hmc = map_histoname_hist[histoname];
+	htemp->Add(hmc, ratio);
+	std::cout << covch << " " << histoname << " " << ratio << std::endl;
+      }
+      
+      hpred->Add(htemp);
+      delete htemp;
+    }
+    
+  }
+  
+  
 }
 
  void LEEana::CovMatrix::fill_det_histograms(std::map<TString, std::vector< std::tuple<int, int, double, double, std::set<std::tuple<int, double, bool, double, bool> > > > >&map_all_events, std::map<TString, std::tuple<int, int, int, TString>>& map_histoname_infos, std::map<int, TString>& map_no_histoname,  std::map<TString, TH1F*>& map_histoname_hist, int flag){
+
+   for (auto it = map_histoname_hist.begin(); it != map_histoname_hist.end(); it++){
+     it->second->Reset();
+   }
+   
    // fill central value ...
    if (flag==1){
      // loop over files
@@ -393,12 +443,17 @@ void LEEana::CovMatrix::gen_det_cov_matrix(int run, std::map<TString, TH1F*>& ma
 	   TString histoname = map_no_histoname[no];
        	   TH1F *htemp = map_histoname_hist[histoname];
 	   int flag_lee = std::get<2>(map_histoname_infos[histoname]);
-	   
-	   if (flag_lee){
-	     htemp->Fill(val_cv, weight * weight_lee);
-	   }else{
-	     htemp->Fill(val_cv, weight);
+
+	   if (flag_cv){
+	     if (flag_lee){
+	       htemp->Fill(val_cv, weight * weight_lee);
+	     }else{
+	       htemp->Fill(val_cv, weight);
+	     }
 	   }
+	   
+	   // if (no==2)
+	   //std::cout << std::get<0>(it->second.at(i)) << " " << std::get<1>(it->second.at(i)) << " " << val_cv << " " << weight << std::endl;
 	   // std::cout << weight << " " << weight_lee << " " << flag_lee << " " << histoname << std::endl;
 	 }
        }
