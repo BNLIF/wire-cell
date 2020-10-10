@@ -15,6 +15,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TStyle.h"
+#include "TVectorD.h"
 
 using namespace std;
 using namespace LEEana;
@@ -79,17 +80,23 @@ int main( int argc, char** argv )
   TMatrixD* cov_mat_bootstrapping = new TMatrixD(cov_add_mat->GetNrows(), cov_add_mat->GetNcols());
   // create a covariance matrix for det systematics ...
   TMatrixD* cov_det_mat = new TMatrixD(cov_add_mat->GetNrows(), cov_add_mat->GetNcols());
+  TVectorD* vec_mean_diff = new TVectorD(cov_add_mat->GetNrows());
+  TVectorD* vec_mean = new TVectorD(cov_add_mat->GetNrows());
   
-  cov.gen_det_cov_matrix(run, map_covch_hist, map_histoname_hist, cov_mat_bootstrapping, cov_det_mat);
+  cov.gen_det_cov_matrix(run, map_covch_hist, map_histoname_hist, vec_mean, vec_mean_diff, cov_mat_bootstrapping, cov_det_mat);
   
   TFile *file = new TFile(outfile_name,"RECREATE");
+  vec_mean->Write(Form("vec_mean_%d",run));
+  vec_mean_diff->Write(Form("vec_mean_diff_%d",run));
+  
   cov_mat_bootstrapping->Write(Form("cov_mat_boostrapping_%d",run));
   cov_det_mat->Write(Form("cov_det_mat_%d",run));
+  
 
   // save central ... results ...
-  for (auto it = map_histoname_hist.begin(); it != map_histoname_hist.end(); it++){
-   ((TH1F*)it->second)->SetDirectory(file);
-  }
+  // for (auto it = map_histoname_hist.begin(); it != map_histoname_hist.end(); it++){
+  //  ((TH1F*)it->second)->SetDirectory(file);
+  // }
   for (auto it = map_covch_hist.begin(); it != map_covch_hist.end(); it++){
     ((TH1F*)it->second)->SetDirectory(file);
   }
