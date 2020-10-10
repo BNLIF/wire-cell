@@ -391,7 +391,7 @@ void LEEana::CovMatrix::gen_det_cov_matrix(int run, std::map<int, TH1F*>& map_co
   
   // working on the bootstrapping ...
   for (int qx = 0; qx != 4000; qx++){
-    if (qx % 100 ==0) std::cout << qx << std::endl;
+    if (qx % 500 ==0) std::cout << qx << std::endl;
     
     for (int i=0;i!=rows;i++){
       x[i] = 0;
@@ -483,6 +483,8 @@ void LEEana::CovMatrix::gen_det_cov_matrix(int run, std::map<int, TH1F*>& map_co
     for (int j=0;j!=rows;j++){
       if (matrix_eigenvalue(j) >=0)
 	matrix_element(j,0) = random3.Gaus(0,sqrt(matrix_eigenvalue(j)));
+      else
+	matrix_element(j,0) = 0;
     }
     TMatrixD matrix_variation = matrix_eigenvector * matrix_element;
     double rel_err = random3.Gaus(0,1);
@@ -557,7 +559,8 @@ void LEEana::CovMatrix::gen_det_cov_matrix(int run, std::map<int, TH1F*>& map_co
     int start_bin = map_covch_startbin[covch];
     for (int i=0;i!=hpred->GetNbinsX()+1;i++){
       (*vec_mean)[start_bin+i] = hpred->GetBinContent(i+1);
-      //  std::cout << start_bin+i << " " << (*vec_mean)(start_bin+i) << " " <<  hpred->GetBinContent(i+1) << std::endl;;
+
+      //std::cout << start_bin+i << " " << (*vec_mean_diff)(start_bin+i) << " " <<  hpred->GetBinContent(i+1) << std::endl;;
 	//std::cout << x[start_bin+i] << std::endl;
     }
     
