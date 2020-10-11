@@ -56,7 +56,7 @@ namespace LEEana{
     
     float get_ext_pot(TString filename);
     std::vector< std::tuple<TString, int, float, float, TString, TString, TString, TString > > get_histograms(TString filename, int flag = 0);
-    std::map<TString, std::tuple<int, int, TString, float, int> > get_map_inputfile_info(){return map_inputfile_info;};
+    std::map<TString, std::tuple<int, int, TString, float, int, double> > get_map_inputfile_info(){return map_inputfile_info;};
 
     std::map<TString, std::pair<TString, int> > get_map_pred_histo_histo_err2_lee(){return map_pred_histo_histo_err2_lee;};
 
@@ -127,8 +127,8 @@ namespace LEEana{
     std::map<int, std::vector<TString> > map_filetype_inputfiles;
     std::map<TString, int> map_inputfile_filetype;
     
-    // filetype, period, outfile_name, external pot if any, file_no
-    std::map<TString, std::tuple<int, int, TString, float, int> > map_inputfile_info;
+    // filetype, period, outfile_name, external pot if any, file_no, norm_pot
+    std::map<TString, std::tuple<int, int, TString, float, int, double> > map_inputfile_info;
     std::map<int, int> map_fileno_period;
     std::map<TString, std::vector<TString> > map_inputfile_cuts;
 

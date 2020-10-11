@@ -140,10 +140,11 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
   TString input_filename;
   TString out_filename;
   float ext_pot;
+  double norm_pot;
   //std::cout << cv_filename << std::endl;
   std::ifstream infile1(cv_filename);
   while(!infile1.eof()){
-    infile1 >> filetype >> name >> period >> input_filename >> out_filename >> ext_pot >> file_no;
+    infile1 >> filetype >> name >> period >> input_filename >> out_filename >> ext_pot >> file_no >> norm_pot;
     //std::cout << filetype << " " << out_filename << std::endl;
     
     if (filetype == -1) break;
@@ -151,7 +152,7 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
     map_filetype_name[filetype] = name;
     map_filetype_inputfiles[filetype].push_back(input_filename);
     map_inputfile_filetype[input_filename] = filetype;
-    map_inputfile_info[input_filename] = std::make_tuple(filetype, period, out_filename, ext_pot, file_no);
+    map_inputfile_info[input_filename] = std::make_tuple(filetype, period, out_filename, ext_pot, file_no, norm_pot);
     map_fileno_period[file_no] = period;
   }
 
@@ -430,6 +431,7 @@ void LEEana::CovMatrix::gen_det_cov_matrix(int run, std::map<int, TH1F*>& map_co
 	  TString input_filename = map_histogram_inputfile[histoname];
 	  auto it3 = map_inputfile_info.find(input_filename);
 	  int period = std::get<1>(it3->second);  if (period != run) continue; // skip ...
+	  data_pot = std::get<5>(map_inputfile_info[input_filename]);
 	  double ratio = data_pot/temp_map_mc_acc_pot[period];
 	  
 	  TH1F *hmc = map_histoname_hist[histoname];
@@ -545,6 +547,7 @@ void LEEana::CovMatrix::gen_det_cov_matrix(int run, std::map<int, TH1F*>& map_co
 	 TString input_filename = map_histogram_inputfile[histoname];
 	 auto it3 = map_inputfile_info.find(input_filename);
 	 int period = std::get<1>(it3->second);  if (period != run) continue; // skip ...
+	 data_pot = std::get<5>(map_inputfile_info[input_filename]);
 	 double ratio = data_pot/temp_map_mc_acc_pot[period];
 	 
 	 TH1F *hmc = map_histoname_hist[histoname];
