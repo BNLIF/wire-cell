@@ -910,4 +910,6 @@ void LEEana::CovMatrix::fill_det_histograms(std::map<TString, TH1D*> map_filenam
   
   
   map_all_events[input_filename] = vec_events;
+
+  delete file;
 }

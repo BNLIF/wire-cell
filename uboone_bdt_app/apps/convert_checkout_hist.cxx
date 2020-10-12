@@ -17,21 +17,25 @@ using namespace LEEana;
 
 int main( int argc, char** argv )
 {
-  CovMatrix cov;
 
   TString input_filename = argv[1];
   TString out_filename = argv[2];
 
-
   bool flag_data = true;
-  TFile *file = new TFile(input_filename);
 
+
+  CovMatrix cov;
+  
+  {
+    TFile *file = new TFile(input_filename,"READ");
+
+    
   TTree *T_BDTvars = (TTree*)file->Get("wcpselection/T_BDTvars");
   TTree *T_eval = (TTree*)file->Get("wcpselection/T_eval");
   TTree *T_pot = (TTree*)file->Get("wcpselection/T_pot");
   TTree *T_PFeval = (TTree*)file->Get("wcpselection/T_PFeval");
   TTree *T_KINEvars = (TTree*)file->Get("wcpselection/T_KINEvars");
-
+ 
   if (T_eval->GetBranch("weight_cv")) flag_data = false;
 
   EvalInfo eval;
@@ -63,6 +67,7 @@ int main( int argc, char** argv )
   
   std::cout << "Total POT: " << total_pot << " external POT: " << ext_pot << std::endl;
 
+  
   // prepare histograms ...
   // declare histograms ...
   TH1F *htemp;
@@ -177,6 +182,8 @@ int main( int argc, char** argv )
   T_PFeval->SetBranchStatus("*",0);
   
   std::cout << "Total entries: " << T_eval->GetEntries() << std::endl;
+
+
   for (Int_t i=0;i!=T_eval->GetEntries();i++){
     T_BDTvars->GetEntry(i);
     T_eval->GetEntry(i);
@@ -225,6 +232,10 @@ int main( int argc, char** argv )
   
   file1->Write();
   file1->Close();
+
+  }
+  
+  
   
   return 0;
 }
