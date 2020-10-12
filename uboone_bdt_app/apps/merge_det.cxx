@@ -734,18 +734,49 @@ int main( int argc, char** argv )
 
   std::map<std::pair<int, int>, int> map_re_entry_cv;
   std::map<std::pair<int, int>, std::set<std::pair<int, int> > > map_rs_re_cv;
+
+  bool flag_presel = false;
+  
   for (int i=0;i!=T_eval_cv->GetEntries();i++){
     T_eval_cv->GetEntry(i);
-    map_re_entry_cv[std::make_pair(eval_cv.run, eval_cv.event)] = i;
+    T_BDTvars_cv->GetEntry(i);
+    
     map_rs_re_cv[std::make_pair(eval_cv.run, eval_cv.subrun)].insert(std::make_pair(eval_cv.run, eval_cv.event));
+    
+    int tmp_match_found = eval_cv.match_found;
+    if (eval_cv.is_match_found_int) tmp_match_found = eval_cv.match_found_asInt;
+    
+    flag_presel = false;
+    if (tmp_match_found != 0 && eval_cv.stm_eventtype != 0 && eval_cv.stm_lowenergy ==0 && eval_cv.stm_LM ==0 && eval_cv.stm_TGM ==0 && eval_cv.stm_STM==0 && eval_cv.stm_FullDead == 0 && eval_cv.stm_clusterlength >0) {
+      flag_presel = true; // preselection ...
+    }
+    
+    if (tmp_match_found == -1  || (tmp_match_found == 1 && eval_cv.stm_lowenergy == -1) || (flag_presel && tagger_cv.numu_cc_flag == -1)) continue;
+    
+    map_re_entry_cv[std::make_pair(eval_cv.run, eval_cv.event)] = i;
+
   }
   
   std::map<std::pair<int, int>, int> map_re_entry_det;
   std::map<std::pair<int, int>, std::set<std::pair<int, int> > > map_rs_re_det;
   for (int i=0;i!=T_eval_det->GetEntries();i++){
     T_eval_det->GetEntry(i);
-    map_re_entry_det[std::make_pair(eval_det.run, eval_det.event)] = i;
+    T_BDTvars_det->GetEntry(i);
+    
     map_rs_re_det[std::make_pair(eval_det.run, eval_det.subrun)].insert(std::make_pair(eval_det.run, eval_det.event));
+    
+    int tmp_match_found = eval_det.match_found;
+    if (eval_det.is_match_found_int) tmp_match_found = eval_det.match_found_asInt;
+    
+    flag_presel = false;
+    if (tmp_match_found != 0 && eval_det.stm_eventtype != 0 && eval_det.stm_lowenergy ==0 && eval_det.stm_LM ==0 && eval_det.stm_TGM ==0 && eval_det.stm_STM==0 && eval_det.stm_FullDead == 0 && eval_det.stm_clusterlength >0) {
+      flag_presel = true; // preselection ...
+    }
+
+    if (tmp_match_found == -1  || (tmp_match_found == 1&& eval_det.stm_lowenergy == -1)  || (flag_presel && tagger_det.numu_cc_flag == -1)) continue;
+    
+    map_re_entry_det[std::make_pair(eval_det.run, eval_det.event)] = i;
+    
   }
 
   std::map<std::tuple<int, int>, std::pair<int, double> > map_rs_entry_pot_cv;

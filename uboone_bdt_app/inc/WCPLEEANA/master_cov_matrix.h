@@ -154,9 +154,9 @@ namespace LEEana{
     // Now the cross uncertainty term
     std::map<std::pair<TString, TString>, std::pair<TString, int> > map_pair_histo_histos_cros; // OK
 
-    // obsch, 
+    // obsch --> subchannel --> histos
     std::map<int, std::set<std::set<std::pair<TString, int> > > > map_pred_obsch_histos; // total ...
-    // covch,
+    // covch --> subchannel --> histos 
     std::map<int, std::set<std::set<std::pair<TString, int> > > > map_pred_covch_histos; // total ...
     
    

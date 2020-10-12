@@ -43,7 +43,7 @@ int main( int argc, char** argv )
   TString input_file = argv[1];
   TString out_file = argv[2];
 
-  float weight_cut_val = 1000;
+  float weight_cut_val = 30;
   float fail_percentage = 0.15;
 
   TString training_list = "";
@@ -1113,8 +1113,8 @@ int main( int argc, char** argv )
       //      std::cout << flag_use_global_file_type << " " << *eval.file_type  << " " << eval.run << " " << eval.subrun << " " << remove_set.size() << std::endl;
     }
 
-    
-    
+    /*
+    // failed jobs ...
     int tmp_match_found = eval.match_found;
     if (eval.is_match_found_int) tmp_match_found = eval.match_found_asInt;
     
@@ -1127,10 +1127,11 @@ int main( int argc, char** argv )
     if (tmp_match_found == -1) map_rs_f1p5[std::make_pair(eval.run, eval.subrun)].insert(eval.event);
     if (tmp_match_found == 1 && eval.stm_lowenergy == -1) map_rs_f2stm[std::make_pair(eval.run, eval.subrun)].insert(eval.event);
     if (flag_presel && tagger.numu_cc_flag == -1) map_rs_f2pr[std::make_pair(eval.run, eval.subrun)].insert(eval.event);
+    */
   }
 
 
-  
+  /*
   for (auto it = map_rs_f1p5.begin(); it!= map_rs_f1p5.end(); it++){
     if ( map_rs_f1p5[it->first].size()  > map_rs_n[it->first] * fail_percentage && map_rs_f1p5[it->first].size() != 1
 	 || map_rs_f1p5[it->first].size()  > map_rs_n[it->first] * 0.33 && map_rs_f1p5[it->first].size() == 1)
@@ -1146,6 +1147,7 @@ int main( int argc, char** argv )
 	)
       remove_set.insert(it->first);
   }
+  */
 
   //  std::cout << remove_set.size() << std::endl;
   
@@ -1161,8 +1163,6 @@ int main( int argc, char** argv )
     T_PFeval->GetEntry(i);
 
     if (remove_set.find(std::make_pair(eval.run, eval.subrun)) != remove_set.end()) continue;
-
-    
     
     tagger.br3_3_score     = cal_br3_3_bdt(0.3, tagger,  reader_br3_3, br3_3_v_energy,  br3_3_v_angle,  br3_3_v_dir_length, br3_3_v_length);
     tagger.br3_5_score     = cal_br3_5_bdt(0.42, tagger,  reader_br3_5, br3_5_v_dir_length, br3_5_v_total_length, br3_5_v_flag_avoid_muon_check, br3_5_v_n_seg, br3_5_v_angle, br3_5_v_sg_length, br3_5_v_energy, br3_5_v_n_main_segs, br3_5_v_n_segs, br3_5_v_shower_main_length, br3_5_v_shower_total_length);

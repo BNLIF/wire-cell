@@ -56,7 +56,8 @@ int main(int argc, char** argv){
     TTree *T_pot = (TTree*)file1->Get("wcpselection/T_pot");
     POTInfo pot;
     set_tree_address(T_pot, pot);
-
+    float pass_ratio = 1;
+    if (T_pot->GetBranch("pass_ratio")) T_pot->SetBranchAddress("pass_ratio", &pass_ratio);
    
     for (Int_t i=0;i!=T_pot->GetEntries();i++){
       T_pot->GetEntry(i);
@@ -64,8 +65,8 @@ int main(int argc, char** argv){
       if (it == map_bnb_infos.end()){
 	std::cout << "Run: " << pot.runNo << " subRun: " << pot.subRunNo << "not found!" << std::endl;
       }else{
-	total_bnb_trigger_no += it->second.first;
-	total_bnb_pot += it->second.second;
+	total_bnb_trigger_no += it->second.first * pass_ratio;
+	total_bnb_pot += it->second.second * pass_ratio;
       }
     }
 
@@ -86,7 +87,9 @@ int main(int argc, char** argv){
     TTree *T_pot = (TTree*)file2->Get("wcpselection/T_pot");
     POTInfo pot;
     set_tree_address(T_pot, pot);
-
+    float pass_ratio=1;
+    if (T_pot->GetBranch("pass_ratio")) T_pot->SetBranchAddress("pass_ratio", &pass_ratio);
+    
    
     for (Int_t i=0;i!=T_pot->GetEntries();i++){
       T_pot->GetEntry(i);
@@ -95,7 +98,7 @@ int main(int argc, char** argv){
       if (it == map_extbnb_infos.end()){
 	std::cout << "Run: " << pot.runNo << " subRun: " << pot.subRunNo << "  not found!" << std::endl;
       }else{
-	total_extbnb_trigger_no += it->second;
+	total_extbnb_trigger_no += it->second * pass_ratio;
       }
     }
 
