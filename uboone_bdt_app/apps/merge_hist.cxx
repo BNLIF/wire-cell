@@ -690,9 +690,9 @@ int main( int argc, char** argv )
       TH1F *hmc = it->second.at(1);
       
       hdata->SetName(Form("hdata_obsch_%d",obsch));
-    hmc->SetName(Form("hmc_obsch_%d",obsch));
-    hdata->SetDirectory(file3);
-    hmc->SetDirectory(file3);
+      hmc->SetName(Form("hmc_obsch_%d",obsch));
+      hdata->SetDirectory(file3);
+      hmc->SetDirectory(file3);
     }
     
     mat_add_cov->Write("cov_mat_add");
