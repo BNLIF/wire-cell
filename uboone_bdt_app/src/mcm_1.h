@@ -1,3 +1,10 @@
+void LEEana::CovMatrix::add_disabled_ch_name(TString name){
+  disabled_ch_names.insert(name);
+}
+void LEEana::CovMatrix::remove_disabled_ch_name(TString name){
+  disabled_ch_names.erase(name);
+}
+
 void LEEana::CovMatrix::gen_det_cov_matrix(int run, std::map<int, TH1F*>& map_covch_hist, std::map<TString, TH1F*>& map_histoname_hist, TVectorD* vec_mean, TVectorD* vec_mean_diff, TMatrixD* cov_mat_bootstrapping, TMatrixD* cov_det_mat){
 
   
@@ -571,7 +578,10 @@ void LEEana::CovMatrix::fill_det_histograms(std::map<TString, TH1D*> map_filenam
       TString ch_name = std::get<5>(*it);
       TString add_cut = std::get<6>(*it);
       //      TString weight = std::get<7>(*it);
- 
+
+      auto it3 = disabled_ch_names.find(ch_name);
+      if (it3 != disabled_ch_names.end()) continue;
+      
       double val = get_kine_var(kine_cv, pfeval_cv, var_name);
       bool flag_pass = get_cut_pass(ch_name, add_cut, false, eval_cv, tagger_cv, kine_cv);
 

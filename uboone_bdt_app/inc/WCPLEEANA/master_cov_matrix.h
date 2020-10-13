@@ -81,7 +81,11 @@ namespace LEEana{
     void fill_det_histograms(std::map<TString, TH1D*> map_filename_histo, std::map<TString, std::vector< std::tuple<int, int, double, double, std::set<std::tuple<int, double, bool, double, bool> > > > >&map_all_events, std::map<TString, std::tuple<int, int, int, TString>>& map_histoname_infos, std::map<int, TString>& map_no_histoname,  std::map<TString, TH1F*>& map_histoname_hist);
     
     std::pair<double,double> get_bayes_errors(double num);
-    
+
+    void add_disabled_ch_name(TString name);
+    std::set<TString>& get_disabled_ch_names(){return disabled_ch_names;};
+    void remove_disabled_ch_name(TString name);
+      
   private:
     TGraph *gl, *gh;
     int llimit, hlimit;
@@ -161,7 +165,8 @@ namespace LEEana{
     std::map<int, std::set<std::set<std::pair<TString, int> > > > map_pred_obsch_histos; // total ...
     // covch --> subchannel --> histos 
     std::map<int, std::set<std::set<std::pair<TString, int> > > > map_pred_covch_histos; // total ...
-    
+
+    std::set<TString> disabled_ch_names;
    
     
   };
