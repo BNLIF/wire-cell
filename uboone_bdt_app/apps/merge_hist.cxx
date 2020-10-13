@@ -238,7 +238,7 @@ int main( int argc, char** argv )
 	//map_obsch_histos[1].at(1)->SetLineColor(2);
       }
       
-      g10->Draw("A*");
+      g10->Draw("A*"); g10->SetTitle("nueCC FC");
       g10->SetMarkerStyle(20);
       g11->Draw("*same");
       g11->SetMarkerStyle(21);
@@ -279,7 +279,7 @@ int main( int argc, char** argv )
       //map_obsch_histos[3].at(1)->SetLineColor(2);
     }
 
-    g30->Draw("A*");
+    g30->Draw("A*");  g30->SetTitle("numuCC FC");
     g30->SetMarkerStyle(20);
     g31->Draw("*same");
     g31->SetMarkerStyle(21);
@@ -317,7 +317,7 @@ int main( int argc, char** argv )
       //map_obsch_histos[5].at(1)->SetLineColor(2);
     }
 
-    g50->Draw("A*");
+    g50->Draw("A*");  g50->SetTitle("CCpio FC");
     g50->SetMarkerStyle(20);
     g51->Draw("*same");
     g51->SetMarkerStyle(21);
@@ -351,7 +351,7 @@ int main( int argc, char** argv )
       //map_obsch_histos[2].at(1)->SetLineColor(2);
     }
 
-    g20->Draw("A*");
+    g20->Draw("A*");g20->SetTitle("nueCC PC");
     g20->SetMarkerStyle(20);
     g21->Draw("*same");
     g21->SetMarkerStyle(21);
@@ -386,7 +386,7 @@ int main( int argc, char** argv )
       //map_obsch_histos[4].at(1)->SetLineColor(2);
     }
 
-    g40->Draw("A*");
+    g40->Draw("A*"); g40->SetTitle("numuCC PC");
     g40->SetMarkerStyle(20);
     g41->Draw("*same");
     g41->SetMarkerStyle(21);
@@ -419,7 +419,7 @@ int main( int argc, char** argv )
       //map_obsch_histos[6].at(1)->SetLineColor(2);
     }
 
-    g60->Draw("A*");
+    g60->Draw("A*");  g60->SetTitle("CCpio PC");
     g60->SetMarkerStyle(20);
     g61->Draw("*same");
     g61->SetMarkerStyle(21);
@@ -453,7 +453,7 @@ int main( int argc, char** argv )
       //map_obsch_histos[7].at(1)->SetLineColor(2);
     }
 
-    g70->Draw("A*");
+    g70->Draw("A*");  g70->SetTitle("NC pio");
     g70->SetMarkerStyle(20);
     g71->Draw("*same");
     g71->SetMarkerStyle(21);
@@ -481,7 +481,7 @@ int main( int argc, char** argv )
       g11->SetPoint(i,x,y);
       g11->SetPointError(i,x_err,y_err);
     }
-    g10->Draw("A*");
+    g10->Draw("A*"); g10->SetTitle("nueCC FC");
     g10->SetMarkerStyle(20);
     g11->Draw("*same");
     g11->SetMarkerStyle(21);
@@ -504,7 +504,7 @@ int main( int argc, char** argv )
       g21->SetPoint(i,x,y);
       g21->SetPointError(i,x_err,y_err);
     }
-    g20->Draw("A*");
+    g20->Draw("A*");  g20->SetTitle("nueCC PC");
     g20->SetMarkerStyle(20);
     g21->Draw("*same");
     g21->SetMarkerStyle(21);
@@ -527,7 +527,7 @@ int main( int argc, char** argv )
       g31->SetPoint(i,x,y);
       g31->SetPointError(i,x_err,y_err);
     }
-    g30->Draw("A*");
+    g30->Draw("A*"); g30->SetTitle("numuCC FC");
     g30->SetMarkerStyle(20);
     g31->Draw("*same");
     g31->SetMarkerStyle(21);
@@ -550,7 +550,7 @@ int main( int argc, char** argv )
       g41->SetPoint(i,x,y);
       g41->SetPointError(i,x_err,y_err);
     }
-    g40->Draw("A*");
+    g40->Draw("A*");  g40->SetTitle("numuCC PC");
     g40->SetMarkerStyle(20);
     g41->Draw("*same");
     g41->SetMarkerStyle(21);
@@ -573,7 +573,7 @@ int main( int argc, char** argv )
       g51->SetPoint(i,x,y);
       g51->SetPointError(i,x_err,y_err);
     }
-    g50->Draw("A*");
+    g50->Draw("A*");  g50->SetTitle("CC pio FC");
     g50->SetMarkerStyle(20);
     g51->Draw("*same");
     g51->SetMarkerStyle(21);
@@ -596,7 +596,7 @@ int main( int argc, char** argv )
       g61->SetPoint(i,x,y);
       g61->SetPointError(i,x_err,y_err);
     }
-    g60->Draw("A*");
+    g60->Draw("A*"); g60->SetTitle("CCpio PC");
     g60->SetMarkerStyle(20);
     g61->Draw("*same");
     g61->SetMarkerStyle(21);
@@ -619,7 +619,7 @@ int main( int argc, char** argv )
       g71->SetPoint(i,x,y);
       g71->SetPointError(i,x_err,y_err);
     }
-    g70->Draw("A*");
+    g70->Draw("A*");g70->SetTitle("NCpio " );
     g70->SetMarkerStyle(20);
     g71->Draw("*same");
     g71->SetMarkerStyle(21);

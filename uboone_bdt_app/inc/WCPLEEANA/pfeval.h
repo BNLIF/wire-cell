@@ -20,6 +20,7 @@ struct PFevalInfo{
   Float_t reco_muonvtxY;
   Float_t reco_muonvtxZ;
   Float_t reco_muonMomentum[4];
+  
   Float_t nuvtx_diff;
   Float_t showervtx_diff;
   Float_t muonvtx_diff;
@@ -57,7 +58,7 @@ struct PFevalInfo{
   Float_t truth_pio_energy_2;
   Float_t truth_pio_angle;
   Int_t truth_NCDelta;
-  
+  Float_t reco_protonMomentum[4];
   
 };
 
@@ -125,6 +126,7 @@ void LEEana::set_tree_address(TTree *tree0, PFevalInfo& tagger_info, int flag){
       tree0->SetBranchAddress("truth_pio_energy_1",&tagger_info.truth_pio_energy_1);
       tree0->SetBranchAddress("truth_pio_energy_2",&tagger_info.truth_pio_energy_2);
       tree0->SetBranchAddress("truth_pio_angle",&tagger_info.truth_pio_angle);
+      tree0->SetBranchAddress("reco_protonMomentum",&tagger_info.reco_protonMomentum[0]);
     }
     
   }
@@ -185,6 +187,7 @@ void LEEana::put_tree_address(TTree *tree0, PFevalInfo& tagger_info, int flag){
       tree0->Branch("truth_pio_energy_1",&tagger_info.truth_pio_energy_1,"truth_pio_energy_1/F");
       tree0->Branch("truth_pio_energy_2",&tagger_info.truth_pio_energy_2,"truth_pio_energy_2/F");
       tree0->Branch("truth_pio_angle",&tagger_info.truth_pio_angle,"truth_pio_angle/F");
+      tree0->Branch("reco_protonMomentum",&tagger_info.reco_protonMomentum[0],"reco_protonMomentum[4]/F");
     }
   }
 }
