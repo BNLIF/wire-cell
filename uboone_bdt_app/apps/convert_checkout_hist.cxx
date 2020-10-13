@@ -26,8 +26,8 @@ int main( int argc, char** argv )
 
   CovMatrix cov;
   
-  {
-    TFile *file = new TFile(input_filename,"READ");
+  
+  TFile *file = new TFile(input_filename,"READ");
 
     
   TTree *T_BDTvars = (TTree*)file->Get("wcpselection/T_BDTvars");
@@ -233,7 +233,7 @@ int main( int argc, char** argv )
   file1->Write();
   file1->Close();
 
-  }
+  
   
   
   
