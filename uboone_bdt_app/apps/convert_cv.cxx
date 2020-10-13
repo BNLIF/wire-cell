@@ -410,7 +410,7 @@ int main( int argc, char** argv )
     }
     
     if (tmp_match_found == -1  || (tmp_match_found == 1 && eval_cv.stm_lowenergy == -1) || (flag_presel && tagger_cv.numu_cc_flag == -1)) {
-      num_check ++;
+      //num_check ++;
       continue;
     }
 
@@ -503,10 +503,13 @@ int main( int argc, char** argv )
     cv_pot += it->second.second;
 
     if(remove_set.find(it->first) != remove_set.end()) continue;
-    if (map_rs_re_cv[it->first].size()==0) continue;
-    
-    pass_ratio = 1-map_rs_failed[it->first] * 1.0 / map_rs_re_cv[it->first].size();
-    
+    if (map_rs_re_cv[it->first].size()==0) {
+      //continue;
+      pass_ratio = 1;
+      //      std::cout << pot_cv.runNo << " " << pot_cv.subRunNo << " " << pot_cv.pot_tor875 << std::endl;
+    }else{
+      pass_ratio = 1 - map_rs_failed[it->first] * 1.0 / map_rs_re_cv[it->first].size();
+    }
     cv1_pot += it->second.second * pass_ratio;
 
     pot_cv.pot_tor875 *= pass_ratio;
