@@ -23,13 +23,14 @@ int main( int argc, char** argv )
 
   bool flag_data = true;
 
-
+  TFile *file = new TFile(input_filename,"READ");
+  
   CovMatrix cov;
   
   
-  TFile *file = new TFile(input_filename,"READ");
 
-    
+
+  
   TTree *T_BDTvars = (TTree*)file->Get("wcpselection/T_BDTvars");
   TTree *T_eval = (TTree*)file->Get("wcpselection/T_eval");
   TTree *T_pot = (TTree*)file->Get("wcpselection/T_pot");
@@ -234,7 +235,7 @@ int main( int argc, char** argv )
   file1->Close();
 
   
-  
+   
   
   
   return 0;
