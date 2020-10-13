@@ -3,6 +3,8 @@
 
 namespace LEEana{
 struct PFevalInfo{
+  bool flag_NCDelta;
+  
   Int_t run;
   Int_t subrun;
   Int_t event;
@@ -48,6 +50,13 @@ struct PFevalInfo{
   Float_t truth_vtxZ;
   Float_t truth_nuTime;
   Int_t truth_nuIntType;
+
+  //
+  Int_t truth_NprimPio;
+  Float_t truth_pio_energy_1;
+  Float_t truth_pio_energy_2;
+  Float_t truth_pio_angle;
+  Int_t truth_NCDelta;
   
   
 };
@@ -58,6 +67,9 @@ void put_tree_address(TTree *tree0, PFevalInfo& tagger_info, int flag = 1);
 }
 
 void LEEana::set_tree_address(TTree *tree0, PFevalInfo& tagger_info, int flag){
+  tagger_info.flag_NCDelta = false;
+
+  
   tree0->SetBranchAddress("run", &tagger_info.run);
   tree0->SetBranchAddress("subrun", &tagger_info.subrun);
   tree0->SetBranchAddress("event", &tagger_info.event);
@@ -105,6 +117,16 @@ void LEEana::set_tree_address(TTree *tree0, PFevalInfo& tagger_info, int flag){
     tree0->SetBranchAddress("truth_vtxZ", &tagger_info.truth_vtxZ);
     tree0->SetBranchAddress("truth_nuTime", &tagger_info.truth_nuTime);
     tree0->SetBranchAddress("truth_nuIntType", &tagger_info.truth_nuIntType);
+
+    if (tree0->GetBranch("truth_NCDelta")){
+      tagger_info.flag_NCDelta = true;
+      tree0->SetBranchAddress("truth_NCDelta",&tagger_info.truth_NCDelta);
+      tree0->SetBranchAddress("truth_NprimPio",&tagger_info.truth_NprimPio);
+      tree0->SetBranchAddress("truth_pio_energy_1",&tagger_info.truth_pio_energy_1);
+      tree0->SetBranchAddress("truth_pio_energy_2",&tagger_info.truth_pio_energy_2);
+      tree0->SetBranchAddress("truth_pio_angle",&tagger_info.truth_pio_angle);
+    }
+    
   }
 }
 
@@ -156,8 +178,17 @@ void LEEana::put_tree_address(TTree *tree0, PFevalInfo& tagger_info, int flag){
     tree0->Branch("truth_vtxZ", &tagger_info.truth_vtxZ,"data/F");
     tree0->Branch("truth_nuTime", &tagger_info.truth_nuTime,"data/F");
     tree0->Branch("truth_nuIntType", &tagger_info.truth_nuIntType,"data/I");
+
+    if (tagger_info.flag_NCDelta){
+      tree0->Branch("truth_NCDelta",&tagger_info.truth_NCDelta,"truth_NCDelta/I");
+      tree0->Branch("truth_NprimPio",&tagger_info.truth_NprimPio,"truth_NprimPio/I");
+      tree0->Branch("truth_pio_energy_1",&tagger_info.truth_pio_energy_1,"truth_pio_energy_1/F");
+      tree0->Branch("truth_pio_energy_2",&tagger_info.truth_pio_energy_2,"truth_pio_energy_2/F");
+      tree0->Branch("truth_pio_angle",&tagger_info.truth_pio_angle,"truth_pio_angle/F");
+    }
   }
 }
+
 
 
 #endif
