@@ -14,6 +14,7 @@
 #include "TSystem.h"
 #include "TROOT.h"
 #include "TMath.h"
+#include "TH1F.h"
 
 using namespace std;
 //using namespace LEEana;
@@ -126,10 +127,12 @@ int main( int argc, char** argv )
   auto ofile = TFile::Open(outName.c_str(), "recreate");
   // ofile->mkdir("wcpselection")->cd();
 
+
   // set branch
   TTree* UBTree = nullptr;
   std::map<std::string, std::vector<float> > weight_f1;
   std::vector<float> weight_f2;
+  std::map<std::string, TH1F*> hwmap;
 
   if (SaveGenieFluxKnob == "UBGenieFluxSmallUni") {
     UBTree = new TTree("UBGenieFluxSmallUni","UBGenieFluxSmallUni");
@@ -145,6 +148,7 @@ int main( int argc, char** argv )
     for (auto const& knob : UBGenieFluxSmallUni) {
       weight_f1.emplace(knob, std::vector<float>());
       UBTree->Branch(knob.c_str(), &(weight_f1.at(knob)) );
+      hwmap.emplace(knob, new TH1F(("h_"+knob).c_str(), ("h_"+knob).c_str(), 1000, 0,2));
     }
 
   }
@@ -165,8 +169,8 @@ int main( int argc, char** argv )
     UBTree->Branch("weight_lee", &weight_lee, "weight_lee/F");
     UBTree->Branch("mcweight_filled", &mcweight_filled);
     UBTree->Branch(SaveGenieFluxKnob.c_str(), &weight_f2);
+    hwmap.emplace(SaveGenieFluxKnob, new TH1F(("h_"+SaveGenieFluxKnob).c_str(), ("h_"+SaveGenieFluxKnob).c_str(), 1000, 0,2));
   }
-
 
   // loop through events
   for (size_t i=0; i<T_wgt->GetEntries(); i++) {
@@ -184,21 +188,29 @@ int main( int argc, char** argv )
         for(auto const& knob: UBGenieFluxSmallUni) {
           // weight_f1->push_back(mcweight->at(knob));
           weight_f1.at(knob) = mcweight->at(knob);
+
+          for (auto const& w: weight_f1.at(knob)) {
+            hwmap.at(knob)->Fill(w);
+          }
         }
       }
       else {
          weight_f2 = mcweight->at(SaveGenieFluxKnob);
+
+         for (auto const& w: weight_f2) {
+           hwmap.at(SaveGenieFluxKnob)->Fill(w);
+         }
       }
     }
  
     UBTree->Fill();
-  }
+  } // end of T_wgt loop
 
   UBTree->Write();
+  for (auto x: hwmap) {
+    x.second->Write();
+  }
   ofile->Close();
-
- 
-  
  
   return 0;
 }

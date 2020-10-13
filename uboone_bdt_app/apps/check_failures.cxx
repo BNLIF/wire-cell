@@ -79,6 +79,8 @@ int main( int argc, char** argv )
   T_eval->SetBranchStatus("*",0);
   Int_t stm_eventtype, stm_lowenergy, stm_LM, stm_TGM, stm_STM, stm_FullDead;
   Float_t stm_cluster_length;
+
+  std::cout << "Total checkout events: " << T_eval->GetEntries() << std::endl;
   
   T_eval->SetBranchStatus("stm_eventtype",1); T_eval->SetBranchAddress("stm_eventtype",&stm_eventtype);
   T_eval->SetBranchStatus("stm_lowenergy",1); T_eval->SetBranchAddress("stm_lowenergy",&stm_lowenergy);
