@@ -24,7 +24,7 @@ int main( int argc, char** argv )
 {
   
   if (argc < 2){
-    std::cout << "./det_cov_matrix -r[#sys 1-9]" << std::endl;
+    std::cout << "./xf_cov_matrix -r[#sys 1-14]" << std::endl;
   }
   int run = 1; // run 1 ...
   for (Int_t i=1;i!=argc;i++){
@@ -34,9 +34,9 @@ int main( int argc, char** argv )
       break;
     }
   }
-  
-  CovMatrix cov("./configurations/cov_input.txt", "./configurations/det_input.txt", "./configurations/det_file_ch.txt");
 
+  CovMatrix cov("./configurations/cov_input.txt", "./configurations/xf_input.txt", "./configurations/xf_file_ch.txt");
+  
   // Get the file based on runno ...
   std::map<TString, std::tuple<int, int, TString, float, int, double> > map_inputfile_info = cov.get_map_inputfile_info();
   // Construct the histogram ...
@@ -47,7 +47,6 @@ int main( int argc, char** argv )
   TH1F *htemp;
   std::map<TString, TH1F*> map_histoname_hist;
   std::map<int, TH1F*> map_covch_hist;
-  
   for (auto it = map_inputfile_info.begin(); it!=map_inputfile_info.end(); it++){
     TString input_filename = it->first;
     int filetype = std::get<0>(it->second);
@@ -84,49 +83,41 @@ int main( int argc, char** argv )
     }
   }
   std::cout << outfile_name << std::endl;
-
   TMatrixD* cov_add_mat = cov.get_add_cov_matrix();
   // create a covariance matrix for bootstrapping ...
-  TMatrixD* cov_mat_bootstrapping = new TMatrixD(cov_add_mat->GetNrows(), cov_add_mat->GetNcols());
-  // create a covariance matrix for det systematics ...
-  TMatrixD* cov_det_mat = new TMatrixD(cov_add_mat->GetNrows(), cov_add_mat->GetNcols());
-  TVectorD* vec_mean_diff = new TVectorD(cov_add_mat->GetNrows());
+  TMatrixD* cov_xf_mat = new TMatrixD(cov_add_mat->GetNrows(), cov_add_mat->GetNcols());
   TVectorD* vec_mean = new TVectorD(cov_add_mat->GetNrows());
-  
-  cov.gen_det_cov_matrix(run, map_covch_hist, map_histoname_hist, vec_mean, vec_mean_diff, cov_mat_bootstrapping, cov_det_mat);
 
-  TMatrixD* frac_cov_det_mat = new TMatrixD(cov_add_mat->GetNrows(), cov_add_mat->GetNcols());
-  for (size_t i=0; i!= frac_cov_det_mat->GetNrows(); i++){
+  
+  
+  TMatrixD* frac_cov_xf_mat = new TMatrixD(cov_add_mat->GetNrows(), cov_add_mat->GetNcols());
+  for (size_t i=0; i!= frac_cov_xf_mat->GetNrows(); i++){
     double val_1 = (*vec_mean)(i);
-    for (size_t j=0; j!=frac_cov_det_mat->GetNrows();j++){
+    for (size_t j=0; j!=frac_cov_xf_mat->GetNrows();j++){
       double val_2 = (*vec_mean)(j);
-      double val = (*cov_det_mat)(i,j);
+      double val = (*cov_xf_mat)(i,j);
       if (val_1 ==0 && val_2 == 0){
-	(*frac_cov_det_mat)(i,j) = 0;
+	(*frac_cov_xf_mat)(i,j) = 0;
       }else if (val_1 ==0 || val_2 ==0){
 	if (val !=0){
 	  if (i==j){
-	    (*frac_cov_det_mat)(i,j) = 1./16.; // 25% uncertainties ...
+	    (*frac_cov_xf_mat)(i,j) = 0.;
 	  }else{
-	    (*frac_cov_det_mat)(i,j) = 0;
+	    (*frac_cov_xf_mat)(i,j) = 0;
 	  }
 	}else{
-	  (*frac_cov_det_mat)(i,j) = 0;
+	  (*frac_cov_xf_mat)(i,j) = 0;
 	}
       }else{
-	(*frac_cov_det_mat)(i,j) = val/val_1/val_2;
+	(*frac_cov_xf_mat)(i,j) = val/val_1/val_2;
       }
     }
   }
-  
-  
+
   TFile *file = new TFile(outfile_name,"RECREATE");
   vec_mean->Write(Form("vec_mean_%d",run));
-  vec_mean_diff->Write(Form("vec_mean_diff_%d",run));
-  
-  cov_mat_bootstrapping->Write(Form("cov_mat_boostrapping_%d",run));
-  cov_det_mat->Write(Form("cov_det_mat_%d",run));
-  frac_cov_det_mat->Write(Form("frac_cov_det_mat_%d",run));
+  cov_xf_mat->Write(Form("cov_xf_mat_%d",run));
+  frac_cov_xf_mat->Write(Form("frac_cov_xf_mat_%d",run));
   
 
   // save central ... results ...
@@ -139,4 +130,6 @@ int main( int argc, char** argv )
   
   file->Write();
   file->Close();
+  
+  return 0;
 }
