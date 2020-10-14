@@ -107,7 +107,8 @@ int main( int argc, char** argv )
   // Bayesian error needed ...
   // obsch --> bin with overflow bin --> vector of all channels (merge certain channels) --> mean and err2 
   std::map<int, std::vector< std::vector< std::tuple<double, double, double, int, double> > > > map_obsch_bayes;
-    
+  std::map<int, std::vector< std::vector< std::tuple<double, double, double, int, double> > > > map_obsch_infos;
+  
   for (auto it = map_inputfile_info.begin(); it != map_inputfile_info.end(); it++){
     TString input_filename = it->first;
     int filetype = std::get<0>(it->second);
@@ -154,7 +155,7 @@ int main( int argc, char** argv )
   cov.fill_data_histograms(run, map_obsch_histos, map_name_histogram);
   
   // get predictions and its uncertainties ...,
-  cov.fill_pred_histograms(run, map_obsch_histos, map_obsch_bayes, map_name_histogram, lee_strength, map_data_period_pot);
+  cov.fill_pred_histograms(run, map_obsch_histos, map_obsch_bayes, map_obsch_infos, map_name_histogram, lee_strength, map_data_period_pot);
   
   // get Bayesian errrors ...
 
@@ -649,13 +650,15 @@ int main( int argc, char** argv )
     
     std::map<int, TH1F*> map_covch_histo;
     
-    for (auto it = map_obsch_bayes.begin(); it != map_obsch_bayes.end(); it++){
+    for (auto it = map_obsch_infos.begin(); it != map_obsch_infos.end(); it++){
       int obsch = it->first;
       std::vector<std::vector< std::tuple<double, double, double, int, double> > >  bayes_inputs = it->second;
       TH1F *htemp = (TH1F*)map_obsch_histos[obsch].at(0); // data histogram ...
       
       for (size_t i=0;i!=bayes_inputs.size(); i++){
 	int covch = std::get<3>(bayes_inputs.at(i).front());
+
+	
 	// double add_sys = std::get<4>(bayes_inputs.at(i).front());
 	int start_bin = cov.get_covch_startbin(covch);
 	
@@ -663,26 +666,36 @@ int main( int argc, char** argv )
 	  TH1F *hnew = (TH1F*)htemp->Clone(Form("histo_%d",covch));
 	  hnew->Reset();
 	  map_covch_histo[covch] = hnew;
-      }
+	}
 	TH1F *htemp1 = map_covch_histo[covch];
+
+	//std::cout << covch << " " << obsch << " " << i << " " << htemp1->GetSum() << std::endl;
 	for (size_t j=0;j!=bayes_inputs.at(i).size();j++){
 	  htemp1->SetBinContent(j+1, htemp1->GetBinContent(j+1) + std::get<0>(bayes_inputs.at(i).at(j)));
 	  htemp1->SetBinError(j+1, sqrt(pow(htemp1->GetBinError(j+1),2) + std::get<1>(bayes_inputs.at(i).at(j))));
 	  
 	  (*mat_add_cov)(start_bin + j, start_bin + j) += std::get<4>(bayes_inputs.at(i).at(j));
-	  
-	  //	if (std::get<4>(bayes_inputs.at(i).at(j)) > 0)
+	
+	  //  if (covch == 8 && obsch == 1)
+	  //  std::cout << "bin: " << j << " " << std::get<0>(bayes_inputs.at(i).at(j)) << " " << std::get<1>(bayes_inputs.at(i).at(j)) << " " << std::get<3>(bayes_inputs.at(i).at(j)) << std::endl;
+	  //	  if (std::get<4>(bayes_inputs.at(i).at(j)) > 0)
 	  //  std::cout << obsch << " " << i << " " << start_bin + j << " " <<  std::get<4>(bayes_inputs.at(i).at(j)) << std::endl;
 	}
-	//      std::cout << obsch << " " << bayes_inputs.size() << " " << i << " " << covch << " " << start_bin << std::endl;
+	
+	//	std::cout << obsch << " " << bayes_inputs.size() << " " << bayes_inputs.at(0).size() << " " << i << " " << covch << " " << start_bin << std::endl;
 	//  break;
       }
     }
     
+    //for (auto it = map_name_histogram.begin(); it != map_name_histogram.end(); it++){
+    //  it->second.first->SetDirectory(file3);
+    // }
     
-    for (auto it = map_covch_histo.begin(); it != map_covch_histo.end(); it++){
-      it->second->SetDirectory(file3);
-    }
+    
+    
+    //    for (auto it = map_covch_histo.begin(); it != map_covch_histo.end(); it++){
+    //  it->second->SetDirectory(file3);
+    // }
     
     for (auto it = map_obsch_histos.begin(); it != map_obsch_histos.end(); it++){
       int obsch = it->first;

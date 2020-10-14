@@ -834,10 +834,109 @@ void LEEana::CovMatrix::get_events_weights(TString input_filename, std::map<TStr
     T_weight->GetEntry(i);
 
     std::tuple<float, float, std::vector<float>, std::vector<int>, std::set<std::pair<int, float> > > event_info;
+    std::get<0>(event_info) = eval.weight_cv * eval.weight_spline;
+    std::get<1>(event_info) = leeweight(eval.truth_nuEnergy);
     
+     for (auto it = histo_infos.begin(); it != histo_infos.end(); it++){
+      TString histoname = std::get<0>(*it);
+
+      auto it2 = map_histoname_infos.find(histoname);
+      int no = std::get<0>(it2->second);
+      
+      TString var_name = std::get<4>(*it);
+      TString ch_name = std::get<5>(*it);
+      TString add_cut = std::get<6>(*it);
+
+      float val = get_kine_var(kine, pfeval, var_name);
+      bool flag_pass = get_cut_pass(ch_name, add_cut, false, eval, tagger, kine);
+
+      if (flag_pass) std::get<4>(event_info).insert(std::make_pair(no, val));
+     }
     
-    if (std::get<4>(event_info).size()>0)
+    if (std::get<4>(event_info).size()>0){
+      if (option == "expskin_FluxUnisim"){
+	std::get<2>(event_info).resize(weight.expskin_FluxUnisim->size());
+	std::get<3>(event_info).push_back(weight.expskin_FluxUnisim->size());
+	for (size_t j=0;j!=weight.expskin_FluxUnisim->size();j++){
+	  std::get<2>(event_info).at(j) = weight.expskin_FluxUnisim->at(j) - 1.0; // relative ...
+	}
+      }else if (option == "horncurrent_FluxUnisim"){
+	std::get<2>(event_info).resize(weight.horncurrent_FluxUnisim->size());
+	std::get<3>(event_info).push_back(weight.horncurrent_FluxUnisim->size());
+	for (size_t j=0;j!= weight.horncurrent_FluxUnisim->size(); j++){
+	  std::get<2>(event_info).at(j) = weight.horncurrent_FluxUnisim->at(j) - 1.0; // relative ...
+	}
+      }else if (option == "kminus_PrimaryHadronNormalization"){
+	std::get<2>(event_info).resize(weight.kminus_PrimaryHadronNormalization->size());
+	std::get<3>(event_info).push_back(weight.kminus_PrimaryHadronNormalization->size());
+	for (size_t j=0;j!= weight.kminus_PrimaryHadronNormalization->size(); j++){
+	  std::get<2>(event_info).at(j) = weight.kminus_PrimaryHadronNormalization->at(j) - 1.0; 
+	}
+      }else if (option == "kplus_PrimaryHadronFeynmanScaling"){
+	std::get<2>(event_info).resize(weight.kplus_PrimaryHadronFeynmanScaling->size());
+	std::get<3>(event_info).push_back(weight.kplus_PrimaryHadronFeynmanScaling->size());
+	for (size_t j=0;j!=weight.kplus_PrimaryHadronFeynmanScaling->size();j++){
+	  std::get<2>(event_info).at(j) = weight.kplus_PrimaryHadronFeynmanScaling->at(j) - 1.0;
+	}
+      }else if (option == "kzero_PrimaryHadronSanfordWang"){
+	std::get<2>(event_info).resize(weight.kzero_PrimaryHadronSanfordWang->size());
+	std::get<3>(event_info).push_back(weight.kzero_PrimaryHadronSanfordWang->size());
+	for (size_t j=0;j!=weight.kzero_PrimaryHadronSanfordWang->size();j++){
+	  std::get<2>(event_info).at(j) = weight.kzero_PrimaryHadronSanfordWang->at(j) - 1.0;
+	}
+      }else if (option == "nucleoninexsec_FluxUnisim"){
+	std::get<2>(event_info).resize(weight.nucleoninexsec_FluxUnisim->size());
+	std::get<3>(event_info).push_back(weight.nucleoninexsec_FluxUnisim->size());
+	for (size_t j=0;j!=weight.nucleoninexsec_FluxUnisim->size();j++){
+	  std::get<2>(event_info).at(j) = weight.nucleoninexsec_FluxUnisim->at(j) - 1.0;
+	}
+      }else if (option == "nucleonqexsec_FluxUnisim"){
+	std::get<2>(event_info).resize(weight.nucleonqexsec_FluxUnisim->size());
+	std::get<3>(event_info).push_back(weight.nucleonqexsec_FluxUnisim->size());
+	for (size_t j=0; j!= weight.nucleonqexsec_FluxUnisim->size(); j++){
+	  std::get<2>(event_info).at(j) = weight.nucleonqexsec_FluxUnisim->at(j) - 1.0;
+	}
+      }else if (option == "nucleontotxsec_FluxUnisim"){
+	std::get<2>(event_info).resize(weight.nucleontotxsec_FluxUnisim->size());
+	std::get<3>(event_info).push_back(weight.nucleontotxsec_FluxUnisim->size());
+	for (size_t j=0; j!= weight.nucleontotxsec_FluxUnisim->size(); j++){
+	  std::get<2>(event_info).at(j) = weight.nucleontotxsec_FluxUnisim->at(j) - 1.0;
+	}
+      }else if (option == "piminus_PrimaryHadronSWCentralSplineVariation"){
+	std::get<2>(event_info).resize(weight.piminus_PrimaryHadronSWCentralSplineVariation->size());
+	std::get<3>(event_info).push_back(weight.piminus_PrimaryHadronSWCentralSplineVariation->size());
+	for (size_t j=0; j!= weight.piminus_PrimaryHadronSWCentralSplineVariation->size(); j++){
+	  std::get<2>(event_info).at(j) = weight.piminus_PrimaryHadronSWCentralSplineVariation->at(j) - 1.0;
+	}
+      }else if (option == "pioninexsec_FluxUnisim"){
+	std::get<2>(event_info).resize(weight.pioninexsec_FluxUnisim->size());
+	std::get<3>(event_info).push_back(weight.pioninexsec_FluxUnisim->size());
+	for (size_t j=0;j!=weight.pioninexsec_FluxUnisim->size();j++){
+	  std::get<2>(event_info).at(j) = weight.pioninexsec_FluxUnisim->at(j) - 1.0;
+	}
+      }else if (option == "pionqexsec_FluxUnisim"){
+	std::get<2>(event_info).resize(weight.pionqexsec_FluxUnisim->size());
+	std::get<3>(event_info).push_back(weight.pionqexsec_FluxUnisim->size());
+	for (size_t j=0;j!=weight.pionqexsec_FluxUnisim->size();j++){
+	  std::get<2>(event_info).at(j) = weight.pionqexsec_FluxUnisim->at(j) - 1.0;
+	}
+      }else if (option == "piontotxsec_FluxUnisim"){
+	std::get<2>(event_info).resize(weight.piontotxsec_FluxUnisim->size());
+	std::get<3>(event_info).push_back(weight.piontotxsec_FluxUnisim->size());
+	for (size_t j=0;j!=weight.piontotxsec_FluxUnisim->size();j++){
+	  std::get<2>(event_info).at(j) = weight.piontotxsec_FluxUnisim->at(j) - 1.0;
+	}
+      }else if (option == "piplus_PrimaryHadronSWCentralSplineVariation"){
+	std::get<2>(event_info).resize(weight.piplus_PrimaryHadronSWCentralSplineVariation->size());
+	std::get<3>(event_info).push_back(weight.piplus_PrimaryHadronSWCentralSplineVariation->size());
+	for (size_t j=0; j!= weight.piplus_PrimaryHadronSWCentralSplineVariation->size(); j++){
+	  std::get<2>(event_info).at(j) = weight.piplus_PrimaryHadronSWCentralSplineVariation->at(j) - 1.0;
+	}
+      }else if (option == "UBGenieFluxSmallUni"){
+	
+      }
       set_events.insert(event_info);
+    }
     
   }
   

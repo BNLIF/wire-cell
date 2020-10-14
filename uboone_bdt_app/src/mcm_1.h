@@ -661,7 +661,7 @@ void LEEana::CovMatrix::fill_data_histograms(int run, std::map<int, std::vector<
 }
 
 
-void LEEana::CovMatrix::fill_pred_histograms(int run, std::map<int, std::vector<TH1F*> >& map_obsch_histos, std::map<int, std::vector< std::vector< std::tuple<double, double, double, int, double> > > >& map_obsch_bayes, std::map<TString, std::pair<TH1F*, double> >& map_name_histogram, float lee_strength, std::map<int, double> map_data_period_pot){
+void LEEana::CovMatrix::fill_pred_histograms(int run, std::map<int, std::vector<TH1F*> >& map_obsch_histos, std::map<int, std::vector< std::vector< std::tuple<double, double, double, int, double> > > >& map_obsch_bayes, std::map<int, std::vector< std::vector< std::tuple<double, double, double, int, double> > > >& map_obsch_infos, std::map<TString, std::pair<TH1F*, double> >& map_name_histogram, float lee_strength, std::map<int, double> map_data_period_pot){
   
   for (auto it = map_pred_obsch_histos.begin(); it!=map_pred_obsch_histos.end();it++){
     //std::cout << it->first << std::endl;
@@ -741,8 +741,12 @@ void LEEana::CovMatrix::fill_pred_histograms(int run, std::map<int, std::vector<
 	}
 	map_histoname_values[histoname] = values;
 
-	//	if (obsch==1) std::cout << values.at(2).first << " sep " << values.at(2).second << " " << histoname << std::endl;
-	//	std::cout << histoname << " " << period << " " << temp_map_data_pot[period] << " " << temp_map_mc_acc_pot[period] << " " << htemp->GetSum() << " " << ratio << std::endl;
+	//if (obsch==1){ //std::cout << values.at(2).first << " sep " << values.at(2).second << " " << histoname << std::endl;
+	//  std::cout << histoname << " " << map_histogram_covch_add[histoname].first << " " << period << " " << temp_map_data_pot[period] << " " << temp_map_mc_acc_pot[period] << " " << hmc->GetSum() << " " << ratio << std::endl;
+	// for (int i=0;i!=hmc->GetNbinsX();i++){
+	//    std::cout << i << " " << hmc->GetBinContent(i+1) << std::endl;
+	//  }
+	//}
       }
 
       
@@ -754,7 +758,13 @@ void LEEana::CovMatrix::fill_pred_histograms(int run, std::map<int, std::vector<
       delete htemp;
       delete htemp_err2;
     }
+    
+    for (auto it2 = map_histoname_values.begin(); it2 != map_histoname_values.end(); it2++){
+      //if (obsch==1) std::cout << it2->first << " " << std::endl;
+      map_obsch_infos[obsch].push_back(it2->second);
+    }
 
+    
     //    std::cout << map_histoname_values.size() << std::endl;
     // treat cross term ???
     
@@ -784,7 +794,7 @@ void LEEana::CovMatrix::fill_pred_histograms(int run, std::map<int, std::vector<
     //   std::cout <<  map_histoname_values.size() << std::endl;
 
     for (auto it2 = map_histoname_values.begin(); it2 != map_histoname_values.end(); it2++){
-      //      if (obsch==1) std::cout << it2->second.at(2).first << " " << it2->second.at(2).second << std::endl;
+      //if (obsch==1) std::cout << it2->first << " " << std::endl;
       map_obsch_bayes[obsch].push_back(it2->second);
     }
     
