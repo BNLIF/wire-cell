@@ -143,10 +143,11 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
   TString out_filename;
   float ext_pot;
   double norm_pot;
+  int norm_period;
   //std::cout << cv_filename << std::endl;
   std::ifstream infile1(cv_filename);
   while(!infile1.eof()){
-    infile1 >> filetype >> name >> period >> input_filename >> out_filename >> ext_pot >> file_no >> norm_pot;
+    infile1 >> filetype >> name >> period >> input_filename >> out_filename >> ext_pot >> file_no >> norm_pot >> norm_period;
     //std::cout << filetype << " " << out_filename << std::endl;
     
     if (filetype == -1) break;
@@ -154,7 +155,7 @@ LEEana::CovMatrix::CovMatrix(TString cov_filename, TString cv_filename, TString 
     map_filetype_name[filetype] = name;
     map_filetype_inputfiles[filetype].push_back(input_filename);
     map_inputfile_filetype[input_filename] = filetype;
-    map_inputfile_info[input_filename] = std::make_tuple(filetype, period, out_filename, ext_pot, file_no, norm_pot);
+    map_inputfile_info[input_filename] = std::make_tuple(filetype, period, out_filename, ext_pot, file_no, norm_pot, norm_period);
     map_fileno_period[file_no] = period;
   }
 
@@ -393,23 +394,258 @@ void LEEana::CovMatrix::gen_xf_cov_matrix(int run, std::map<int, TH1F*>& map_cov
   // filename ...   # events               #weight  #leeweight #difference   #different types
   std::map<TString, std::set<std::tuple<float, float, std::vector<float>, std::vector<int>, std::set<std::pair<int, float> > > > > map_passed_events; // last one is variable name ...
   std::map<TString, double> map_filename_pot;
+  std::vector<int> max_lengths;
   for (auto it = map_inputfile_info.begin(); it != map_inputfile_info.end(); it++){
     TString input_filename = it->first;
     //int filetype = std::get<0>(it->second);
     int period = std::get<1>(it->second);
     if (period != run) continue;
 
+    
     //map_all_events[input_filename];
-    get_events_weights(input_filename, map_passed_events, map_filename_pot, map_histoname_infos);      
+    std::vector<int> lengths = get_events_weights(input_filename, map_passed_events, map_filename_pot, map_histoname_infos);
+
+    if (lengths.size() > max_lengths.size()) max_lengths.resize(lengths.size());
+    for (size_t i = 0; i != lengths.size();i++){
+      if (lengths.at(i) > max_lengths.at(i)) max_lengths.at(i) = lengths.at(i);
+    }
+    //std::cout << input_filename << " " << lengths.size() << std::endl;
   }
   
+  double data_pot = 5e19;
+  const int rows = cov_xf_mat->GetNcols();
+  float x[rows];
+  (*cov_xf_mat).Zero();
+ 
+  int acc_no = 0;
+  for (size_t j = 0; j!=max_lengths.size(); j++){
+
+    //    if (j>0) continue;
+    
+    int nsize = max_lengths.at(j);
+    TMatrixD temp_mat(rows, rows);
+    temp_mat.Zero(); 
+    
+    
+    for (int i=0;i!=nsize;i++){
+
+      //      if (i>=10) continue;
+      
+      for (int k = 0; k!= rows;k++){
+	x[k] = 0;
+      }
+      fill_xf_histograms(j, max_lengths.size(), acc_no, i, nsize,  map_passed_events, map_histoname_infos, map_no_histoname, map_histoname_hist);
+
+      // merge histograms according to POTs ...
+      for (auto it = map_pred_covch_histos.begin(); it!=map_pred_covch_histos.end();it++){
+	//std::cout << it->first << std::endl;
+	int covch = it->first;
+	TH1F *hpred = map_covch_hist[covch];
+	hpred->Reset();
+	
+	for (auto it1 = it->second.begin(); it1 != it->second.end(); it1++){
+	  TH1F *htemp = (TH1F*)hpred->Clone("htemp");
+	  htemp->Reset();
+	  std::map<int, double> temp_map_mc_acc_pot;
+	  
+	  for (auto it2 = it1->begin(); it2 != it1->end(); it2++){
+	    TString histoname = (*it2).first;
+	    TString input_filename = map_histogram_inputfile[histoname];
+	    auto it3 = map_inputfile_info.find(input_filename);
+	    int period = std::get<1>(it3->second);  if (period != run) continue; // skip ...
+	    int norm_period = std::get<6>(it3->second);
+	    double mc_pot = map_filename_pot[input_filename];
+	    //std::cout << mc_pot << std::endl;
+	    if (temp_map_mc_acc_pot.find(norm_period) == temp_map_mc_acc_pot.end()){
+	      temp_map_mc_acc_pot[norm_period] = mc_pot;
+	    }else{
+	      temp_map_mc_acc_pot[norm_period] += mc_pot;
+	    }
+	  }
+	  
+	  for (auto it2 = it1->begin(); it2 != it1->end(); it2++){
+	    TString histoname = (*it2).first;
+	    TString input_filename = map_histogram_inputfile[histoname];
+	    auto it3 = map_inputfile_info.find(input_filename);
+	    int period = std::get<1>(it3->second);  if (period != run) continue; // skip ...
+	    int norm_period = std::get<6>(it3->second);
+	    data_pot = std::get<5>(map_inputfile_info[input_filename]);
+	    double ratio = data_pot/temp_map_mc_acc_pot[norm_period];
+	    
+	    TH1F *hmc = map_histoname_hist[histoname];
+	    htemp->Add(hmc, ratio);
+	    //	std::cout << covch << " " << histoname << " " << ratio << std::endl;
+	  }
+	  
+	  hpred->Add(htemp);
+	  delete htemp;
+	}
+
+	int start_bin = map_covch_startbin[covch];
+	for (int k=0;k!=hpred->GetNbinsX()+1;k++){
+	  x[start_bin+k] = hpred->GetBinContent(k+1) ;
+	  //	  std::cout << i << " " << x[start_bin+i] << std::endl;
+	}
+      }
+      // add covariance matrix ...
+      for (size_t n = 0;n!=rows; n++){
+	for (size_t m =0; m!=rows;m++){
+	  temp_mat(n,m) += x[n] * x[m];
+	}
+      }  
+    } // i
+    temp_mat *= 1./nsize;
+
+    //std::cout << j << " " << temp_mat(26+26+5,26+26+26) << std::endl;
+    
+    (*cov_xf_mat) +=  temp_mat;
+    
+    
+    acc_no += nsize;
+  } //j
+
+  // calculate the CV ...
+  for (int i=0;i!=rows;i++){
+    (*vec_mean)(i) = 0;
+  }
+
+  fill_xf_histograms(map_passed_events, map_histoname_infos, map_no_histoname, map_histoname_hist);
+
+  // merge histograms according to POTs ...
+  for (auto it = map_pred_covch_histos.begin(); it!=map_pred_covch_histos.end();it++){
+    //std::cout << it->first << std::endl;
+    int covch = it->first;
+    TH1F *hpred = map_covch_hist[covch];
+    hpred->Reset();
+    
+    for (auto it1 = it->second.begin(); it1 != it->second.end(); it1++){
+      TH1F *htemp = (TH1F*)hpred->Clone("htemp");
+      htemp->Reset();
+      std::map<int, double> temp_map_mc_acc_pot;
+      
+      for (auto it2 = it1->begin(); it2 != it1->end(); it2++){
+	TString histoname = (*it2).first;
+	TString input_filename = map_histogram_inputfile[histoname];
+	auto it3 = map_inputfile_info.find(input_filename);
+	int period = std::get<1>(it3->second);  if (period != run) continue; // skip ...
+	int norm_period = std::get<6>(it3->second);
+	double mc_pot = map_filename_pot[input_filename];
+	//std::cout << mc_pot << std::endl;
+	if (temp_map_mc_acc_pot.find(norm_period) == temp_map_mc_acc_pot.end()){
+	  temp_map_mc_acc_pot[norm_period] = mc_pot;
+	}else{
+	  temp_map_mc_acc_pot[norm_period] += mc_pot;
+	}
+	//std::cout << histoname << " " << input_filename << " " << mc_pot << " " << period << std::endl;
+      }
+
+      //      std::cout << "haha " << std::endl;
+      
+      for (auto it2 = it1->begin(); it2 != it1->end(); it2++){
+	TString histoname = (*it2).first;
+	TString input_filename = map_histogram_inputfile[histoname];
+	auto it3 = map_inputfile_info.find(input_filename);
+	int period = std::get<1>(it3->second);  if (period != run) continue; // skip ...
+	int norm_period = std::get<6>(it3->second);
+	data_pot = std::get<5>(map_inputfile_info[input_filename]);
+	double ratio = data_pot/temp_map_mc_acc_pot[norm_period];
+	
+	TH1F *hmc = map_histoname_hist[histoname];
+	htemp->Add(hmc, ratio);
+	
+	//	std::cout << covch << " " << histoname << " " << ratio << " " << data_pot << std::endl;
+      }
+      
+      hpred->Add(htemp);
+      delete htemp;
+    }
+    
+    int start_bin = map_covch_startbin[covch];
+    for (int k=0;k!=hpred->GetNbinsX()+1;k++){
+      (*vec_mean)(start_bin+k) = hpred->GetBinContent(k+1) ;
+      //	  std::cout << i << " " << x[start_bin+i] << std::endl;
+    }
+  }
   
   
   
 }
 
 
-void LEEana::CovMatrix::get_events_weights(TString input_filename, std::map<TString, std::set<std::tuple<float, float, std::vector<float>, std::vector<int>, std::set<std::pair<int, float> > > > >& map_passed_events, std::map<TString, double>& map_filename_pot, std::map<TString, std::tuple<int, int, int, TString>>& map_histoname_infos){
+
+
+void LEEana::CovMatrix::fill_xf_histograms(int num, int tot_num, int acc_no, int no, int tot_no, std::map<TString, std::set<std::tuple<float, float, std::vector<float>, std::vector<int>, std::set<std::pair<int, float> > > > >& map_passed_events, std::map<TString, std::tuple<int, int, int, TString>>& map_histoname_infos, std::map<int, TString>& map_no_histoname,  std::map<TString, TH1F*>& map_histoname_hist){
+  for (auto it = map_histoname_hist.begin(); it != map_histoname_hist.end(); it++){
+     it->second->Reset();
+   }
+
+  //std::cout << acc_no << " " << no << std::endl;
+  for (auto it = map_passed_events.begin(); it != map_passed_events.end(); it++){
+    TString filename = it->first;
+    // loop over events ...
+    for (auto it1 = it->second.begin(); it1 != it->second.end(); it1++){
+      float weight = std::get<0>(*it1);
+      float weight_lee = std::get<1>(*it1);
+      if (std::get<3>(*it1).size() != tot_num) std::cout << "Incorrect Match Sys No! " << std::endl;
+      if (std::get<3>(*it1).at(num) != tot_no) std::cout << "Mismatch No of Universe! " << std::endl;
+      float rel_weight_diff = std::get<2>(*it1).at(acc_no+no);
+      for (auto it2 = std::get<4>(*it1).begin(); it2 != std::get<4>(*it1).end(); it2++){
+	int no = (*it2).first;
+	float val = (*it2).second;
+
+	TString histoname = map_no_histoname[no];
+	TH1F *htemp = map_histoname_hist[histoname];
+	int flag_lee = std::get<2>(map_histoname_infos[histoname]);
+
+	if (std::isnan(rel_weight_diff) || std::isinf(rel_weight_diff)) continue;
+	
+	if (flag_lee){
+	  htemp->Fill(val, rel_weight_diff * weight * weight_lee);
+	}else{
+	  htemp->Fill(val, rel_weight_diff * weight);
+	}
+	
+      }
+    }
+  }
+  
+}
+
+void LEEana::CovMatrix::fill_xf_histograms(std::map<TString, std::set<std::tuple<float, float, std::vector<float>, std::vector<int>, std::set<std::pair<int, float> > > > >& map_passed_events, std::map<TString, std::tuple<int, int, int, TString>>& map_histoname_infos, std::map<int, TString>& map_no_histoname,  std::map<TString, TH1F*>& map_histoname_hist){
+  for (auto it = map_histoname_hist.begin(); it != map_histoname_hist.end(); it++){
+     it->second->Reset();
+   }
+
+  //std::cout << acc_no << " " << no << std::endl;
+  for (auto it = map_passed_events.begin(); it != map_passed_events.end(); it++){
+    TString filename = it->first;
+    // loop over events ...
+    for (auto it1 = it->second.begin(); it1 != it->second.end(); it1++){
+      float weight = std::get<0>(*it1);
+      float weight_lee = std::get<1>(*it1);
+      for (auto it2 = std::get<4>(*it1).begin(); it2 != std::get<4>(*it1).end(); it2++){
+	int no = (*it2).first;
+	float val = (*it2).second;
+
+	TString histoname = map_no_histoname[no];
+	TH1F *htemp = map_histoname_hist[histoname];
+	int flag_lee = std::get<2>(map_histoname_infos[histoname]);
+	
+	if (flag_lee){
+	  htemp->Fill(val, weight * weight_lee);
+	}else{
+	  htemp->Fill(val,  weight);
+	}
+	
+      }
+    }
+  }
+  
+}
+
+
+
+std::vector<int> LEEana::CovMatrix::get_events_weights(TString input_filename, std::map<TString, std::set<std::tuple<float, float, std::vector<float>, std::vector<int>, std::set<std::pair<int, float> > > > >& map_passed_events, std::map<TString, double>& map_filename_pot, std::map<TString, std::tuple<int, int, int, TString>>& map_histoname_infos){
   TFile *file = new TFile(input_filename);
 
   TTree *T_BDTvars = (TTree*)file->Get("wcpselection/T_BDTvars");
@@ -826,6 +1062,8 @@ void LEEana::CovMatrix::get_events_weights(TString input_filename, std::map<TStr
   std::set<std::tuple<float, float, std::vector<float>, std::vector<int>, std::set<std::pair<int, float> > > >& set_events = map_passed_events[input_filename];
 
 
+  std::vector<int> max_lengths;
+
   for (size_t i=0;i!=T_eval->GetEntries();i++){
     T_BDTvars->GetEntry(i);
     T_eval->GetEntry(i);
@@ -933,12 +1171,173 @@ void LEEana::CovMatrix::get_events_weights(TString input_filename, std::map<TStr
 	  std::get<2>(event_info).at(j) = weight.piplus_PrimaryHadronSWCentralSplineVariation->at(j) - 1.0;
 	}
       }else if (option == "UBGenieFluxSmallUni"){
+	int acc_no = 0;
+	std::get<2>(event_info).resize(weight.All_UBGenie->size());
+	std::get<3>(event_info).push_back(weight.All_UBGenie->size());
+	for (size_t j=0;j!=weight.All_UBGenie->size();j++){
+	  if (weight.weight_cv>0){
+	    std::get<2>(event_info).at(acc_no+j) = (weight.All_UBGenie->at(j) - weight.weight_cv)/weight.weight_cv;
+	  }else{
+	    std::get<2>(event_info).at(acc_no+j) = 0;
+	  }
+	}
+	acc_no += weight.All_UBGenie->size();
+
+	std::get<2>(event_info).resize(acc_no + weight.AxFFCCQEshape_UBGenie->size());
+	std::get<3>(event_info).push_back(weight.AxFFCCQEshape_UBGenie->size());
+	for (size_t j=0; j!= weight.AxFFCCQEshape_UBGenie->size(); j++){
+	    if (weight.weight_cv>0){
+	    std::get<2>(event_info).at(acc_no+j) = (weight.AxFFCCQEshape_UBGenie->at(j) - weight.weight_cv)/weight.weight_cv;
+	  }else{
+	    std::get<2>(event_info).at(acc_no+j) = 0;
+	  }
+	}
+	acc_no += weight.AxFFCCQEshape_UBGenie->size();
+
+	
+	std::get<2>(event_info).resize(acc_no + weight.DecayAngMEC_UBGenie->size());
+	std::get<3>(event_info).push_back(weight.DecayAngMEC_UBGenie->size());
+	for (size_t j=0; j!= weight.DecayAngMEC_UBGenie->size(); j++){
+	    if (weight.weight_cv>0){
+	    std::get<2>(event_info).at(acc_no+j) = (weight.DecayAngMEC_UBGenie->at(j) - weight.weight_cv)/weight.weight_cv;
+	  }else{
+	    std::get<2>(event_info).at(acc_no+j) = 0;
+	  }
+	}
+	acc_no += weight.DecayAngMEC_UBGenie->size();
+
+	
+	std::get<2>(event_info).resize(acc_no + weight.NormCCCOH_UBGenie->size());
+	std::get<3>(event_info).push_back(weight.NormCCCOH_UBGenie->size());
+	for (size_t j=0; j!= weight.NormCCCOH_UBGenie->size(); j++){
+	    if (weight.weight_cv>0){
+	    std::get<2>(event_info).at(acc_no+j) = (weight.NormCCCOH_UBGenie->at(j) - weight.weight_cv)/weight.weight_cv;
+	  }else{
+	    std::get<2>(event_info).at(acc_no+j) = 0;
+	  }
+	}
+	acc_no += weight.NormCCCOH_UBGenie->size();
+
+	
+	std::get<2>(event_info).resize(acc_no + weight.NormNCCOH_UBGenie->size());
+	std::get<3>(event_info).push_back(weight.NormNCCOH_UBGenie->size());
+	for (size_t j=0; j!= weight.NormNCCOH_UBGenie->size(); j++){
+	    if (weight.weight_cv>0){
+	    std::get<2>(event_info).at(acc_no+j) = (weight.NormNCCOH_UBGenie->at(j) - weight.weight_cv)/weight.weight_cv;
+	  }else{
+	    std::get<2>(event_info).at(acc_no+j) = 0;
+	  }
+	}
+	acc_no += weight.NormNCCOH_UBGenie->size();
+
+	
+	std::get<2>(event_info).resize(acc_no + weight.RPA_CCQE_Reduced_UBGenie->size());
+	std::get<3>(event_info).push_back(weight.RPA_CCQE_Reduced_UBGenie->size());
+	for (size_t j=0; j!= weight.RPA_CCQE_Reduced_UBGenie->size(); j++){
+	    if (weight.weight_cv>0){
+	    std::get<2>(event_info).at(acc_no+j) = (weight.RPA_CCQE_Reduced_UBGenie->at(j) - weight.weight_cv)/weight.weight_cv;
+	  }else{
+	    std::get<2>(event_info).at(acc_no+j) = 0;
+	  }
+	}
+	acc_no += weight.RPA_CCQE_Reduced_UBGenie->size();
+
+	
+	std::get<2>(event_info).resize(acc_no + weight.RPA_CCQE_UBGenie->size());
+	std::get<3>(event_info).push_back(weight.RPA_CCQE_UBGenie->size());
+	for (size_t j=0; j!= weight.RPA_CCQE_UBGenie->size(); j++){
+	    if (weight.weight_cv>0){
+	    std::get<2>(event_info).at(acc_no+j) = (weight.RPA_CCQE_UBGenie->at(j) - weight.weight_cv)/weight.weight_cv;
+	  }else{
+	    std::get<2>(event_info).at(acc_no+j) = 0;
+	  }
+	}
+	acc_no += weight.RPA_CCQE_UBGenie->size();
+
+	
+	std::get<2>(event_info).resize(acc_no + weight.ThetaDelta2NRad_UBGenie->size());
+	std::get<3>(event_info).push_back(weight.ThetaDelta2NRad_UBGenie->size());
+	for (size_t j=0; j!= weight.ThetaDelta2NRad_UBGenie->size(); j++){
+	    if (weight.weight_cv>0){
+	    std::get<2>(event_info).at(acc_no+j) = (weight.ThetaDelta2NRad_UBGenie->at(j) - weight.weight_cv)/weight.weight_cv;
+	  }else{
+	    std::get<2>(event_info).at(acc_no+j) = 0;
+	  }
+	}
+	acc_no += weight.ThetaDelta2NRad_UBGenie->size();
+
+	
+	std::get<2>(event_info).resize(acc_no + weight.Theta_Delta2Npi_UBGenie->size());
+	std::get<3>(event_info).push_back(weight.Theta_Delta2Npi_UBGenie->size());
+	for (size_t j=0; j!= weight.Theta_Delta2Npi_UBGenie->size(); j++){
+	    if (weight.weight_cv>0){
+	    std::get<2>(event_info).at(acc_no+j) = (weight.Theta_Delta2Npi_UBGenie->at(j) - weight.weight_cv)/weight.weight_cv;
+	  }else{
+	    std::get<2>(event_info).at(acc_no+j) = 0;
+	  }
+	}
+	acc_no += weight.Theta_Delta2Npi_UBGenie->size();
+
+	
+	std::get<2>(event_info).resize(acc_no + weight.VecFFCCQEshape_UBGenie->size());
+	std::get<3>(event_info).push_back(weight.VecFFCCQEshape_UBGenie->size());
+	for (size_t j=0; j!= weight.VecFFCCQEshape_UBGenie->size(); j++){
+	    if (weight.weight_cv>0){
+	    std::get<2>(event_info).at(acc_no+j) = (weight.VecFFCCQEshape_UBGenie->at(j) - weight.weight_cv)/weight.weight_cv;
+	  }else{
+	    std::get<2>(event_info).at(acc_no+j) = 0;
+	  }
+	}
+	acc_no += weight.VecFFCCQEshape_UBGenie->size();
+
+	
+	std::get<2>(event_info).resize(acc_no + weight.XSecShape_CCMEC_UBGenie->size());
+	std::get<3>(event_info).push_back(weight.XSecShape_CCMEC_UBGenie->size());
+	for (size_t j=0; j!= weight.XSecShape_CCMEC_UBGenie->size(); j++){
+	    if (weight.weight_cv>0){
+	    std::get<2>(event_info).at(acc_no+j) = (weight.XSecShape_CCMEC_UBGenie->at(j) - weight.weight_cv)/weight.weight_cv;
+	  }else{
+	    std::get<2>(event_info).at(acc_no+j) = 0;
+	  }
+	}
+	acc_no += weight.XSecShape_CCMEC_UBGenie->size();
+
+	
+	std::get<2>(event_info).resize(acc_no + weight.xsr_scc_Fa3_SCC->size());
+	std::get<3>(event_info).push_back(weight.xsr_scc_Fa3_SCC->size());
+	for (size_t j=0; j!= weight.xsr_scc_Fa3_SCC->size(); j++){
+	    if (weight.weight_cv>0){
+	    std::get<2>(event_info).at(acc_no+j) = (weight.xsr_scc_Fa3_SCC->at(j) - weight.weight_cv)/weight.weight_cv;
+	  }else{
+	    std::get<2>(event_info).at(acc_no+j) = 0;
+	  }
+	}
+	acc_no += weight.xsr_scc_Fa3_SCC->size();
+
+	std::get<2>(event_info).resize(acc_no + weight.xsr_scc_Fv3_SCC->size());
+	std::get<3>(event_info).push_back(weight.xsr_scc_Fv3_SCC->size());
+	for (size_t j=0; j!= weight.xsr_scc_Fv3_SCC->size(); j++){
+	    if (weight.weight_cv>0){
+	    std::get<2>(event_info).at(acc_no+j) = (weight.xsr_scc_Fv3_SCC->at(j) - weight.weight_cv)/weight.weight_cv;
+	  }else{
+	    std::get<2>(event_info).at(acc_no+j) = 0;
+	  }
+	}
+	acc_no += weight.xsr_scc_Fv3_SCC->size();
 	
       }
+
+      if (max_lengths.size() < std::get<3>(event_info).size()) max_lengths.resize(std::get<3>(event_info).size());
+      for(size_t j = 0; j!= std::get<3>(event_info).size(); j++){
+	if (max_lengths.at(j) < std::get<3>(event_info).at(j)) max_lengths.at(j) = std::get<3>(event_info).at(j);
+      // if (max_length < std::get<3>(event_info).size()) max_length = std::get<3>(event_info).size();
+      }
+      
       set_events.insert(event_info);
     }
     
   }
   
   delete file;
+  return max_lengths;
 }

@@ -126,22 +126,22 @@ void LEEana::set_tree_address(TTree *T, WeightInfo& weight, TString option){
     T->SetBranchAddress("piplus_PrimaryHadronSWCentralSplineVariation",&weight.piplus_PrimaryHadronSWCentralSplineVariation);
   }else if (option == "UBGenieFluxSmallUni"){
     
-    T->SetBranchAddress("All_UBGenie",&weight.All_UBGenie);
-    T->SetBranchAddress("AxFFCCQEshape_UBGenie",&weight.AxFFCCQEshape_UBGenie);
-    T->SetBranchAddress("DecayAngMEC_UBGenie",&weight.DecayAngMEC_UBGenie);
-    T->SetBranchAddress("NormCCCOH_UBGenie",&weight.NormCCCOH_UBGenie);
-    T->SetBranchAddress("NormNCCOH_UBGenie",&weight.NormNCCOH_UBGenie);
-    T->SetBranchAddress("RPA_CCQE_Reduced_UBGenie",&weight.RPA_CCQE_Reduced_UBGenie);
-    T->SetBranchAddress("RPA_CCQE_UBGenie",&weight.RPA_CCQE_UBGenie);
-    T->SetBranchAddress("RootinoFix_UBGenie",&weight.RootinoFix_UBGenie);
-    T->SetBranchAddress("ThetaDelta2NRad_UBGenie",&weight.ThetaDelta2NRad_UBGenie);
-    T->SetBranchAddress("Theta_Delta2Npi_UBGenie",&weight.Theta_Delta2Npi_UBGenie);
-    T->SetBranchAddress("TunedCentralValue_UBGenie",&weight.TunedCentralValue_UBGenie);
-    T->SetBranchAddress("VecFFCCQEshape_UBGenie",&weight.VecFFCCQEshape_UBGenie);
-    T->SetBranchAddress("XSecShape_CCMEC_UBGenie",&weight.XSecShape_CCMEC_UBGenie);
+    T->SetBranchAddress("All_UBGenie",&weight.All_UBGenie);   //x 500
+    T->SetBranchAddress("AxFFCCQEshape_UBGenie",&weight.AxFFCCQEshape_UBGenie); // x2
+    T->SetBranchAddress("DecayAngMEC_UBGenie",&weight.DecayAngMEC_UBGenie);  // x2
+    T->SetBranchAddress("NormCCCOH_UBGenie",&weight.NormCCCOH_UBGenie);  // x2
+    T->SetBranchAddress("NormNCCOH_UBGenie",&weight.NormNCCOH_UBGenie); // x2
+    T->SetBranchAddress("RPA_CCQE_Reduced_UBGenie",&weight.RPA_CCQE_Reduced_UBGenie); // x2
+    T->SetBranchAddress("RPA_CCQE_UBGenie",&weight.RPA_CCQE_UBGenie); // x2
+    T->SetBranchAddress("RootinoFix_UBGenie",&weight.RootinoFix_UBGenie);  
+    T->SetBranchAddress("ThetaDelta2NRad_UBGenie",&weight.ThetaDelta2NRad_UBGenie); // x2
+    T->SetBranchAddress("Theta_Delta2Npi_UBGenie",&weight.Theta_Delta2Npi_UBGenie); //x2
+    T->SetBranchAddress("TunedCentralValue_UBGenie",&weight.TunedCentralValue_UBGenie); 
+    T->SetBranchAddress("VecFFCCQEshape_UBGenie",&weight.VecFFCCQEshape_UBGenie); //x2
+    T->SetBranchAddress("XSecShape_CCMEC_UBGenie",&weight.XSecShape_CCMEC_UBGenie); //x2
     T->SetBranchAddress("splines_general_Spline",&weight.splines_general_Spline);
-    T->SetBranchAddress("xsr_scc_Fa3_SCC",&weight.xsr_scc_Fa3_SCC);
-    T->SetBranchAddress("xsr_scc_Fv3_SCC",&weight.xsr_scc_Fv3_SCC);
+    T->SetBranchAddress("xsr_scc_Fa3_SCC",&weight.xsr_scc_Fa3_SCC); // x10
+    T->SetBranchAddress("xsr_scc_Fv3_SCC",&weight.xsr_scc_Fv3_SCC); // x10
   }
 }
 void LEEana::put_tree_address(TTree *T, WeightInfo& weight, TString option){

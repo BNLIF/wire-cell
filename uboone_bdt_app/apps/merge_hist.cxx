@@ -52,7 +52,7 @@ int main( int argc, char** argv )
 
   // get data histograms ...
   // filetype, period, outfilename, external pot, fileno
-  std::map<TString, std::tuple<int, int, TString, float, int, double> > map_inputfile_info = cov.get_map_inputfile_info();
+  std::map<TString, std::tuple<int, int, TString, float, int, double, int> > map_inputfile_info = cov.get_map_inputfile_info();
 
   TFile *temp_file;
   TH1F *htemp;
