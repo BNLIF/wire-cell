@@ -36,6 +36,11 @@ int main( int argc, char** argv )
   }
 
   CovMatrix cov("./configurations/cov_input.txt", "./configurations/xf_input.txt", "./configurations/xf_file_ch.txt");
+  // cov.add_disabled_ch_name("BG_nueCC_FC_overlay");
+  // cov.add_disabled_ch_name("BG_nueCC_PC_overlay");
+  // cov.add_disabled_ch_name("BG_nueCC_FC_dirt");
+  // cov.add_disabled_ch_name("BG_nueCC_PC_dirt");
+  
   
   // Get the file based on runno ...
   std::map<TString, std::tuple<int, int, TString, float, int, double, int> > map_inputfile_info = cov.get_map_inputfile_info();

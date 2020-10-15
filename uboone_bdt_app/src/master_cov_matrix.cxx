@@ -1085,6 +1085,9 @@ std::vector<int> LEEana::CovMatrix::get_events_weights(TString input_filename, s
       TString ch_name = std::get<5>(*it);
       TString add_cut = std::get<6>(*it);
 
+      auto it3 = disabled_ch_names.find(ch_name);
+      if (it3 != disabled_ch_names.end()) continue;
+      
       float val = get_kine_var(kine, pfeval, var_name);
       bool flag_pass = get_cut_pass(ch_name, add_cut, false, eval, tagger, kine);
 
