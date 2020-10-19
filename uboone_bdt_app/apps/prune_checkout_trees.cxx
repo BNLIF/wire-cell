@@ -21,7 +21,7 @@ using namespace std;
 int main( int argc, char** argv )
 {
   if (argc < 2) {
-    std::cout << "prune_checkout_trees #inputROOT #outputROOT" << std::endl;
+    std::cout << "prune_checkout_trees #txtInputROOT #outputROOT" << std::endl;
     return -1;
   }
 
