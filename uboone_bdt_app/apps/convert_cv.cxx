@@ -351,6 +351,7 @@ int main( int argc, char** argv )
   T_eval_cv->SetBranchStatus("stm_STM",1);
   T_eval_cv->SetBranchStatus("stm_FullDead",1);
   T_eval_cv->SetBranchStatus("stm_clusterlength",1);
+  T_eval_cv->SetBranchStatus("match_energy",1);
 
   if (!flag_data){
     T_eval_cv->SetBranchStatus("weight_spline",1);
@@ -365,6 +366,9 @@ int main( int argc, char** argv )
     T_eval_cv->SetBranchStatus("truth_vtxX",1);
     T_eval_cv->SetBranchStatus("truth_vtxY",1);
     T_eval_cv->SetBranchStatus("truth_vtxZ",1);
+
+    T_eval_cv->SetBranchStatus("match_completeness_energy",1);
+    T_eval_cv->SetBranchStatus("truth_energyInside",1);
   }
   T_eval_cv->SetBranchStatus("run",1);
   T_eval_cv->SetBranchStatus("subrun",1);
@@ -387,6 +391,25 @@ int main( int argc, char** argv )
   T_KINEvars_cv->SetBranchStatus("kine_pio_angle",1);
 
   T_PFeval_cv->SetBranchStatus("*",0);
+  T_PFeval_cv->SetBranchStatus("reco_nuvtxX",1);
+  T_PFeval_cv->SetBranchStatus("reco_nuvtxY",1);
+  T_PFeval_cv->SetBranchStatus("reco_nuvtxZ",1);
+  T_PFeval_cv->SetBranchStatus("reco_muonMomentum",1);
+  T_PFeval_cv->SetBranchStatus("reco_showerKE",1);
+  if (!flag_data){
+    T_PFeval_cv->SetBranchStatus("nuvtx_diff",1);
+    T_PFeval_cv->SetBranchStatus("showervtx_diff",1);
+    T_PFeval_cv->SetBranchStatus("muonvtx_diff",1);
+  }
+  if (pfeval_cv.flag_NCDelta){
+    T_PFeval_cv->SetBranchStatus("reco_protonMomentum",1);
+    if (!flag_data){
+      T_PFeval_cv->SetBranchStatus("truth_NCDelta",1);
+      T_PFeval_cv->SetBranchStatus("truth_NprimPio",1);
+    }
+    
+  }
+  
 
   std::map<std::pair<int, int>, int> map_re_entry_cv;
   std::map<std::pair<int, int>, std::set<std::pair<int, int> > > map_rs_re_cv;
@@ -410,7 +433,7 @@ int main( int argc, char** argv )
     }
     
     if (tmp_match_found == -1  || (tmp_match_found == 1 && eval_cv.stm_lowenergy == -1) || (flag_presel && tagger_cv.numu_cc_flag == -1)) {
-      num_check ++;
+      //num_check ++;
       continue;
     }
 
@@ -503,10 +526,13 @@ int main( int argc, char** argv )
     cv_pot += it->second.second;
 
     if(remove_set.find(it->first) != remove_set.end()) continue;
-    if (map_rs_re_cv[it->first].size()==0) continue;
-    
-    pass_ratio = 1-map_rs_failed[it->first] * 1.0 / map_rs_re_cv[it->first].size();
-    
+    if (map_rs_re_cv[it->first].size()==0) {
+      //continue;
+      pass_ratio = 1;
+      //      std::cout << pot_cv.runNo << " " << pot_cv.subRunNo << " " << pot_cv.pot_tor875 << std::endl;
+    }else{
+      pass_ratio = 1 - map_rs_failed[it->first] * 1.0 / map_rs_re_cv[it->first].size();
+    }
     cv1_pot += it->second.second * pass_ratio;
 
     pot_cv.pot_tor875 *= pass_ratio;

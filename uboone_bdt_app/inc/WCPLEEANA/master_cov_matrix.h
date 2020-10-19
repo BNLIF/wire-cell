@@ -56,7 +56,7 @@ namespace LEEana{
     
     float get_ext_pot(TString filename);
     std::vector< std::tuple<TString, int, float, float, TString, TString, TString, TString > > get_histograms(TString filename, int flag = 0);
-    std::map<TString, std::tuple<int, int, TString, float, int, double> > get_map_inputfile_info(){return map_inputfile_info;};
+    std::map<TString, std::tuple<int, int, TString, float, int, double, int> > get_map_inputfile_info(){return map_inputfile_info;};
 
     std::map<TString, std::pair<TString, int> > get_map_pred_histo_histo_err2_lee(){return map_pred_histo_histo_err2_lee;};
 
@@ -69,10 +69,15 @@ namespace LEEana{
     int get_covch_name(TString name);
 
     void fill_data_histograms(int run, std::map<int, std::vector<TH1F*> >& map_obsch_histos, std::map<TString, std::pair<TH1F*, double> >& map_name_histogram);
-    void fill_pred_histograms(int run, std::map<int, std::vector<TH1F*> >& map_obsch_histos, std::map<int, std::vector< std::vector< std::tuple<double, double, double, int, double> > > >& map_obsch_bayes, std::map<TString, std::pair<TH1F*, double> >& map_name_histogram, float lee_strength, std::map<int, double> map_data_period_pot);
+    void fill_pred_histograms(int run, std::map<int, std::vector<TH1F*> >& map_obsch_histos, std::map<int, std::vector< std::vector< std::tuple<double, double, double, int, double> > > >& map_obsch_bayes, std::map<int, std::vector< std::vector< std::tuple<double, double, double, int, double> > > >& map_obsch_infos, std::map<TString, std::pair<TH1F*, double> >& map_name_histogram, float lee_strength, std::map<int, double> map_data_period_pot);
 
     void gen_xf_cov_matrix(int run, std::map<int, TH1F*>& map_covch_hist, std::map<TString, TH1F*>& map_histoname_hist, TVectorD* vec_mean,  TMatrixD* cov_xf_mat);
 
+    std::vector<int> get_events_weights(TString input_filename, std::map<TString, std::set<std::tuple<float, float, std::vector<float>, std::vector<int>, std::set<std::pair<int, float> > > > >& map_passed_events, std::map<TString, double>& map_filename_pot, std::map<TString, std::tuple<int, int, int, TString>>& map_histoname_infos);
+
+    void fill_xf_histograms(int num, int tot_num, int acc_no, int no, int tot_no, std::map<TString, std::set<std::tuple<float, float, std::vector<float>, std::vector<int>, std::set<std::pair<int, float> > > > >& map_passed_events, std::map<TString, std::tuple<int, int, int, TString>>& map_histoname_infos, std::map<int, TString>& map_no_histoname,  std::map<TString, TH1F*>& map_histoname_hist);
+     void fill_xf_histograms(std::map<TString, std::set<std::tuple<float, float, std::vector<float>, std::vector<int>, std::set<std::pair<int, float> > > > >& map_passed_events, std::map<TString, std::tuple<int, int, int, TString>>& map_histoname_infos, std::map<int, TString>& map_no_histoname,  std::map<TString, TH1F*>& map_histoname_hist);
+     
     
     void gen_det_cov_matrix(int run, std::map<int, TH1F*>& map_covch_hist, std::map<TString, TH1F*>& map_histoname_hist, TVectorD* vec_mean, TVectorD* vec_mean_diff, TMatrixD* cov_mat_bootstrapping, TMatrixD* cov_det_mat);
     void get_events_info(TString input_filename, std::map<TString, std::vector< std::tuple<int, int, double, double, std::set<std::tuple<int, double, bool, double, bool> > > > >&map_all_events,  std::map<TString, double>& map_filename_pot, std::map<TString, std::tuple<int, int, int, TString>>& map_histoname_infos);
@@ -81,7 +86,11 @@ namespace LEEana{
     void fill_det_histograms(std::map<TString, TH1D*> map_filename_histo, std::map<TString, std::vector< std::tuple<int, int, double, double, std::set<std::tuple<int, double, bool, double, bool> > > > >&map_all_events, std::map<TString, std::tuple<int, int, int, TString>>& map_histoname_infos, std::map<int, TString>& map_no_histoname,  std::map<TString, TH1F*>& map_histoname_hist);
     
     std::pair<double,double> get_bayes_errors(double num);
-    
+
+    void add_disabled_ch_name(TString name);
+    std::set<TString>& get_disabled_ch_names(){return disabled_ch_names;};
+    void remove_disabled_ch_name(TString name);
+      
   private:
     TGraph *gl, *gh;
     int llimit, hlimit;
@@ -131,7 +140,7 @@ namespace LEEana{
     std::map<TString, int> map_inputfile_filetype;
     
     // filetype, period, outfile_name, external pot if any, file_no, norm_pot
-    std::map<TString, std::tuple<int, int, TString, float, int, double> > map_inputfile_info;
+    std::map<TString, std::tuple<int, int, TString, float, int, double, int> > map_inputfile_info;
     std::map<int, int> map_fileno_period;
     std::map<TString, std::vector<TString> > map_inputfile_cuts;
 
@@ -161,7 +170,8 @@ namespace LEEana{
     std::map<int, std::set<std::set<std::pair<TString, int> > > > map_pred_obsch_histos; // total ...
     // covch --> subchannel --> histos 
     std::map<int, std::set<std::set<std::pair<TString, int> > > > map_pred_covch_histos; // total ...
-    
+
+    std::set<TString> disabled_ch_names;
    
     
   };

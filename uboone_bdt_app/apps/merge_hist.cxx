@@ -52,7 +52,7 @@ int main( int argc, char** argv )
 
   // get data histograms ...
   // filetype, period, outfilename, external pot, fileno
-  std::map<TString, std::tuple<int, int, TString, float, int, double> > map_inputfile_info = cov.get_map_inputfile_info();
+  std::map<TString, std::tuple<int, int, TString, float, int, double, int> > map_inputfile_info = cov.get_map_inputfile_info();
 
   TFile *temp_file;
   TH1F *htemp;
@@ -107,7 +107,8 @@ int main( int argc, char** argv )
   // Bayesian error needed ...
   // obsch --> bin with overflow bin --> vector of all channels (merge certain channels) --> mean and err2 
   std::map<int, std::vector< std::vector< std::tuple<double, double, double, int, double> > > > map_obsch_bayes;
-    
+  std::map<int, std::vector< std::vector< std::tuple<double, double, double, int, double> > > > map_obsch_infos;
+  
   for (auto it = map_inputfile_info.begin(); it != map_inputfile_info.end(); it++){
     TString input_filename = it->first;
     int filetype = std::get<0>(it->second);
@@ -154,7 +155,7 @@ int main( int argc, char** argv )
   cov.fill_data_histograms(run, map_obsch_histos, map_name_histogram);
   
   // get predictions and its uncertainties ...,
-  cov.fill_pred_histograms(run, map_obsch_histos, map_obsch_bayes, map_name_histogram, lee_strength, map_data_period_pot);
+  cov.fill_pred_histograms(run, map_obsch_histos, map_obsch_bayes, map_obsch_infos, map_name_histogram, lee_strength, map_data_period_pot);
   
   // get Bayesian errrors ...
 
@@ -238,7 +239,7 @@ int main( int argc, char** argv )
 	//map_obsch_histos[1].at(1)->SetLineColor(2);
       }
       
-      g10->Draw("A*");
+      g10->Draw("A*"); g10->SetTitle("nueCC FC");
       g10->SetMarkerStyle(20);
       g11->Draw("*same");
       g11->SetMarkerStyle(21);
@@ -279,7 +280,7 @@ int main( int argc, char** argv )
       //map_obsch_histos[3].at(1)->SetLineColor(2);
     }
 
-    g30->Draw("A*");
+    g30->Draw("A*");  g30->SetTitle("numuCC FC");
     g30->SetMarkerStyle(20);
     g31->Draw("*same");
     g31->SetMarkerStyle(21);
@@ -317,7 +318,7 @@ int main( int argc, char** argv )
       //map_obsch_histos[5].at(1)->SetLineColor(2);
     }
 
-    g50->Draw("A*");
+    g50->Draw("A*");  g50->SetTitle("CCpio FC");
     g50->SetMarkerStyle(20);
     g51->Draw("*same");
     g51->SetMarkerStyle(21);
@@ -351,7 +352,7 @@ int main( int argc, char** argv )
       //map_obsch_histos[2].at(1)->SetLineColor(2);
     }
 
-    g20->Draw("A*");
+    g20->Draw("A*");g20->SetTitle("nueCC PC");
     g20->SetMarkerStyle(20);
     g21->Draw("*same");
     g21->SetMarkerStyle(21);
@@ -386,7 +387,7 @@ int main( int argc, char** argv )
       //map_obsch_histos[4].at(1)->SetLineColor(2);
     }
 
-    g40->Draw("A*");
+    g40->Draw("A*"); g40->SetTitle("numuCC PC");
     g40->SetMarkerStyle(20);
     g41->Draw("*same");
     g41->SetMarkerStyle(21);
@@ -419,7 +420,7 @@ int main( int argc, char** argv )
       //map_obsch_histos[6].at(1)->SetLineColor(2);
     }
 
-    g60->Draw("A*");
+    g60->Draw("A*");  g60->SetTitle("CCpio PC");
     g60->SetMarkerStyle(20);
     g61->Draw("*same");
     g61->SetMarkerStyle(21);
@@ -453,7 +454,7 @@ int main( int argc, char** argv )
       //map_obsch_histos[7].at(1)->SetLineColor(2);
     }
 
-    g70->Draw("A*");
+    g70->Draw("A*");  g70->SetTitle("NC pio");
     g70->SetMarkerStyle(20);
     g71->Draw("*same");
     g71->SetMarkerStyle(21);
@@ -481,7 +482,7 @@ int main( int argc, char** argv )
       g11->SetPoint(i,x,y);
       g11->SetPointError(i,x_err,y_err);
     }
-    g10->Draw("A*");
+    g10->Draw("A*"); g10->SetTitle("nueCC FC");
     g10->SetMarkerStyle(20);
     g11->Draw("*same");
     g11->SetMarkerStyle(21);
@@ -504,7 +505,7 @@ int main( int argc, char** argv )
       g21->SetPoint(i,x,y);
       g21->SetPointError(i,x_err,y_err);
     }
-    g20->Draw("A*");
+    g20->Draw("A*");  g20->SetTitle("nueCC PC");
     g20->SetMarkerStyle(20);
     g21->Draw("*same");
     g21->SetMarkerStyle(21);
@@ -527,7 +528,7 @@ int main( int argc, char** argv )
       g31->SetPoint(i,x,y);
       g31->SetPointError(i,x_err,y_err);
     }
-    g30->Draw("A*");
+    g30->Draw("A*"); g30->SetTitle("numuCC FC");
     g30->SetMarkerStyle(20);
     g31->Draw("*same");
     g31->SetMarkerStyle(21);
@@ -550,7 +551,7 @@ int main( int argc, char** argv )
       g41->SetPoint(i,x,y);
       g41->SetPointError(i,x_err,y_err);
     }
-    g40->Draw("A*");
+    g40->Draw("A*");  g40->SetTitle("numuCC PC");
     g40->SetMarkerStyle(20);
     g41->Draw("*same");
     g41->SetMarkerStyle(21);
@@ -573,7 +574,7 @@ int main( int argc, char** argv )
       g51->SetPoint(i,x,y);
       g51->SetPointError(i,x_err,y_err);
     }
-    g50->Draw("A*");
+    g50->Draw("A*");  g50->SetTitle("CC pio FC");
     g50->SetMarkerStyle(20);
     g51->Draw("*same");
     g51->SetMarkerStyle(21);
@@ -596,7 +597,7 @@ int main( int argc, char** argv )
       g61->SetPoint(i,x,y);
       g61->SetPointError(i,x_err,y_err);
     }
-    g60->Draw("A*");
+    g60->Draw("A*"); g60->SetTitle("CCpio PC");
     g60->SetMarkerStyle(20);
     g61->Draw("*same");
     g61->SetMarkerStyle(21);
@@ -619,7 +620,7 @@ int main( int argc, char** argv )
       g71->SetPoint(i,x,y);
       g71->SetPointError(i,x_err,y_err);
     }
-    g70->Draw("A*");
+    g70->Draw("A*");g70->SetTitle("NCpio " );
     g70->SetMarkerStyle(20);
     g71->Draw("*same");
     g71->SetMarkerStyle(21);
@@ -649,13 +650,15 @@ int main( int argc, char** argv )
     
     std::map<int, TH1F*> map_covch_histo;
     
-    for (auto it = map_obsch_bayes.begin(); it != map_obsch_bayes.end(); it++){
+    for (auto it = map_obsch_infos.begin(); it != map_obsch_infos.end(); it++){
       int obsch = it->first;
       std::vector<std::vector< std::tuple<double, double, double, int, double> > >  bayes_inputs = it->second;
       TH1F *htemp = (TH1F*)map_obsch_histos[obsch].at(0); // data histogram ...
       
       for (size_t i=0;i!=bayes_inputs.size(); i++){
 	int covch = std::get<3>(bayes_inputs.at(i).front());
+
+	
 	// double add_sys = std::get<4>(bayes_inputs.at(i).front());
 	int start_bin = cov.get_covch_startbin(covch);
 	
@@ -663,26 +666,36 @@ int main( int argc, char** argv )
 	  TH1F *hnew = (TH1F*)htemp->Clone(Form("histo_%d",covch));
 	  hnew->Reset();
 	  map_covch_histo[covch] = hnew;
-      }
+	}
 	TH1F *htemp1 = map_covch_histo[covch];
+
+	//std::cout << covch << " " << obsch << " " << i << " " << htemp1->GetSum() << std::endl;
 	for (size_t j=0;j!=bayes_inputs.at(i).size();j++){
 	  htemp1->SetBinContent(j+1, htemp1->GetBinContent(j+1) + std::get<0>(bayes_inputs.at(i).at(j)));
 	  htemp1->SetBinError(j+1, sqrt(pow(htemp1->GetBinError(j+1),2) + std::get<1>(bayes_inputs.at(i).at(j))));
 	  
 	  (*mat_add_cov)(start_bin + j, start_bin + j) += std::get<4>(bayes_inputs.at(i).at(j));
-	  
-	  //	if (std::get<4>(bayes_inputs.at(i).at(j)) > 0)
+	
+	  //  if (covch == 8 && obsch == 1)
+	  //  std::cout << "bin: " << j << " " << std::get<0>(bayes_inputs.at(i).at(j)) << " " << std::get<1>(bayes_inputs.at(i).at(j)) << " " << std::get<3>(bayes_inputs.at(i).at(j)) << std::endl;
+	  //	  if (std::get<4>(bayes_inputs.at(i).at(j)) > 0)
 	  //  std::cout << obsch << " " << i << " " << start_bin + j << " " <<  std::get<4>(bayes_inputs.at(i).at(j)) << std::endl;
 	}
-	//      std::cout << obsch << " " << bayes_inputs.size() << " " << i << " " << covch << " " << start_bin << std::endl;
+	
+	//	std::cout << obsch << " " << bayes_inputs.size() << " " << bayes_inputs.at(0).size() << " " << i << " " << covch << " " << start_bin << std::endl;
 	//  break;
       }
     }
     
+    //for (auto it = map_name_histogram.begin(); it != map_name_histogram.end(); it++){
+    //  it->second.first->SetDirectory(file3);
+    // }
     
-    for (auto it = map_covch_histo.begin(); it != map_covch_histo.end(); it++){
-      it->second->SetDirectory(file3);
-    }
+    
+    
+    //    for (auto it = map_covch_histo.begin(); it != map_covch_histo.end(); it++){
+    //  it->second->SetDirectory(file3);
+    // }
     
     for (auto it = map_obsch_histos.begin(); it != map_obsch_histos.end(); it++){
       int obsch = it->first;
@@ -690,9 +703,9 @@ int main( int argc, char** argv )
       TH1F *hmc = it->second.at(1);
       
       hdata->SetName(Form("hdata_obsch_%d",obsch));
-    hmc->SetName(Form("hmc_obsch_%d",obsch));
-    hdata->SetDirectory(file3);
-    hmc->SetDirectory(file3);
+      hmc->SetName(Form("hmc_obsch_%d",obsch));
+      hdata->SetDirectory(file3);
+      hmc->SetDirectory(file3);
     }
     
     mat_add_cov->Write("cov_mat_add");
