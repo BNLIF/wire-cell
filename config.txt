@@ -7,3 +7,19 @@ conda activate scn
 waf --prefix=../wcp_install --build-debug=-ggdb3 --boost-includes=$WC_EXTERNALS/include --boost-libs=$WC_EXTERNALS/lib --boost-mt --with-root=$WC_EXTERNALS --with-fftw-include=$WC_EXTERNALS/include --with-fftw-lib=$WC_EXTERNALS/lib --with-eigen=$WC_EXTERNALS --with-glpk --with-glpk-include=/usr/include --with-glpk-lib=/usr/lib/x86_64-linux-gnu --with-python=/home/xqian/anaconda3/envs/scn --with-python-include=/home/xqian/anaconda3/envs/scn/include/python2.7 --with-python-lib=/home/xqian/anaconda3/envs/scn/lib clean configure
 
 
+
+
+Cheet sheet on the command:
+
+Reco 1.5 Data:
+wire-cell-imaging-lmem-celltree ./input_data_files/ChannelWireGeometry_v2.txt $input_celltree $n -d0 -s2
+prod-wire-cell-matching-nusel ./input_data_files/ChannelWireGeometry_v2.txt imaging_$input2.root -d0 
+
+Reco 1.5 MC:
+wire-cell-imaging-lmem-celltree ./input_data_files/ChannelWireGeometry_v2.txt $input_celltree $n -d1 -s2
+prod-wire-cell-matching-nusel ./input_data_files/ChannelWireGeometry_v2.txt imaging_$input2.root -d1 
+
+
+Recno 2.0 Data/MC:
+wire-cell-prod-stm ./input_data_files/ChannelWireGeometry_v2.txt $wcreco2_input_celltree $nn -d0 -o0 -g2
+wire-cell-prod-nue ./input_data_files/ChannelWireGeometry_v2.txt $wcreco2_input_celltree $nn -d0 
