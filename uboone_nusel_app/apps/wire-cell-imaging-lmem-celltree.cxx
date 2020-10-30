@@ -94,7 +94,7 @@ bool GeomWireSelectionCompare(GeomWireSelection a, GeomWireSelection b) {
 }
 
 
-bool flashFilter(const char* file, int eve_num, unsigned int triggerbits)
+bool flashFilter(const char* file, int eve_num, unsigned int triggerbits, int time_offset)
 {
   // light reco and apply a [3, 5] ([3.45, 5.45]) us cut on BNB (extBNB) trigger
   WCP2dToy::ToyLightReco flash(file);
@@ -109,7 +109,11 @@ bool flashFilter(const char* file, int eve_num, unsigned int triggerbits)
       double lowerwindow = 0;
       double upperwindow = 0;
       if((triggerbits>>11) & 1U) { lowerwindow = 3; upperwindow = 5; }// bnb
-      if((triggerbits>>9) & 1U) { lowerwindow = 3.45; upperwindow = 5.45; } // extbnb
+      
+      if ((triggerbits>>12) & 1U){ lowerwindow = 4.9295; upperwindow = 16.6483;} //NUMI
+      
+      if (((triggerbits>>9) & 1U) && time_offset < 7) { lowerwindow = 3.45; upperwindow = 5.45; } // extbnb
+      if (((triggerbits>>9) & 1U) && time_offset >= 7){lowerwindow = 5.3045; upperwindow = 17.0233;} //EXTNUMI
       if(type == 2 && time > lowerwindow && time < upperwindow)
       {
           beamspill = true;
@@ -126,7 +130,7 @@ bool flashFilter(const char* file, int eve_num, unsigned int triggerbits)
 int main(int argc, char* argv[])
 {
   if (argc < 3) {
-    cerr << "usage: wire-cell-uboone /path/to/ChannelWireGeometry.txt /path/to/celltree.root -t[0,1] -s[0,1,2] -f[0,1] -d[0,1,2]" << endl;
+    cerr << "usage: wire-cell-uboone /path/to/ChannelWireGeometry.txt /path/to/celltree.root -t[0,1] -s[0,1,2] -f[0,1] -d[0,1,2] -a[0,1]" << endl;
     return 1;
   }
 
@@ -147,6 +151,8 @@ int main(int argc, char* argv[])
   int flag_badtree = 1;
 
   int datatier = 0; // data=0, overlay=1, full mc=2
+
+  int flag_numi = 0;
   
   int shortedU_correction = 1; // charge correction 1./0.8 for shortedU region
   for(Int_t i = 3; i != argc; i++){
@@ -183,6 +189,9 @@ int main(int argc, char* argv[])
        break;
      case 'u':
        shortedU_correction = atoi(&argv[i][2]);
+       break;
+     case 'a':
+       flag_numi = atoi(&argv[i][2]);
        break;
      }
   }
@@ -266,7 +275,9 @@ int main(int argc, char* argv[])
   
 
   int time_offset = 4; // Now the time offset is taken care int he signal processing, so we just need the overall offset ... // us ... 
-  
+  if (flag_numi!=0){
+    time_offset = 11;
+  }
 
   int run_no, subrun_no, event_no;
   
@@ -327,7 +338,7 @@ int main(int argc, char* argv[])
   // flash time filter
   bool beamspill = false;
   if(beam!=-1){
-    beamspill = flashFilter(root_file, eve_num, triggerbits);
+    beamspill = flashFilter(root_file, eve_num, triggerbits, time_offset);
     cout << em("Flash filter") <<endl;
   }
   

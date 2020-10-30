@@ -87,6 +87,8 @@ int main(int argc, char* argv[])
   T->SetBranchAddress("runNo",&runNo);
   T->SetBranchAddress("subRunNo",&subRunNo);
   T->SetBranchAddress("eventNo",&eventNo);
+  int time_offset;
+  T->SetBranchAddress("time_offset",&time_offset);
   unsigned int triggerbits;
   T->SetBranchAddress("triggerBits",&triggerbits);
   T->GetEntry(0);
@@ -100,8 +102,10 @@ int main(int argc, char* argv[])
   //if(triggerbits==512) { lowerwindow = 3.5375; upperwindow = 5.34375; } // extbnb
   
   //enlarge window ... 
-  if((triggerbits>>11) & 1U) { lowerwindow = 3.0; upperwindow = 5.0; }// bnb  
-  if((triggerbits>>9) & 1U) { lowerwindow = 3.45; upperwindow = 5.45; } // extbnb
+  if((triggerbits>>11) & 1U) { lowerwindow = 3.0; upperwindow = 5.0; }// bnb
+  if ((triggerbits>>12) & 1U) { lowerwindow=4.9295; upperwindow=16.6483;} //NUMI
+  if( ((triggerbits>>9) & 1U) && time_offset < 7) { lowerwindow = 3.45; upperwindow = 5.45; } // extbnb
+  if (((triggerbits>>9) & 1U) && time_offset >= 7) {lowerwindow=5.3045; upperwindow=17.0233;} // EXTNUMI
 
   TTree *T_flash = (TTree*)file1->Get("T_flash");
   Double_t time;
