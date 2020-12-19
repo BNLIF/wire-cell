@@ -3230,13 +3230,19 @@ std::cout << "# of good mcell: " << good_mcells.size() << std::endl;
 	}
       }
       //std::cout << i << " " << dead_cluster_set.size() << " " << allmcell.size() << std::endl;
-      
+      Slim3DDeadClusterSet temp_sets;
       for (auto it = dead_cluster_set.begin();it!=dead_cluster_set.end();it++){
-	if (i - ((*it)->get_cluster()).rbegin()->first >0){
+	//std::cout << ((*it)->get_cluster()).size() << std::endl;
+	if (i > ((*it)->get_cluster()).rbegin()->first){
 	  dead_cluster_set_save.insert(*it);
-	  dead_cluster_set.erase(*it);
+	  temp_sets.insert(*it);
+	  //	  dead_cluster_set.erase(*it);
 	}
       }
+      for (auto it = temp_sets.begin(); it!=temp_sets.end(); it++){
+	dead_cluster_set.erase(*it);
+      }
+      
     }
     
     for (auto it = dead_cluster_set.begin();it!=dead_cluster_set.end();it++){
