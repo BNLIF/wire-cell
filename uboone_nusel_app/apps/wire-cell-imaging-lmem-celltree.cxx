@@ -2539,7 +2539,7 @@ if(beamspill || beam==-1){
       n_timeslices = (*it)->get_ordercell().size();
 
       //std::cout << (*it) << " kaka " << std::endl;
-      
+       
       if ((*it)->get_flag_saved()-(*it)->get_flag_saved_1() ==3){
 	// look at each cell level ...
 	if ( sqrt(pow(n_timeslices/3.,2) + pow(min_charge/n_mcells/3000.,2))<1 || min_charge/n_mcells/2000.<1.){
