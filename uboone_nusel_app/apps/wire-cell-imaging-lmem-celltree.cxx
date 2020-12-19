@@ -2445,7 +2445,7 @@ if(beamspill || beam==-1){
     
     std::cout << cluster_set.size() << " " << u_2D_3D_clus_map.size() << " " << v_2D_3D_clus_map.size() << " " << w_2D_3D_clus_map.size() << std::endl;
 
-    
+
     //label the cluster ...
     for (auto it = u_2D_3D_clus_map.begin(); it!= u_2D_3D_clus_map.end(); it++){
       // if (it->second.size()>1)
@@ -2524,10 +2524,12 @@ if(beamspill || beam==-1){
     for (auto it = cluster_set.begin();it!=cluster_set.end();it++){
       GeomCellSelection& mcells =(*it)->get_allcell();
       int num = 0;
+      //      std::cout << "haha " << (*it) << std::endl;
       if ((*it)->get_projection(WirePlaneType_t(0))->get_number_time_slices()!=0) num++;
       if ((*it)->get_projection(WirePlaneType_t(1))->get_number_time_slices()!=0) num++;
       if ((*it)->get_projection(WirePlaneType_t(2))->get_number_time_slices()!=0) num++;
-      
+
+      //std::cout << (*it) << " jaja " << std::endl;
       cluster_id = (*it)->get_id();
       total_charge = (*it)->get_total_charge();
       min_charge = (*it)->get_min_total_charge();
@@ -2535,6 +2537,8 @@ if(beamspill || beam==-1){
       flag_saved_1 = (*it)->get_flag_saved_1();
       n_mcells = (*it)->get_allcell().size();
       n_timeslices = (*it)->get_ordercell().size();
+
+      //std::cout << (*it) << " kaka " << std::endl;
       
       if ((*it)->get_flag_saved()-(*it)->get_flag_saved_1() ==3){
 	// look at each cell level ...
@@ -2561,7 +2565,7 @@ if(beamspill || beam==-1){
       
       // test
       // saved = 1;
-      
+      //std::cout << (*it) << " kaka1 " << std::endl;
       // if (min_charge/n_mcells < 5000) saved = 0;
       if (saved==1){
 	ncluster_saved ++;
@@ -2572,10 +2576,12 @@ if(beamspill || beam==-1){
 	// remove them ...
 	for (auto it1 = mcells.begin(); it1!=mcells.end(); it1++){
 	  SlimMergeGeomCell *mcell = (SlimMergeGeomCell*)(*it1);
+	  //std::cout << mcell << " " << " " << mcell->GetTimeSlice() << std::endl;
 	  lowmemtiling[mcell->GetTimeSlice()]->Erase_Cell(mcell);
 	}
       }
-      
+
+      //  std::cout << (*it) << " kaka2 " << std::endl;
       //    T_3Dcluster->Fill();
     }
     
