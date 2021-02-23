@@ -277,7 +277,7 @@ int main(int argc, char* argv[])
   int time_offset = 4; // Now the time offset is taken care int he signal processing, so we just need the overall offset ... // us ... 
   if (flag_numi!=0){
     // remove NuMI offset ...
-    //  time_offset = 11;
+    //time_offset = 11;
   }
 
   int run_no, subrun_no, event_no;
