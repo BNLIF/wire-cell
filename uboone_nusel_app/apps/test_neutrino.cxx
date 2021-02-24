@@ -29,8 +29,8 @@ int main(int argc, char* argv[])
   //enlarge window ... 
   if ((triggerbits>>11) & 1U) { lowerwindow=3.1875; upperwindow=4.96876;} // bnb
   if ((triggerbits>>12) & 1U) { lowerwindow=4.9295; upperwindow=16.6483;}
-  if (((triggerbits>>9) & 1U) && time_offset < 7) { lowerwindow=3.5625; upperwindow=5.34376; } //extbnb
-  if (((triggerbits>>9) & 1U) && time_offset >= 7) {lowerwindow=5.3045; upperwindow=17.0233;} // EXTNUMI
+  if (((triggerbits>>9) & 1U) && time_offset !=3) { lowerwindow=3.5625; upperwindow=5.34376; } //extbnb
+  if (((triggerbits>>9) & 1U) && time_offset ==3) {lowerwindow=5.3045; upperwindow=17.0233;} // EXTNUMI
 
 
   float energy_nu = 0;

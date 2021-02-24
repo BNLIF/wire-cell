@@ -104,8 +104,8 @@ int main(int argc, char* argv[])
   //enlarge window ... 
   if((triggerbits>>11) & 1U) { lowerwindow = 3.0; upperwindow = 5.0; }// bnb
   if ((triggerbits>>12) & 1U) { lowerwindow=4.9295; upperwindow=16.6483;} //NUMI
-  if( ((triggerbits>>9) & 1U) && time_offset < 7) { lowerwindow = 3.45; upperwindow = 5.45; } // extbnb
-  if (((triggerbits>>9) & 1U) && time_offset >= 7) {lowerwindow=5.3045; upperwindow=17.0233;} // EXTNUMI
+  if( ((triggerbits>>9) & 1U) && time_offset != 3) { lowerwindow = 3.45; upperwindow = 5.45; } // extbnb
+  if (((triggerbits>>9) & 1U) && time_offset == 3) {lowerwindow=5.3045; upperwindow=17.0233;} // EXTNUMI
 
   TTree *T_flash = (TTree*)file1->Get("T_flash");
   Double_t time;
