@@ -701,8 +701,8 @@ int main(int argc, char* argv[])
   double lowerwindow = 0., upperwindow = 0.;
   if(datatier==0 && ((triggerbits>>11) & 1U)){ lowerwindow=3.1875; upperwindow=4.96876; } // BNB
   if(datatier==0 && ((triggerbits>>12) & 1U)){ lowerwindow=4.9295; upperwindow=16.6483; } // NUMI
-  if( ((datatier==0 && ((triggerbits>>9) & 1U)) || datatier==1)&&time_offset !=3 ){ lowerwindow=3.5625; upperwindow=5.34376; } // EXT, overlay
-  if( ((datatier==0 && ((triggerbits>>9) & 1U)) || datatier==1) && time_offset == 3 ){ lowerwindow=5.3045; upperwindow=17.0233; } // EXTNUMI, overlay
+  if( ((datatier==0 && ((triggerbits>>9) & 1U)) || datatier==1)&&time_offset != 5 ){ lowerwindow=3.5625; upperwindow=5.34376; } // EXT, overlay
+  if( ((datatier==0 && ((triggerbits>>9) & 1U)) || datatier==1) && time_offset == 5 ){ lowerwindow=5.3045; upperwindow=17.0233; } // EXTNUMI, overlay
   if(datatier==2){ lowerwindow=3.1718; upperwindow=4.95306; } // full mc
     
   WCP2dToy::ToyLightReco uboone_flash(filename,true,datatier);  

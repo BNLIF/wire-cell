@@ -29,8 +29,8 @@ int main(int argc, char* argv[])
   //enlarge window ... 
   if((triggerbits>>11) & 1U) { lowerwindow=3.1875; upperwindow=4.96876;} // bnb 
   if ((triggerbits>>12) & 1U) { lowerwindow=4.9295; upperwindow=16.6483;} // NUMI
-  if(((triggerbits>>9) & 1U)&& time_offset != 3) { lowerwindow=3.5625; upperwindow=5.34376; } //extbnb
-  if (((triggerbits>>9) & 1U) && time_offset == 3) {lowerwindow=5.3045; upperwindow=17.0233;} // EXTNUMI
+  if(((triggerbits>>9) & 1U)&& time_offset != 5) { lowerwindow=3.5625; upperwindow=5.34376; } //extbnb
+  if (((triggerbits>>9) & 1U) && time_offset == 5) {lowerwindow=5.3045; upperwindow=17.0233;} // EXTNUMI
 
   TTree *T_match = (TTree*)file1->Get("T_match");
   Int_t tpc_cluster_id;

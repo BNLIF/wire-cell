@@ -112,8 +112,8 @@ bool flashFilter(const char* file, int eve_num, unsigned int triggerbits, int ti
       
       if ((triggerbits>>12) & 1U){ lowerwindow = 4.9295; upperwindow = 16.6483;} //NUMI
       
-      if (((triggerbits>>9) & 1U) && time_offset != 3) { lowerwindow = 3.45; upperwindow = 5.45; } // extbnb
-      if (((triggerbits>>9) & 1U) && time_offset == 3){lowerwindow = 5.3045; upperwindow = 17.0233;} //EXTNUMI
+      if (((triggerbits>>9) & 1U) && time_offset != 5) { lowerwindow = 3.45; upperwindow = 5.45; } // extbnb
+      if (((triggerbits>>9) & 1U) && time_offset == 5){lowerwindow = 5.3045; upperwindow = 17.0233;} //EXTNUMI
       if(type == 2 && time > lowerwindow && time < upperwindow)
       {
           beamspill = true;
@@ -277,7 +277,7 @@ int main(int argc, char* argv[])
   int time_offset = 4; // Now the time offset is taken care int he signal processing, so we just need the overall offset ... // us ... 
   if (flag_numi!=0){
     // remove NuMI offset ...
-    time_offset = 3; // use this weird Number to illustrate that this is NuMI not BNB ...
+    time_offset = 5; // use this weird Number to illustrate that this is NuMI not BNB ...
   }
 
   int run_no, subrun_no, event_no;
