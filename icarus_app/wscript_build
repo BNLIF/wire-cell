@@ -1,0 +1,2 @@
+#!/usr/bin/env python
+bld.make_package('WCPicarus_APP', use='EIGEN ROOTSYS')

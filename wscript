@@ -28,6 +28,7 @@ subdirs = [
            'uboone_nusel_app',
            'uboone_eval_app',
            'uboone_bdt_app',
+           'icarus_app',
            'dune_app',
            'pyutil',
            'pyinf'
