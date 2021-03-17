@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
     hv[0] = (TH2F*)file->Get("hv_orig111"); // 5600 chs, from 16192 to 21792
     hw[0] = (TH2F*)file->Get("hw_orig111"); // 5600 chs, from 21984 to 27584
     
-    //120
+    // 120
     hu[1] = (TH2F*)file->Get("hu_orig120"); // 1056 chs, from 1152 to 2208
     hv[1] = (TH2F*)file->Get("hv_orig120"); // 5600 chs, from 2400 to 8000
     hw[1] = (TH2F*)file->Get("hw_orig120"); // 5600 chs, from 8128 to 13728
@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
     hv[2] = (TH2F*)file->Get("hv_orig110"); // 5600 chs, from 2400 to 8000
     hw[2] = (TH2F*)file->Get("hw_orig110"); // 5600 chs, from 8128 to 13728
     
-    //121
+    // 121
     hu[3] = (TH2F*)file->Get("hu_orig121"); // 1056 chs, from 14976 to 16032
     hv[3] = (TH2F*)file->Get("hv_orig121"); // 5600 chs, from 16192 to 21792
     hw[3] = (TH2F*)file->Get("hw_orig121"); // 5600 chs, from 21984 to 27584
