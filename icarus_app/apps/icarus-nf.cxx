@@ -36,7 +36,8 @@ int main(int argc, char* argv[])
     hu[3] = (TH2F*)file->Get("hu_orig121"); // 1056 chs, from 14976 to 16032
 
     
-    TFile *file3 = new TFile("processed_files/sum_all.root");
+    TFile *file3 = new TFile("processed_files/sum_all_28.root");
+    // TFile *file3 = new TFile("processed_files/sum_0.root");
     TMatrixD *mat = (TMatrixD*)file3->Get("mat");
     //    TH1F *h_e = (TH1F*)file3->Get("h_e");
     //    TFile *file3 = new TFile("temp.root");
@@ -105,19 +106,21 @@ int main(int argc, char* argv[])
     
     double lambda = 0.05;//0.05; // regularization strength ...
     //    double lambda1 = 0.05*400;//0.05; // regularization strength ...
-    double lambda_n = 4096*32; //(4096-no_list.size())*32; // noise part ...
-    
-    Eigen::VectorXd b(32*4096+4096); // measurement matrix
-    Eigen::VectorXd b_2nd(32*4096+4096); // measurement matrix
-    Eigen::VectorXd temp(4096);
-    Eigen::SparseMatrix<double> A(32*4096+4096,32*4096+4096); // cofficient ...
-    Eigen::SparseMatrix<double> A_2nd(32*4096+4096,32*4096+4096); // cofficient ...
-    Eigen::VectorXd result_init(32*4096+4096); // solution ...
-    Eigen::VectorXd result(32*4096+4096); // solution ...
+    const int nsize = 4096;
+    double lambda_n = nsize*32; //(nsize-no_list.size())*32; // noise part ...
 
-    Eigen::MatrixXd cov(4096,4096); // covariance matrix
-    for (Int_t i=0;i!=4096;i++){
-      for (Int_t j=0;j!=4096;j++){
+    
+    Eigen::VectorXd b(32*nsize+nsize); // measurement matrix
+    Eigen::VectorXd b_2nd(32*nsize+nsize); // measurement matrix
+    Eigen::VectorXd temp(nsize);
+    Eigen::SparseMatrix<double> A(32*nsize+nsize,32*nsize+nsize); // cofficient ...
+    Eigen::SparseMatrix<double> A_2nd(32*nsize+nsize,32*nsize+nsize); // cofficient ...
+    Eigen::VectorXd result_init(32*nsize+nsize); // solution ...
+    Eigen::VectorXd result(32*nsize+nsize); // solution ...
+
+    Eigen::MatrixXd cov(nsize,nsize); // covariance matrix
+    for (Int_t i=0;i!=nsize;i++){
+      for (Int_t j=0;j!=nsize;j++){
 	cov(i,j) = (*mat)(i,j);
       }
     }
@@ -125,7 +128,7 @@ int main(int argc, char* argv[])
     b.setZero();
     b_2nd.setZero();
 
-    TH1F *ht = new TH1F("ht","ht",4096,0,4096);
+    TH1F *ht = new TH1F("ht","ht",nticks,0,nticks);
     TH1 *h_real = 0;
     TH1 *h_imag = 0;
 
@@ -138,7 +141,7 @@ int main(int argc, char* argv[])
     typedef Eigen::Triplet<double> T;
     std::vector<T> tripletList;
     std::vector<T> tripletList_2nd;
-    tripletList.reserve(4096*32*4);
+    tripletList.reserve(nsize*32*4);
     tripletList_2nd.reserve(count_non_zero * 35);
     
     cout << em("initiailization") << std::endl;
@@ -149,14 +152,14 @@ int main(int argc, char* argv[])
       Eigen::BiCGSTAB<Eigen::SparseMatrix<double>> solver_2nd;
       
       for (Int_t j=0;j!=32;j++){
-	for (Int_t k=0;k!=4096;k++){
+	for (Int_t k=0;k!=nticks;k++){
 	  ht->SetBinContent(k+1,hu[2]->GetBinContent(i*32+j+1,k+1));	  
 	}
 	h_real = ht->FFT(0,"RE");
 	h_imag = ht->FFT(0,"IM");
 
 	// temp ...
-	for (Int_t k=0;k!=2048;k++){
+	for (Int_t k=0;k!=nsize/2;k++){
 	  temp(2*k)   = h_real->GetBinContent(k+1);
 	  temp(2*k+1) = h_imag->GetBinContent(k+1);
 	}
@@ -164,34 +167,34 @@ int main(int argc, char* argv[])
 	//Eigen::VectorXd temp1 = temp;
 
 	// initialization ...
-	for (Int_t k=0;k!=4096;k++){
-	  b(4096*j+k) = temp(k);
-	  b_2nd(4096*j+k) = temp(k);
+	for (Int_t k=0;k!=nsize;k++){
+	  b(nsize*j+k) = temp(k);
+	  b_2nd(nsize*j+k) = temp(k);
 	  
-	  result_init(4096*j+k) = temp(k);
+	  result_init(nsize*j+k) = temp(k);
 	  
-	  tripletList.push_back(T(4096*j+k,4096*j+k,1.0 + lambda));
-	  tripletList.push_back(T(4096*j+k,4096*32+k,1.0));
+	  tripletList.push_back(T(nsize*j+k,nsize*j+k,1.0 + lambda));
+	  tripletList.push_back(T(nsize*j+k,nsize*32+k,1.0));
 
-	  tripletList_2nd.push_back(T(4096*j+k,4096*j+k,1.0 + lambda));
-	  tripletList_2nd.push_back(T(4096*j+k,4096*32+k,1.0));
+	  tripletList_2nd.push_back(T(nsize*j+k,nsize*j+k,1.0 + lambda));
+	  tripletList_2nd.push_back(T(nsize*j+k,nsize*32+k,1.0));
 	  
 	  
-	  b(32*4096+k) += temp(k);
-	  tripletList.push_back(T(4096*32+k,4096*j+k,1));
+	  b(32*nsize+k) += temp(k);
+	  tripletList.push_back(T(nsize*32+k,nsize*j+k,1));
 	  
 	  if (no_list.find(k) == no_list.end()){
-	    b_2nd(32*4096+k) += temp1(k);
+	    b_2nd(32*nsize+k) += temp1(k);
 	    // last equation ...
-	    for (Int_t q=0;q!=4096;q++){
+	    for (Int_t q=0;q!=nsize;q++){
 	      if (cov(k,q)!=0) {
-		tripletList_2nd.push_back(T(4096*32+k,4096*j+q,cov(k,q)));
+		tripletList_2nd.push_back(T(nsize*32+k,nsize*j+q,cov(k,q)));
 		//std::cout << 32 << " " << k << " " << j << " " << q << " " << cov(k,q) << std::endl;
 	      }
 	    }
 	  }else{
-	    b_2nd(32*4096+k) += temp(k);
-	    tripletList_2nd.push_back(T(4096*32+k,4096*j+k,1));
+	    b_2nd(32*nsize+k) += temp(k);
+	    tripletList_2nd.push_back(T(nsize*32+k,nsize*j+k,1));
 	  }
 	}
 	delete h_real;
@@ -199,20 +202,20 @@ int main(int argc, char* argv[])
       } // loop over 32 channels ...
       
       // last piece ...
-      for (Int_t k=0;k!=4096;k++){
-	tripletList.push_back(T(4096*32+k,4096*32+k, 32));
+      for (Int_t k=0;k!=nsize;k++){
+	tripletList.push_back(T(nsize*32+k,nsize*32+k, 32));
 	
 	if (no_list.find(k) == no_list.end()){
-	  tripletList_2nd.push_back(T(4096*32+k,4096*32+k,lambda_n + 32*cov(k,k)));
+	  tripletList_2nd.push_back(T(nsize*32+k,nsize*32+k,lambda_n + 32*cov(k,k)));
 	}else{
-	  tripletList_2nd.push_back(T(4096*32+k,4096*32+k, 32));
+	  tripletList_2nd.push_back(T(nsize*32+k,nsize*32+k, 32));
 	}
 	
-       	for (Int_t q=k+1;q!=4096;q++){
+       	for (Int_t q=k+1;q!=nsize;q++){
 	  if (no_list.find(q) == no_list.end()){
 	    if (cov(q,k) != 0){
-	      tripletList_2nd.push_back(T(4096*32+q,4096*32+k,32*cov(q,k)));
-	      tripletList_2nd.push_back(T(4096*32+k,4096*32+q,32*cov(k,q)));
+	      tripletList_2nd.push_back(T(nsize*32+q,nsize*32+k,32*cov(q,k)));
+	      tripletList_2nd.push_back(T(nsize*32+k,nsize*32+q,32*cov(k,q)));
 	    }
 	  }
 	}
@@ -230,26 +233,35 @@ int main(int argc, char* argv[])
       result = solver.solveWithGuess(b,result_init);
       result_init = result;
 
+
       cout << em("solve first round") << std::endl;
 
+      solver_2nd.setMaxIterations(200);
+      solver_2nd.setTolerance(1e-3);
+      
       solver_2nd.compute(A_2nd);
       result = solver_2nd.solveWithGuess(b_2nd,result_init);
 
+      std::cout << "#interations:    " << solver_2nd.iterations() << std::endl;
+      std::cout << "estimated error: " << solver_2nd.error() << std::endl;
+      
       cout << em("solve 2nd round") << std::endl;
 
+
+      
       if (std::isnan(solver_2nd.error()))  result = result_init;
       
       
       
       for (Int_t j=0;j!=32;j++){
-	for (Int_t k=0;k!=n/2;k++){
-	  temp_re[k] = result(4096*j+2*k)/n;
-	  temp_im[k] = result(4096*j+2*k+1)/n;
+	for (Int_t k=0;k!=nsize/2;k++){
+	  temp_re[k] = result(nsize*j+2*k)/n;
+	  temp_im[k] = result(nsize*j+2*k+1)/n;
 	}
 	ifft2->SetPointsComplex(temp_re,temp_im);
 	ifft2->Transform();	
 	fb = TH1::TransformHisto(ifft2,fb,"Re");
-	for (Int_t k=0;k!=4096;k++){
+	for (Int_t k=0;k!=nsize;k++){
 	  hu1[2]->SetBinContent(i*32+j+1,k+1, fb->GetBinContent(k+1));
 	}
       }
