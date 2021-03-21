@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <set>
 #include <algorithm>
 
 #include "WCP2dToy/ExecMon.h"
@@ -34,8 +35,64 @@ int main(int argc, char* argv[])
     hu[2] = (TH2F*)file->Get("hu_orig110"); // 1056 chs, from 0 to 1056
     hu[3] = (TH2F*)file->Get("hu_orig121"); // 1056 chs, from 14976 to 16032
 
-    TMatrixD *mat = (TMatrixD*)file->Get("mat");
     
+    TFile *file3 = new TFile("processed_files/sum_all.root");
+    TMatrixD *mat = (TMatrixD*)file3->Get("mat");
+    //    TH1F *h_e = (TH1F*)file3->Get("h_e");
+    //    TFile *file3 = new TFile("temp.root");
+    //    TMatrixD *mat = (TMatrixD*)file3->Get("mat_u1");
+    //    for (Int_t i=0;i!=4096;i++){
+    //  for (Int_t j=i+1;j!=4096;j++){
+    //	(*mat)(j,i) = (*mat)(i,j);
+    //  }
+    // }
+    
+    double max_val = 0;
+    for (Int_t i=0;i!=4096;i++){
+      if ((*mat)(i,i) > max_val) max_val = (*mat)(i,i);
+    }
+    std::cout <<"Diagonal Maximum: " << max_val << std::endl;
+    double limit = 0.0002;
+    double limit1 = 0.05;
+
+    // double limit = 1.0;
+    // double limit1 = 1.0;
+
+    std::set<int> no_list;
+    for (Int_t i=0;i!=4096;i++){
+      if ((*mat)(i,i) <= max_val * limit || i >=2048){
+	for (Int_t j=0;j!=4096;j++){
+	  (*mat)(i,j) = 0;
+	  (*mat)(j,i) = 0;
+	}
+	no_list.insert(i);
+      }
+    }
+    
+    std::cout << "Zero List Size: " << no_list.size() << " " << std::endl;
+    
+    for (Int_t i=0;i!=4096;i++){
+      if ((*mat)(i,i)==0) continue;
+      double val1 = sqrt((*mat)(i,i));
+      for (Int_t j=i+1;j!=4096;j++){
+	if ((*mat)(j,j) ==0) continue;
+	double val2 = sqrt((*mat)(j,j));
+	if (fabs((*mat)(i,j)) < limit1 * val1 * val2 ||
+	    fabs((*mat)(j,i)) < limit1 * val1 * val2 ){
+	  (*mat)(j,i) = 0;
+	  (*mat)(i,j) = 0;
+	}
+      }
+    }
+    int count_non_zero =0;
+    for (Int_t i=0;i!=4096;i++){
+      for (Int_t j=0;j!=4096;j++){
+	if ((*mat)(i,j) !=0) count_non_zero ++;
+      }
+    }
+    std::cout << "Non-zero element: " << count_non_zero << std::endl;
+    
+        
     TH2F **hu1 = new TH2F*[4];
     for (Int_t i=0;i!=4;i++){
       hu1[i] = (TH2F*)hu[i]->Clone(Form("hu_%d",i));
@@ -46,16 +103,19 @@ int main(int argc, char* argv[])
     
     int n_u = 33;
     
-    float lambda = 0.05; // regularization strength ...
-    float lambda_n = 0.;//32*32*1000; // noise part ...
+    double lambda = 0.05;//0.05; // regularization strength ...
+    //    double lambda1 = 0.05*400;//0.05; // regularization strength ...
+    double lambda_n = 4096*32; //(4096-no_list.size())*32; // noise part ...
     
-    Eigen::VectorXf b(32*4096+4096); // measurement matrix
-    Eigen::VectorXf temp(4096);
-    Eigen::SparseMatrix<float> A(32*4096+4096,32*4096+4096); // cofficient ...
-    Eigen::VectorXf result_init(32*4096+4096); // solution ...
-    Eigen::VectorXf result(32*4096+4096); // solution ...
+    Eigen::VectorXd b(32*4096+4096); // measurement matrix
+    Eigen::VectorXd b_2nd(32*4096+4096); // measurement matrix
+    Eigen::VectorXd temp(4096);
+    Eigen::SparseMatrix<double> A(32*4096+4096,32*4096+4096); // cofficient ...
+    Eigen::SparseMatrix<double> A_2nd(32*4096+4096,32*4096+4096); // cofficient ...
+    Eigen::VectorXd result_init(32*4096+4096); // solution ...
+    Eigen::VectorXd result(32*4096+4096); // solution ...
 
-    Eigen::MatrixXf cov(4096,4096); // covariance matrix
+    Eigen::MatrixXd cov(4096,4096); // covariance matrix
     for (Int_t i=0;i!=4096;i++){
       for (Int_t j=0;j!=4096;j++){
 	cov(i,j) = (*mat)(i,j);
@@ -63,7 +123,7 @@ int main(int argc, char* argv[])
     }
     result_init.setZero();
     b.setZero();
-    
+    b_2nd.setZero();
 
     TH1F *ht = new TH1F("ht","ht",4096,0,4096);
     TH1 *h_real = 0;
@@ -75,15 +135,19 @@ int main(int argc, char* argv[])
     double temp_re[nticks],temp_im[nticks];
     TH1 *fb = 0;
     
-    typedef Eigen::Triplet<float> T;
+    typedef Eigen::Triplet<double> T;
     std::vector<T> tripletList;
-    tripletList.reserve(4096*4096*35);
-
+    std::vector<T> tripletList_2nd;
+    tripletList.reserve(4096*32*4);
+    tripletList_2nd.reserve(count_non_zero * 35);
+    
     cout << em("initiailization") << std::endl;
     
     for (Int_t i=28;i!=29;i++){
 
-      Eigen::BiCGSTAB<Eigen::SparseMatrix<float>> solver;
+      Eigen::BiCGSTAB<Eigen::SparseMatrix<double>> solver;
+      Eigen::BiCGSTAB<Eigen::SparseMatrix<double>> solver_2nd;
+      
       for (Int_t j=0;j!=32;j++){
 	for (Int_t k=0;k!=4096;k++){
 	  ht->SetBinContent(k+1,hu[2]->GetBinContent(i*32+j+1,k+1));	  
@@ -96,27 +160,39 @@ int main(int argc, char* argv[])
 	  temp(2*k)   = h_real->GetBinContent(k+1);
 	  temp(2*k+1) = h_imag->GetBinContent(k+1);
 	}
-	//Eigen::VectorXf temp1 = cov * temp;
-	Eigen::VectorXf temp1 = temp;
+	Eigen::VectorXd temp1 = cov * temp;
+	//Eigen::VectorXd temp1 = temp;
 
 	// initialization ...
 	for (Int_t k=0;k!=4096;k++){
 	  b(4096*j+k) = temp(k);
-	  result_init(4096*j+k) = temp(k);
-	  b(32*4096+k) += temp1(k);
-
+	  b_2nd(4096*j+k) = temp(k);
 	  
-	  // A.insert(4096*j+k,4096*j+k) = 1.0 + lambda;
-	  // A.insert(4096*j+k,4096*32+k) = 1.0;
+	  result_init(4096*j+k) = temp(k);
+	  
 	  tripletList.push_back(T(4096*j+k,4096*j+k,1.0 + lambda));
 	  tripletList.push_back(T(4096*j+k,4096*32+k,1.0));
+
+	  tripletList_2nd.push_back(T(4096*j+k,4096*j+k,1.0 + lambda));
+	  tripletList_2nd.push_back(T(4096*j+k,4096*32+k,1.0));
 	  
-	  // last equation ...
-	  for (Int_t q=0;q!=4096;q++){
-	    //   A.insert(4096*32+k,4096*j+q) = cov(k,q);
-	    //tripletList.push_back(T(4096*32+k,4096*j+q,cov(k,q)));
-	  }
+	  
+	  b(32*4096+k) += temp(k);
 	  tripletList.push_back(T(4096*32+k,4096*j+k,1));
+	  
+	  if (no_list.find(k) == no_list.end()){
+	    b_2nd(32*4096+k) += temp1(k);
+	    // last equation ...
+	    for (Int_t q=0;q!=4096;q++){
+	      if (cov(k,q)!=0) {
+		tripletList_2nd.push_back(T(4096*32+k,4096*j+q,cov(k,q)));
+		//std::cout << 32 << " " << k << " " << j << " " << q << " " << cov(k,q) << std::endl;
+	      }
+	    }
+	  }else{
+	    b_2nd(32*4096+k) += temp(k);
+	    tripletList_2nd.push_back(T(4096*32+k,4096*j+k,1));
+	  }
 	}
 	delete h_real;
 	delete h_imag;
@@ -124,29 +200,47 @@ int main(int argc, char* argv[])
       
       // last piece ...
       for (Int_t k=0;k!=4096;k++){
-       	for (Int_t q=0;q!=4096;q++){
-       	  if (q==k){
-      // 	    A.insert(4096*32+q,4096*32+k) = 1+cov(q,k);
-	    //tripletList.push_back(T(4096*32+q,4096*32+k,lambda_n + 32*cov(q,k)));
-	    tripletList.push_back(T(4096*32+q,4096*32+k,lambda_n + 32));
-       	  }else{
-      // 	    A.insert(4096*32+q,4096*32+k) = cov(q,k);
-	    //	    tripletList.push_back(T(4096*32+q,4096*32+k,32*cov(q,k)));
-       	  }
-       	}
+	tripletList.push_back(T(4096*32+k,4096*32+k, 32));
+	
+	if (no_list.find(k) == no_list.end()){
+	  tripletList_2nd.push_back(T(4096*32+k,4096*32+k,lambda_n + 32*cov(k,k)));
+	}else{
+	  tripletList_2nd.push_back(T(4096*32+k,4096*32+k, 32));
+	}
+	
+       	for (Int_t q=k+1;q!=4096;q++){
+	  if (no_list.find(q) == no_list.end()){
+	    if (cov(q,k) != 0){
+	      tripletList_2nd.push_back(T(4096*32+q,4096*32+k,32*cov(q,k)));
+	      tripletList_2nd.push_back(T(4096*32+k,4096*32+q,32*cov(k,q)));
+	    }
+	  }
+	}
       }
       A.setFromTriplets(tripletList.begin(), tripletList.end());
+      A_2nd.setFromTriplets(tripletList_2nd.begin(), tripletList_2nd.end());
 
+      
+      
+      //std::cout << tripletList.size() << " " << count_non_zero * 35 << std::endl;
+      
       cout << em("loading content") << std::endl;
       
       solver.compute(A);
-
-      cout << em("prepare solver") << std::endl;
-     
       result = solver.solveWithGuess(b,result_init);
+      result_init = result;
 
-      cout << em("solve one") << std::endl;
+      cout << em("solve first round") << std::endl;
 
+      solver_2nd.compute(A_2nd);
+      result = solver_2nd.solveWithGuess(b_2nd,result_init);
+
+      cout << em("solve 2nd round") << std::endl;
+
+      if (std::isnan(solver_2nd.error()))  result = result_init;
+      
+      
+      
       for (Int_t j=0;j!=32;j++){
 	for (Int_t k=0;k!=n/2;k++){
 	  temp_re[k] = result(4096*j+2*k)/n;

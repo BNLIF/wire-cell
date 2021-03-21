@@ -154,10 +154,10 @@ int main(int argc, char* argv[])
 	  mat(2*q,2*q+1) += h_real->GetBinContent(q+1) * h_imag->GetBinContent(q+1);
 	  
 	  for (Int_t p=q+1; p!=2048; p++){
-	    mat(2*q,2*p) = h_real->GetBinContent(p+1) * h_real->GetBinContent(q+1);
-	    mat(2*q+1,2*p) = h_real->GetBinContent(p+1) * h_imag->GetBinContent(q+1);
-	    mat(2*q,2*p+1) = h_imag->GetBinContent(p+1) * h_real->GetBinContent(q+1);
-	    mat(2*q+1,2*p+1) = h_imag->GetBinContent(p+1) * h_imag->GetBinContent(q+1);	    
+	    mat(2*q,2*p) += h_real->GetBinContent(p+1) * h_real->GetBinContent(q+1);
+	    mat(2*q+1,2*p) += h_real->GetBinContent(p+1) * h_imag->GetBinContent(q+1);
+	    mat(2*q,2*p+1) += h_imag->GetBinContent(p+1) * h_real->GetBinContent(q+1);
+	    mat(2*q+1,2*p+1) += h_imag->GetBinContent(p+1) * h_imag->GetBinContent(q+1);	    
 	  }
 	}
 	count ++; 
