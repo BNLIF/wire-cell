@@ -4,6 +4,8 @@
 #include "TF1.h"
 #include "TGraph.h"
 #include "TF1Convolution.h"
+#include "TMath.h"
+#include "TError.h"
 
 namespace LEEana{
   double Prop_Poisson_Pdf(double *x, double *par);
