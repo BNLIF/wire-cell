@@ -653,6 +653,8 @@ if(beamspill || beam==-1){
   WCP2dToy::pdDataFDS roi_gaus_fds(gds,hu_decon_g,hv_decon_g,hw_decon_g,eve_num);
   roi_gaus_fds.jump(eve_num);
 
+  // std::cout << "abc: " << std::endl;
+  
   WCP2dToy::uBooNEDataError error_fds(gds,hu_decon_g, hv_decon_g, hw_decon_g, eve_num, nrebin);
   error_fds.jump(eve_num);
   
