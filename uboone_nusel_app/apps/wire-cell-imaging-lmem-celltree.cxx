@@ -331,6 +331,13 @@ int main(int argc, char* argv[])
   unsigned int triggerbits;
   T->SetBranchAddress("triggerBits",&triggerbits);
 
+  Float_t elifetime;
+  bool flag_elifetime = false;
+  if (T->GetBranch("elifetime")){
+    flag_elifetime = true;
+    T->SetBranchAddress("elifetime",&elifetime);
+  }
+  
   T->GetEntry(eve_num);
   cout << "Run No: " << run_no << " " << subrun_no << " " << event_no << endl;
 
@@ -1078,6 +1085,10 @@ if(beamspill || beam==-1){
   Trun->Branch("raw_charge",&raw_charge);
   Trun->Branch("raw_charge_err",&raw_charge_err);
 
+  if (flag_elifetime){
+    Trun->Branch("elifetime",&elifetime);
+  }
+  
   Trun->Fill();
   //Trun->Print();
   //raw_charge->Clear("C");

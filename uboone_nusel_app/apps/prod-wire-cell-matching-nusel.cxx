@@ -55,9 +55,14 @@ int main(int argc, char* argv[])
   }
 
   bool flag_timestamp = false;
+
+  bool flag_lifetime_corr = true;
   
   for(Int_t i = 1; i != argc; i++){
     switch(argv[i][1]){
+    case 'a':
+      flag_lifetime_corr = atoi(&argv[i][2]);
+      break;
     case 'c':
       flag_pos_corr = atoi(&argv[i][2]); 
       break;
@@ -134,6 +139,16 @@ int main(int argc, char* argv[])
   int frame_length;
   int eve_num;
   float unit_dis;
+
+  // get electron lifetime
+  
+  Float_t elifetime = 1000; // large number 
+  if (Trun->GetBranch("elifetime") && flag_lifetime_corr){
+    Trun->SetBranchAddress("elifetime",&elifetime);
+  }
+
+  
+
   
   std::vector<int> *timesliceId = new std::vector<int>;
   std::vector<std::vector<int>> *timesliceChannel = new std::vector<std::vector<int>>;
@@ -235,6 +250,14 @@ int main(int argc, char* argv[])
   mp.set_first_v_dis(first_v_dis);
   mp.set_first_w_dis(first_w_dis);
 
+
+  if (elifetime < 1000){
+    // read the variable from the Trun tree ...
+    mp.set_electron_lifetime(elifetime);
+
+    std::cout << "Electron Lifetime Read in: " << elifetime << " ms" << std::endl;
+  }
+  
 
 
 
