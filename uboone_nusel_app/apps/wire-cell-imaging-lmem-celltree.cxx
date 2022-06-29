@@ -1085,7 +1085,7 @@ if(beamspill || beam==-1){
   Trun->Branch("raw_charge",&raw_charge);
   Trun->Branch("raw_charge_err",&raw_charge_err);
 
-  if (flag_elifetime){
+  if (flag_elifetime && elifetime > 0){
     Trun->Branch("elifetime",&elifetime);
   }
   
