@@ -39,6 +39,17 @@ int main(int argc, char* argv[])
     T_kine->SetBranchAddress("kine_reco_Enu",&energy_nu);
     T_kine->GetEntry(0);
   }
+
+  Float_t numu_cc_flag;
+  Float_t nue_score, numu_score;
+  TTree *T_tagger = (TTree*)file1->Get("T_tagger");
+  if (T_tagger != 0){
+    T_tagger->SetBranchAddress("numu_cc_flag",&numu_cc_flag);
+    T_tagger->SetBranchAddress("nue_score",&nue_score);
+    T_tagger->SetBranchAddress("numu_score",&numu_score);
+    T_tagger->GetEntry(0);
+  }
+  
   
   TTree *T_match = (TTree*)file1->Get("T_match");
   Int_t tpc_cluster_id;
@@ -60,9 +71,11 @@ int main(int argc, char* argv[])
     int flag_long_muon = (event_type >> 4) & 1U;
     int flag_nue = (event_type >> 5) & 1U;
 
+
+    std::cout << runNo << "_" << subRunNo << "_" << eventNo << " " << numu_cc_flag << " " << numu_score << " " << nue_score << " " << energy_nu << std::endl;
     
-    
-    std::cout << runNo << "_" << subRunNo << "_" << eventNo << " " << flash_id << " " << tpc_cluster_id << " " << flash_time << " " << event_type << " " << flag_cosmic << " " << flag_numu << " " << flag_nc << " " << flag_long_muon << " " << flag_nue <<  " " << energy_nu << std::endl;
+    // std::cout << runNo << "_" << subRunNo << "_" << eventNo << " " << flash_id << " " << tpc_cluster_id << " " << flash_time << " " << event_type << " " << flag_cosmic << " " << flag_numu << " " << flag_nc << " " << flag_long_muon << " " << flag_nue <<  " " << energy_nu << std::endl;
+    break;
    
   }
 }
