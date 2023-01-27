@@ -1197,6 +1197,14 @@ if(beamspill || beam==-1){
     
     cout << "Cluster #: " << cluster_set.size() << " " << temp_nmcell_before << std::endl;
   }
+
+  int ncluster = 0;
+  for (auto it = cluster_set.begin();it!=cluster_set.end();it++){
+    (*it)->set_id(ncluster);
+    ncluster++;
+  }
+  
+  
   cout << em("finish initial clustering") << " " << cluster_set.size() << endl;
 
   
@@ -1656,7 +1664,7 @@ if(beamspill || beam==-1){
     
     cout << em("finish 1st round of deghosting") << endl;
   }
- 
+  */ 
   
   for (int i=start_num;i!=end_num+1;i++){
     if (i%400==0)
@@ -1692,6 +1700,7 @@ if(beamspill || beam==-1){
   }
   // cout << em("finish 1st round of solving") << endl;
 
+  /*
   
   // Int_t nc_mcells = 0;
   // for (int i=start_num; i!=end_num+1;i++){
@@ -3684,6 +3693,13 @@ std::cout << "# of good mcell: " << good_mcells.size() << std::endl;
 
   // save one event TC, TDC into one entry
   if (save_file==2){
+
+    for (int i=start_num;i!=end_num+1;i++){
+      if (i%400==0) std::cout << "Save Charge Solving Info " << i << std::endl;
+      chargesolver[i]->update_information();
+    }
+
+    
     TTree *TC = new TTree("TC","TC");
     TC->SetDirectory(file);
     
@@ -3704,6 +3720,30 @@ std::cout << "# of good mcell: " << good_mcells.size() << std::endl;
 
     TC->Branch("time_slice",&time_slice);
 
+    // add indices for merged wires ...
+    std::vector<int> *ul = new std::vector<int>;
+    std::vector<int> *uh = new std::vector<int>;
+    std::vector<int> *vl = new std::vector<int>;
+    std::vector<int> *vh = new std::vector<int>;
+    std::vector<int> *wl = new std::vector<int>;
+    std::vector<int> *wh = new std::vector<int>;
+    // save some information used in the solving
+    std::vector<int> *q_matrix_id = new std::vector<int>;
+    std::vector<int> *q_index = new std::vector<int>;
+    std::vector<int> *u_index = new std::vector<int>;
+    std::vector<int> *v_index = new std::vector<int>;
+    std::vector<int> *w_index = new std::vector<int>;
+    std::vector<float> *uw = new std::vector<float>;
+    std::vector<float> *vw = new std::vector<float>;
+    std::vector<float> *ww = new std::vector<float>;
+    std::vector<float> *ug = new std::vector<float>;
+    std::vector<float> *vg = new std::vector<float>;
+    std::vector<float> *wg = new std::vector<float>;
+    std::vector<float> *q_lambda = new std::vector<float>;
+    std::vector<float> *q_tol = new std::vector<float>;
+    std::vector<float> *q_rel_weight = new std::vector<float>;
+    
+    
     // TC->Branch("x",&x_save,"x/D");
     // TC->Branch("y",&y_save,"y/D");
     // TC->Branch("z",&z_save,"z/D");
@@ -3714,6 +3754,31 @@ std::cout << "# of good mcell: " << good_mcells.size() << std::endl;
     TC->Branch("udq",&udq);
     TC->Branch("vdq",&vdq);
     TC->Branch("wdq",&wdq);
+
+    TC->Branch("ul",&ul);
+    TC->Branch("uh",&uh);
+    TC->Branch("vl",&vl);
+    TC->Branch("vh",&vh);
+    TC->Branch("wl",&wl);
+    TC->Branch("wh",&wh);
+
+    TC->Branch("q_matrix_id",q_matrix_id);
+    TC->Branch("q_index",q_index);
+    TC->Branch("u_index",u_index);
+    TC->Branch("v_index",v_index);
+    TC->Branch("w_index",w_index);
+    TC->Branch("uw", &uw);
+    TC->Branch("vw", &vw);
+    TC->Branch("ww", &ww);
+    TC->Branch("ug",&ug);
+    TC->Branch("vg",&vg);
+    TC->Branch("wg",&wg);
+    TC->Branch("q_lambda",&q_lambda);
+    TC->Branch("q_tol",&q_tol);
+    TC->Branch("q_rel_weight",&q_rel_weight);
+    
+    
+    
     
     std::vector<int> *nwire_u = new  std::vector<int>;
     std::vector<int> *nwire_v = new  std::vector<int>;
@@ -3790,26 +3855,51 @@ std::cout << "# of good mcell: " << good_mcells.size() << std::endl;
 	}
 
 	// 11/18/2022, temporary modifications ...
-	q->push_back(0);
-	//	q->push_back(correction*chargesolver[time_slice_temp]->get_mcell_charge(mcell));
+	//	q->push_back(0);
+	// done
+	q->push_back(correction*chargesolver[time_slice_temp]->get_mcell_charge(mcell));
+	q_rel_weight->push_back(chargesolver[time_slice_temp]->get_weight(mcell));
+	q_lambda->push_back(chargesolver[time_slice_temp]->get_mc_lambda(mcell));
+	q_tol->push_back(chargesolver[time_slice_temp]->get_mc_TOL(mcell));
+	q_matrix_id->push_back(chargesolver[time_slice_temp]->get_matrix_id(mcell));
+	q_index->push_back(chargesolver[time_slice_temp]->get_mc_id(mcell));
 	
 	GeomCellMap cell_wires_map = lowmemtiling[time_slice_temp]->get_cell_wires_map();
 	WCP::WireChargeMap& wire_charge = lowmemtiling[time_slice_temp]->get_wire_charge_map();
 	WCP::WireChargeMap& wire_charge_error = lowmemtiling[time_slice_temp]->get_wire_charge_error_map();
 	for (auto it1 = cell_wires_map[mcell].begin(); it1!= cell_wires_map[mcell].end(); it1++){
 	  MergeGeomWire *mwire = (MergeGeomWire*)(*it1);
+	  GeomWireSelection temp_wires = mwire->get_allwire();
 	  if (mwire->get_allwire().front()->iplane()==0){
 	    uq->push_back(correction*wire_charge[mwire]);
 	    udq->push_back(wire_charge_error[mwire]);
+	    ul->push_back(temp_wires.front()->channel());
+	    uh->push_back(temp_wires.back()->channel());
+	    u_index->push_back(chargesolver[time_slice_temp]->get_mw_id(mwire));
+	    uw->push_back(chargesolver[time_slice_temp]->get_W(mwire));
+	    ug->push_back(chargesolver[time_slice_temp]->get_G(mcell, mwire));
 	  }else if(mwire->get_allwire().front()->iplane()==1){
 	    vq->push_back(correction*wire_charge[mwire]);
 	    vdq->push_back(wire_charge_error[mwire]);
+	    vl->push_back(temp_wires.front()->channel());
+	    vh->push_back(temp_wires.back()->channel());
+	    v_index->push_back(chargesolver[time_slice_temp]->get_mw_id(mwire));
+	    vw->push_back(chargesolver[time_slice_temp]->get_W(mwire));
+	    vg->push_back(chargesolver[time_slice_temp]->get_G(mcell, mwire));
+	    
 	  }else if(mwire->get_allwire().front()->iplane()==2){
 	    wq->push_back(correction*wire_charge[mwire]);
 	    wdq->push_back(wire_charge_error[mwire]);
+	    wl->push_back(temp_wires.front()->channel());
+	    wh->push_back(temp_wires.back()->channel());
+	    w_index->push_back(chargesolver[time_slice_temp]->get_mw_id(mwire));
+	    ww->push_back(chargesolver[time_slice_temp]->get_W(mwire));
+	    wg->push_back(chargesolver[time_slice_temp]->get_G(mcell, mwire));
 	  }
 	}
 	
+
+	//std::cout << q->size() << " " << uq->size() << " " << vq->size() << " " << wq->size() << std::endl;
 	
 	GeomWireSelection& uwires = mcell->get_uwires();
 	GeomWireSelection& vwires = mcell->get_vwires();
