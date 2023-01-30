@@ -117,7 +117,11 @@ int main(int argc, char* argv[])
       l1_fired_time = flash->get_l1_fired_time();
       l1_fired_pe = flash->get_l1_fired_pe();
       T_flash->Fill();
+
+     
     }
+    uboone_flash.clear_flashes();
+    
     file[i]->Write();
     file[i]->Close();
   }

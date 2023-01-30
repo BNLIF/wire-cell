@@ -1700,7 +1700,7 @@ if(beamspill || beam==-1){
   }
   // cout << em("finish 1st round of solving") << endl;
 
-  /*
+  
   
   // Int_t nc_mcells = 0;
   // for (int i=start_num; i!=end_num+1;i++){
@@ -1745,7 +1745,7 @@ if(beamspill || beam==-1){
     chargesolver[i]->L1_resolve(9,3);
   }
   
-  
+  /*  
   for (auto it = front_cell_map.begin(); it!=front_cell_map.end();it++){
     SlimMergeGeomCell *mcell1 = (SlimMergeGeomCell*) it->first;
     int time_slice1 = mcell1->GetTimeSlice();
@@ -1790,7 +1790,8 @@ if(beamspill || beam==-1){
   for (int i=start_num;i!=end_num+1;i++){
     nmcell_before += lowmemtiling[i]->get_cell_wires_map().size();
   }
-  
+
+
   // removel absolute can be removed ...
   // completely overlapped with the good three-wire-cells ... 
   std::set<SlimMergeGeomCell*, WCP::GeomCellComparep> potential_bad_mcells;
