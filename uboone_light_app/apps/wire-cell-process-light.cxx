@@ -65,6 +65,15 @@ int main(int argc, char* argv[])
   T->SetBranchAddress("runNo"   , &run_no);
   T->SetBranchStatus("subRunNo",1);
   T->SetBranchAddress("subRunNo", &subrun_no);
+
+  Float_t elifetime;
+  bool flag_elifetime = false;
+  if (T->GetBranch("elifetime")){
+    flag_elifetime = true;
+    T->SetBranchAddress("elifetime",&elifetime);
+  }
+
+  
   int nEntries = T->GetEntries();  
 
   TFile** file = new TFile*[nEntries];    
@@ -97,6 +106,9 @@ int main(int argc, char* argv[])
     T_flash->Branch("fired_channels",&fired_channels);
     T_flash->Branch("l1_fired_time",&l1_fired_time);
     T_flash->Branch("l1_fired_pe",&l1_fired_pe);
+
+    if (flag_elifetime)
+      T_flash->Branch("elifetime",&elifetime);
     
     uboone_flash.load_event_raw(i);
     WCP::OpflashSelection& flashes = uboone_flash.get_flashes();
