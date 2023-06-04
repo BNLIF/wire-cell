@@ -726,8 +726,8 @@ if(beamspill || beam==-1){
   // start_num = 1665;
   // end_num = 1665;
 
-  // start_num = 50;
-  // end_num = 150;
+  //  start_num = 533;
+  //end_num = 533;
   
   TFile *file = new TFile(Form("result_%d_%d_%d.root",run_no,subrun_no,event_no),"RECREATE");
 
@@ -1198,7 +1198,7 @@ if(beamspill || beam==-1){
     cout << "Cluster #: " << cluster_set.size() << " " << temp_nmcell_before << std::endl;
   }
 
-  int ncluster = 0;
+  Int_t ncluster = 0;
   for (auto it = cluster_set.begin();it!=cluster_set.end();it++){
     (*it)->set_id(ncluster);
     ncluster++;
@@ -1209,7 +1209,7 @@ if(beamspill || beam==-1){
 
   
   std::set<SlimMergeGeomCell*, WCP::GeomCellComparep> potential_good_mcells, good_mcells;
-  /*
+  
   
   Int_t cluster1_ID, cluster2_ID;
   Int_t plane_no;
@@ -1241,7 +1241,9 @@ if(beamspill || beam==-1){
   std::map<Projected2DCluster*, std::vector<Slim3DCluster*>, Projected2DClusterComparep> v_2D_3D_clus_map;
   std::map<Projected2DCluster*, std::vector<Slim3DCluster*>, Projected2DClusterComparep> w_2D_3D_clus_map;
 
-
+  std::map<int, int> map_u_covered;
+  std::map<int, int> map_v_covered;
+  std::map<int, int> map_w_covered;
   
   if (no_dead_channel!=1){
 
@@ -1258,25 +1260,30 @@ if(beamspill || beam==-1){
 	  Projected2DCluster *comp_2Dclus = it1->first;
 	  std::vector<Slim3DCluster*>& vec_3Dclus = it1->second;
 	  int comp_score = comp_2Dclus->judge_coverage(u_2Dclus);
+
+	  // std::cout << comp_score << std::endl;
 	  
 	  if (comp_score == 1){
 	    // u_2Dclus is part of comp_2Dclus
 	    flag_save = false;
+	    map_u_covered[u_2Dclus->get_parent_cluster_id()] = comp_2Dclus->get_parent_cluster_id();
 	    break;
 	  }else if (comp_score == 2){
 	    // u_2D_clus is the same as comp_2Dclus
 	    flag_save = false;
+	    map_u_covered[u_2Dclus->get_parent_cluster_id()] = comp_2Dclus->get_parent_cluster_id();
 	    vec_3Dclus.push_back((*it));
 	    break;
 	  }else if (comp_score == -1){
 	    // comp_2Dclus is part of u_2Dclus
 	    to_be_removed.push_back(comp_2Dclus);
+	    map_u_covered[comp_2Dclus->get_parent_cluster_id()] = u_2Dclus->get_parent_cluster_id() ;
 	  }else if (comp_score == 0){
 	    //they do not match ...
 	    // do nothing ... 
 	  }
 	}
-	
+	//	std::cout << u_2D_3D_clus_map.size() << " " << to_be_removed.size() << std::endl;
 	// remove the small stuff ...
 	for (auto it1 = to_be_removed.begin(); it1!=to_be_removed.end(); it1++){
 	  u_2D_3D_clus_map.erase((*it1));
@@ -1288,8 +1295,9 @@ if(beamspill || beam==-1){
 	  u_2D_3D_clus_map[u_2Dclus] = vec_3Dclus;
 	}
 	//std::cout << u_2D_3D_clus_map.size() << std::endl;
+	
       }
-      
+
       // get V
       Projected2DCluster *v_2Dclus = (*it)->get_projection(WirePlaneType_t(1));
       if (v_2Dclus->get_number_time_slices() >0){
@@ -1302,15 +1310,18 @@ if(beamspill || beam==-1){
 	  if (comp_score == 1){
 	    // v_2Dclus is part of comp_2Dclus
 	    flag_save = false;
+	    map_v_covered[v_2Dclus->get_parent_cluster_id()] = comp_2Dclus->get_parent_cluster_id();
 	    break;
 	  }else if (comp_score == 2){
 	    // v_2D_clus is the same as comp_2Dclus
 	    flag_save = false;
+	    map_v_covered[v_2Dclus->get_parent_cluster_id()] = comp_2Dclus->get_parent_cluster_id();
 	    vec_3Dclus.push_back((*it));
 	    break;
 	  }else if (comp_score == -1){
 	    // comp_2Dclus is part of v_2Dclus
 	    to_be_removed.push_back(comp_2Dclus);
+	    map_v_covered[comp_2Dclus->get_parent_cluster_id()] = v_2Dclus->get_parent_cluster_id() ;
 	  }else if (comp_score == 0){
 	    //they do not match ...
 	    // do nothing ... 
@@ -1342,15 +1353,18 @@ if(beamspill || beam==-1){
 	  if (comp_score == 1){
 	    // w_2Dclus is part of comp_2Dclus
 	    flag_save = false;
+	    map_w_covered[w_2Dclus->get_parent_cluster_id()] = comp_2Dclus->get_parent_cluster_id();
 	    break;
 	  }else if (comp_score == 2){
 	    // w_2D_clus is the same as comp_2Dclus
 	    flag_save = false;
+	    map_w_covered[w_2Dclus->get_parent_cluster_id()] = comp_2Dclus->get_parent_cluster_id();
 	    vec_3Dclus.push_back((*it));
 	    break;
 	  }else if (comp_score == -1){
 	    // comp_2Dclus is part of w_2Dclus
 	    to_be_removed.push_back(comp_2Dclus);
+	    map_w_covered[comp_2Dclus->get_parent_cluster_id()] = w_2Dclus->get_parent_cluster_id() ;
 	  }else if (comp_score == 0){
 	    //they do not match ...
 	    // do nothing ... 
@@ -1392,6 +1406,20 @@ if(beamspill || beam==-1){
     
  
     std::cout << cluster_set.size() << " " << u_2D_3D_clus_map.size() << " " << v_2D_3D_clus_map.size() << " " << w_2D_3D_clus_map.size() << std::endl;
+    int tmp_count_u = 0, tmp_count_v = 0, tmp_count_w = 0;
+    for (auto it = u_2D_3D_clus_map.begin(); it!= u_2D_3D_clus_map.end(); it++){
+      tmp_count_u += it->second.size();
+    }
+    for (auto it = v_2D_3D_clus_map.begin(); it!= v_2D_3D_clus_map.end(); it++){
+      tmp_count_v += it->second.size();
+    }
+    for (auto it = w_2D_3D_clus_map.begin(); it!= w_2D_3D_clus_map.end(); it++){
+      tmp_count_w += it->second.size();
+    }
+    
+    std::cout << map_u_covered.size() << " " << map_v_covered.size() << " " << map_w_covered.size() << std::endl;
+    std::cout << tmp_count_u << " " << tmp_count_v << " " << tmp_count_w << std::endl;
+    
     {
       std::vector<Projected2DCluster*> to_be_removed;
       for (auto it = u_2D_3D_clus_map.begin(); it!= u_2D_3D_clus_map.end(); it++){
@@ -1643,6 +1671,7 @@ if(beamspill || beam==-1){
       }else{
 	ncluster_deleted ++;
 	nmcell_deleted += mcells.size();
+	cluster_delset.insert(*it);
 	// remove them ...
 	for (auto it1 = mcells.begin(); it1!=mcells.end(); it1++){
 	  SlimMergeGeomCell *mcell = (SlimMergeGeomCell*)(*it1);
@@ -1652,6 +1681,14 @@ if(beamspill || beam==-1){
       
       //T_3Dcluster->Fill();
     }
+
+    std::cout << "before: " << cluster_set.size() << std::endl;
+    for (auto it = cluster_delset.begin(); it!= cluster_delset.end(); it++){
+      cluster_set.erase(*it);
+    }
+    std::cout << "after: " << cluster_set.size() << std::endl;
+
+    
     
     for (int i=start_num;i!=end_num+1;i++){
       nmcell_after += lowmemtiling[i]->get_cell_wires_map().size();
@@ -1663,13 +1700,18 @@ if(beamspill || beam==-1){
 	      << std::endl;
     
     cout << em("finish 1st round of deghosting") << endl;
+   
   }
-  */ 
+    
+
+  
+
   
   for (int i=start_num;i!=end_num+1;i++){
     if (i%400==0)
       std::cout << "1st Solving: " << i << std::endl;
 
+    //    lowmemtiling[i]->re_establish_maps();
     // tiling after the firs round of deghosting ... 
     lowmemtiling[i]->MergeWires();
     
@@ -1745,17 +1787,20 @@ if(beamspill || beam==-1){
     chargesolver[i]->L1_resolve(9,3);
   }
   
-  /*  
+  
+  
   for (auto it = front_cell_map.begin(); it!=front_cell_map.end();it++){
     SlimMergeGeomCell *mcell1 = (SlimMergeGeomCell*) it->first;
     int time_slice1 = mcell1->GetTimeSlice();
     bool flag1 = chargesolver[time_slice1]->get_mcell_charge(mcell1)>300;
+    //    bool flag1 = chargesolver[time_slice1]->get_mcell_charge(mcell1)>=0;
     if (flag1)
       good_mcells.insert(mcell1);
     for (auto it1 = it->second.begin(); it1!=it->second.end(); it1++){
       SlimMergeGeomCell *mcell2 = (SlimMergeGeomCell*)(*it1);
       int time_slice2 = mcell2->GetTimeSlice();
       bool flag2 = chargesolver[time_slice2]->get_mcell_charge(mcell2)>300;
+      //      bool flag2 = chargesolver[time_slice2]->get_mcell_charge(mcell2)>=0;
       if (flag1)
   	potential_good_mcells.insert(mcell2);
       if (flag2){
@@ -1770,6 +1815,7 @@ if(beamspill || beam==-1){
     for (auto it = cell_map.begin(); it!=cell_map.end(); it++){
       SlimMergeGeomCell *mcell = (SlimMergeGeomCell*) it->first;
       bool flag1 = chargesolver[i]->get_mcell_charge(mcell)>300;
+      // bool flag1 = chargesolver[i]->get_mcell_charge(mcell)>=0;
 
       // if (i==2387){
       // 	int this_time_slice = mcell->GetTimeSlice();
@@ -1791,7 +1837,12 @@ if(beamspill || beam==-1){
     nmcell_before += lowmemtiling[i]->get_cell_wires_map().size();
   }
 
+  
+  std::cout << "Before local deghosting: " << good_mcells.size() << " " << potential_good_mcells.size() << std::endl;
 
+  //  good_mcells.clear();
+  //potential_good_mcells.clear();
+  
   // removel absolute can be removed ...
   // completely overlapped with the good three-wire-cells ... 
   std::set<SlimMergeGeomCell*, WCP::GeomCellComparep> potential_bad_mcells;
@@ -1966,6 +2017,7 @@ if(beamspill || beam==-1){
       num_mcells += (*it)->get_allcell().size();
     }
 
+    std::cout << "Good && !Bad: " << num1 << " " << all_mcells.size() << std::endl;
     //    std::cout << num_mcells << " " << all_mcells.size() << " " << num1 << " " << cluster_vec.size() << std::endl;
     // std::cout << num_mcells << " " << all_mcells.size() << std::endl;
     
@@ -2048,6 +2100,7 @@ if(beamspill || beam==-1){
       num_mcells += (*it)->get_allcell().size();
     }
 
+    std::cout << "Good && Bad: " << num1 << " " << all_mcells.size() << std::endl;
     //    std::cout << num_mcells << " " << all_mcells.size() << " " << num1 << " " << cluster_vec.size() << std::endl;
     // std::cout << num_mcells << " " << all_mcells.size() << std::endl;
     
@@ -2129,6 +2182,7 @@ if(beamspill || beam==-1){
       num_mcells += (*it)->get_allcell().size();
     }
 
+    std::cout << "!Good && !Bad: " << num1 << " " << all_mcells.size() << std::endl;
     //    std::cout << num_mcells << " " << all_mcells.size() << " " << num1 << " " << cluster_vec.size() << std::endl;
     // std::cout << num_mcells << " " << all_mcells.size() << std::endl;
     
@@ -2210,6 +2264,7 @@ if(beamspill || beam==-1){
       num_mcells += (*it)->get_allcell().size();
     }
 
+    std::cout << "!Good && Bad: " << num1 << " " << all_mcells.size() << std::endl;
     // std::cout << num_mcells << " " << all_mcells.size() << " " << num1 << " " << cluster_vec.size() << std::endl;
     
     std::copy(cluster_vec.begin(), cluster_vec.end(), std::inserter(cluster_set, cluster_set.end()));
@@ -2602,11 +2657,18 @@ if(beamspill || beam==-1){
 	  //std::cout << mcell << " " << " " << mcell->GetTimeSlice() << std::endl;
 	  lowmemtiling[mcell->GetTimeSlice()]->Erase_Cell(mcell);
 	}
+	cluster_delset.insert(*it);
       }
 
       //  std::cout << (*it) << " kaka2 " << std::endl;
       //    T_3Dcluster->Fill();
     }
+
+    std::cout << "before: " << cluster_set.size() << std::endl;
+    for (auto it = cluster_delset.begin(); it != cluster_delset.end(); it++){
+      cluster_set.erase(*it);
+    }
+    std::cout << "after: " << cluster_set.size() << std::endl;
     
     for (int i=start_num;i!=end_num+1;i++){
       nmcell_after += lowmemtiling[i]->get_cell_wires_map().size();
@@ -2625,6 +2687,7 @@ if(beamspill || beam==-1){
   for (int i=start_num;i!=end_num+1;i++){
     if (i%400==0)
       std::cout << "2nd Solving: " << i << std::endl;
+    //    lowmemtiling[i]->re_establish_maps();
     // tiling after the firs round of deghosting ... 
     lowmemtiling[i]->MergeWires();
     // create individual cells ...
@@ -2637,8 +2700,9 @@ if(beamspill || beam==-1){
     //n_single_cells = single_cells.size();
     // L1 solving
     chargesolver[i]->clear_connectivity();
-    chargesolver[i]->L1_resolve(9,1);
-
+    //    chargesolver[i]->L1_resolve(9,1);
+    chargesolver[i]->update_cell_weight_map(9,1);
+    chargesolver[i]->divide_groups();
     
     
     ndirect_solved = chargesolver[i]->get_ndirect_solved();
@@ -2732,6 +2796,8 @@ if(beamspill || beam==-1){
        }
      }
    }
+
+   std::cout << "Good blobs: " << good_mcells.size() << " " << potential_good_mcells.size() << std::endl;
    
    cout << em("finish the 2nd round of solving") << std::endl;
       
@@ -2845,6 +2911,7 @@ if(beamspill || beam==-1){
   for (int i=start_num;i!=end_num+1;i++){
     if (i%400==0)
       std::cout << "3rd Solving: " << i << std::endl;
+    //  lowmemtiling[i]->re_establish_maps();
     // tiling after the firs round of deghosting ... 
     lowmemtiling[i]->MergeWires();
     // create individual cells ...
@@ -2856,7 +2923,9 @@ if(beamspill || beam==-1){
     //n_single_cells = single_cells.size();
     // L1 solving
     chargesolver[i]->clear_connectivity();
-    chargesolver[i]->L1_resolve(9,1);
+    //    chargesolver[i]->L1_resolve(9,1);
+    chargesolver[i]->update_cell_weight_map(9,1);
+    chargesolver[i]->divide_groups();
     
     ndirect_solved = chargesolver[i]->get_ndirect_solved();
     nL1_solved = chargesolver[i]->get_nL1_solved();
@@ -2915,7 +2984,7 @@ if(beamspill || beam==-1){
     int time_slice1 = mcell1->GetTimeSlice();
     bool flag1 = chargesolver[time_slice1]->get_mcell_charge(mcell1)>300;
     if (flag1)
-      good_mcells.insert(mcell1);
+    good_mcells.insert(mcell1);
     for (auto it1 = it->second.begin(); it1!=it->second.end(); it1++){
       SlimMergeGeomCell *mcell2 = (SlimMergeGeomCell*)(*it1);
       int time_slice2 = mcell2->GetTimeSlice();
@@ -2948,7 +3017,7 @@ if(beamspill || beam==-1){
       }
     }
   }
-std::cout << "# of good mcell: " << good_mcells.size() << std::endl;
+  std::cout << "# of good mcell: " << good_mcells.size() << " " << potential_good_mcells.size() << " " << front_cell_map.size() << " " << back_cell_map.size() << std::endl;
   
   
   
@@ -3038,7 +3107,7 @@ std::cout << "# of good mcell: " << good_mcells.size() << std::endl;
       num_mcells += (*it)->get_allcell().size();
     }
 
-    // std::cout << num_mcells << " " << all_mcells.size() << std::endl;
+    std::cout << num_mcells << " " << all_mcells.size() << std::endl;
     
     std::copy(cluster_vec.begin(), cluster_vec.end(), std::inserter(cluster_set, cluster_set.end()));
   }
@@ -3120,7 +3189,7 @@ std::cout << "# of good mcell: " << good_mcells.size() << std::endl;
   // save cluster into the output file ... 
   Double_t x,y,z,q,nq;
   //save cluster
-  Int_t ncluster = 0;
+  ncluster = 0;
   TTree *T_cluster ;
   if (save_file==1){
     T_cluster = new TTree("T_cluster","T_cluster");
@@ -3206,7 +3275,7 @@ std::cout << "# of good mcell: " << good_mcells.size() << std::endl;
 
   
   cout << em("finish the local deghosting ... ") << std::endl;
-  */  
+     
   
   if (no_dead_channel!=1){
     // try to group the dead cells ...
@@ -3503,11 +3572,16 @@ std::cout << "# of good mcell: " << good_mcells.size() << std::endl;
     TC->SetDirectory(file);
     
     Int_t cluster_id;
+    
+    
     Int_t time_slice;
     Double_t x_save, y_save, z_save;
     Double_t q, uq, vq, wq, udq, vdq, wdq;
 
     TC->Branch("cluster_id",&cluster_id,"cluster_id/I");
+
+   
+      
     TC->Branch("time_slice",&time_slice,"time_slice/I");
 
     // TC->Branch("x",&x_save,"x/D");
@@ -3548,10 +3622,21 @@ std::cout << "# of good mcell: " << good_mcells.size() << std::endl;
     TC->Branch("wire_charge_err_u",wire_charge_err_u,"wire_charge_err_u[nwire_u]/D");
     TC->Branch("wire_charge_err_v",wire_charge_err_v,"wire_charge_err_v[nwire_v]/D");
     TC->Branch("wire_charge_err_w",wire_charge_err_w,"wire_charge_err_w[nwire_w]/D");
+
+   
+
+    
+    // 
+    
     
     for (auto it = cluster_set.begin();it!=cluster_set.end();it++){
       cluster_id = (*it)->get_id();
-    
+
+      
+     
+      
+      
+      
       for (int i=0; i!=(*it)->get_allcell().size();i++){
 	SlimMergeGeomCell *mcell = (SlimMergeGeomCell*)((*it)->get_allcell().at(i));
 	time_slice = mcell->GetTimeSlice();
@@ -3689,7 +3774,6 @@ std::cout << "# of good mcell: " << good_mcells.size() << std::endl;
       }
     }
     
-    
   }
 
   // save one event TC, TDC into one entry
@@ -3719,6 +3803,13 @@ std::cout << "# of good mcell: " << good_mcells.size() << std::endl;
 
     TC->Branch("cluster_id",&cluster_id);
 
+    std::vector<int> *uc_cluster_id = new std::vector<int>;
+    std::vector<int> *vc_cluster_id = new std::vector<int>;
+    std::vector<int> *wc_cluster_id = new std::vector<int>;
+    TC->Branch("uc_cluster_id",&uc_cluster_id);
+    TC->Branch("vc_cluster_id",&vc_cluster_id);
+    TC->Branch("wc_cluster_id",&wc_cluster_id);
+    
     TC->Branch("time_slice",&time_slice);
 
     // add indices for merged wires ...
@@ -3826,12 +3917,93 @@ std::cout << "# of good mcell: " << good_mcells.size() << std::endl;
     TC->Branch("wire_charge_err_u",&wire_charge_err_u);
     TC->Branch("wire_charge_err_v",&wire_charge_err_v);
     TC->Branch("wire_charge_err_w",&wire_charge_err_w);
+
+    
+    std::vector<double> cluster_total_charge ;
+    std::vector<double> cluster_min_charge ;
+    std::vector<int> cluster_flag_saved ;
+    std::vector<int> cluster_flag_saved_1 ;
+    std::vector<int> cluster_n_mcells;
+    std::vector<int> cluster_n_timeslices;
+    std::vector<int> cluster_saved ;
+    
+    TC->Branch("total_charge",&cluster_total_charge);
+    TC->Branch("min_charge",&cluster_min_charge);
+    TC->Branch("flag_saved",&cluster_flag_saved);
+    TC->Branch("flag_saved_1",&cluster_flag_saved_1);
+    TC->Branch("n_mcells",&cluster_n_mcells);
+    TC->Branch("n_timeslices",&cluster_n_timeslices);
+    TC->Branch("saved",&cluster_saved);
+
+
+    
     
     for (auto it = cluster_set.begin();it!=cluster_set.end();it++){
       //  cluster_id->push_back((*it)->get_id());
+
+      total_charge = (*it)->get_total_charge();
+      min_charge = (*it)->get_min_total_charge();
+      flag_saved = (*it)->get_flag_saved();
+      flag_saved_1 = (*it)->get_flag_saved_1();
+      n_mcells = (*it)->get_allcell().size();
+      n_timeslices = (*it)->get_ordercell().size();
+      
+      if ((*it)->get_flag_saved()-(*it)->get_flag_saved_1() ==3){
+	// look at each cell level ...
+	if ( sqrt(pow(n_timeslices/3.,2) + pow(min_charge/n_mcells/3000.,2))<1 || min_charge/n_mcells/2000.<1.){
+	  saved = 0;
+	}else{
+	  saved = 1;
+	}
+      }else if ((*it)->get_flag_saved()-(*it)->get_flag_saved_1()  ==2){
+	if ( sqrt(pow(n_timeslices/8.,2) + pow(min_charge/n_mcells/8000.,2))<1 ||  min_charge/n_mcells/4000.<1.){
+	  saved = 0;
+	}else{
+	  saved = 1;
+	}
+      }else if ((*it)->get_flag_saved()-(*it)->get_flag_saved_1()  ==1){
+	if ( sqrt(pow(n_timeslices/8.,2) + pow(min_charge/n_mcells/8000.,2))<1 || min_charge/n_mcells/6000.<1.){
+	  saved = 0;
+	}else{
+	  saved = 1;
+	}
+      }else{
+	saved = 0;
+      }
+
+
       
       for (int i=0; i!=(*it)->get_allcell().size();i++){
 	cluster_id->push_back((*it)->get_id());
+
+	cluster_total_charge.push_back(total_charge);
+	cluster_min_charge.push_back(min_charge);
+	cluster_flag_saved.push_back(flag_saved);
+	cluster_flag_saved_1.push_back(flag_saved_1);
+	cluster_n_mcells.push_back(n_mcells);
+	cluster_n_timeslices.push_back(n_timeslices);
+	cluster_saved.push_back(saved);
+	
+	if (map_u_covered.find(cluster_id->back()) == map_u_covered.end()){
+	  uc_cluster_id->push_back(-1);
+	}else{
+	  uc_cluster_id->push_back(map_u_covered[cluster_id->back()]); 
+	}
+	
+	if (map_v_covered.find(cluster_id->back()) == map_v_covered.end()){
+	  vc_cluster_id->push_back(-1);
+	}else{
+	  vc_cluster_id->push_back(map_v_covered[cluster_id->back()]); 
+	}
+	
+	if (map_w_covered.find(cluster_id->back()) == map_w_covered.end()){
+	  wc_cluster_id->push_back(-1);
+	}else{
+	  wc_cluster_id->push_back(map_w_covered[cluster_id->back()]); 
+	}
+
+
+	
 	SlimMergeGeomCell *mcell = (SlimMergeGeomCell*)((*it)->get_allcell().at(i));
 	int time_slice_temp = mcell->GetTimeSlice();
 	time_slice->push_back(time_slice_temp);
@@ -3854,6 +4026,9 @@ std::cout << "# of good mcell: " << good_mcells.size() << std::endl;
             correction = 1./0.8;
 	  }
 	}
+
+	// hack
+	correction = 1.0;
 
 	// 11/18/2022, temporary modifications ...
 	//	q->push_back(0);
