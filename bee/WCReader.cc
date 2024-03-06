@@ -24,7 +24,7 @@ WCReader::WCReader(const char* filename, const char* jsonFileName)
     dbPDG = new TDatabasePDG();
     mc_daughters = new std::vector<std::vector<int> >;  // daughters id of this track; vector
     thresh_KE = 1; // MeV
- 
+
     rootFile = new TFile(filename);
 
     jsonFile.open(jsonFileName);
@@ -245,11 +245,9 @@ void WCReader::DumpSpacePoints(TString option)
         if (option.Contains("charge")) {
             t->SetBranchAddress("nq", &nq);
         }
-	bool flag_real_cluster_id = false;
         if (t->GetBranch("cluster_id")) {
             t->SetBranchAddress("cluster_id", &cluster_id);
             if (t->GetBranch("real_cluster_id")) {
-	      flag_real_cluster_id = true;
                 t->SetBranchAddress("real_cluster_id", &real_cluster_id);
             }
         }
@@ -263,11 +261,7 @@ void WCReader::DumpSpacePoints(TString option)
 	  vq.push_back(q);
 	  vnq.push_back(nq);
 	  vcluster_id.push_back(cluster_id);
-	  
-	  if (flag_real_cluster_id)
-	    vreal_cluster_id.push_back(real_cluster_id);
-	  else
-	    vreal_cluster_id.push_back(cluster_id);
+	  vreal_cluster_id.push_back(real_cluster_id);
         }
     }
 
@@ -511,8 +505,8 @@ void WCReader::DumpMCJSON(ostream& out)
 bool WCReader::KeepMC(int i)
 {
     double e = KE(mc_startMomentum[i])*1000;
-    double thresh_KE_em = 0.; // MeV  original 5
-    double thresh_KE_np = 0; // MeV   original 10
+    double thresh_KE_em = 5.; // MeV
+    double thresh_KE_np = 10; // MeV
     if (mc_pdg[i]==22 || mc_pdg[i]==11 || mc_pdg[i]==-11) {
         if (e>=thresh_KE_em) return true;
         else return false;
