@@ -606,6 +606,7 @@ int main(int argc, char* argv[])
   map_cluster_cluster_vec group_clusters = WCP2dToy::Clustering_jump_gap_cosmics(live_clusters, dead_clusters,dead_u_index, dead_v_index, dead_w_index, global_point_cloud, ct_point_cloud);
   cout << em("Clustering to jump gap in cosmics") << std::endl;
 
+  
   // for (auto it = group_clusters.begin(); it!=group_clusters.end(); it++){
   //   ToyPointCloud *pcloud = it->first->get_point_cloud();
   //   Point test_p(236.3*units::cm,13.4*units::cm,392.6*units::cm);

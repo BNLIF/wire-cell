@@ -237,7 +237,7 @@ int main(int argc, char* argv[])
   double angle_v = gds.angle(WirePlaneType_t(1));
   double angle_w = gds.angle(WirePlaneType_t(2));
   
-  //std::cout << angle_u << " " << angle_v << " " << angle_w << std::endl;
+  //  std::cout << angle_u << " " << angle_v << " " << angle_w << std::endl;
   
   mp.set_pitch_u(pitch_u);
   mp.set_pitch_v(pitch_v);
