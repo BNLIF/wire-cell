@@ -601,7 +601,7 @@ int main(int argc, char* argv[])
   // }
   
   
-  // WCP2dToy::Clustering_live_dead(live_clusters, dead_clusters);
+  //WCP2dToy::Clustering_live_dead(live_clusters, dead_clusters);
   // cerr << em("Clustering live and dead clusters") << std::endl;
   map_cluster_cluster_vec group_clusters = WCP2dToy::Clustering_jump_gap_cosmics(live_clusters, dead_clusters,dead_u_index, dead_v_index, dead_w_index, global_point_cloud, ct_point_cloud);
   cout << em("Clustering to jump gap in cosmics") << std::endl;
