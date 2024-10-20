@@ -7,6 +7,8 @@ conda activate scn
 waf --prefix=../wcp_install --build-debug=-ggdb3 --boost-includes=$WC_EXTERNALS/include --boost-libs=$WC_EXTERNALS/lib --boost-mt --with-root=$WC_EXTERNALS --with-fftw-include=$WC_EXTERNALS/include --with-fftw-lib=$WC_EXTERNALS/lib --with-eigen=$WC_EXTERNALS --with-glpk --with-glpk-include=/usr/include --with-glpk-lib=/usr/lib/x86_64-linux-gnu --with-python=/home/xqian/anaconda3/envs/scn --with-python-include=/home/xqian/anaconda3/envs/scn/include/python2.7 --with-python-lib=/home/xqian/anaconda3/envs/scn/lib clean configure
 
 
+#WCGPU examples 
+./waf-tools/waf --prefix=$PREFIX --build-debug="-ggdb3 -O2 -g" --boost-includes=$PREFIX/include --boost-libs=$PREFIX/lib --boost-mt --with-root=$PREFIX --with-fftw-include=$PREFIX/include --with-fftw-lib=$PREFIX/lib --with-eigen=$PREFIX --with-glpk --with-glpk-include=$PREFIX/include --with-glpk-lib=$PREFIX/lib --with-python=$PREFIX --with-python-include=$PREFIX/include/python3.11 --with-python-lib=$PREFIX/lib clean configure
 
 
 Cheet sheet on the command:

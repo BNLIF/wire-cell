@@ -86,6 +86,7 @@ int LEEana::get_size(WeightInfo& weight, TString option){
   }else{
     return 0;
   }
+  return 0;
 }
 
 void LEEana::set_tree_address(TTree *T, WeightInfo& weight, TString option){
