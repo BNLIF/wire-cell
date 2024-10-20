@@ -48,7 +48,8 @@ def configure(cfg):
 
     cfg.load('doxygen', tooldir='waf-tools')
     cfg.load('find_package', tooldir='waf-tools')
-    cfg.env.CXXFLAGS += [cfg.options.build_debug, "-Wno-deprecated-declarations"]
+    #cfg.env.CXXFLAGS += [cfg.options.build_debug, "-Wno-deprecated-declarations"]
+    cfg.env.CXXFLAGS += cfg.options.build_debug.split(" ") + [ "-Wno-deprecated-declarations"]
     cfg.check_boost(lib='system filesystem graph')
 
 def build(bld):
