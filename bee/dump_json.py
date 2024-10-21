@@ -28,7 +28,7 @@ def main(filename, options):
         os.mkdir('data')
     except OSError:
         shutil.rmtree('data')
-        print 'removing old data directory ....'
+        print('removing old data directory ....')
         os.mkdir('data')
     for i in range(len(list_of_files)):
         str_i = str(i)
@@ -53,17 +53,17 @@ def main(filename, options):
         #     #os.system(cmd)
 
     if (os.path.exists('to_upload.zip')):
-        print 'removing old to_upload.zip ...'
+        print('removing old to_upload.zip ...')
         os.system('rm to_upload.zip')
 
     os.system('zip -r to_upload data')
 
 def usage():
-    print """
+    print("""
     python dump_json.py [filename] [alg1 alg2 ...]
 
         available algorithms: simple, charge, true, deblob, mc, deadarea, cluster
-    """
+    """)
 
 if __name__ == "__main__":
     if (len(sys.argv)<=1):

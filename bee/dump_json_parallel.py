@@ -28,7 +28,7 @@ def main(filename, options):
         os.mkdir('data')
     except OSError:
         shutil.rmtree('data')
-        print 'removing old data directory ....'
+        print('removing old data directory ....')
         os.mkdir('data')
     inputs = []
     for i in range(len(list_of_files)):
@@ -48,7 +48,7 @@ def main(filename, options):
     # [t.start() for t in threads]
     # [t.join() for t in threads]
     nCores = multiprocessing.cpu_count()
-    print 'total cpu: ', nCores
+    print('total cpu: ', nCores)
     pool = multiprocessing.Pool(nCores*5)
     for cmd in inputs:
         pool.apply_async(os.system, args=(cmd,))
@@ -56,17 +56,17 @@ def main(filename, options):
     pool.join()
 
     if (os.path.exists('to_upload.zip')):
-        print 'removing old to_upload.zip ...'
+        print('removing old to_upload.zip ...')
         os.system('rm to_upload.zip')
 
     os.system('zip -r to_upload data')
 
 def usage():
-    print """
+    print("""
     python dump_json.py [filename] [alg1 alg2 ...]
 
         available algorithms: simple, charge, true, deblob, mc, deadarea, cluster
-    """
+    """)
 
 if __name__ == "__main__":
     if (len(sys.argv)<=1):
