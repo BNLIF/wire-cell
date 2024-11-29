@@ -607,11 +607,11 @@ int main(int argc, char* argv[])
   cout << em("Clustering to jump gap in cosmics") << std::endl;
 
   
-  // reset live_clusters;
-  live_clusters.clear();
-  for (auto it = group_clusters.begin(); it!= group_clusters.end(); it++){
-    live_clusters.push_back(it->first);
-  }
+  // // reset live_clusters;
+  // live_clusters.clear();
+  // for (auto it = group_clusters.begin(); it!= group_clusters.end(); it++){
+  //   live_clusters.push_back(it->first);
+  // }
   
   
   
@@ -732,31 +732,72 @@ int main(int argc, char* argv[])
      t_rec_charge->Branch("pw",&pw,"pw/D");
      t_rec_charge->Branch("pt",&pt,"pt/D");
 
-     for (size_t j = 0; j!= live_clusters.size(); j++){
-       SMGCSelection& mcells = live_clusters.at(j)->get_mcells();
-       ncluster = live_clusters.at(j)->get_cluster_id();
-       for (size_t i=0;i!=mcells.size();i++){
-	 PointVector ps = mcells.at(i)->get_sampling_points();
-	 int time_slice = mcells.at(i)->GetTimeSlice();
-	 if (ps.size()==0){
-	   std::cout << "zero sampling points!" << std::endl;
-	 }else{
-	   q = mcells.at(i)->get_q() / ps.size();
-	   nq = ps.size();
-	   for (int k=0;k!=ps.size();k++){
-	     x = ps.at(k).x/units::cm ;
-	     y = ps.at(k).y/units::cm;
-	     z = ps.at(k).z/units::cm;
-	     T_cluster->Fill();
-	   }
-	 }
-	 
-       }
-       
-     }
+    //  for (size_t j = 0; j!= live_clusters.size(); j++){
+    //    SMGCSelection& mcells = live_clusters.at(j)->get_mcells();
+    //    ncluster = live_clusters.at(j)->get_cluster_id();
+    //    for (size_t i=0;i!=mcells.size();i++){
+    //     PointVector ps = mcells.at(i)->get_sampling_points();
+    //     int time_slice = mcells.at(i)->GetTimeSlice();
+    //     if (ps.size()==0){
+    //       std::cout << "zero sampling points!" << std::endl;
+    //     }else{
+    //       q = mcells.at(i)->get_q() / ps.size();
+    //       nq = ps.size();
+    //       for (int k=0;k!=ps.size();k++){
+    //         x = ps.at(k).x/units::cm ;
+    //         y = ps.at(k).y/units::cm;
+    //         z = ps.at(k).z/units::cm;
+    //         T_cluster->Fill();
+    //       }
+    //     }
+    //    }
+    //  }
 
+    for (auto it = group_clusters.begin(); it != group_clusters.end(); ++it) {
+       PR3DCluster* main_cluster = it->first;
+       SMGCSelection& mcells = main_cluster->get_mcells();
+       ncluster = main_cluster->get_cluster_id();
+       for (size_t i = 0; i != mcells.size(); i++) {
+        PointVector ps = mcells.at(i)->get_sampling_points();
+        int time_slice = mcells.at(i)->GetTimeSlice();
+        if (ps.size() == 0) {
+          std::cout << "zero sampling points!" << std::endl;
+        } else {
+          q = mcells.at(i)->get_q() / ps.size();
+          nq = ps.size();
+          for (int k = 0; k != ps.size(); k++) {
+          x = ps.at(k).x / units::cm;
+          y = ps.at(k).y / units::cm;
+          z = ps.at(k).z / units::cm;
+          T_cluster->Fill();
+          }
+        }
+       }
+       for (auto it1 = it->second.begin(); it1 != it->second.end(); it1++) {
+        PR3DCluster* temp_cluster = (*it1).first;
+        if (temp_cluster == main_cluster) continue;
+        SMGCSelection& mcells = temp_cluster->get_mcells();
+        for (size_t i = 0; i != mcells.size(); i++) {
+          PointVector ps = mcells.at(i)->get_sampling_points();
+          int time_slice = mcells.at(i)->GetTimeSlice();
+          if (ps.size() == 0) {
+            std::cout << "zero sampling points!" << std::endl;
+          } else {
+            q = mcells.at(i)->get_q() / ps.size();
+            nq = ps.size();
+            for (int k = 0; k != ps.size(); k++) {
+              x = ps.at(k).x / units::cm;
+              y = ps.at(k).y / units::cm;
+              z = ps.at(k).z / units::cm;
+              T_cluster->Fill();
+            }
+          }
+       }
+    }
    }
    
+   }
+
    Trun->CloneTree(-1,"fast");
 
 
@@ -769,4 +810,6 @@ int main(int argc, char* argv[])
    
   file1->Write();
   file1->Close();
+
 }
+
