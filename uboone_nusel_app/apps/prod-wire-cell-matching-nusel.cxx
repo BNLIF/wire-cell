@@ -406,6 +406,7 @@ int main(int argc, char* argv[])
     TDC->Branch("wire_index_u",&wire_index_u_vec);
     TDC->Branch("wire_index_v",&wire_index_v_vec);
     TDC->Branch("wire_index_w",&wire_index_w_vec);
+    TDC->Branch("image_fail",&image_fail);
     TDC->Fill();
 
 
