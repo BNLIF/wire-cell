@@ -46,6 +46,8 @@ int main(int argc, char* argv[])
   bool flag_add_light_yield_err = true;
   bool imaging_eval_flag = false;
 
+  int flag_zombie_check = 0;//0 skip it, 1 do it but do not try to recover truth info, 2 do it and try to recover the truth info, 9 debug
+
   int entry_num = 0;
   bool flag_postprod = false;
   if (argv[3][0]!='-') {
@@ -87,6 +89,9 @@ int main(int argc, char* argv[])
     case 'z':
       flag_timestamp = atoi(&argv[i][2]);
       break;
+    case 'y':
+      flag_zombie_check = atoi(&argv[i][2]);
+      break;
     }
   }
   bool flag_match_data = true;
@@ -118,8 +123,7 @@ int main(int argc, char* argv[])
   /*      << " " << gds.angle(WirePlaneType_t(2)) */
   /*      << endl; */
   
-  
-  
+    
   // test geometry ...
   const GeomWire *uwire = gds.by_planeindex(WirePlaneType_t(0),0);
   const GeomWire *vwire = gds.by_planeindex(WirePlaneType_t(1),0);
@@ -128,9 +132,553 @@ int main(int argc, char* argv[])
   double first_v_dis = gds.wire_dist(*vwire) ; // first V wire center ...
   double first_w_dis = gds.wire_dist(*wwire) ; // first W wire center ... 
   
-  
+
+
   TString filename = argv[2];
   TFile *file = TFile::Open(filename); // enable xrootd fast streaming
+  std::cout<<"reading, zombie check flag is "<<flag_zombie_check<<std::endl;
+  bool image_fail = false;
+
+  //zombie and imaging fail check, create a dummy file if it is a zombie
+  if(file){
+    TTree *T = (TTree*)file->Get("TC");
+    T->SetBranchAddress("image_fail",&image_fail);
+    T->GetEntry(0);
+    std::cout<<"image_fail "<<image_fail<<std::endl;
+  }
+  if( (!file && flag_zombie_check>0) || flag_zombie_check==9 || (image_fail==true && flag_zombie_check>0) ){
+  
+    if(image_fail){std::cout<<"Imaging step failed, creating fake file"<<std::endl;}
+    else{std::cout<<"File can't be opened, creating fake file"<<std::endl;}
+    std::string temp_filename = argv[2];
+    std::istringstream iss(temp_filename);
+    std::string dummy;
+    int run_no;
+    std::getline(iss, dummy,'_');
+    iss >> run_no;
+    int subrun_no;
+    std::getline(iss, dummy,'_');
+    iss >> subrun_no;
+    int event_no;
+    std::getline(iss, dummy,'_');
+    iss >> event_no;
+
+    std::cout<<"Creating dummy file for "<<"run_no "<<run_no<<" subrun_no "<<subrun_no<<" event_no "<<event_no<<std::endl;
+
+    // load the celltree to recover the truth info, should probably add an option to specify what the filename is?
+    std::cout<<"Loading origional celltree ";
+    std::string filename_celltree = "celltreeDATA.root";
+    if(datatier==0){filename_celltree = "celltreeDATA.root";}
+    else{filename_celltree = "celltreeOVERLAY.root";}
+    std::cout<<filename_celltree<<std::endl;
+    TFile *file_celltree = TFile::Open(filename_celltree.c_str());
+    TTree *Trun = (TTree*)file_celltree->Get("/Event/Sim");
+
+    std::cout<<"Saving to  "<<Form("nuselEval_%d_%d_%d.root",run_no,subrun_no,event_no)<<std::endl;
+    TFile *file1 = new TFile(Form("nuselEval_%d_%d_%d.root",run_no,subrun_no,event_no),"RECREATE");
+    file1->cd();
+    TTree *T_run1 = new TTree("Trun","Trun");
+    T_run1->SetDirectory(file1);
+    int triggerbits=-1;
+    double triggerTime=-1;
+    int detector = 0; // MicroBooNE
+    double eventTime=-1;
+    float unit_dis=-1;
+    float toffset_uv=-1;
+    float toffset_uw=-1;
+    float toffset_u=-1;
+    int total_time_bin=-1;
+    int recon_threshold=-1;
+    int frame_length=-1;
+    int max_events=-1;
+    int eve_num=-1;
+    int nrebin=-1;
+    float threshold_u=-1;
+    float threshold_v=-1;
+    float threshold_w=-1;
+    float threshold_ug=-1;
+    float threshold_vg=-1;
+    float threshold_wg=-1;
+    int time_offset=-1;
+    int tpc_status=-1;
+    std::vector<int> timesliceId;
+    std::vector<std::vector<int> >timesliceChannel;
+    std::vector<std::vector<int> > raw_charge;
+    std::vector<std::vector<int> > raw_charge_err;
+    T_run1->Branch("triggerBits",&triggerbits,"triggerBits/i");
+    T_run1->Branch("triggerTime",&triggerTime, "triggerTime/D");
+    T_run1->Branch("detector",&detector,"detector/I");
+    T_run1->Branch("eventNo",&event_no,"eventNo/I");
+    T_run1->Branch("runNo",&run_no,"run_no/I");
+    T_run1->Branch("subRunNo",&subrun_no,"subrun_no/I");
+    T_run1->Branch("eventTime",&eventTime,"eventTime/D");
+    T_run1->Branch("unit_dis",&unit_dis,"unit_dis/F");
+    T_run1->Branch("toffset_uv",&toffset_uv,"toffset_uv/F");
+    T_run1->Branch("toffset_uw",&toffset_uw,"toffset_uw/F");
+    T_run1->Branch("toffset_u",&toffset_u,"toffset_u/F");
+    T_run1->Branch("total_time_bin",&total_time_bin,"total_time_bin/I");
+    T_run1->Branch("recon_threshold",&recon_threshold,"recon_threshold/I");
+    T_run1->Branch("frame_length",&frame_length,"frame_length/I");
+    T_run1->Branch("max_events",&max_events,"max_events/I");
+    T_run1->Branch("eve_num",&eve_num,"eve_num/I");
+    T_run1->Branch("nrebin",&nrebin,"nrebin/I");
+    T_run1->Branch("threshold_u",&threshold_u,"threshold_u/F");
+    T_run1->Branch("threshold_v",&threshold_v,"threshold_v/F");
+    T_run1->Branch("threshold_w",&threshold_w,"threshold_w/F");
+    T_run1->Branch("threshold_ug",&threshold_ug,"threshold_ug/F");
+    T_run1->Branch("threshold_vg",&threshold_vg,"threshold_vg/F");
+    T_run1->Branch("threshold_wg",&threshold_wg,"threshold_wg/F");
+    T_run1->Branch("time_offset",&time_offset,"time_offset/I");
+    T_run1->Branch("tpc_status",&tpc_status,"tpc_status/I");
+    T_run1->Branch("timesliceId",&timesliceId);
+    T_run1->Branch("timesliceChannel",&timesliceChannel);
+    T_run1->Branch("raw_charge",&raw_charge);
+    T_run1->Branch("raw_charge_err",&raw_charge_err);
+    vector<short> fOp_cosmic_hg_opch;
+    vector<short> fOp_cosmic_lg_opch;
+    vector<short> fOp_beam_hg_opch;
+    vector<short> fOp_beam_lg_opch;
+    vector<double> fOp_cosmic_hg_timestamp;
+    vector<double> fOp_cosmic_lg_timestamp;
+    vector<double> fOp_beam_hg_timestamp;
+    vector<double> fOp_beam_lg_timestamp;
+    TClonesArray *fOp_cosmic_hg_wf;
+    TClonesArray *fOp_cosmic_lg_wf;
+    TClonesArray *fOp_beam_hg_wf;
+    TClonesArray *fOp_beam_lg_wf;
+    vector<float> fOp_gain;
+    vector<float> fOp_gainerror;
+    vector<uint32_t> fPHMAX;
+    vector<uint32_t> fmultiplicity;
+    T_run1->Branch("cosmic_hg_opch", &fOp_cosmic_hg_opch);
+    T_run1->Branch("cosmic_lg_opch", &fOp_cosmic_lg_opch);
+    T_run1->Branch("beam_hg_opch", &fOp_beam_hg_opch);
+    T_run1->Branch("beam_lg_opch", &fOp_beam_lg_opch);
+    T_run1->Branch("cosmic_hg_timestamp", &fOp_cosmic_hg_timestamp);
+    T_run1->Branch("cosmic_lg_timestamp", &fOp_cosmic_lg_timestamp);
+    T_run1->Branch("beam_hg_timestamp", &fOp_beam_hg_timestamp);
+    T_run1->Branch("beam_lg_timestamp", &fOp_beam_lg_timestamp);
+    fOp_cosmic_hg_wf = new TClonesArray("TH1S");
+    T_run1->Branch("cosmic_hg_wf", &fOp_cosmic_hg_wf, 256000, 0);
+    fOp_cosmic_lg_wf = new TClonesArray("TH1S");
+    T_run1->Branch("cosmic_lg_wf", &fOp_cosmic_lg_wf, 256000, 0);
+    fOp_beam_hg_wf = new TClonesArray("TH1S");
+    T_run1->Branch("beam_hg_wf", &fOp_beam_hg_wf, 256000, 0);
+    fOp_beam_lg_wf = new TClonesArray("TH1S");
+    T_run1->Branch("beam_lg_wf", &fOp_beam_lg_wf, 256000, 0);
+    T_run1->Branch("op_gain", &fOp_gain);
+    T_run1->Branch("op_gainerror", &fOp_gainerror);
+    T_run1->Branch("PHMAX", &fPHMAX);
+    T_run1->Branch("multiplicity", &fmultiplicity);
+    T_run1->Branch("image_fail", &image_fail, "image_fail/O");
+    float elifetime = 0;
+    T_run1->Branch("elifetime",&elifetime);
+    T_run1->Fill();
+    
+    TTree *T_match = new TTree("T_match","T_match");
+    T_match->SetDirectory(file1);
+    Int_t bad_I =0;
+    Int_t f = -1;
+    Double_t strength;
+    Double_t pe_pred[32];
+    Double_t pe_meas[32];
+    Double_t pe_meas_err[32];
+    Int_t event_type=0;
+    int ncluster=0;
+    int type, flash_id;
+    T_match->Branch("tpc_cluster_id",&ncluster,"tpc_cluster_id/I");
+    T_match->Branch("flash_id",&flash_id,"flash_id/I");
+    T_match->Branch("strength",&strength,"strength/D");
+    T_match->Branch("pe_pred",pe_pred,"pe_pred[32]/D");
+    T_match->Branch("pe_meas",pe_meas,"pe_meas[32]/D");
+    T_match->Branch("pe_meas_err",pe_meas_err,"pe_meas_err[32]/D");
+    T_match->Branch("event_type",&event_type,"event_type/I");
+    bool flag_close_to_PMT = -1;
+    bool flag_at_x_boundary = -1;
+    double ks_dis = -1;
+    double chi2 = -1;
+    int ndf = -1;
+    double cluster_length=-999;
+    float lm_cluster_length = -999;
+    T_match->Branch("flag_close_to_PMT",&flag_close_to_PMT,"flag_close_to_PMT/B");
+    T_match->Branch("flag_at_x_boundary",&flag_at_x_boundary,"flag_at_x_boundary/B");
+    T_match->Branch("ks_dis",&ks_dis,"ks_dis/D");
+    T_match->Branch("chi2",&chi2,"chi2/D");
+    T_match->Branch("ndf",&ndf,"ndf/I");
+    T_match->Branch("cluster_length",&cluster_length,"cluster_length/D");
+    T_match->Branch("runNo",&run_no, "runNo/I");
+    T_match->Branch("subRunNo",&subrun_no, "subRunNo/I");
+    T_match->Branch("eventNo",&event_no, "eventNo/I");
+    T_match->Fill();
+
+    TTree *T_flash = new TTree("T_flash","T_flash");
+    T_flash->SetDirectory(file1);
+    double low_time, high_time;
+    double time;
+    double total_PE;
+    double PE[32],PE_err[32];
+    std::vector<int> fired_channels;
+    std::vector<double> l1_fired_time;
+    std::vector<double> l1_fired_pe;
+    T_flash->Branch("type",&type);
+    T_flash->Branch("flash_id",&flash_id);
+    T_flash->Branch("low_time",&low_time);
+    T_flash->Branch("high_time",&high_time);
+    T_flash->Branch("time",&time);
+    T_flash->Branch("total_PE",&total_PE);
+    T_flash->Branch("PE",PE,"PE[32]/D");
+    T_flash->Branch("PE_err",PE_err,"PE_err[32]/D");
+    T_flash->Branch("fired_channels",&fired_channels);
+    T_flash->Branch("l1_fired_time",&l1_fired_time);
+    T_flash->Branch("l1_fired_pe",&l1_fired_pe);
+    T_flash->Branch("runNo",&run_no, "runNo/I");
+    T_flash->Branch("subRunNo",&subrun_no, "subRunNo/I");
+    T_flash->Branch("eventNo",&event_no, "eventNo/I");
+    T_flash->Fill();
+
+    TTree *TC = new TTree("TC","TC");
+    TC->SetDirectory(file1);
+    std::vector<int> cluster_id_vec;
+    std::vector<int> parent_cluster_id;
+    std::vector<int> time_slice_vec;
+    std::vector<double> q_vec;
+    std::vector<double> uq_vec;
+    std::vector<double> vq_vec;
+    std::vector<double> wq_vec;
+    std::vector<double> udq_vec;
+    std::vector<double> vdq_vec;
+    std::vector<double> wdq_vec;
+    std::vector<int> nwire_u_vec;
+    std::vector<int> nwire_v_vec;
+    std::vector<int> nwire_w_vec;
+    std::vector<int> flag_u_vec;
+    std::vector<int> flag_v_vec;
+    std::vector<int> flag_w_vec;
+    std::vector<std::vector<int>> wire_index_u_vec;
+    std::vector<std::vector<int>> wire_index_v_vec;
+    std::vector<std::vector<int>> wire_index_w_vec;
+    std::vector<std::vector<double>> wire_charge_u_vec;
+    std::vector<std::vector<double>> wire_charge_v_vec;
+    std::vector<std::vector<double>> wire_charge_w_vec;
+    std::vector<std::vector<double>> wire_charge_err_u_vec;
+    std::vector<std::vector<double>> wire_charge_err_v_vec;
+    std::vector<std::vector<double>> wire_charge_err_w_vec;
+    TC->Branch("cluster_id",&cluster_id_vec);
+    TC->Branch("parent_cluster_id",&parent_cluster_id);
+    TC->Branch("time_slice",&time_slice_vec);
+    TC->Branch("q",&q_vec);
+    TC->Branch("uq",&uq_vec);
+    TC->Branch("vq",&vq_vec);
+    TC->Branch("wq",&wq_vec);
+    TC->Branch("udq",&udq_vec);
+    TC->Branch("vdq",&vdq_vec);
+    TC->Branch("wdq",&wdq_vec);
+    TC->Branch("nwire_u",&nwire_u_vec);
+    TC->Branch("nwire_v",&nwire_v_vec);
+    TC->Branch("nwire_w",&nwire_w_vec);
+    TC->Branch("flag_u",&flag_u_vec);
+    TC->Branch("flag_v",&flag_v_vec);
+    TC->Branch("flag_w",&flag_w_vec);
+    TC->Branch("wire_index_u",&wire_index_u_vec);
+    TC->Branch("wire_index_v",&wire_index_v_vec);
+    TC->Branch("wire_index_w",&wire_index_w_vec);
+    TC->Branch("wire_charge_u",&wire_charge_u_vec);
+    TC->Branch("wire_charge_v",&wire_charge_v_vec);
+    TC->Branch("wire_charge_w",&wire_charge_w_vec);
+    TC->Branch("wire_charge_err_u",&wire_charge_err_u_vec);
+    TC->Branch("wire_charge_err_v",&wire_charge_err_v_vec);
+    TC->Branch("wire_charge_err_w",&wire_charge_err_w_vec);
+    TC->Fill();
+
+    TTree *TDC = new TTree("TDC","TDC");
+    TDC->SetDirectory(file1);    
+    std::vector<int> ntime_slice_vec;
+    std::vector<std::vector<int>> time_slices_vec;
+    TDC->Branch("cluster_id",&cluster_id_vec);
+    TDC->Branch("ntime_slice",&ntime_slice_vec);
+    TDC->Branch("time_slice",&time_slices_vec);
+    TDC->Branch("nwire_u",&nwire_u_vec);
+    TDC->Branch("nwire_v",&nwire_v_vec);
+    TDC->Branch("nwire_w",&nwire_w_vec);
+    TDC->Branch("flag_u",&flag_u_vec);
+    TDC->Branch("flag_v",&flag_v_vec);
+    TDC->Branch("flag_w",&flag_w_vec);
+    TDC->Branch("wire_index_u",&wire_index_u_vec);
+    TDC->Branch("wire_index_v",&wire_index_v_vec);
+    TDC->Branch("wire_index_w",&wire_index_w_vec);
+    TDC->Fill();
+
+
+    std::cout<<"Saving to  "<<Form("port_%d_%d_%d.root",run_no,subrun_no,event_no)<<std::endl;
+    TFile* file2 = new TFile(Form("port_%d_%d_%d.root",run_no,subrun_no,event_no),"RECREATE");
+    std::vector<double> p_pe;
+    std::vector<double> p_pe_err;
+    TTree *T_port_flash = new TTree("T_port_flash","T_port_flash");
+    T_port_flash->Branch("run",&run_no,"run/I");
+    T_port_flash->Branch("subrun",&subrun_no,"subrun/I");
+    T_port_flash->Branch("event",&event_no,"event/I");
+    T_port_flash->Branch("totalPE",&total_PE,"totalPE/D");
+    T_port_flash->Branch("pe",&p_pe);
+    T_port_flash->Branch("pe_err",&p_pe_err);
+    T_port_flash->Branch("time",&time,"time/D");
+    T_port_flash->Branch("low_time",&low_time,"low_time/D");
+    T_port_flash->Branch("high_time",&high_time,"high_time/D");
+    T_port_flash->Branch("type",&type,"type/I");
+    T_port_flash->SetDirectory(file2);
+    //Don't fill, we want the flash tree to be empty to avoid breaking later stuff
+
+    TTree *T_port_2d = new TTree("T_port_2d","T_port_2d");
+    int channel, start_tick, main_flag;
+    float charge, charge_error;
+    T_port_2d->Branch("run",&run_no,"run/I");
+    T_port_2d->Branch("subrun",&subrun_no,"subrun/I");
+    T_port_2d->Branch("event",&event_no,"event/I");
+    T_port_2d->Branch("channel",&channel,"channel/I");
+    T_port_2d->Branch("start_tick",&start_tick,"start_tick/I");
+    T_port_2d->Branch("main_flag",&main_flag,"main_flag/I");
+    T_port_2d->Branch("charge",&charge,"charge/F");
+    T_port_2d->Branch("charge_error",&charge_error,"charge_error/F");
+    T_port_2d->SetDirectory(file2);
+    
+    TTree *T_port_3d = new TTree("T_port_3d","T_port_3d");
+    int p_main_flag, p_time_slice, p_ch_u, p_ch_v, p_ch_w;
+    double p_x, p_y, p_z, p_q, p_nq;
+    T_port_3d->Branch("run",&run_no,"run/I");
+    T_port_3d->Branch("subrun",&subrun_no,"subrun/I");
+    T_port_3d->Branch("event",&event_no,"event/I");
+    T_port_3d->Branch("main_flag",&p_main_flag,"main_flag/I");
+    T_port_3d->Branch("time_slice",&p_time_slice,"time_slice/I");
+    T_port_3d->Branch("ch_u",&p_ch_u,"ch_u/I");
+    T_port_3d->Branch("ch_v",&p_ch_v,"ch_v/I");
+    T_port_3d->Branch("ch_w",&p_ch_w,"ch_w/I");
+    T_port_3d->Branch("x",&p_x,"x/D");
+    T_port_3d->Branch("y",&p_y,"y/D");
+    T_port_3d->Branch("z",&p_z,"z/D");
+    T_port_3d->Branch("q",&p_q,"q/D");
+    T_port_3d->Branch("nq",&p_nq,"nq/D");
+    T_port_3d->SetDirectory(file2);
+    T_port_3d->Fill();
+
+    bool flash_found=0;
+    float flash_time=-999;
+    float flash_measPe=-999;
+    float flash_predPe=-999;
+    bool match_found=0;
+    int match_type=0;
+    bool match_isFC=0;
+    bool match_isTgm=0;
+    bool match_notFC_FV=0;
+    bool match_notFC_SP=0;
+    bool match_notFC_DC=0;
+    float match_charge=-999;
+    float match_energy=-999;
+    image_fail = true;
+    TTree *T_eval = new TTree("T_eval","T_eval");
+    T_eval->SetDirectory(file1);
+    T_eval->Branch("run", &run_no);
+    T_eval->Branch("subrun", &subrun_no);
+    T_eval->Branch("event", &event_no);
+    T_eval->Branch("flash_found", &flash_found, "flash_found/O");
+    T_eval->Branch("flash_time", &flash_time, "flash_time/F");
+    T_eval->Branch("flash_measPe", &flash_measPe, "flash_measPe/F");
+    T_eval->Branch("flash_predPe", &flash_predPe, "flash_predPe/F");
+    T_eval->Branch("match_found", &match_found, "match_found/O");
+    T_eval->Branch("match_type", &match_type, "match_type/i");
+    T_eval->Branch("match_isFC", &match_isFC, "match_isFC/O");
+    T_eval->Branch("match_isTgm", &match_isTgm, "match_isTgm/O");
+    T_eval->Branch("match_notFC_FV", &match_notFC_FV, "match_notFC_FV/O");
+    T_eval->Branch("match_notFC_SP", &match_notFC_SP, "match_notFC_SP/O");
+    T_eval->Branch("match_notFC_DC", &match_notFC_DC, "match_notFC_DC/O");
+    T_eval->Branch("match_charge", &match_charge, "match_charge/F");
+    T_eval->Branch("match_energy", &match_energy, "match_energy/F");
+    T_eval->Branch("lm_cluster_length", &lm_cluster_length, "lm_cluster_length/F");
+    T_eval->Branch("image_fail", &image_fail, "image_fail/O");
+    float truth_nuEnergy=0;
+    float truth_energyInside=0;
+    float truth_electronInside=0;
+    int truth_nuPdg=0;
+    bool truth_isCC=false;
+    bool truth_isEligible=false;
+    bool truth_isFC=true;
+    bool truth_vtxInside=false;
+    float truth_vtxX=0;
+    float truth_vtxY=0;
+    float truth_vtxZ=0;
+    float truth_nuTime=0;
+    float match_completeness=0;
+    float match_completeness_energy=0;
+    float match_purity=0;
+    float match_purity_xz=0;
+    float match_purity_xy=0;
+
+    //Fill truth stuff when doing MC
+    if((datatier==1 || datatier==2) && flag_zombie_check>1){
+
+      // define singleton ... 
+      TPCParams& mp = Singleton<TPCParams>::Instance();
+
+      int nrebin = 4;//from inaging code
+      float unit_dis = 1.101; // match 256 cm
+
+      double pitch_u = gds.pitch(WirePlaneType_t(0));
+      double pitch_v = gds.pitch(WirePlaneType_t(1));
+      double pitch_w = gds.pitch(WirePlaneType_t(2));
+      double time_slice_width = nrebin * unit_dis * 0.5 * units::mm;
+
+      double angle_u = gds.angle(WirePlaneType_t(0));
+      double angle_v = gds.angle(WirePlaneType_t(1));
+      double angle_w = gds.angle(WirePlaneType_t(2));
+
+      mp.set_pitch_u(pitch_u);
+      mp.set_pitch_v(pitch_v);
+      mp.set_pitch_w(pitch_w);
+      mp.set_angle_u(angle_u);
+      mp.set_angle_v(angle_v);
+      mp.set_angle_w(angle_w);
+      mp.set_ts_width(time_slice_width);
+      mp.set_first_u_dis(first_u_dis);
+      mp.set_first_v_dis(first_v_dis);
+      mp.set_first_w_dis(first_w_dis);
+
+      // Truth info
+      int run, subrun, event;
+      Trun->SetBranchAddress("eventNo",&event);
+      Trun->SetBranchAddress("runNo",&run);
+      Trun->SetBranchAddress("subRunNo",&subrun);
+
+      int Ntrack;
+      float nu_mom[4], nu_pos[4];
+      int nu_pdg, nu_ccnc;
+      vector<double> *i_nelectrons = new vector<double>;
+      vector<double> *i_nphotons = new vector<double>;
+      vector<double> *i_time_start = new vector<double>;
+      vector<double> *i_time_end = new vector<double>;
+      vector<double> *i_x_start = new vector<double>;
+      vector<double> *i_x_end = new vector<double>;
+      vector<double> *i_y_start = new vector<double>;
+      vector<double> *i_y_end = new vector<double>;
+      vector<double> *i_z_start = new vector<double>;
+      vector<double> *i_z_end = new vector<double>;
+      vector<int> *i_pdg = new vector<int>;
+      vector<int> *i_trackId = new vector<int>;
+      vector<double> *i_energy = new vector<double>;
+      Trun->SetBranchAddress("mc_Ntrack",&Ntrack);
+      Trun->SetBranchAddress("mc_nu_mom",nu_mom);
+      Trun->SetBranchAddress("mc_nu_pos",nu_pos);
+      Trun->SetBranchAddress("mc_nu_pdg",&nu_pdg);
+      Trun->SetBranchAddress("mc_nu_ccnc",&nu_ccnc);
+      Trun->SetBranchAddress("sedi_nelectrons",&i_nelectrons);
+      Trun->SetBranchAddress("sedi_nphotons",&i_nphotons);
+      Trun->SetBranchAddress("sedi_time_start",&i_time_start);
+      Trun->SetBranchAddress("sedi_time_end",&i_time_end);
+      Trun->SetBranchAddress("sedi_x_start",&i_x_start);
+      Trun->SetBranchAddress("sedi_x_end",&i_x_end);
+      Trun->SetBranchAddress("sedi_y_start",&i_y_start);
+      Trun->SetBranchAddress("sedi_y_end",&i_y_end);
+      Trun->SetBranchAddress("sedi_z_start",&i_z_start);
+      Trun->SetBranchAddress("sedi_z_end",&i_z_end);
+      Trun->SetBranchAddress("sedi_pdg",&i_pdg);
+      Trun->SetBranchAddress("sedi_trackId",&i_trackId);
+      Trun->SetBranchAddress("sedi_energy",&i_energy);
+      
+      for(int i=0; i<Trun->GetEntries(); i++){
+        Trun->GetEntry(i);
+        if( run==run_no && subrun==subrun_no && event==event_no ){
+          std::cout<<"Found truth info for "<<"run_no "<<run_no<<" subrun_no "<<subrun_no<<" event_no "<<event_no<<std::endl;
+     	  truth_vtxX = nu_pos[0];
+     	  truth_vtxY = nu_pos[1];
+     	  truth_vtxZ = nu_pos[2];
+     	  truth_nuTime = nu_pos[3]/1000.; // us
+     	  truth_nuEnergy = nu_mom[3]*1000; //[MeV]
+     	  truth_nuPdg = nu_pdg;
+     	  if(nu_ccnc==0){ truth_isCC=true; }
+     	  if(truth_vtxX > 3.0 && truth_vtxX < 253.0 &&
+             truth_vtxY > -113.0 && truth_vtxY < 113.0 &&
+             truth_vtxZ > 3.0 && truth_vtxZ < 1034.0){
+             truth_vtxInside=true;
+             if(truth_isCC==true){ truth_isEligible=true; }
+          }
+
+          bool check_status = true;
+          std::vector<double> truth_x; //cm
+          std::vector<double> truth_y;
+          std::vector<double> truth_z;
+          std::vector<double> truth_energy;//MeV
+
+          WCP2dToy::ToyFiducial *fid_truth = new WCP2dToy::ToyFiducial(3,800,
+             -first_u_dis/pitch_u, -first_v_dis/pitch_v, -first_w_dis/pitch_w,
+             1./time_slice_width, 1./pitch_u, 1./pitch_v, 1./pitch_w, // slope
+             angle_u,angle_v,angle_w,// angle
+             3*units::cm, // FV cut 
+             116*units::cm, -116*units::cm, // Y  
+             0*units::cm, 1037*units::cm, // Z
+             0*units::cm, 256*units::cm, // X
+             flag_truth); // MC truth space charge boundary
+
+          for(size_t i=0; i<i_time_start->size(); i++){
+              // 1us window, negligible cosmic muon for full MC (5kHz)
+              if(i_time_start->at(i)>nu_pos[3]-1 && i_time_end->at(i)<nu_pos[3]+1000.){
+                  // Argon excitation would deposi energy but not invisible to TPC
+                  if(i_pdg->at(i)>10000) continue;
+
+                  truth_energyInside += i_energy->at(i);
+                  truth_energy.push_back(i_energy->at(i));
+                  truth_electronInside += i_nelectrons->at(i);
+                  double xx = (i_x_start->at(i)+i_x_end->at(i))/2.;
+                  double yy = (i_y_start->at(i)+i_y_end->at(i))/2.;
+                  double zz = (i_z_start->at(i)+i_z_end->at(i))/2.;
+                  truth_x.push_back( xx );
+                  truth_y.push_back( yy );
+                  truth_z.push_back( zz );
+
+                  // is fully contained?
+                  WCP::Point pp(xx*units::cm, yy*units::cm, zz*units::cm);
+                  if(check_status && !fid_truth->inside_fiducial_volume(pp, 0) && i_energy->at(i)>0.001 /* MeV, not dot depo */){
+                      truth_isFC = false;
+                      check_status = false;
+                  }
+              }
+          }
+
+          break;
+        }
+      }
+
+      T_eval->Branch("truth_nuEnergy", &truth_nuEnergy,"truth_nuEnergy/F");
+      T_eval->Branch("truth_energyInside", &truth_energyInside,"truth_energyInside/F");
+      T_eval->Branch("truth_electronInside", &truth_electronInside,"truth_electronInside/F");
+      T_eval->Branch("truth_nuPdg", &truth_nuPdg, "truth_nuPdg/I");
+      T_eval->Branch("truth_isCC", &truth_isCC, "truth_isCC/O");
+      T_eval->Branch("truth_isEligible", &truth_isEligible, "truth_isEligible/O");
+      T_eval->Branch("truth_isFC", &truth_isFC, "truth_isFC/O");
+      T_eval->Branch("truth_vtxInside", &truth_vtxInside, "truth_vtxInside/O");
+      T_eval->Branch("truth_vtxX", &truth_vtxX, "truth_vtxX/F");
+      T_eval->Branch("truth_vtxY", &truth_vtxY, "truth_vtxY/F");
+      T_eval->Branch("truth_vtxZ", &truth_vtxZ, "truth_vtxZ/F");
+      T_eval->Branch("truth_nuTime", &truth_nuTime, "truth_nuTime/F");
+      T_eval->Branch("match_completeness", &match_completeness, "match_completeness/F");
+      T_eval->Branch("match_completeness_energy", &match_completeness_energy, "match_completeness_energy/F");
+      T_eval->Branch("match_purity", &match_purity, "match_purity/F");
+      T_eval->Branch("match_purity_xz", &match_purity_xz, "match_purity_xz/F");
+      T_eval->Branch("match_purity_xy", &match_purity_xy, "match_purity_xy/F");
+    
+    }
+
+    file1->cd();
+    T_eval->Fill();
+    file1->Write();
+
+    file2->cd();
+    T_eval->CloneTree(-1, "fast");
+    file2->Write();
+
+    file1->Close();
+    file2->Close();
+
+    return 0;
+
+  } 
+
   TTree *Trun = (TTree*)file->Get("Trun");
   double eventTime;
   int run_no, subrun_no, event_no;
@@ -166,9 +714,9 @@ int main(int argc, char* argv[])
   Trun->SetBranchAddress("time_offset",&time_offset);
   
   //triggerbits for Beam window selection
-  unsigned int triggerbits;
-  Trun->SetBranchAddress("triggerBits",&triggerbits); 
-  
+  unsigned int triggerbits=0;
+
+  Trun->SetBranchAddress("triggerBits",&triggerbits);  
   Trun->SetBranchAddress("timesliceId",&timesliceId);
   Trun->SetBranchAddress("timesliceChannel",&timesliceChannel);
   Trun->SetBranchAddress("raw_charge",&raw_charge);
@@ -893,6 +1441,7 @@ int main(int argc, char* argv[])
    double chi2;
    int ndf;
    double cluster_length;
+   float lm_cluster_length = -1;   
 
    T_match->Branch("flag_close_to_PMT",&flag_close_to_PMT,"flag_close_to_PMT/B");
    T_match->Branch("flag_at_x_boundary",&flag_at_x_boundary,"flag_at_x_boundary/B");
@@ -1029,6 +1578,8 @@ int main(int argc, char* argv[])
          } 
          LM_type.push_back(_LM_type);
      }
+
+     if(cluster_length>lm_cluster_length){lm_cluster_length=cluster_length;}
      /* Neutrino selection block3 end*/
 
      // if (flash_id !=-1)
@@ -2030,7 +2581,9 @@ int main(int argc, char* argv[])
    T_eval->Branch("match_notFC_DC", &match_notFC_DC, "match_notFC_DC/O");
    T_eval->Branch("match_charge", &match_charge, "match_charge/F");
    T_eval->Branch("match_energy", &match_energy, "match_energy/F");
-
+   T_eval->Branch("lm_cluster_length", &lm_cluster_length, "lm_cluster_length/F");
+   image_fail=false;
+   T_eval->Branch("image_fail", &image_fail, "image_fail/O");
 
    // Truth metrics 
    // match evaluation

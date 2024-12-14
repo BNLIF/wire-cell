@@ -20,9 +20,11 @@ int main(int argc, char* argv[])
   T->SetBranchAddress("eventNo",&eventNo);
 
   bool image_fail=false;
+  Float_t lm_cluster_length = 999999;
   TTree* T_eval = (TTree*)file1->Get("T_eval");
   if(T_eval->GetBranch("image_fail")){
     T_eval->SetBranchAddress("image_fail",&image_fail);
+    T_eval->SetBranchAddress("lm_cluster_length",&lm_cluster_length);
   }
 
   unsigned int triggerbits;
@@ -40,30 +42,15 @@ int main(int argc, char* argv[])
   if (((triggerbits>>9) & 1U) && time_offset == 5) {lowerwindow=5.3045; upperwindow=17.0233;} // EXTNUMI
 
   TTree *T_match = (TTree*)file1->Get("T_match");
-  Int_t tpc_cluster_id;
-  Int_t event_type;
-  Int_t flash_id;
   Double_t flash_time;
-  Double_t cluster_length;
-  T_match->SetBranchAddress("tpc_cluster_id",&tpc_cluster_id);
-  T_match->SetBranchAddress("flash_id",&flash_id);
-  T_match->SetBranchAddress("event_type",&event_type);
   T_match->SetBranchAddress("flash_time",&flash_time);
-  T_match->SetBranchAddress("cluster_length",&cluster_length);
   for (int i =0;i!=T_match->GetEntries();i++){
     T_match->GetEntry(i);
     T_eval->GetEntry(i); 
     if (image_fail==true) continue;
     if (flash_time <= lowerwindow || flash_time >= upperwindow) continue;
-    int flag_tgm = (event_type >> 3) & 1U;
-    int flag_low_energy = (event_type >> 4) & 1U;
-    int flag_lm = (event_type >> 1) & 1U;
-    int flag_fully_contained = (event_type >> 2) & 1U;
-    int flag_stm = (event_type >> 5) & 1U;
-    int flag_full_detector_dead = (event_type >> 6) & 1U;
-    
 
-    std::cout << runNo << "_" << subRunNo << "_" << eventNo << " " << flash_id << " " << tpc_cluster_id << " " << flash_time << " " << event_type << " " << flag_low_energy << " " << flag_lm << " " << flag_tgm << " " << flag_fully_contained << " " << flag_stm << " " << flag_full_detector_dead << " " << cluster_length <<std::endl;
+    std::cout << runNo << "_" << subRunNo << "_" << eventNo << " " << lm_cluster_length <<std::endl;
 
 
     
