@@ -144,7 +144,6 @@ int main(int argc, char* argv[])
     TTree *T = (TTree*)file->Get("TC");
     T->SetBranchAddress("image_fail",&image_fail);
     T->GetEntry(0);
-    std::cout<<"image_fail "<<image_fail<<std::endl;
   }
   if( (!file && flag_zombie_check>0) || flag_zombie_check==9 || (image_fail==true && flag_zombie_check>0) ){
   
@@ -676,6 +675,8 @@ int main(int argc, char* argv[])
     file1->Close();
     file2->Close();
 
+    std::cout<<image_fail<<" image_fail for "<<run_no<<"_"<<subrun_no<<"_"<<event_no<<std::endl;
+
     return 0;
 
   } 
@@ -695,8 +696,6 @@ int main(int argc, char* argv[])
   if (Trun->GetBranch("elifetime") && flag_lifetime_corr){
     Trun->SetBranchAddress("elifetime",&elifetime);
   }
-
-  
 
   
   std::vector<int> *timesliceId = new std::vector<int>;
@@ -2585,6 +2584,7 @@ int main(int argc, char* argv[])
    T_eval->Branch("lm_cluster_length", &lm_cluster_length, "lm_cluster_length/F");
    image_fail=false;
    T_eval->Branch("image_fail", &image_fail, "image_fail/O");
+   std::cout<<image_fail<<" image_fail for "<<run_no<<"_"<<subrun_no<<"_"<<event_no<<std::endl;
 
    // Truth metrics 
    // match evaluation
