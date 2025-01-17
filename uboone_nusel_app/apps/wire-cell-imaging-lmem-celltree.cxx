@@ -280,6 +280,8 @@ int main(int argc, char* argv[])
     time_offset = 5; // use this weird Number to illustrate that this is NuMI not BNB ...
   }
 
+  bool image_fail = false;
+
   int run_no, subrun_no, event_no;
   
 
@@ -1085,10 +1087,11 @@ if(beamspill || beam==-1){
   Trun->Branch("raw_charge",&raw_charge);
   Trun->Branch("raw_charge_err",&raw_charge_err);
 
+  //Trun->Branch("image_fail",&image_fail);
+
   if (flag_elifetime && elifetime > 0){
     Trun->Branch("elifetime",&elifetime);
   }
-  
   Trun->Fill();
   //Trun->Print();
   //raw_charge->Clear("C");
@@ -2938,9 +2941,8 @@ if(beamspill || beam==-1){
     }
   }
 std::cout << "# of good mcell: " << good_mcells.size() << std::endl;
-  
-  
-  
+  if(good_mcells.size()==0){image_fail=true;}
+
   // cluster again
   
 
@@ -3759,7 +3761,8 @@ std::cout << "# of good mcell: " << good_mcells.size() << std::endl;
     TC->Branch("wire_charge_err_u",&wire_charge_err_u);
     TC->Branch("wire_charge_err_v",&wire_charge_err_v);
     TC->Branch("wire_charge_err_w",&wire_charge_err_w);
-    
+    TC->Branch("image_fail",&image_fail);
+
     for (auto it = cluster_set.begin();it!=cluster_set.end();it++){
       //  cluster_id->push_back((*it)->get_id());
       
@@ -3904,7 +3907,7 @@ std::cout << "# of good mcell: " << good_mcells.size() << std::endl;
     TDC->Branch("wire_index_u",&wire_index_u);
     TDC->Branch("wire_index_v",&wire_index_v);
     TDC->Branch("wire_index_w",&wire_index_w);
-
+    TDC->Branch("image_fail",&image_fail);
     
     for (auto it = dead_cluster_set.begin();it!=dead_cluster_set.end();it++){
       //cluster_id = (*it)->get_id();
