@@ -1278,18 +1278,18 @@ int main(int argc, char* argv[])
        ncharge_save = 0;
        chi2_save = 0;
        for (auto it = wcps_list.begin(); it!=wcps_list.end(); it++){
-	 x = (*it).x/units::cm;
-	 y = (*it).y/units::cm;
-	 z = (*it).z/units::cm;
-	 
-	 Point temp_p((*it).x,(*it).y,(*it).z);
-	 std::vector<int> time_chs = ct_point_cloud.convert_3Dpoint_time_ch(temp_p);
-	 pt = time_chs.at(0);
-	 pu = time_chs.at(1);
-	 pv = time_chs.at(2);
-	 pw = time_chs.at(3);
-	 
-	 T_rec->Fill();
+          x = (*it).x/units::cm;
+          y = (*it).y/units::cm;
+          z = (*it).z/units::cm;
+          
+          Point temp_p((*it).x,(*it).y,(*it).z);
+          std::vector<int> time_chs = ct_point_cloud.convert_3Dpoint_time_ch(temp_p);
+          pt = time_chs.at(0);
+          pu = time_chs.at(1);
+          pv = time_chs.at(2);
+          pw = time_chs.at(3);
+          
+          T_rec->Fill();
        }
        
        // PR3DCluster *new_cluster = old_new_cluster_map[live_clusters.at(j)];
