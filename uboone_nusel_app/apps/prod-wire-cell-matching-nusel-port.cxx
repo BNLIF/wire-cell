@@ -785,10 +785,10 @@ int main(int argc, char* argv[])
   cout << em("TPC Light Matching") << std::endl;
 
     // hack for now
-  //  // further merge or split clusters ... protect against over clustering
-  //  matched_bundles = WCP2dToy::ExamineBundles(matched_bundles, ct_point_cloud);
-  //  // finish the further merge ... 
-  //  cout << em("Examine bundles ") << std::endl;
+   // further merge or split clusters ... protect against over clustering
+   matched_bundles = WCP2dToy::ExamineBundles(matched_bundles, ct_point_cloud);
+   // finish the further merge ... 
+   cout << em("Examine bundles ") << std::endl;
    
    // create the live clusters ... These we can keep, since they did not modify the output results ... 
    live_clusters.clear();
