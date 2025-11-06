@@ -1,6 +1,6 @@
 void export_dQ_dx(){
     TFile *file = new TFile("stopping_ave_dQ_dx.root");
-    TGraph *g_muon = (TGraph*)file->Get("muon");
+    TGraph *g_muon = (TGraph*)file->Get("electron");
     if (!g_muon) {
         std::cout << "Failed to get TGraph 'muon' from file." << std::endl;
         return;
