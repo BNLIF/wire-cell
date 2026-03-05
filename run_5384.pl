@@ -31,14 +31,14 @@ while(<infile>){
         #system("prod-wire-cell-matching-nusel-port ./input_data_files/ChannelWireGeometry_v2.txt $filename -d1 >$runNo\_$eventNo\.log");
         #system("prod-wire-cell-matching-nusel ./input_data_files/ChannelWireGeometry_v2.txt $filename -d1 >$runNo\_$eventNo\.log");
         #system("wire-cell-prod-stm-port ./input_data_files/ChannelWireGeometry_v2.txt $filename 0 -d0 -o1 -g2 >$runNo\_$eventNo\.log");
-        system("wire-cell-prod-nue-port ./input_data_files/ChannelWireGeometry_v2.txt $filename 0 -d0 -o1 -g2 >$runNo\_$eventNo\.log");
+        system("wire-cell-prod-nue-port ./input_data_files/ChannelWireGeometry_v2.txt $filename 0 -d0 -o1 -ginit_first_segment >$runNo\_$eventNo\.log");
     }else{
         #system("dev-wire-cell-clustering-port ./input_data_files/ChannelWireGeometry_v2.txt $filename -b1 >$runNo\_$eventNo\.log&");
         #system("prod-wire-cell-matching-nusel-port ./input_data_files/ChannelWireGeometry_v2.txt $filename -d1 >$runNo\_$eventNo\.log &");
         #system("prod-wire-cell-matching-nusel ./input_data_files/ChannelWireGeometry_v2.txt $filename -d1 >$runNo\_$eventNo\.log &");
         #system("wire-cell-prod-stm-port ./input_data_files/ChannelWireGeometry_v2.txt $filename 0 -d0 -o1 -g2 >$runNo\_$eventNo\.log &");
         #system("wire-cell-prod-nue ./input_data_files/ChannelWireGeometry_v2.txt $filename 0 -d0 -o1 -g2 >$runNo\_$eventNo\.log &");
-        system("wire-cell-prod-nue-port ./input_data_files/ChannelWireGeometry_v2.txt $filename 0 -d0 -o1 -g2 >$runNo\_$eventNo\.log &");
+        system("wire-cell-prod-nue-port ./input_data_files/ChannelWireGeometry_v2.txt $filename 0 -d0 -o1 -ginit_first_segment >$runNo\_$eventNo\.log &");
     }
     $i++;
 }
